@@ -118,7 +118,7 @@ impl Debug for Book {
             .field("pages", &self.pages)
             .field("is using", &self.is_using)
             .field(
-                "readers",
+                "readers.yaml",
                 &self
                     .readers
                     .iter()
@@ -280,7 +280,7 @@ impl Debug for TheBook {
             .field("author", &self.author)
             .field("pages", &self.pages)
             .field(
-                "books",
+                "books.yaml",
                 &self
                     .books
                     .iter()
@@ -427,7 +427,7 @@ impl Debug for BookSystem {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         f.debug_struct("Book System")
             .field(
-                "books",
+                "books.yaml",
                 &self
                     .books
                     .iter()
@@ -475,7 +475,7 @@ impl BookSystem {
                 let size = (*self.books.get_unchecked(find)).borrow_mut().books.len() as u128;
 
                 if size + amount as u128 > usize::MAX as u128 {
-                    return Err(0); // too much books
+                    return Err(0); // too much books.yaml
                 }
             }
 
@@ -740,13 +740,13 @@ impl BookSystem {
         let mut emitter = YamlEmitter::new(&mut string);
         emitter.dump(&Yaml::Array(array)).unwrap();
 
-        let mut file = File::create("books").unwrap();
+        let mut file = File::create("books.yaml").unwrap();
         file.write_all(string.as_bytes()).unwrap();
     }
 
     #[inline]
     pub fn load(&mut self, reader_base: &mut ReaderBase) {
-        let mut file = File::open("books").unwrap();
+        let mut file = File::open("books.yaml").unwrap();
         let mut string = String::new();
         file.read_to_string(&mut string).unwrap();
 

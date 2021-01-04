@@ -39,7 +39,7 @@ impl Debug for Reader {
             .field("father", &self.father)
             .field("age", &self.age)
             .field(
-                "books",
+                "books.yaml",
                 &self
                     .books
                     .iter()
@@ -169,7 +169,7 @@ impl Debug for ReaderBase {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         f.debug_struct("Reader Base")
             .field(
-                "readers",
+                "readers.yaml",
                 &self
                     .readers
                     .iter()
@@ -406,13 +406,13 @@ impl ReaderBase {
         let mut emitter = YamlEmitter::new(&mut string);
         emitter.dump(&Yaml::Array(array)).unwrap();
 
-        let mut file = File::create("readers").unwrap();
+        let mut file = File::create("readers.yaml").unwrap();
         file.write_all(string.as_bytes()).unwrap();
     }
 
     #[inline]
     pub fn load(&mut self) {
-        let mut file = File::open("readers").unwrap();
+        let mut file = File::open("readers.yaml").unwrap();
         let mut string = String::new();
         file.read_to_string(&mut string).unwrap();
 

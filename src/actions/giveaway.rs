@@ -188,7 +188,7 @@ pub fn give_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app
 
 													                                                                    book_system.save();
 												                                                                    } else {
-													                                                                    alert(500, 500, "There are no free books");
+													                                                                    alert(500, 500, "There are no free books.yaml");
 												                                                                    }
 											                                                                    }
 										                                                                    }

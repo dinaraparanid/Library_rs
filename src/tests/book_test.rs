@@ -32,7 +32,7 @@ mod book_tests {
             200,
         )));
 
-        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: false, readers: [] }",
+        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: false, readers.yaml: [] }",
                    format!("{:?}", (*book).borrow()));
 
         (*book)
@@ -41,7 +41,7 @@ mod book_tests {
             .change_author("Author2".to_string())
             .change_pages(300);
 
-        assert_eq!("Book { title: \"Title2\", author: \"Author2\", pages: 300, is using: false, readers: [] }",
+        assert_eq!("Book { title: \"Title2\", author: \"Author2\", pages: 300, is using: false, readers.yaml: [] }",
                    format!("{:?}", (*book).borrow()));
     }
 
@@ -81,7 +81,7 @@ mod book_tests {
             .start_reading(&reader2, Date::new(1, 1, 1).unwrap())
             .is_err());
 
-        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: true, readers: [\"Name Family Father 50\"] }",
+        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: true, readers.yaml: [\"Name Family Father 50\"] }",
                    format!("{:?}", (*book).borrow()));
 
         assert_eq!(
@@ -89,7 +89,7 @@ mod book_tests {
             1
         );
 
-        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: false, readers: [\"Name Family Father 50\"] }",
+        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: false, readers.yaml: [\"Name Family Father 50\"] }",
                    format!("{:?}", (*book).borrow()));
 
         assert!((*reader2).borrow_mut().start_reading(&book).is_ok());
@@ -99,7 +99,7 @@ mod book_tests {
             .start_reading(&reader2, Date::new(1, 1, 1).unwrap())
             .is_ok());
 
-        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: true, readers: [\"Name Family Father 50\", \"Another Name Another Family Another Father 60\"] }",
+        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: true, readers.yaml: [\"Name Family Father 50\", \"Another Name Another Family Another Father 60\"] }",
                    format!("{:?}", (*book).borrow()));
 
         assert_eq!((*book).borrow().find_reader(&reader1), 0);
@@ -115,15 +115,15 @@ mod book_tests {
             .unwrap()
             .change_age(60);
 
-        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: true, readers: [\"Michael Jackson Joseph 60\", \"Another Name Another Family Another Father 60\"] }",
+        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: true, readers.yaml: [\"Michael Jackson Joseph 60\", \"Another Name Another Family Another Father 60\"] }",
                    format!("{:?}", (*book).borrow()));
 
-        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: true, readers: [\"Michael Jackson Joseph 60\"] }",
+        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: true, readers.yaml: [\"Michael Jackson Joseph 60\"] }",
                    format!("{:?}", (*book).borrow_mut().remove_reader(&(*(*reader2).borrow()) as *const Reader)));
 
         let mut x = (*book).borrow_mut();
 
-        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: true, readers: [] }",
+        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: true, readers.yaml: [] }",
         format!("{:?}", x.remove_all_readers()));
     }
 }
@@ -138,7 +138,7 @@ mod the_book_tests {
     fn the_book_new_add_remove_test() {
         let mut the_book = TheBook::new("Title".to_string(), "Author".to_string(), 200);
         assert_eq!(
-            "The Book { title: \"Title\", author: \"Author\", pages: 200, books: [\"Book { title: \\\"Title\\\", author: \\\"Author\\\", pages: 200, is using: false, readers: [] }\"] }",
+            "The Book { title: \"Title\", author: \"Author\", pages: 200, books.yaml: [\"Book { title: \\\"Title\\\", author: \\\"Author\\\", pages: 200, is using: false, readers.yaml: [] }\"] }",
             format!("{:?}", the_book)
         );
 
@@ -180,12 +180,12 @@ mod the_book_tests {
         the_book.remove_all_books();
 
         assert_eq!(
-            "The Book { title: \"Title\", author: \"Author\", pages: 200, books: [] }",
+            "The Book { title: \"Title\", author: \"Author\", pages: 200, books.yaml: [] }",
             format!("{:?}", the_book)
         );
 
         assert_eq!(
-            "Reader { name: \"Name\", family: \"Family\", father: \"Father\", age: 50, books: [] }",
+            "Reader { name: \"Name\", family: \"Family\", father: \"Father\", age: 50, books.yaml: [] }",
             format!("{:?}", (*reader).borrow())
         );
     }
@@ -205,7 +205,7 @@ mod the_book_tests {
             .start_reading(the_book.books.first().unwrap())
             .is_ok());
 
-        assert_eq!("Reader { name: \"Michael\", family: \"Jackson\", father: \"Joseph\", age: 60, books: [\"Title Author 200\"] }",
+        assert_eq!("Reader { name: \"Michael\", family: \"Jackson\", father: \"Joseph\", age: 60, books.yaml: [\"Title Author 200\"] }",
                    format!("{:?}", *(*reader).borrow()));
 
         the_book
@@ -213,7 +213,7 @@ mod the_book_tests {
             .change_author("Joanne Rowling".to_string())
             .change_pages(400);
 
-        assert_eq!("Reader { name: \"Michael\", family: \"Jackson\", father: \"Joseph\", age: 60, books: [\"Harry Potter Joanne Rowling 400\"] }",
+        assert_eq!("Reader { name: \"Michael\", family: \"Jackson\", father: \"Joseph\", age: 60, books.yaml: [\"Harry Potter Joanne Rowling 400\"] }",
                    format!("{:?}", *(*reader).borrow()));
     }
 }

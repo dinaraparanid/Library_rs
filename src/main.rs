@@ -105,7 +105,7 @@ fn main() {
     );
 
     menu.add_emit(
-        "&Books/Add existing books\t",
+        "&Books/Add existing books.yaml\t",
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -129,7 +129,7 @@ fn main() {
     );
 
     menu.add_emit(
-        "&Books/Remove all specific books\t",
+        "&Books/Remove all specific books.yaml\t",
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -211,9 +211,6 @@ fn main() {
             }
         }
     }
-
-    println!("{:?}", reader_base);
-    println!("{:?}", book_system);
 
     app.run().unwrap();
 }

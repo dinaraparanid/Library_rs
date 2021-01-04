@@ -28,7 +28,8 @@ pub fn add_books(book_system: &mut BookSystem, app: &App) {
 
                     if let Ok(books) = new_books_params {
                         let (s3, r3) = app::channel();
-                        let mut get_amount = Input1::new("Books amount", "Amount of books to add");
+                        let mut get_amount =
+                            Input1::new("Books amount", "Amount of books.yaml to add");
                         get_amount.show();
                         (*get_amount.ok).borrow_mut().emit(s3, true);
 
@@ -67,7 +68,7 @@ pub fn add_books(book_system: &mut BookSystem, app: &App) {
                                                                 Err(0) => alert(
                                                                     500,
                                                                     500,
-                                                                    "Too much books",
+                                                                    "Too much books.yaml",
                                                                 ),
 
                                                                 Err(_) => alert(
@@ -93,7 +94,11 @@ pub fn add_books(book_system: &mut BookSystem, app: &App) {
                                                 }
 
                                                 Err(_) => {
-                                                    alert(500, 500, "Amount of books input error");
+                                                    alert(
+                                                        500,
+                                                        500,
+                                                        "Amount of books.yaml input error",
+                                                    );
                                                     println!(
                                                         "{:?}",
                                                         amount
@@ -637,7 +642,7 @@ pub fn book_info(book_system: &mut BookSystem, app: &App) {
                                     100,
                                     30,
                                     format!(
-                                        "Amount of books: {}",
+                                        "Amount of books.yaml: {}",
                                         (*book_system.books.get_unchecked(ind))
                                             .borrow_mut()
                                             .books

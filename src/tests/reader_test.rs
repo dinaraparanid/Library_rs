@@ -28,17 +28,17 @@ mod reader_tests {
         );
 
         assert_eq!(
-            "Reader { name: \"Name\", family: \"Family\", father: \"Father\", age: 50, books: [] }",
+            "Reader { name: \"Name\", family: \"Family\", father: \"Father\", age: 50, books.yaml: [] }",
             format!("{:?}", reader1)
         );
 
         assert_eq!(
-            "Reader { name: \"Name\", family: \"Family\", father: \"Father\", age: 50, books: [] }",
+            "Reader { name: \"Name\", family: \"Family\", father: \"Father\", age: 50, books.yaml: [] }",
             format!("{:?}", reader2)
         );
 
         assert_eq!(
-            "Reader { name: \"Another Name\", family: \"Another Family\", father: \"Another Father\", age: 50, books: [] }",
+            "Reader { name: \"Another Name\", family: \"Another Family\", father: \"Another Father\", age: 50, books.yaml: [] }",
             format!("{:?}", reader3)
         );
 
@@ -62,26 +62,26 @@ mod reader_tests {
         assert_eq!(reader.change_name("".to_string()), Err(0));
 
         assert_eq!(
-            "Reader { name: \"Name1\", family: \"Family\", father: \"Father\", age: 50, books: [] }",
+            "Reader { name: \"Name1\", family: \"Family\", father: \"Father\", age: 50, books.yaml: [] }",
             format!("{:?}", reader.change_name("Name1".to_string()).unwrap())
         );
 
         assert_eq!(reader.change_family("".to_string()), Err(0));
 
         assert_eq!(
-            "Reader { name: \"Name1\", family: \"Family1\", father: \"Father\", age: 50, books: [] }",
+            "Reader { name: \"Name1\", family: \"Family1\", father: \"Father\", age: 50, books.yaml: [] }",
             format!("{:?}", reader.change_family("Family1".to_string()).unwrap())
         );
 
         assert_eq!(reader.change_father("".to_string()), Err(0));
 
         assert_eq!(
-            "Reader { name: \"Name1\", family: \"Family1\", father: \"Father1\", age: 50, books: [] }",
+            "Reader { name: \"Name1\", family: \"Family1\", father: \"Father1\", age: 50, books.yaml: [] }",
             format!("{:?}", reader.change_father("Father1".to_string()).unwrap())
         );
 
         assert_eq!(
-            "Reader { name: \"Name1\", family: \"Family1\", father: \"Father1\", age: 60, books: [] }",
+            "Reader { name: \"Name1\", family: \"Family1\", father: \"Father1\", age: 60, books.yaml: [] }",
             format!("{:?}", reader.change_age(60))
         );
     }
@@ -113,7 +113,7 @@ mod reader_tests {
             70,
         )));
 
-        assert_eq!("Reader { name: \"Name\", family: \"Family\", father: \"Father\", age: 50, books: [\"Title1 Author1 50\", \"Title2 Author2 60\", \"Title3 Author3 70\"] }",
+        assert_eq!("Reader { name: \"Name\", family: \"Family\", father: \"Father\", age: 50, books.yaml: [\"Title1 Author1 50\", \"Title2 Author2 60\", \"Title3 Author3 70\"] }",
                        format!("{:?}", 
                                (*reader)
                                    .borrow_mut()
@@ -157,7 +157,7 @@ mod reader_tests {
             .change_author("LEL".to_string())
             .change_pages(1000);
 
-        assert_eq!("Reader { name: \"Name\", family: \"Family\", father: \"Father\", age: 50, books: [\"KEK LOL 100\", \"LOL KEK 200\", \"KOK LEL 1000\"] }",
+        assert_eq!("Reader { name: \"Name\", family: \"Family\", father: \"Father\", age: 50, books.yaml: [\"KEK LOL 100\", \"LOL KEK 200\", \"KOK LEL 1000\"] }",
                        format!("{:?}", *(*reader).borrow())
         );
 
@@ -165,12 +165,12 @@ mod reader_tests {
             .borrow_mut()
             .remove_book(&(*(*book1).borrow()) as *const Book);
 
-        assert_eq!("Reader { name: \"Name\", family: \"Family\", father: \"Father\", age: 50, books: [\"LOL KEK 200\", \"KOK LEL 1000\"] }",
+        assert_eq!("Reader { name: \"Name\", family: \"Family\", father: \"Father\", age: 50, books.yaml: [\"LOL KEK 200\", \"KOK LEL 1000\"] }",
                    format!("{:?}", *(*reader).borrow())
         );
 
         assert_eq!(
-            "Reader { name: \"Name\", family: \"Family\", father: \"Father\", age: 50, books: [] }",
+            "Reader { name: \"Name\", family: \"Family\", father: \"Father\", age: 50, books.yaml: [] }",
             format!("{:?}", (*reader).borrow_mut().remove_all_books())
         );
     }
@@ -186,9 +186,12 @@ mod reader_base_tests {
     #[test]
     fn reader_base_new_find_add_remove_test() {
         let mut reader_base = ReaderBase::new();
-        assert_eq!("Reader Base { readers: [] }", format!("{:?}", reader_base));
+        assert_eq!(
+            "Reader Base { readers.yaml: [] }",
+            format!("{:?}", reader_base)
+        );
 
-        assert_eq!("Reader Base { readers: [\"Reader { name: \\\"Name1\\\", family: \\\"Family1\\\", father: \\\"Father1\\\", age: 50, books: [] }\", \"Reader { name: \\\"Name2\\\", family: \\\"Family2\\\", father: \\\"Father2\\\", age: 60, books: [] }\"] }",
+        assert_eq!("Reader Base { readers.yaml: [\"Reader { name: \\\"Name1\\\", family: \\\"Family1\\\", father: \\\"Father1\\\", age: 50, books.yaml: [] }\", \"Reader { name: \\\"Name2\\\", family: \\\"Family2\\\", father: \\\"Father2\\\", age: 60, books.yaml: [] }\"] }",
         format!("{:?}", 
                 reader_base
                     .add_reader(
@@ -285,16 +288,16 @@ mod reader_base_tests {
             )
             .is_ok());
 
-        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 50, is using: true, readers: [\"Name1 Family1 Father1 50\"] }",
+        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 50, is using: true, readers.yaml: [\"Name1 Family1 Father1 50\"] }",
                    format!("{:?}", *(*book1).borrow()));
 
-        assert_eq!("Book { title: \"Title2\", author: \"Author2\", pages: 60, is using: true, readers: [\"Name1 Family1 Father1 50\"] }",
+        assert_eq!("Book { title: \"Title2\", author: \"Author2\", pages: 60, is using: true, readers.yaml: [\"Name1 Family1 Father1 50\"] }",
                    format!("{:?}", *(*book2).borrow()));
 
-        assert_eq!("Book { title: \"Title3\", author: \"Author3\", pages: 70, is using: true, readers: [\"Name1 Family1 Father1 50\"] }",
+        assert_eq!("Book { title: \"Title3\", author: \"Author3\", pages: 70, is using: true, readers.yaml: [\"Name1 Family1 Father1 50\"] }",
                    format!("{:?}", *(*book3).borrow()));
 
-        assert_eq!("Reader Base { readers: [\"Reader { name: \\\"Name2\\\", family: \\\"Family2\\\", father: \\\"Father2\\\", age: 60, books: [] }\"] }",
+        assert_eq!("Reader Base { readers.yaml: [\"Reader { name: \\\"Name2\\\", family: \\\"Family2\\\", father: \\\"Father2\\\", age: 60, books.yaml: [] }\"] }",
                    format!("{:?}",
                            reader_base
                                .remove_reader(
@@ -304,13 +307,13 @@ mod reader_base_tests {
                                    50, )
                                .unwrap()));
 
-        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 50, is using: true, readers: [] }",
+        assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 50, is using: true, readers.yaml: [] }",
                    format!("{:?}", *(*book1).borrow()));
 
-        assert_eq!("Book { title: \"Title2\", author: \"Author2\", pages: 60, is using: true, readers: [] }",
+        assert_eq!("Book { title: \"Title2\", author: \"Author2\", pages: 60, is using: true, readers.yaml: [] }",
                    format!("{:?}", *(*book2).borrow()));
 
-        assert_eq!("Book { title: \"Title3\", author: \"Author3\", pages: 70, is using: true, readers: [] }",
+        assert_eq!("Book { title: \"Title3\", author: \"Author3\", pages: 70, is using: true, readers.yaml: [] }",
                    format!("{:?}", *(*book3).borrow()));
     }
 
@@ -318,7 +321,7 @@ mod reader_base_tests {
     fn reader_base_changing_test() {
         let mut reader_base = ReaderBase::new();
 
-        assert_eq!("Reader Base { readers: [\"Reader { name: \\\"Name1\\\", family: \\\"Family1\\\", father: \\\"Father1\\\", age: 10, books: [] }\"] }",
+        assert_eq!("Reader Base { readers.yaml: [\"Reader { name: \\\"Name1\\\", family: \\\"Family1\\\", father: \\\"Father1\\\", age: 10, books.yaml: [] }\"] }",
             format!("{:?}", 
                     reader_base
                         .add_reader(
@@ -329,7 +332,7 @@ mod reader_base_tests {
                         )
                         .unwrap()));
 
-        assert_eq!("Reader Base { readers: [\"Reader { name: \\\"Michael\\\", family: \\\"Jackson\\\", father: \\\"Joseph\\\", age: 60, books: [] }\"] }",
+        assert_eq!("Reader Base { readers.yaml: [\"Reader { name: \\\"Michael\\\", family: \\\"Jackson\\\", father: \\\"Joseph\\\", age: 60, books.yaml: [] }\"] }",
                    format!("{:?}",
                            reader_base
                                .change_name(
