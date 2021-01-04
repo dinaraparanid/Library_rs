@@ -1,3 +1,4 @@
+extern crate chrono;
 use crate::reader::Reader;
 use chrono::Datelike;
 use std::borrow::Borrow;
@@ -30,7 +31,7 @@ pub(crate) struct TheBook {
     pub(crate) books: Vec<Rc<RefCell<Book>>>,
 }
 
-pub(crate) struct BookSystem {
+pub struct BookSystem {
     pub(crate) books: Vec<Rc<RefCell<TheBook>>>,
 }
 
@@ -347,7 +348,7 @@ impl TheBook {
             books: vec![],
         };
 
-        book.add_book();
+        book.add_book().unwrap();
         book
     }
 
@@ -364,13 +365,17 @@ impl TheBook {
     }
 
     #[inline]
-    pub fn add_book(&mut self) -> &mut Self {
-        self.books.push(Rc::new(RefCell::new(Book::new(
-            self.title.clone(),
-            self.author.clone(),
-            self.pages,
-        ))));
-        self
+    pub fn add_book(&mut self) -> ResultSelf<Self> {
+        return if self.books.len() == usize::MAX {
+            Err(0)
+        } else {
+            self.books.push(Rc::new(RefCell::new(Book::new(
+                self.title.clone(),
+                self.author.clone(),
+                self.pages,
+            ))));
+            Ok(self)
+        };
     }
 
     #[inline]
@@ -439,6 +444,30 @@ impl BookSystem {
     }
 
     #[inline]
+    pub fn add_books(
+        &mut self,
+        title: String,
+        author: String,
+        pages: u16,
+        amount: usize,
+    ) -> ResultSelf<Self> {
+        let find = self.find_book(&title, &author, pages);
+
+        return if find == self.books.len() {
+            Err(1) // the book is not found
+        } else {
+            for _ in 0..amount {
+                unsafe {
+                    if let Err(_) = (*self.books.get_unchecked(find)).borrow_mut().add_book() {
+                        return Err(0); // too much books
+                    }
+                }
+            }
+            Ok(self)
+        };
+    }
+
+    #[inline]
     pub fn add_book(&mut self, title: String, author: String, pages: u16) -> ResultSelf<Self> {
         return if !self.books.is_empty()
             && self.find_book(&title, &author, pages) < self.books.len()
@@ -447,6 +476,31 @@ impl BookSystem {
         } else {
             self.books
                 .push(Rc::new(RefCell::new(TheBook::new(title, author, pages))));
+            Ok(self)
+        };
+    }
+
+    #[inline]
+    pub fn remove_one_book(
+        &mut self,
+        title: &String,
+        author: &String,
+        pages: u16,
+        ind: usize,
+    ) -> ResultSelf<Self> {
+        let find = self.find_book(title, author, pages);
+
+        return if find == self.books.len() {
+            Err(0) // the book is not found
+        } else {
+            unsafe {
+                if let Err(_) = (*self.books.get_unchecked_mut(find))
+                    .borrow_mut()
+                    .remove_book(ind)
+                {
+                    return Err(1); // ind error
+                }
+            }
             Ok(self)
         };
     }
@@ -538,10 +592,10 @@ impl BookSystem {
         let find = self.find_book(title, author, pages);
 
         return if find == self.books.len() {
-            Err(0) // not found
+            Err(1) // not found
         } else {
             if self.find_book(title, author, new_pages_num) < self.books.len() {
-                Err(1) // already exists
+                Err(2) // already exists
             } else {
                 unsafe {
                     (**self.books.get_unchecked_mut(find))

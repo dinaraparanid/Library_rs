@@ -11,7 +11,7 @@ pub(crate) struct Reader {
     pub(crate) books: Vec<Weak<RefCell<Book>>>,
 }
 
-pub(crate) struct ReaderBase {
+pub struct ReaderBase {
     pub(crate) readers: Vec<Rc<RefCell<Reader>>>,
 }
 
