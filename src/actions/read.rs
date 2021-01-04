@@ -3,6 +3,11 @@ use crate::reader::ReaderBase;
 use fltk::app;
 use fltk::app::App;
 use fltk::dialog::alert;
+use fltk::frame::Frame;
+use fltk::group::VGrid;
+use fltk::window::SingleWindow;
+use fltk::GroupExt;
+use fltk::WidgetBase;
 use fltk::WidgetExt;
 
 pub fn add_reader(reader_base: &mut ReaderBase, app: &App) {
@@ -35,7 +40,10 @@ pub fn add_reader(reader_base: &mut ReaderBase, app: &App) {
                                     reader.get_unchecked(2).clone(),
                                     a,
                                 ) {
-                                    Ok(_) => fltk::dialog::message(500, 500, "Successfully added"),
+                                    Ok(_) => {
+                                        fltk::dialog::message(500, 500, "Successfully added");
+                                        reader_base.save();
+                                    }
 
                                     Err(_) => {
                                         alert(500, 500, "Reader already exists");
@@ -90,7 +98,8 @@ pub fn remove_reader(reader_base: &mut ReaderBase, app: &App) {
                                     a,
                                 ) {
                                     Ok(_) => {
-                                        fltk::dialog::message(500, 500, "Successfully removed")
+                                        fltk::dialog::message(500, 500, "Successfully removed");
+                                        reader_base.save();
                                     }
 
                                     Err(_) => {
@@ -160,11 +169,14 @@ pub fn change_name(reader_base: &mut ReaderBase, app: &App) {
                                                         a,
                                                         new_name.get_unchecked(0).clone(),
                                                     ) {
-                                                        Ok(_) => fltk::dialog::message(
-                                                            500,
-                                                            500,
-                                                            "Successfully changed",
-                                                        ),
+                                                        Ok(_) => {
+                                                            fltk::dialog::message(
+                                                                500,
+                                                                500,
+                                                                "Successfully changed",
+                                                            );
+                                                            reader_base.save();
+                                                        }
 
                                                         Err(0) => {
                                                             alert(500, 500, "Reader not found");
@@ -258,11 +270,14 @@ pub fn change_family(reader_base: &mut ReaderBase, app: &App) {
                                                         a,
                                                         new_family.get_unchecked(0).clone(),
                                                     ) {
-                                                        Ok(_) => fltk::dialog::message(
-                                                            500,
-                                                            500,
-                                                            "Successfully changed",
-                                                        ),
+                                                        Ok(_) => {
+                                                            fltk::dialog::message(
+                                                                500,
+                                                                500,
+                                                                "Successfully changed",
+                                                            );
+                                                            reader_base.save();
+                                                        }
 
                                                         Err(0) => {
                                                             alert(500, 500, "Reader isn't found");
@@ -360,11 +375,14 @@ pub fn change_father(reader_base: &mut ReaderBase, app: &App) {
                                                         a,
                                                         new_father.get_unchecked(0).clone(),
                                                     ) {
-                                                        Ok(_) => fltk::dialog::message(
-                                                            500,
-                                                            500,
-                                                            "Successfully changed",
-                                                        ),
+                                                        Ok(_) => {
+                                                            fltk::dialog::message(
+                                                                500,
+                                                                500,
+                                                                "Successfully changed",
+                                                            );
+                                                            reader_base.save();
+                                                        }
 
                                                         Err(0) => {
                                                             alert(500, 500, "Reader isn't found");
@@ -462,11 +480,14 @@ pub fn change_age(reader_base: &mut ReaderBase, app: &App) {
                                                         a,
                                                         new_age.get_unchecked(0).clone(),
                                                     ) {
-                                                        Ok(_) => fltk::dialog::message(
-                                                            500,
-                                                            500,
-                                                            "Successfully changed",
-                                                        ),
+                                                        Ok(_) => {
+                                                            fltk::dialog::message(
+                                                                500,
+                                                                500,
+                                                                "Successfully changed",
+                                                            );
+                                                            reader_base.save();
+                                                        }
 
                                                         Err(0) => {
                                                             alert(500, 500, "New age input error");
@@ -516,5 +537,176 @@ pub fn change_age(reader_base: &mut ReaderBase, app: &App) {
 }
 
 pub fn reader_info(reader_base: &mut ReaderBase, app: &App) {
-    unimplemented!()
+    let (s2, r2) = app::channel();
+    let mut inp = Input4::new(
+        "Find Reader",
+        "First Name",
+        "Second Name",
+        "Middle Name",
+        "Age",
+    );
+
+    inp.show();
+    (*inp.ok).borrow_mut().emit(s2, true);
+
+    while app.wait() {
+        if let Some(message) = r2.recv() {
+            match message {
+                true => {
+                    let reader_params = inp.set_input();
+                    inp.hide();
+
+                    if let Ok(reader) = reader_params {
+                        match reader.last().unwrap().trim().parse::<u8>() {
+                            Ok(x) => unsafe {
+                                let ind = reader_base.find_reader(
+                                    reader.get_unchecked(0),
+                                    reader.get_unchecked(1),
+                                    reader.get_unchecked(2),
+                                    x,
+                                );
+
+                                let mut wind = SingleWindow::new(
+                                    800,
+                                    100,
+                                    400,
+                                    800,
+                                    format!(
+                                        "{} {} {}",
+                                        reader.get_unchecked(0).as_str(),
+                                        reader.get_unchecked(1).as_str(),
+                                        reader.get_unchecked(2).as_str()
+                                    )
+                                    .as_str(),
+                                );
+
+                                let mut table1 = VGrid::new(0, 0, 400, 100, "");
+                                table1.set_params(
+                                    5 + (*reader_base.readers.get_unchecked(ind))
+                                        .borrow_mut()
+                                        .books
+                                        .len() as i32,
+                                    1,
+                                    1,
+                                );
+
+                                table1.add(&Frame::new(
+                                    10,
+                                    50,
+                                    100,
+                                    30,
+                                    format!("First Name: {}", reader.get_unchecked(0)).as_str(),
+                                ));
+
+                                table1.add(&Frame::new(
+                                    30,
+                                    50,
+                                    100,
+                                    30,
+                                    format!("Second Name: {}", reader.get_unchecked(1).as_str())
+                                        .as_str(),
+                                ));
+
+                                table1.add(&Frame::new(
+                                    50,
+                                    50,
+                                    100,
+                                    30,
+                                    format!("Middle Name: {}", reader.get_unchecked(2)).as_str(),
+                                ));
+
+                                table1.add(&Frame::new(
+                                    70,
+                                    50,
+                                    100,
+                                    30,
+                                    format!(
+                                        "Age: {}",
+                                        (*reader_base.readers.get_unchecked(ind)).borrow_mut().age
+                                    )
+                                    .as_str(),
+                                ));
+
+                                table1.add(&Frame::new(
+                                    90,
+                                    50,
+                                    100,
+                                    30,
+                                    format!("Books read by reader:").as_str(),
+                                ));
+
+                                table1.auto_layout();
+
+                                let mut table2 = VGrid::new(120, 0, 400, 600, "");
+                                table2.set_params(
+                                    (*reader_base.readers.get_unchecked(ind))
+                                        .borrow_mut()
+                                        .books
+                                        .len() as i32,
+                                    1,
+                                    1,
+                                );
+
+                                for i in 0..(*reader_base.readers.get_unchecked(ind))
+                                    .borrow_mut()
+                                    .books
+                                    .len()
+                                {
+                                    table2.add(&Frame::new(
+                                        110 + i as i32 * 20,
+                                        50,
+                                        100,
+                                        30,
+                                        format!(
+                                            "№ {} Title: {} Author: {} Pages: {}",
+                                            i + 1,
+                                            (*reader_base.readers.get_unchecked(ind))
+                                                .borrow_mut()
+                                                .books
+                                                .get_unchecked(i)
+                                                .upgrade()
+                                                .unwrap()
+                                                .borrow_mut()
+                                                .title,
+                                            (*reader_base.readers.get_unchecked(ind))
+                                                .borrow_mut()
+                                                .books
+                                                .get_unchecked(i)
+                                                .upgrade()
+                                                .unwrap()
+                                                .borrow_mut()
+                                                .author,
+                                            (*reader_base.readers.get_unchecked(ind))
+                                                .borrow_mut()
+                                                .books
+                                                .get_unchecked(i)
+                                                .upgrade()
+                                                .unwrap()
+                                                .borrow_mut()
+                                                .pages
+                                        )
+                                        .as_str(),
+                                    ));
+                                }
+
+                                table2.auto_layout();
+
+                                wind.end();
+                                wind.show();
+                            },
+
+                            Err(_) => {
+                                alert(500, 500, "Age input error");
+                                println!("{:?}", reader.last().unwrap().trim().parse::<u8>())
+                            }
+                        }
+                    }
+                }
+                false => (),
+            }
+            break;
+        } else if !inp.shown() {
+            break;
+        }
+    }
 }

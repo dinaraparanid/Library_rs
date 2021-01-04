@@ -2,7 +2,8 @@ extern crate fltk;
 use fltk::app::AppScheme;
 use fltk::enums::Shortcut;
 use fltk::{app, button::*, menu::*, window::*};
-use librs::actions::{book_actions::*, read_actions::*};
+use librs::actions::giveaway::{get_book, give_book};
+use librs::actions::{book::*, read::*};
 use librs::book::BookSystem;
 use librs::reader::ReaderBase;
 
@@ -32,6 +33,9 @@ fn main() {
     let (s, r) = app::channel::<Message>();
     let mut reader_base = ReaderBase::new();
     let mut book_system = BookSystem::new();
+
+    reader_base.load();
+    book_system.load(&mut reader_base);
 
     let mut main_window = MenuWindow::default()
         .with_label("Library System")
@@ -177,7 +181,7 @@ fn main() {
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
-        Message::GiveBook,
+        Message::GetBook,
     );
 
     main_window.show();
@@ -200,13 +204,16 @@ fn main() {
                 Message::ChangeTitle => change_title(&mut book_system, &app),
                 Message::ChangeAuthor => change_author(&mut book_system, &app),
                 Message::ChangePages => change_pages(&mut book_system, &app),
-                Message::InfoTheBook => {}
+                Message::InfoTheBook => book_info(&mut book_system, &app),
 
-                Message::GiveBook => {}
-                Message::GetBook => {}
+                Message::GiveBook => give_book(&mut reader_base, &mut book_system, &app),
+                Message::GetBook => get_book(&mut reader_base, &mut book_system, &app),
             }
         }
     }
+
+    println!("{:?}", reader_base);
+    println!("{:?}", book_system);
 
     app.run().unwrap();
 }

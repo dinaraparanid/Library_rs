@@ -1,2 +1,3 @@
-pub mod book_actions;
-pub mod read_actions;
+pub mod book;
+pub mod giveaway;
+pub mod read;

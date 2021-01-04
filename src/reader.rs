@@ -1,7 +1,13 @@
+extern crate yaml_rust;
 use crate::book::{Book, ResultSelf};
 use std::cell::RefCell;
 use std::fmt::{Debug, Formatter, Result};
+use std::fs::File;
+use std::io::{Read, Write};
 use std::rc::{Rc, Weak};
+use yaml_rust::yaml::Hash;
+use yaml_rust::yaml::Yaml::Array;
+use yaml_rust::{Yaml, YamlEmitter, YamlLoader};
 
 pub(crate) struct Reader {
     pub(crate) name: String,
@@ -95,13 +101,9 @@ impl Reader {
     }
 
     #[inline]
-    pub fn start_reading(&mut self, book: &Rc<RefCell<Book>>) -> ResultSelf<Self> {
-        return if (**book).borrow().is_using {
-            Err(0)
-        } else {
-            self.books.push(Rc::downgrade(&book));
-            Ok(self)
-        };
+    pub fn start_reading(&mut self, book: &Rc<RefCell<Book>>) -> &mut Self {
+        self.books.push(Rc::downgrade(&book));
+        self
     }
 
     pub fn remove_book(&mut self, book: *const Book) -> &mut Self {
@@ -364,5 +366,66 @@ impl ReaderBase {
                 Ok(self)
             }
         };
+    }
+
+    #[inline]
+    pub(crate) fn save(&self) {
+        let mut array = yaml_rust::yaml::Array::new();
+
+        for guy in 0..self.readers.len() {
+            let mut data = Hash::new();
+
+            unsafe {
+                data.insert(Yaml::String("№".to_string()), Yaml::Integer(guy as i64 + 1));
+
+                data.insert(
+                    Yaml::String("Name".to_string()),
+                    Yaml::String((*self.readers.get_unchecked(guy)).borrow().name.clone()),
+                );
+
+                data.insert(
+                    Yaml::String("Family".to_string()),
+                    Yaml::String((*self.readers.get_unchecked(guy)).borrow().family.clone()),
+                );
+
+                data.insert(
+                    Yaml::String("Father".to_string()),
+                    Yaml::String((*self.readers.get_unchecked(guy)).borrow().father.clone()),
+                );
+
+                data.insert(
+                    Yaml::String("Age".to_string()),
+                    Yaml::Integer((*self.readers.get_unchecked(guy)).borrow().age as i64),
+                );
+            }
+
+            array.push(Yaml::Hash(data));
+        }
+
+        let mut string = String::new();
+        let mut emitter = YamlEmitter::new(&mut string);
+        emitter.dump(&Yaml::Array(array)).unwrap();
+
+        let mut file = File::create("readers").unwrap();
+        file.write_all(string.as_bytes()).unwrap();
+    }
+
+    #[inline]
+    pub fn load(&mut self) {
+        let mut file = File::open("readers").unwrap();
+        let mut string = String::new();
+        file.read_to_string(&mut string).unwrap();
+
+        let docs = YamlLoader::load_from_str(string.as_str()).unwrap();
+        let doc = docs.first().unwrap().clone().into_vec().unwrap();
+
+        for d in doc {
+            self.readers.push(Rc::new(RefCell::new(Reader::new(
+                d["Name"].as_str().unwrap().to_string(),
+                d["Family"].as_str().unwrap().to_string(),
+                d["Father"].as_str().unwrap().to_string(),
+                d["Age"].as_i64().unwrap() as u8,
+            ))))
+        }
     }
 }

@@ -8,4 +8,5 @@ edition = "2018"
 
 [dependencies]
 chrono = "0.4.19"
-fltk = "0.12.5"
+fltk = "0.12.6"
+yaml-rust = "0.4.5"
