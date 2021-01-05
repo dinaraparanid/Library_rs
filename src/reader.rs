@@ -9,6 +9,10 @@ use yaml_rust::yaml::Hash;
 use yaml_rust::yaml::Yaml::Array;
 use yaml_rust::{Yaml, YamlEmitter, YamlLoader};
 
+/// Reader structure, which contains
+/// name, family, father, age, ~~simple~~ books he' d read
+/// and book which he is reading now (or None)
+
 pub(crate) struct Reader {
     pub(crate) name: String,
     pub(crate) family: String,
@@ -18,9 +22,15 @@ pub(crate) struct Reader {
     pub(crate) reading: Option<Weak<RefCell<Book>>>,
 }
 
+/// Reader Base structure,
+/// which contains only readers
+
 pub struct ReaderBase {
     pub(crate) readers: Vec<Rc<RefCell<Reader>>>,
 }
+
+/// Destructor for Reader.
+/// It's used to debug code
 
 impl Drop for Reader {
     #[inline]
@@ -31,6 +41,9 @@ impl Drop for Reader {
         );
     }
 }
+
+/// Print for Reader.
+/// It's used to debug code
 
 impl Debug for Reader {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
@@ -57,6 +70,8 @@ impl Debug for Reader {
     }
 }
 
+/// Compare Reader by == / !=
+
 impl PartialEq for Reader {
     #[inline]
     fn eq(&self, other: &Self) -> bool {
@@ -67,9 +82,15 @@ impl PartialEq for Reader {
     }
 }
 
+/// Compare Reader by == / !=
+
 impl Eq for Reader {}
 
 impl Reader {
+    /// Creates new Reader with chosen
+    /// 1-st name, 2-nd name, mid. name and age.
+    /// It has no books
+
     #[inline]
     pub fn new(new_name: String, new_family: String, new_father: String, new_age: u8) -> Self {
         Reader {
@@ -81,6 +102,10 @@ impl Reader {
             reading: None,
         }
     }
+
+    /// Find book by smart pointer.
+    /// If ok, returns index,
+    /// else returns amount of read books
 
     #[inline]
     pub fn find_book(&self, book: &Rc<RefCell<Book>>) -> usize {
@@ -102,6 +127,9 @@ impl Reader {
         self.books.len()
     }
 
+    /// Function, that uses after giving book to reader.
+    /// Adds book to books and reading params
+
     #[inline]
     pub fn start_reading(&mut self, book: &Rc<RefCell<Book>>) -> &mut Self {
         self.books.push(Rc::downgrade(&book));
@@ -109,33 +137,70 @@ impl Reader {
         self
     }
 
+    /// Function, that uses after giving book to reader.
+    /// Sets reading param as None
+
     #[inline]
     pub fn finish_reading(&mut self) {
         self.reading = None;
     }
 
+    /// Removes book by raw pointer
+
     #[inline]
-    pub fn remove_book(&mut self, book: *const Book) -> &mut Self {
+    pub fn remove_book(&mut self, book: *mut Book) -> &mut Self {
+        unsafe {
+            if (*book).is_using
+                && *(*((*book).readers.last().unwrap().0).upgrade().unwrap()).borrow() == *self
+            {
+                (*book).is_using = false;
+            }
+        }
+
         self.books = self
             .books
             .clone()
             .into_iter()
-            .filter(|x| (*(*x).upgrade().unwrap()).as_ptr() as *const Book != book)
+            .filter(|x| (*(*x).upgrade().unwrap()).as_ptr() != book)
             .collect();
 
         self
     }
 
+    /// Removes all simple books.
+    /// Used to delete reader
+
     #[inline]
     pub fn remove_all_books(&mut self) -> &mut Self {
         while !self.books.is_empty() {
+            if (*self.books.last().unwrap().upgrade().unwrap())
+                .borrow()
+                .is_using
+                && *(*((*self.books.last().unwrap().upgrade().unwrap())
+                    .borrow()
+                    .readers
+                    .last()
+                    .unwrap()
+                    .0)
+                    .upgrade()
+                    .unwrap())
+                .borrow()
+                    == *self
+            {
+                (*self.books.last().unwrap().upgrade().unwrap())
+                    .borrow_mut()
+                    .is_using = false;
+            }
+
             (*self.books.last().unwrap().upgrade().unwrap())
                 .borrow_mut()
-                .remove_reader(self as *const Reader);
+                .remove_reader(self as *mut Reader);
             self.books.pop();
         }
         self
     }
+
+    /// Changes reader's name
 
     #[inline]
     pub fn change_name(&mut self, new_name: String) -> ResultSelf<Self> {
@@ -147,6 +212,8 @@ impl Reader {
         };
     }
 
+    /// Changes reader's 2-nd name
+
     #[inline]
     pub fn change_family(&mut self, new_family: String) -> ResultSelf<Self> {
         return if new_family.is_empty() {
@@ -156,6 +223,8 @@ impl Reader {
             Ok(self)
         };
     }
+
+    /// Changes reader's mid. name
 
     #[inline]
     pub fn change_father(&mut self, new_father: String) -> ResultSelf<Self> {
@@ -167,12 +236,17 @@ impl Reader {
         };
     }
 
+    /// Changes reader's age
+
     #[inline]
     pub fn change_age(&mut self, new_age: u8) -> &mut Self {
         self.age = new_age;
         self
     }
 }
+
+/// Print for Reader Base.
+/// It used to debug code
 
 impl Debug for ReaderBase {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
@@ -190,10 +264,16 @@ impl Debug for ReaderBase {
 }
 
 impl ReaderBase {
+    /// Creates empty Reader Base
+
     #[inline]
     pub const fn new() -> Self {
         ReaderBase { readers: vec![] }
     }
+
+    /// Searches reader by his params.
+    /// If ok returns index,
+    /// else returns amount of readers
 
     pub fn find_reader(&self, name: &String, family: &String, father: &String, age: u8) -> usize {
         for i in 0..self.readers.len() {
@@ -209,6 +289,10 @@ impl ReaderBase {
         }
         self.readers.len()
     }
+
+    /// Adds reader by params.
+    /// If reader with same params exists,
+    /// it will report error
 
     #[inline]
     pub fn add_reader(
@@ -229,6 +313,10 @@ impl ReaderBase {
             Ok(self)
         };
     }
+
+    /// Removes reader by params.
+    /// If reader with same params isn't found,
+    /// it will report error
 
     #[inline]
     pub fn remove_reader(
@@ -252,6 +340,10 @@ impl ReaderBase {
             }
         };
     }
+
+    /// Changes reader's name.
+    /// If reader with same params isn't found,
+    /// it will report error
 
     #[inline]
     pub fn change_name(
@@ -283,6 +375,10 @@ impl ReaderBase {
         };
     }
 
+    /// Changes reader's 2-nd name.
+    /// If reader with same params isn't found,
+    /// it will report error
+
     #[inline]
     pub fn change_family(
         &mut self,
@@ -313,6 +409,10 @@ impl ReaderBase {
         };
     }
 
+    /// Changes reader's mid. name.
+    /// If reader with same params isn't found,
+    /// it will report error
+
     #[inline]
     pub fn change_father(
         &mut self,
@@ -342,6 +442,10 @@ impl ReaderBase {
             }
         };
     }
+
+    /// Changes reader's age.
+    /// If reader with same params isn't found,
+    /// it will report error
 
     #[inline]
     pub fn change_age(
@@ -377,10 +481,14 @@ impl ReaderBase {
         };
     }
 
+    /// Returns amount of readers
+
     #[inline]
     pub fn len(&self) -> usize {
         self.readers.len()
     }
+
+    /// Saves everything to .yaml file
 
     #[inline]
     pub(crate) fn save(&self) {
@@ -467,6 +575,8 @@ impl ReaderBase {
         let mut file = File::create("readers.yaml").unwrap();
         file.write_all(string.as_bytes()).unwrap();
     }
+
+    /// Loads everything from .yaml file
 
     #[inline]
     pub fn load(&mut self) {

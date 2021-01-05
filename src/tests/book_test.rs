@@ -1,3 +1,8 @@
+/// Tests for Date, Book and TheBook
+/// ---------------------------------------------------------------
+
+/// Date tests
+
 mod date_tests {
     use crate::book::Date;
 
@@ -16,6 +21,8 @@ mod date_tests {
         assert!(date.is_some());
     }
 }
+
+/// Book tests
 
 mod book_tests {
     use crate::book::{Book, BookInterface, Date};
@@ -84,10 +91,7 @@ mod book_tests {
         assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: true, readers.yaml: [\"Name Family Father 50\"] }",
                    format!("{:?}", (*book).borrow()));
 
-        assert_eq!(
-            (*book).borrow_mut().finish_reading(&reader1).err().unwrap(),
-            1
-        );
+        assert_eq!((*book).borrow_mut().finish_reading().err().unwrap(), 1);
 
         assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: false, readers.yaml: [\"Name Family Father 50\"] }",
                    format!("{:?}", (*book).borrow()));
@@ -127,6 +131,8 @@ mod book_tests {
         format!("{:?}", x.remove_all_readers()));
     }
 }
+
+/// TheBook tests
 
 mod the_book_tests {
     use crate::book::{BookInterface, Date, TheBook};

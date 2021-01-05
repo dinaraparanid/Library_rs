@@ -8,6 +8,12 @@ use fltk::WidgetExt;
 use std::borrow::Borrow;
 use std::num::ParseIntError;
 
+/// Function that gives book to reader.
+/// It requires you to input
+/// info about reader, book and return date.
+/// If you have mistakes in input,
+/// program will let you know
+
 pub fn give_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = fltk::app::channel();
     let mut inp = Input4::new(
@@ -103,13 +109,13 @@ pub fn give_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app
 											                                                                    day,
 											                                                                    month,
 											                                                                    year) {
-											                                                                    None => alert(
+											                                                                    Err(_) => alert(
 												                                                                    500,
 												                                                                    500,
 												                                                                    "Incorrect Date"
 											                                                                    ),
 
-											                                                                    Some(date) => {
+											                                                                    Ok(date) => {
 												                                                                    let rind = reader_base.find_reader(
 													                                                                    reader.get_unchecked(0),
 													                                                                    reader.get_unchecked(1),
@@ -155,6 +161,16 @@ pub fn give_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app
 													                                                                    .books
 													                                                                    .len()
 												                                                                    {
+													                                                                    if (**reader_base
+														                                                                    .readers
+														                                                                    .get_unchecked(rind))
+														                                                                    .borrow()
+														                                                                    .reading
+														                                                                    .is_some() { 
+														                                                                    alert(500, 500, "This reader is already reading another book");
+														                                                                    return;
+													                                                                    }
+
 													                                                                    (*reader_base
 														                                                                    .readers
 														                                                                    .get_unchecked(rind))
@@ -187,6 +203,7 @@ pub fn give_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app
 													                                                                    );
 
 													                                                                    book_system.save();
+													                                                                    reader_base.save();
 												                                                                    } else {
 													                                                                    alert(500, 500, "There are no free books");
 												                                                                    }
@@ -300,6 +317,12 @@ pub fn give_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app
     }
 }
 
+/// Function that gives book to reader.
+/// It requires you to input
+/// info about reader, book and return date.
+/// If you have mistakes in input,
+/// program will let you know
+
 pub fn get_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = fltk::app::channel();
     let mut inp = Input4::new(
@@ -400,6 +423,10 @@ pub fn get_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app:
                                                                     .books
                                                                     .len()
                                                                 {
+	                                                                (*reader_base.readers.get_unchecked_mut(rind))
+		                                                                .borrow_mut()
+		                                                                .finish_reading();
+
                                                                     match (*(*book_system.books
 	                                                                    .get_unchecked(bind))
 	                                                                    .borrow_mut()

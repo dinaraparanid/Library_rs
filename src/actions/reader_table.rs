@@ -4,6 +4,9 @@ use crate::reader::ReaderBase;
 use fltk::prelude::*;
 use fltk::table::Table;
 
+/// Function that draws borders
+/// of the table
+
 #[inline]
 pub fn draw_header(txt: &str, x: i32, y: i32, w: i32, h: i32) {
     draw::push_clip(x, y, w, h);
@@ -12,6 +15,8 @@ pub fn draw_header(txt: &str, x: i32, y: i32, w: i32, h: i32) {
     draw::draw_text2(txt, x, y, w, h, Align::Center);
     draw::pop_clip();
 }
+
+/// Function that draws cells in table
 
 #[inline]
 pub fn draw_data(txt: &str, x: i32, y: i32, w: i32, h: i32, selected: bool) {
@@ -30,12 +35,17 @@ pub fn draw_data(txt: &str, x: i32, y: i32, w: i32, h: i32, selected: bool) {
     draw::pop_clip();
 }
 
+/// Function that returns String with data.
+/// If column is 0, it' ll return reader's params,
+/// if column is 1, it' ll return books's params (or none)
+/// if column is 2, it' ll return start date's params (or none)
+/// if column is 2, it' ll return finish date's params (or none)
+
 #[inline]
 pub fn cell(x: i32, y: i32, reader_base: &mut ReaderBase) -> String {
     unsafe {
         return if y < reader_base.readers.len() as i32 {
             if x == 0 {
-                //println!("KEK");
                 format!(
                     "{} {} {}, {} years old",
                     (*reader_base.readers.get_unchecked(y as usize))

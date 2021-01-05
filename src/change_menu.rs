@@ -7,12 +7,41 @@ use fltk::window::SingleWindow;
 use std::cell::RefCell;
 use std::rc::Rc;
 
+/// Trait for change messages.
+
 pub trait Inputable {
+    /// Gets menu's window
+
+    fn get_wind(&self) -> &Rc<RefCell<SingleWindow>>;
+
+    /// Returns input by vector of strings if everything is ok
+    /// else it returns error
+
     fn set_input(&mut self) -> Result<Vec<String>, ()>;
-    fn shown(&self) -> bool;
-    fn hide(&self);
-    fn show(&self);
+
+    /// Checks if window is shown
+
+    #[inline]
+    fn shown(&self) -> bool {
+        (*self.get_wind()).borrow().shown()
+    }
+
+    /// Hides window
+
+    #[inline]
+    fn hide(&self) {
+        (*self.get_wind()).borrow_mut().hide()
+    }
+
+    /// Shows window
+
+    #[inline]
+    fn show(&self) {
+        (*self.get_wind()).borrow_mut().show_with_env_args()
+    }
 }
+
+/// Changes one value
 
 pub struct Input1 {
     wind: Rc<RefCell<SingleWindow>>,
@@ -20,6 +49,8 @@ pub struct Input1 {
     what: Rc<RefCell<Frame>>,
     input: Rc<RefCell<Input>>,
 }
+
+/// Changes two values
 
 pub struct Input2 {
     wind: Rc<RefCell<SingleWindow>>,
@@ -29,6 +60,8 @@ pub struct Input2 {
     what2: Rc<RefCell<Frame>>,
     input2: Rc<RefCell<Input>>,
 }
+
+/// Changes three values
 
 pub struct Input3 {
     wind: Rc<RefCell<SingleWindow>>,
@@ -40,6 +73,8 @@ pub struct Input3 {
     what3: Rc<RefCell<Frame>>,
     input3: Rc<RefCell<Input>>,
 }
+
+/// Changes four values
 
 pub struct Input4 {
     wind: Rc<RefCell<SingleWindow>>,
@@ -56,6 +91,11 @@ pub struct Input4 {
 
 impl Inputable for Input1 {
     #[inline]
+    fn get_wind(&self) -> &Rc<RefCell<SingleWindow>> {
+        &self.wind
+    }
+
+    #[inline]
     fn set_input(&mut self) -> Result<Vec<String>, ()> {
         if !InputExt::value(&*((*self.input).borrow())).is_empty() {
             return Ok(vec![InputExt::value(&*(self.input).borrow())]);
@@ -66,24 +106,11 @@ impl Inputable for Input1 {
         InputExt::set_value(&*(*self.input).borrow(), "");
         Err(())
     }
-
-    #[inline]
-    fn shown(&self) -> bool {
-        (*self.wind).borrow().shown()
-    }
-
-    #[inline]
-    fn hide(&self) {
-        (*self.wind).borrow_mut().hide()
-    }
-
-    #[inline]
-    fn show(&self) {
-        (*self.wind).borrow_mut().show_with_env_args()
-    }
 }
 
 impl Input1 {
+    /// Creates window with asking message and 1 input label
+
     #[inline]
     pub fn new(title: &str, what_mes: &str) -> Self {
         let win: Rc<RefCell<SingleWindow>> =
@@ -110,6 +137,11 @@ impl Input1 {
 
 impl Inputable for Input2 {
     #[inline]
+    fn get_wind(&self) -> &Rc<RefCell<SingleWindow>> {
+        &self.wind
+    }
+
+    #[inline]
     fn set_input(&mut self) -> Result<Vec<String>, ()> {
         if !InputExt::value(&*((*self.input1).borrow())).is_empty()
             && !InputExt::value(&*((*self.input2).borrow())).is_empty()
@@ -126,24 +158,11 @@ impl Inputable for Input2 {
         InputExt::set_value(&*(*self.input2).borrow(), "");
         Err(())
     }
-
-    #[inline]
-    fn shown(&self) -> bool {
-        (*self.wind).borrow().shown()
-    }
-
-    #[inline]
-    fn hide(&self) {
-        (*self.wind).borrow_mut().hide()
-    }
-
-    #[inline]
-    fn show(&self) {
-        (*self.wind).borrow_mut().show_with_env_args()
-    }
 }
 
 impl Input2 {
+    /// Creates window with asking message and 2 input labels
+
     #[inline]
     pub fn new(title: &str, what_mes1: &str, what_mes2: &str) -> Self {
         let win: Rc<RefCell<SingleWindow>> =
@@ -179,6 +198,11 @@ impl Input2 {
 
 impl Inputable for Input3 {
     #[inline]
+    fn get_wind(&self) -> &Rc<RefCell<SingleWindow>> {
+        &self.wind
+    }
+
+    #[inline]
     fn set_input(&mut self) -> Result<Vec<String>, ()> {
         if !InputExt::value(&*((*self.input1).borrow())).is_empty()
             && !InputExt::value(&*((*self.input1).borrow())).is_empty()
@@ -198,24 +222,11 @@ impl Inputable for Input3 {
         InputExt::set_value(&*(*self.input3).borrow(), "");
         Err(())
     }
-
-    #[inline]
-    fn shown(&self) -> bool {
-        (*self.wind).borrow().shown()
-    }
-
-    #[inline]
-    fn hide(&self) {
-        (*self.wind).borrow_mut().hide()
-    }
-
-    #[inline]
-    fn show(&self) {
-        (*self.wind).borrow_mut().show_with_env_args()
-    }
 }
 
 impl Input3 {
+    /// Creates window with asking message and 3 input labels
+
     #[inline]
     pub fn new(title: &str, what_mes1: &str, what_mes2: &str, what_mes3: &str) -> Self {
         let win: Rc<RefCell<SingleWindow>> =
@@ -259,6 +270,11 @@ impl Input3 {
 
 impl Inputable for Input4 {
     #[inline]
+    fn get_wind(&self) -> &Rc<RefCell<SingleWindow>> {
+        &self.wind
+    }
+
+    #[inline]
     fn set_input(&mut self) -> Result<Vec<String>, ()> {
         if !InputExt::value(&*((*self.input1).borrow())).is_empty()
             && !InputExt::value(&*((*self.input2).borrow())).is_empty()
@@ -281,24 +297,11 @@ impl Inputable for Input4 {
         InputExt::set_value(&*(*self.input4).borrow(), "");
         Err(())
     }
-
-    #[inline]
-    fn shown(&self) -> bool {
-        (*self.wind).borrow().shown()
-    }
-
-    #[inline]
-    fn hide(&self) {
-        (*self.wind).borrow_mut().hide()
-    }
-
-    #[inline]
-    fn show(&self) {
-        (*self.wind).borrow_mut().show_with_env_args()
-    }
 }
 
 impl Input4 {
+    /// Creates window with asking message and 4 input labels
+
     #[inline]
     pub fn new(
         title: &str,

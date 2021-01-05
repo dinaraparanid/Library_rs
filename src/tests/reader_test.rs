@@ -1,3 +1,8 @@
+/// Test for Reader and ReaderBase
+/// ------------------------------------------------------------
+
+/// Reader tests
+
 mod reader_tests {
     use crate::book::{Book, BookInterface, Date};
     use crate::reader::Reader;
@@ -175,6 +180,8 @@ mod reader_tests {
         );
     }
 }
+
+/// ReaderBase tests
 
 mod reader_base_tests {
     use crate::book::{Book, Date};

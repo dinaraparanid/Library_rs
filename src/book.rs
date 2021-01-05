@@ -1,6 +1,6 @@
 extern crate chrono;
 extern crate yaml_rust;
-use crate::reader::{Reader, ReaderBase};
+use crate::reader::*;
 use chrono::Datelike;
 use std::borrow::Borrow;
 use std::cell::RefCell;
@@ -9,12 +9,19 @@ use std::fmt::{Debug, Formatter, Result};
 use std::fs::File;
 use std::io::{Read, Write};
 use std::rc::{Rc, Weak};
-use yaml_rust::yaml::Array;
-use yaml_rust::yaml::Hash;
-use yaml_rust::YamlLoader;
-use yaml_rust::{Yaml, YamlEmitter};
+use yaml_rust::yaml::*;
+use yaml_rust::{Yaml, YamlEmitter, YamlLoader};
+
+/// Error-handling type.
+/// If everything is ok, it should return self (but it's not necessary),
+/// else it will return err with code
+/// (that's will help you to correctly understand error)
 
 pub(crate) type ResultSelf<'a, T> = std::result::Result<&'a mut T, u8>;
+
+/// Date structure, which contains day, month and year.
+/// It's a copyable type like i32 (no move).
+/// You can clone, debug and compare as == / !=
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct Date {
@@ -22,6 +29,10 @@ pub(crate) struct Date {
     pub(crate) month: u8,
     pub(crate) year: u16,
 }
+
+/// Simple Book structure, which contains
+/// title, author, amount of pages, using status
+/// and readers with start and finish dates
 
 pub(crate) struct Book {
     pub(crate) title: String,
@@ -31,6 +42,9 @@ pub(crate) struct Book {
     pub(crate) readers: Vec<(Weak<RefCell<Reader>>, (Date, Date))>,
 }
 
+/// Interface Book structure, which contains
+/// title, author, amount of pages, and simple books
+
 pub(crate) struct TheBook {
     pub(crate) title: String,
     pub(crate) author: String,
@@ -38,15 +52,24 @@ pub(crate) struct TheBook {
     pub(crate) books: Vec<Rc<RefCell<Book>>>,
 }
 
+/// Reader Base structure,
+/// which contains only Book interfaces
+
 pub struct BookSystem {
     pub(crate) books: Vec<Rc<RefCell<TheBook>>>,
 }
+
+/// Trait, which used to params of books
+/// like title, author and amount of pages
 
 pub(crate) trait BookInterface {
     fn change_title(&mut self, new_title: String) -> &mut Self;
     fn change_author(&mut self, new_author: String) -> &mut Self;
     fn change_pages(&mut self, new_pages: u16) -> &mut Self;
 }
+
+/// Dates can be compared as >, <, >=, <=
+/// (as it works in real world)
 
 impl PartialOrd for Date {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
@@ -66,6 +89,9 @@ impl PartialOrd for Date {
     }
 }
 
+/// Dates can be compared as >, <, >=, <=
+/// (as it works in real world)
+
 impl Ord for Date {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
@@ -74,16 +100,22 @@ impl Ord for Date {
 }
 
 impl Date {
+    /// Constructs date. If date params are wrong,
+    /// It will return Err.
+
     #[inline]
-    pub fn new(new_day: u8, new_month: u8, new_year: u16) -> Option<Self> {
+    pub fn new(new_day: u8, new_month: u8, new_year: u16) -> std::result::Result<Self, ()> {
         let date = Date {
             day: new_day,
             month: new_month,
             year: new_year,
         };
 
-        return if date.correct() { Some(date) } else { None };
+        return if date.correct() { Ok(date) } else { Err(()) };
     }
+
+    /// Checks if date is correct
+    /// according to real world
 
     #[inline]
     pub fn correct(&self) -> bool {
@@ -103,12 +135,18 @@ impl Date {
     }
 }
 
+/// Destructor for simple book.
+/// It is used to debug code.
+
 impl Drop for Book {
     #[inline]
     fn drop(&mut self) {
         println!("Book {} {} is deleted", self.title, self.author)
     }
 }
+
+/// Print for simple book.
+/// It is used to debug code.
 
 impl Debug for Book {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
@@ -145,18 +183,26 @@ impl Debug for Book {
     }
 }
 
+/// Implementation of Book Interface trait for simple book
+
 impl BookInterface for Book {
+    /// Title changing
+
     #[inline]
     fn change_title(&mut self, new_title: String) -> &mut Self {
         self.title = new_title;
         self
     }
 
+    /// Author changing
+
     #[inline]
     fn change_author(&mut self, new_author: String) -> &mut Self {
         self.author = new_author;
         self
     }
+
+    /// Pages changing
 
     #[inline]
     fn change_pages(&mut self, new_pages: u16) -> &mut Self {
@@ -166,6 +212,9 @@ impl BookInterface for Book {
 }
 
 impl Book {
+    /// Constructs new simple book.
+    /// By default it has no readers and it isn't used
+
     #[inline]
     pub fn new(new_title: String, new_author: String, new_pages: u16) -> Self {
         Book {
@@ -176,6 +225,10 @@ impl Book {
             readers: vec![],
         }
     }
+
+    /// Searches reader.
+    /// If it isn't found, it' ll return the amount of all readers.
+    /// else it will return reader index
 
     #[inline]
     pub fn find_reader(&self, reader: &Rc<RefCell<Reader>>) -> usize {
@@ -200,8 +253,18 @@ impl Book {
         self.readers.len()
     }
 
+    /// Removes reader by raw pointer.
+
     #[inline]
-    pub fn remove_reader(&mut self, reader: *const Reader) -> &mut Self {
+    pub fn remove_reader(&mut self, reader: *mut Reader) -> &mut Self {
+        unsafe {
+            if (*reader).reading.is_some() {
+                ((*reader).reading.as_ref().unwrap().upgrade().unwrap())
+                    .borrow_mut()
+                    .is_using = false;
+            }
+        }
+
         self.readers = self
             .readers
             .clone()
@@ -211,16 +274,27 @@ impl Book {
         self
     }
 
+    /// Removes all readers of book
+
     #[inline]
     pub fn remove_all_readers(&mut self) -> &mut Self {
+        if self.is_using {
+            (*(self.readers.last_mut().unwrap().0).upgrade().unwrap())
+                .borrow_mut()
+                .reading = None;
+        }
+
         while !self.readers.is_empty() {
             (*((*self.readers.last_mut().unwrap()).0).upgrade().unwrap())
                 .borrow_mut()
-                .remove_book(self as *const Book);
+                .remove_book(self as *mut Book);
             self.readers.pop();
         }
         self
     }
+
+    /// Function that uses after giving book to reader.
+    /// It adds reader (converts rc to weak), start and return dates.
 
     #[inline]
     pub fn start_reading(&mut self, reader: &Rc<RefCell<Reader>>, date: Date) -> &mut Self {
@@ -237,6 +311,9 @@ impl Book {
         self.is_using = true;
         self
     }
+
+    /// Function that uses after returning book from reader.
+    /// It changes book's status and finish date  
 
     #[inline]
     pub fn finish_reading(&mut self) -> ResultSelf<Self> {
@@ -257,12 +334,17 @@ impl Book {
     }
 }
 
+/// Destructor for TheBook.
+/// It is used to debug code
+
 impl Drop for TheBook {
     #[inline]
     fn drop(&mut self) {
         println!("The Book {} {} is deleted", self.title, self.author)
     }
 }
+
+/// Compare TheBooks by title, author and pages.
 
 impl PartialEq for TheBook {
     #[inline]
@@ -271,7 +353,12 @@ impl PartialEq for TheBook {
     }
 }
 
+/// Compare TheBooks by title, author and pages.
+
 impl Eq for TheBook {}
+
+/// Print for TheBook.
+/// It is used to debug code
 
 impl Debug for TheBook {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
@@ -290,6 +377,9 @@ impl Debug for TheBook {
             .finish()
     }
 }
+
+/// Book Interface trait implementation for TheBook.
+/// Changing title, author, amount of pages
 
 impl BookInterface for TheBook {
     #[inline]
@@ -336,6 +426,8 @@ impl BookInterface for TheBook {
 }
 
 impl TheBook {
+    /// Constructs TheBook
+
     #[inline]
     pub fn new(new_title: String, new_author: String, new_pages: u16) -> Self {
         let mut book = TheBook {
@@ -349,6 +441,9 @@ impl TheBook {
         book
     }
 
+    /// Return index of unused book.
+    /// If all are used, it will return amount of books
+
     #[inline]
     pub fn get_unused(&self) -> usize {
         for i in 0..self.books.len() {
@@ -360,6 +455,8 @@ impl TheBook {
         }
         self.books.len()
     }
+
+    /// Finds using book by reader
 
     #[inline]
     pub fn find_by_reader(&self, reader: &Rc<RefCell<Reader>>) -> usize {
@@ -383,6 +480,8 @@ impl TheBook {
         self.books.len()
     }
 
+    /// add one simple book
+
     #[inline]
     pub fn add_book(&mut self) -> &mut Self {
         self.books.push(Rc::new(RefCell::new(Book::new(
@@ -392,6 +491,9 @@ impl TheBook {
         ))));
         self
     }
+
+    /// Remove simple book by index.
+    /// If index is incorrect, it will return Err
 
     #[inline]
     pub fn remove_book(&mut self, ind: usize) -> ResultSelf<Self> {
@@ -409,6 +511,8 @@ impl TheBook {
         };
     }
 
+    /// Removes all simple books
+
     #[inline]
     pub fn remove_all_books(&mut self) -> &mut Self {
         while !self.books.is_empty() {
@@ -422,6 +526,9 @@ impl TheBook {
         self
     }
 }
+
+/// Print for BookSystem.
+/// It is used for debug code
 
 impl Debug for BookSystem {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
@@ -439,10 +546,15 @@ impl Debug for BookSystem {
 }
 
 impl BookSystem {
+    /// Constructs empty Book System
+
     #[inline]
     pub const fn new() -> Self {
         BookSystem { books: vec![] }
     }
+
+    /// Finds The Book.
+    /// If book is not found, it' ll return TheBooks amount
 
     pub fn find_book(&self, title: &String, author: &String, pages: u16) -> usize {
         unsafe {
@@ -457,6 +569,8 @@ impl BookSystem {
             self.books.len()
         }
     }
+
+    /// Adds simple books
 
     #[inline]
     pub fn add_books(
@@ -488,6 +602,9 @@ impl BookSystem {
         };
     }
 
+    /// Adds new TheBook and **ONE** simple
+    /// (I think it's logical)
+
     #[inline]
     pub fn add_book(&mut self, title: String, author: String, pages: u16) -> ResultSelf<Self> {
         return if !self.books.is_empty()
@@ -500,6 +617,8 @@ impl BookSystem {
             Ok(self)
         };
     }
+
+    /// Remove one simple book by index
 
     #[inline]
     pub fn remove_one_book(
@@ -526,6 +645,8 @@ impl BookSystem {
         };
     }
 
+    /// Removes TheBook and all simple books
+
     #[inline]
     pub fn remove_book(&mut self, title: &String, author: &String, pages: u16) -> ResultSelf<Self> {
         let find = self.find_book(title, author, pages);
@@ -542,6 +663,8 @@ impl BookSystem {
             Ok(self)
         };
     }
+
+    /// Changes TheBook's and all simple books' title
 
     #[inline]
     pub fn change_title(
@@ -569,6 +692,8 @@ impl BookSystem {
         };
     }
 
+    /// Changes TheBook's and all simple books' title
+
     #[inline]
     pub fn change_author(
         &mut self,
@@ -594,6 +719,8 @@ impl BookSystem {
             }
         };
     }
+
+    /// Changes TheBook's and all simple books' title
 
     #[inline]
     pub fn change_pages(
@@ -627,6 +754,8 @@ impl BookSystem {
             }
         };
     }
+
+    /// Save to .yaml file
 
     #[inline]
     pub fn save(&self) {
@@ -743,6 +872,8 @@ impl BookSystem {
         let mut file = File::create("books.yaml").unwrap();
         file.write_all(string.as_bytes()).unwrap();
     }
+
+    /// load from .yaml file
 
     #[inline]
     pub fn load(&mut self, reader_base: &mut ReaderBase) {

@@ -1,3 +1,4 @@
+use crate::book::BookSystem;
 use crate::change_menu::*;
 use crate::reader::ReaderBase;
 use fltk::app;
@@ -7,6 +8,10 @@ use fltk::frame::Frame;
 use fltk::group::VGrid;
 use fltk::prelude::*;
 use fltk::window::SingleWindow;
+
+/// Function that adds reader.
+/// If you have mistakes in input,
+/// program will let you know
 
 pub fn add_reader(reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
@@ -65,7 +70,11 @@ pub fn add_reader(reader_base: &mut ReaderBase, app: &App) {
     }
 }
 
-pub fn remove_reader(reader_base: &mut ReaderBase, app: &App) {
+/// Function that removes reader.
+/// If you have mistakes in input,
+/// program will let you know
+
+pub fn remove_reader(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::new(
@@ -98,6 +107,7 @@ pub fn remove_reader(reader_base: &mut ReaderBase, app: &App) {
                                     Ok(_) => {
                                         fltk::dialog::message(500, 500, "Successfully removed");
                                         reader_base.save();
+                                        book_system.save();
                                     }
 
                                     Err(_) => {
@@ -122,7 +132,11 @@ pub fn remove_reader(reader_base: &mut ReaderBase, app: &App) {
     }
 }
 
-pub fn change_name(reader_base: &mut ReaderBase, app: &App) {
+/// Function that changes reader's name.
+/// If you have mistakes in input,
+/// program will let you know
+
+pub fn change_name(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::new(
@@ -173,7 +187,9 @@ pub fn change_name(reader_base: &mut ReaderBase, app: &App) {
                                                                 500,
                                                                 "Successfully changed",
                                                             );
+
                                                             reader_base.save();
+                                                            book_system.save();
                                                         }
 
                                                         Err(0) => {
@@ -223,7 +239,11 @@ pub fn change_name(reader_base: &mut ReaderBase, app: &App) {
     }
 }
 
-pub fn change_family(reader_base: &mut ReaderBase, app: &App) {
+/// Function that changes reader's second name.
+/// If you have mistakes in input,
+/// program will let you know
+
+pub fn change_family(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::new(
@@ -274,7 +294,9 @@ pub fn change_family(reader_base: &mut ReaderBase, app: &App) {
                                                                 500,
                                                                 "Successfully changed",
                                                             );
+
                                                             reader_base.save();
+                                                            book_system.save();
                                                         }
 
                                                         Err(0) => {
@@ -328,7 +350,11 @@ pub fn change_family(reader_base: &mut ReaderBase, app: &App) {
     }
 }
 
-pub fn change_father(reader_base: &mut ReaderBase, app: &App) {
+/// Function that changes reader's middle name.
+/// If you have mistakes in input,
+/// program will let you know
+
+pub fn change_father(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::new(
@@ -379,7 +405,9 @@ pub fn change_father(reader_base: &mut ReaderBase, app: &App) {
                                                                 500,
                                                                 "Successfully changed",
                                                             );
+
                                                             reader_base.save();
+                                                            book_system.save();
                                                         }
 
                                                         Err(0) => {
@@ -433,7 +461,11 @@ pub fn change_father(reader_base: &mut ReaderBase, app: &App) {
     }
 }
 
-pub fn change_age(reader_base: &mut ReaderBase, app: &App) {
+/// Function that changes reader's age.
+/// If you have mistakes in input,
+/// program will let you know
+
+pub fn change_age(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::new(
@@ -484,7 +516,9 @@ pub fn change_age(reader_base: &mut ReaderBase, app: &App) {
                                                                 500,
                                                                 "Successfully changed",
                                                             );
+
                                                             reader_base.save();
+                                                            book_system.save();
                                                         }
 
                                                         Err(0) => {
@@ -533,6 +567,10 @@ pub fn change_age(reader_base: &mut ReaderBase, app: &App) {
         }
     }
 }
+
+/// Function that gives info about reader.
+/// If you have mistakes in input,
+/// program will let you know
 
 pub fn reader_info(reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();

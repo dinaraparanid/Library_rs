@@ -1,5 +1,6 @@
 use crate::book::BookSystem;
 use crate::change_menu::*;
+use crate::reader::ReaderBase;
 use fltk::app;
 use fltk::app::{channel, App};
 use fltk::dialog::alert;
@@ -9,6 +10,14 @@ use fltk::group::VGrid;
 use fltk::prelude::*;
 use fltk::window::SingleWindow;
 use std::num::ParseIntError;
+
+/// Function that add simple books.
+/// If number of books to add plus
+/// number of existing books
+/// is more than **usize::MAX**,
+/// than you will receive message about it.
+/// If you have mistakes in input,
+/// program will let you know
 
 pub fn add_books(book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
@@ -122,7 +131,12 @@ pub fn add_books(book_system: &mut BookSystem, app: &App) {
     }
 }
 
-pub fn remove_book(book_system: &mut BookSystem, app: &App) {
+/// Function that removes simple books.
+/// It takes index of book, so be careful.
+/// If you have mistakes in input,
+/// program will let you know
+
+pub fn remove_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::new("Remove Book", "Title", "Author", "Pages");
 
@@ -168,6 +182,7 @@ pub fn remove_book(book_system: &mut BookSystem, app: &App) {
                                                                         "Successfully removed",
                                                                     );
                                                                     book_system.save();
+                                                                    reader_base.save();
                                                                 }
 
                                                                 Err(0) => alert(
@@ -234,6 +249,10 @@ pub fn remove_book(book_system: &mut BookSystem, app: &App) {
     }
 }
 
+/// Function that add new book and **ONE** simple book.
+/// If you have mistakes in input,
+/// program will let you know
+
 pub fn add_book(book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::new("Add New Book", "Title", "Author", "Pages");
@@ -283,7 +302,11 @@ pub fn add_book(book_system: &mut BookSystem, app: &App) {
     }
 }
 
-pub fn remove_the_book(book_system: &mut BookSystem, app: &App) {
+/// Function that removes all simple books and TheBook.
+/// If you have mistakes in input,
+/// program will let you know
+
+pub fn remove_the_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::new("Remove Books", "Title", "Author", "Pages");
 
@@ -308,6 +331,7 @@ pub fn remove_the_book(book_system: &mut BookSystem, app: &App) {
                                     Ok(_) => {
                                         fltk::dialog::message(500, 500, "Successfully removed");
                                         book_system.save();
+                                        reader_base.save();
                                     }
 
                                     Err(_) => alert(500, 500, "The Book isn't found"),
@@ -330,7 +354,12 @@ pub fn remove_the_book(book_system: &mut BookSystem, app: &App) {
     }
 }
 
-pub fn change_title(book_system: &mut BookSystem, app: &App) {
+/// Function that changes title
+/// of all simple books and TheBook.
+/// If you have mistakes in input,
+/// program will let you know
+
+pub fn change_title(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::new("Change Title", "Title", "Author", "Pages");
 
@@ -373,6 +402,7 @@ pub fn change_title(book_system: &mut BookSystem, app: &App) {
                                                             "Successfully changed", 
                                                             );
                                                             book_system.save();
+                                                            reader_base.save();
                                                         }
 
                                                         Err(0) => alert(500, 500, "The Book isn't found"),
@@ -408,7 +438,12 @@ pub fn change_title(book_system: &mut BookSystem, app: &App) {
     }
 }
 
-pub fn change_author(book_system: &mut BookSystem, app: &App) {
+/// Function that changes author
+/// of all simple books and TheBook.
+/// If you have mistakes in input,
+/// program will let you know
+
+pub fn change_author(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::new("Change Title", "Title", "Author", "Pages");
 
@@ -450,7 +485,9 @@ pub fn change_author(book_system: &mut BookSystem, app: &App) {
                                                             500,
                                                             "Successfully changed",
                                                             );
+
                                                             book_system.save();
+                                                            reader_base.save();
                                                         }
 
                                                         Err(0) => alert(500, 500, "The Book isn't found"),
@@ -486,7 +523,12 @@ pub fn change_author(book_system: &mut BookSystem, app: &App) {
     }
 }
 
-pub fn change_pages(book_system: &mut BookSystem, app: &App) {
+/// Function that changes pages
+/// of all simple books and TheBook.
+/// If you have mistakes in input,
+/// program will let you know
+
+pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::new("Change Title", "Title", "Author", "Pages");
 
@@ -529,7 +571,9 @@ pub fn change_pages(book_system: &mut BookSystem, app: &App) {
                                                             500,
                                                             "Successfully changed",
                                                             );
+
                                                             book_system.save();
+                                                            reader_base.save();
                                                         }
 
                                                         Err(0) => alert(500, 500, "New amount of pages input error"),
@@ -565,6 +609,11 @@ pub fn change_pages(book_system: &mut BookSystem, app: &App) {
         }
     }
 }
+
+/// Function that gives all information about TheBook:
+/// title, author, pages, amount of simple books.
+/// If you have mistakes in input,
+/// program will let you know
 
 pub fn book_info(book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
