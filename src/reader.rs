@@ -15,6 +15,7 @@ pub(crate) struct Reader {
     pub(crate) father: String,
     pub(crate) age: u8,
     pub(crate) books: Vec<Weak<RefCell<Book>>>,
+    pub(crate) reading: Option<Weak<RefCell<Book>>>,
 }
 
 pub struct ReaderBase {
@@ -39,7 +40,7 @@ impl Debug for Reader {
             .field("father", &self.father)
             .field("age", &self.age)
             .field(
-                "books.yaml",
+                "books",
                 &self
                     .books
                     .iter()
@@ -77,6 +78,7 @@ impl Reader {
             father: new_father,
             age: new_age,
             books: vec![],
+            reading: None,
         }
     }
 
@@ -103,9 +105,16 @@ impl Reader {
     #[inline]
     pub fn start_reading(&mut self, book: &Rc<RefCell<Book>>) -> &mut Self {
         self.books.push(Rc::downgrade(&book));
+        self.reading = Some(Rc::downgrade(&book));
         self
     }
 
+    #[inline]
+    pub fn finish_reading(&mut self) {
+        self.reading = None;
+    }
+
+    #[inline]
     pub fn remove_book(&mut self, book: *const Book) -> &mut Self {
         self.books = self
             .books
@@ -169,7 +178,7 @@ impl Debug for ReaderBase {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         f.debug_struct("Reader Base")
             .field(
-                "readers.yaml",
+                "readers",
                 &self
                     .readers
                     .iter()
@@ -369,6 +378,11 @@ impl ReaderBase {
     }
 
     #[inline]
+    pub fn len(&self) -> usize {
+        self.readers.len()
+    }
+
+    #[inline]
     pub(crate) fn save(&self) {
         let mut array = yaml_rust::yaml::Array::new();
 
@@ -397,6 +411,50 @@ impl ReaderBase {
                     Yaml::String("Age".to_string()),
                     Yaml::Integer((*self.readers.get_unchecked(guy)).borrow().age as i64),
                 );
+
+                data.insert(
+                    Yaml::String("Reading".to_string()),
+                    Yaml::String(
+                        if (*self.readers.get_unchecked(guy))
+                            .borrow()
+                            .reading
+                            .is_some()
+                        {
+                            format!(
+                                "{} {} {}",
+                                (*((*self.readers.get_unchecked(guy))
+                                    .borrow()
+                                    .reading
+                                    .as_ref()
+                                    .unwrap())
+                                .upgrade()
+                                .unwrap())
+                                .borrow()
+                                .title,
+                                (*((*self.readers.get_unchecked(guy))
+                                    .borrow()
+                                    .reading
+                                    .as_ref()
+                                    .unwrap())
+                                .upgrade()
+                                .unwrap())
+                                .borrow()
+                                .author,
+                                (*((*self.readers.get_unchecked(guy))
+                                    .borrow()
+                                    .reading
+                                    .as_ref()
+                                    .unwrap())
+                                .upgrade()
+                                .unwrap())
+                                .borrow()
+                                .pages
+                            )
+                        } else {
+                            "None".to_string()
+                        },
+                    ),
+                );
             }
 
             array.push(Yaml::Hash(data));
@@ -416,16 +474,29 @@ impl ReaderBase {
         let mut string = String::new();
         file.read_to_string(&mut string).unwrap();
 
-        let docs = YamlLoader::load_from_str(string.as_str()).unwrap();
-        let doc = docs.first().unwrap().clone().into_vec().unwrap();
+        if !string.is_empty() {
+            let docs = YamlLoader::load_from_str(string.as_str()).unwrap();
+            let doc = docs.first().unwrap().clone().into_vec().unwrap();
 
-        for d in doc {
-            self.readers.push(Rc::new(RefCell::new(Reader::new(
-                d["Name"].as_str().unwrap().to_string(),
-                d["Family"].as_str().unwrap().to_string(),
-                d["Father"].as_str().unwrap().to_string(),
-                d["Age"].as_i64().unwrap() as u8,
-            ))))
+            for d in doc {
+                self.readers.push(Rc::new(RefCell::new(Reader::new(
+                    d["Name"].as_str().unwrap().to_string(),
+                    d["Family"].as_str().unwrap().to_string(),
+                    d["Father"].as_str().unwrap().to_string(),
+                    d["Age"].as_i64().unwrap() as u8,
+                ))));
+
+                (*self.readers.last_mut().unwrap()).borrow_mut().reading =
+                    if d["Reading"].as_str().unwrap() == "None" {
+                        None
+                    } else {
+                        Some(Rc::downgrade(&Rc::new(RefCell::new(Book::new(
+                            "".to_string(),
+                            "".to_string(),
+                            0,
+                        )))))
+                    }
+            }
         }
     }
 }

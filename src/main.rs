@@ -1,9 +1,9 @@
 extern crate fltk;
 use fltk::app::AppScheme;
 use fltk::enums::Shortcut;
-use fltk::{app, button::*, menu::*, window::*};
-use librs::actions::giveaway::{get_book, give_book};
-use librs::actions::{book::*, read::*};
+use fltk::table::Table;
+use fltk::{app, button::*, draw, menu::*, table, window::*};
+use librs::actions::{book::*, giveaway::*, read::*, reader_table::*};
 use librs::book::BookSystem;
 use librs::reader::ReaderBase;
 
@@ -28,22 +28,70 @@ pub enum Message {
     GetBook,
 }
 
+static mut READER_BASE: ReaderBase = ReaderBase::new();
+
 fn main() {
     let app = app::App::default().with_scheme(AppScheme::Gleam);
     let (s, r) = app::channel::<Message>();
-    let mut reader_base = ReaderBase::new();
     let mut book_system = BookSystem::new();
 
-    reader_base.load();
-    book_system.load(&mut reader_base);
+    unsafe {
+        READER_BASE.load();
+        book_system.load(&mut READER_BASE);
+    }
 
     let mut main_window = MenuWindow::default()
         .with_label("Library System")
         .with_size(1800, 900)
         .center_screen();
 
+    let mut table = Table::new(10, 50, 1780, 840, "");
+    table.set_rows(unsafe { READER_BASE.len() } as u32 + 50);
+    table.set_row_header(true);
+    table.set_row_resize(true);
+    table.set_cols(4);
+    table.set_col_header(true);
+    table.set_col_width_all(434);
+    table.set_col_resize(true);
+    table.end();
+
     main_window.end();
     main_window.make_resizable(true);
+
+    unsafe {
+        table.draw_cell2(|t, ctx, row, col, x, y, w, h| match ctx {
+            table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
+
+            table::TableContext::ColHeader => draw_header(
+                &format!(
+                    "{}",
+                    match col {
+                        0 => "Reader",
+                        1 => "Book",
+                        2 => "Start Date",
+                        _ => "Finish Date",
+                    }
+                ),
+                x,
+                y,
+                w,
+                h,
+            ),
+
+            table::TableContext::RowHeader => draw_header(&format!("{}", row + 1), x, y, w, h),
+
+            table::TableContext::Cell => draw_data(
+                &format!("{}", cell(col, row, &mut READER_BASE)),
+                x,
+                y,
+                w,
+                h,
+                t.is_selected(row, col),
+            ),
+
+            _ => (),
+        });
+    }
 
     let mut menu = MenuBar::new(0, 0, 200, 30, "");
     main_window.add(&menu);
@@ -105,7 +153,7 @@ fn main() {
     );
 
     menu.add_emit(
-        "&Books/Add existing books.yaml\t",
+        "&Books/Add existing books\t",
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -129,7 +177,7 @@ fn main() {
     );
 
     menu.add_emit(
-        "&Books/Remove all specific books.yaml\t",
+        "&Books/Remove all specific books\t",
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -188,26 +236,87 @@ fn main() {
 
     while app.wait() {
         if let Some(msg) = r.recv() {
-            match msg {
-                Message::AddReader => add_reader(&mut reader_base, &app),
-                Message::RemoveReader => remove_reader(&mut reader_base, &app),
-                Message::ChangeName => change_name(&mut reader_base, &app),
-                Message::ChangeFamily => change_family(&mut reader_base, &app),
-                Message::ChangeFather => change_father(&mut reader_base, &app),
-                Message::ChangeAge => change_age(&mut reader_base, &app),
-                Message::InfoReader => reader_info(&mut reader_base, &app),
+            unsafe {
+                match msg {
+                    Message::AddReader => {
+                        add_reader(&mut READER_BASE, &app);
+                        table.redraw();
+                    }
 
-                Message::AddBooks => add_books(&mut book_system, &app),
-                Message::RemoveBook => remove_book(&mut book_system, &app),
-                Message::AddTheBook => add_book(&mut book_system, &app),
-                Message::RemoveTheBook => remove_the_book(&mut book_system, &app),
-                Message::ChangeTitle => change_title(&mut book_system, &app),
-                Message::ChangeAuthor => change_author(&mut book_system, &app),
-                Message::ChangePages => change_pages(&mut book_system, &app),
-                Message::InfoTheBook => book_info(&mut book_system, &app),
+                    Message::RemoveReader => {
+                        remove_reader(&mut READER_BASE, &app);
+                        table.redraw();
+                    }
 
-                Message::GiveBook => give_book(&mut reader_base, &mut book_system, &app),
-                Message::GetBook => get_book(&mut reader_base, &mut book_system, &app),
+                    Message::ChangeName => {
+                        change_name(&mut READER_BASE, &app);
+                        table.redraw();
+                    }
+
+                    Message::ChangeFamily => {
+                        change_family(&mut READER_BASE, &app);
+                        table.redraw();
+                    }
+
+                    Message::ChangeFather => {
+                        change_father(&mut READER_BASE, &app);
+                        table.redraw();
+                    }
+
+                    Message::ChangeAge => {
+                        change_age(&mut READER_BASE, &app);
+                        table.redraw();
+                    }
+
+                    Message::InfoReader => reader_info(&mut READER_BASE, &app),
+
+                    Message::AddBooks => {
+                        add_books(&mut book_system, &app);
+                        table.redraw();
+                    }
+
+                    Message::RemoveBook => {
+                        remove_book(&mut book_system, &app);
+                        table.redraw();
+                    }
+
+                    Message::AddTheBook => {
+                        add_book(&mut book_system, &app);
+                        table.redraw();
+                    }
+
+                    Message::RemoveTheBook => {
+                        remove_the_book(&mut book_system, &app);
+                        table.redraw();
+                    }
+
+                    Message::ChangeTitle => {
+                        change_title(&mut book_system, &app);
+                        table.redraw();
+                    }
+
+                    Message::ChangeAuthor => {
+                        change_author(&mut book_system, &app);
+                        table.redraw();
+                    }
+
+                    Message::ChangePages => {
+                        change_pages(&mut book_system, &app);
+                        table.redraw();
+                    }
+
+                    Message::InfoTheBook => book_info(&mut book_system, &app),
+
+                    Message::GiveBook => {
+                        give_book(&mut READER_BASE, &mut book_system, &app);
+                        table.redraw();
+                    }
+
+                    Message::GetBook => {
+                        get_book(&mut READER_BASE, &mut book_system, &app);
+                        table.redraw();
+                    }
+                }
             }
         }
     }

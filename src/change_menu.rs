@@ -2,11 +2,8 @@ use fltk::button::Button;
 use fltk::dialog::*;
 use fltk::frame::Frame;
 use fltk::input::{Input, IntInput};
+use fltk::prelude::*;
 use fltk::window::SingleWindow;
-use fltk::GroupExt;
-use fltk::InputExt;
-use fltk::WidgetBase;
-use fltk::WidgetExt;
 use std::cell::RefCell;
 use std::rc::Rc;
 

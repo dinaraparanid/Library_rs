@@ -8,5 +8,5 @@ edition = "2018"
 
 [dependencies]
 chrono = "0.4.19"
-fltk = "0.12.6"
+fltk = "0.12.7"
 yaml-rust = "0.4.5"

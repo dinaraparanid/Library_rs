@@ -118,7 +118,7 @@ impl Debug for Book {
             .field("pages", &self.pages)
             .field("is using", &self.is_using)
             .field(
-                "readers.yaml",
+                "readers",
                 &self
                     .readers
                     .iter()
@@ -280,7 +280,7 @@ impl Debug for TheBook {
             .field("author", &self.author)
             .field("pages", &self.pages)
             .field(
-                "books.yaml",
+                "books",
                 &self
                     .books
                     .iter()
@@ -427,7 +427,7 @@ impl Debug for BookSystem {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         f.debug_struct("Book System")
             .field(
-                "books.yaml",
+                "books",
                 &self
                     .books
                     .iter()
@@ -475,7 +475,7 @@ impl BookSystem {
                 let size = (*self.books.get_unchecked(find)).borrow_mut().books.len() as u128;
 
                 if size + amount as u128 > usize::MAX as u128 {
-                    return Err(0); // too much books.yaml
+                    return Err(0); // too much books
                 }
             }
 
@@ -750,39 +750,24 @@ impl BookSystem {
         let mut string = String::new();
         file.read_to_string(&mut string).unwrap();
 
-        let docs = YamlLoader::load_from_str(string.as_str()).unwrap();
-        let doc = docs.first().unwrap().clone().into_vec().unwrap();
+        if !string.is_empty() {
+            let docs = YamlLoader::load_from_str(string.as_str()).unwrap();
+            let doc = docs.first().unwrap().clone().into_vec().unwrap();
 
-        for d in doc {
-            self.books.push(Rc::new(RefCell::new(TheBook::new(
-                d["Title"].as_str().unwrap().to_string(),
-                d["Author"].as_str().unwrap().to_string(),
-                d["Pages"].as_i64().unwrap() as u16,
-            ))));
+            for d in doc {
+                self.books.push(Rc::new(RefCell::new(TheBook::new(
+                    d["Title"].as_str().unwrap().to_string(),
+                    d["Author"].as_str().unwrap().to_string(),
+                    d["Pages"].as_i64().unwrap() as u16,
+                ))));
 
-            (*self.books.last_mut().unwrap())
-                .borrow_mut()
-                .remove_book(0)
-                .unwrap();
-
-            for simple in d["Simple Books"].as_vec().unwrap().iter() {
-                (*self.books.last_mut().unwrap()).borrow_mut().add_book();
-
-                (*(*self.books.last_mut().unwrap())
+                (*self.books.last_mut().unwrap())
                     .borrow_mut()
-                    .books
-                    .last_mut()
-                    .unwrap())
-                .borrow_mut()
-                .is_using = simple["Using"].as_bool().unwrap();
+                    .remove_book(0)
+                    .unwrap();
 
-                for reader in simple["Readers"].as_vec().unwrap().iter() {
-                    let ind = reader_base.find_reader(
-                        &reader["Name"].as_str().unwrap().to_string(),
-                        &reader["Family"].as_str().unwrap().to_string(),
-                        &reader["Father"].as_str().unwrap().to_string(),
-                        reader["Age"].as_i64().unwrap() as u8,
-                    );
+                for simple in d["Simple Books"].as_vec().unwrap().iter() {
+                    (*self.books.last_mut().unwrap()).borrow_mut().add_book();
 
                     (*(*self.books.last_mut().unwrap())
                         .borrow_mut()
@@ -790,36 +775,76 @@ impl BookSystem {
                         .last_mut()
                         .unwrap())
                     .borrow_mut()
-                    .readers
-                    .push((
-                        Rc::downgrade(unsafe { reader_base.readers.get_unchecked(ind) }),
-                        (
-                            Date::new(
-                                reader["Start date"][0].as_i64().unwrap() as u8,
-                                reader["Start date"][1].as_i64().unwrap() as u8,
-                                reader["Start date"][2].as_i64().unwrap() as u16,
-                            )
-                            .unwrap(),
-                            Date::new(
-                                reader["Finish date"][0].as_i64().unwrap() as u8,
-                                reader["Finish date"][1].as_i64().unwrap() as u8,
-                                reader["Finish date"][2].as_i64().unwrap() as u16,
-                            )
-                            .unwrap(),
-                        ),
-                    ));
+                    .is_using = simple["Using"].as_bool().unwrap();
 
-                    unsafe {
-                        (*reader_base.readers.get_unchecked_mut(ind))
+                    if simple["Using"].as_bool().unwrap() {
+                        if let Some(last_reader) = simple["Readers"].as_vec().unwrap().last() {
+                            unsafe {
+                                let ind = reader_base.find_reader(
+                                    &last_reader["Name"].as_str().unwrap().to_string(),
+                                    &last_reader["Family"].as_str().unwrap().to_string(),
+                                    &last_reader["Father"].as_str().unwrap().to_string(),
+                                    last_reader["Age"].as_i64().unwrap() as u8,
+                                );
+
+                                (*reader_base.readers.get_unchecked_mut(ind))
+                                    .borrow_mut()
+                                    .reading = Some(Rc::downgrade(
+                                    &(*(*self.books.last_mut().unwrap())
+                                        .borrow_mut()
+                                        .books
+                                        .last_mut()
+                                        .unwrap()),
+                                ));
+                            }
+                        }
+                    }
+
+                    for reader in simple["Readers"].as_vec().unwrap().iter() {
+                        let ind = reader_base.find_reader(
+                            &reader["Name"].as_str().unwrap().to_string(),
+                            &reader["Family"].as_str().unwrap().to_string(),
+                            &reader["Father"].as_str().unwrap().to_string(),
+                            reader["Age"].as_i64().unwrap() as u8,
+                        );
+
+                        (*(*self.books.last_mut().unwrap())
                             .borrow_mut()
                             .books
-                            .push(Rc::downgrade(
-                                &(*(*self.books.last_mut().unwrap())
-                                    .borrow_mut()
-                                    .books
-                                    .last_mut()
-                                    .unwrap()),
-                            ));
+                            .last_mut()
+                            .unwrap())
+                        .borrow_mut()
+                        .readers
+                        .push((
+                            Rc::downgrade(unsafe { reader_base.readers.get_unchecked(ind) }),
+                            (
+                                Date::new(
+                                    reader["Start date"][0].as_i64().unwrap() as u8,
+                                    reader["Start date"][1].as_i64().unwrap() as u8,
+                                    reader["Start date"][2].as_i64().unwrap() as u16,
+                                )
+                                .unwrap(),
+                                Date::new(
+                                    reader["Finish date"][0].as_i64().unwrap() as u8,
+                                    reader["Finish date"][1].as_i64().unwrap() as u8,
+                                    reader["Finish date"][2].as_i64().unwrap() as u16,
+                                )
+                                .unwrap(),
+                            ),
+                        ));
+
+                        unsafe {
+                            (*reader_base.readers.get_unchecked_mut(ind))
+                                .borrow_mut()
+                                .books
+                                .push(Rc::downgrade(
+                                    &(*(*self.books.last_mut().unwrap())
+                                        .borrow_mut()
+                                        .books
+                                        .last_mut()
+                                        .unwrap()),
+                                ));
+                        }
                     }
                 }
             }

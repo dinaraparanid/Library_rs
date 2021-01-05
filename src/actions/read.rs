@@ -5,10 +5,8 @@ use fltk::app::App;
 use fltk::dialog::alert;
 use fltk::frame::Frame;
 use fltk::group::VGrid;
+use fltk::prelude::*;
 use fltk::window::SingleWindow;
-use fltk::GroupExt;
-use fltk::WidgetBase;
-use fltk::WidgetExt;
 
 pub fn add_reader(reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
