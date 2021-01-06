@@ -9,6 +9,68 @@ use fltk::group::VGrid;
 use fltk::input::*;
 use fltk::prelude::*;
 use fltk::window::SingleWindow;
+use std::num::ParseIntError;
+
+/// Function that checks if input was empty
+
+#[inline]
+pub(crate) fn empty_inp_reader(inp: &Vec<String>) -> bool {
+    unsafe {
+        return if inp.get_unchecked(0).is_empty() {
+            alert(500, 500, "Name is empty");
+            true
+        } else if inp.get_unchecked(1).is_empty() {
+            alert(500, 500, "Family is empty");
+            true
+        } else if inp.get_unchecked(2).is_empty() {
+            alert(500, 500, "Father is empty");
+            true
+        } else if inp.get_unchecked(2).is_empty() {
+            alert(500, 500, "Age is empty");
+            true
+        } else {
+            false
+        };
+    }
+}
+
+/// Function that checks if input is correct.
+/// Returns index of book, if it exists.
+/// or calls alert and returns error
+
+#[inline]
+pub(crate) fn check_reader(reader_base: &ReaderBase, reader: &Vec<String>) -> Result<usize, ()> {
+    let age;
+    let ind;
+
+    unsafe {
+        if empty_inp_reader(reader) {
+            return Err(());
+        }
+
+        match reader.get_unchecked(3).trim().parse::<u8>() {
+            Ok(x) => age = x,
+            Err(_) => {
+                alert(500, 500, "Age input error");
+                return Err(());
+            }
+        }
+
+        ind = reader_base.find_reader(
+            reader.get_unchecked(0),
+            reader.get_unchecked(1),
+            reader.get_unchecked(2),
+            age,
+        );
+    }
+
+    if ind == reader_base.readers.len() {
+        alert(500, 500, "Reader isn't found");
+        return Err(());
+    }
+
+    Ok(ind)
+}
 
 /// Function that adds reader.
 /// If you have mistakes in input,
@@ -36,6 +98,10 @@ pub fn add_reader(reader_base: &mut ReaderBase, app: &App) {
                     inp.hide();
 
                     if let Ok(reader) = new_reader_params {
+                        if empty_inp_reader(&reader) {
+                            return;
+                        }
+
                         match reader.last().unwrap().trim().parse::<u8>() {
                             Ok(a) => unsafe {
                                 match reader_base.add_reader(
@@ -97,29 +163,22 @@ pub fn remove_reader(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
                     inp.hide();
 
                     if let Ok(reader) = rem_reader_params {
-                        match reader.last().unwrap().trim().parse::<u8>() {
-                            Ok(a) => unsafe {
-                                match reader_base.remove_reader(
-                                    reader.get_unchecked(0),
-                                    reader.get_unchecked(1),
-                                    reader.get_unchecked(2),
-                                    a,
-                                ) {
-                                    Ok(_) => {
-                                        fltk::dialog::message(500, 500, "Successfully removed");
-                                        reader_base.save();
-                                        book_system.save();
-                                    }
+                        let rind;
 
-                                    Err(_) => {
-                                        alert(500, 500, "Reader not found");
-                                    }
-                                }
-                            },
+                        match check_reader(reader_base, &reader) {
+                            Ok(x) => rind = x,
+                            Err(_) => return,
+                        }
+
+                        match reader_base.remove_reader(rind) {
+                            Ok(_) => {
+                                fltk::dialog::message(500, 500, "Successfully removed");
+                                reader_base.save();
+                                book_system.save();
+                            }
 
                             Err(_) => {
-                                alert(500, 500, "Age input error");
-                                println!("{:?}", reader.last().unwrap().trim().parse::<u8>())
+                                alert(500, 500, "Reader not found");
                             }
                         }
                     }
@@ -159,9 +218,16 @@ pub fn change_name(reader_base: &mut ReaderBase, book_system: &mut BookSystem, a
                     inp.hide();
 
                     if let Ok(reader) = chng_reader_params {
-                        let (s3, r3) = app::channel();
+                        let rind;
 
+                        match check_reader(reader_base, &reader) {
+                            Ok(x) => rind = x,
+                            Err(_) => return,
+                        }
+
+                        let (s3, r3) = app::channel();
                         let mut get_name = Input1::<Input>::new("New Name", "New Name");
+
                         get_name.show();
                         (*get_name.ok).borrow_mut().emit(s3, true);
 
@@ -173,51 +239,33 @@ pub fn change_name(reader_base: &mut ReaderBase, book_system: &mut BookSystem, a
                                         get_name.hide();
 
                                         if let Ok(new_name) = new_name_param {
-                                            match reader.last().unwrap().trim().parse::<u8>() {
-                                                Ok(a) => unsafe {
-                                                    match reader_base.change_name(
-                                                        reader.get_unchecked(0),
-                                                        reader.get_unchecked(1),
-                                                        reader.get_unchecked(2),
-                                                        a,
-                                                        new_name.get_unchecked(0).clone(),
-                                                    ) {
-                                                        Ok(_) => {
-                                                            fltk::dialog::message(
-                                                                500,
-                                                                500,
-                                                                "Successfully changed",
-                                                            );
+                                            unsafe {
+                                                match reader_base.change_name(
+                                                    rind,
+                                                    new_name.get_unchecked(0).clone(),
+                                                ) {
+                                                    Ok(_) => {
+                                                        fltk::dialog::message(
+                                                            500,
+                                                            500,
+                                                            "Successfully changed",
+                                                        );
 
-                                                            reader_base.save();
-                                                            book_system.save();
-                                                        }
-
-                                                        Err(0) => {
-                                                            alert(500, 500, "Reader not found");
-                                                        }
-
-                                                        Err(1) => {
-                                                            alert(
-                                                                500,
-                                                                500,
-                                                                "Reader already exists",
-                                                            );
-                                                        }
-
-                                                        Err(_) => {
-                                                            alert(500, 500, "New name is empty");
-                                                        }
+                                                        reader_base.save();
+                                                        book_system.save();
                                                     }
-                                                },
 
-                                                Err(_) => {
-                                                    alert(500, 500, "Age input error");
+                                                    Err(0) => {
+                                                        alert(500, 500, "Reader not found");
+                                                    }
 
-                                                    println!(
-                                                        "{:?}",
-                                                        reader.last().unwrap().trim().parse::<u8>()
-                                                    )
+                                                    Err(1) => {
+                                                        alert(500, 500, "Reader already exists");
+                                                    }
+
+                                                    Err(_) => {
+                                                        alert(500, 500, "New name is empty");
+                                                    }
                                                 }
                                             }
                                         }
@@ -248,7 +296,7 @@ pub fn change_family(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
-        "Change Name",
+        "Change 2-nd Name",
         "First Name",
         "Second Names",
         "Middle Name",
@@ -266,6 +314,13 @@ pub fn change_family(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
                     inp.hide();
 
                     if let Ok(reader) = chng_reader_params {
+                        let rind;
+
+                        match check_reader(reader_base, &reader) {
+                            Ok(x) => rind = x,
+                            Err(_) => return,
+                        }
+
                         let (s3, r3) = app::channel();
 
                         let mut get_family =
@@ -281,55 +336,33 @@ pub fn change_family(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
                                         get_family.hide();
 
                                         if let Ok(new_family) = new_family_param {
-                                            match reader.last().unwrap().trim().parse::<u8>() {
-                                                Ok(a) => unsafe {
-                                                    match reader_base.change_family(
-                                                        reader.get_unchecked(0),
-                                                        reader.get_unchecked(1),
-                                                        reader.get_unchecked(2),
-                                                        a,
-                                                        new_family.get_unchecked(0).clone(),
-                                                    ) {
-                                                        Ok(_) => {
-                                                            fltk::dialog::message(
-                                                                500,
-                                                                500,
-                                                                "Successfully changed",
-                                                            );
+                                            unsafe {
+                                                match reader_base.change_family(
+                                                    rind,
+                                                    new_family.get_unchecked(0).clone(),
+                                                ) {
+                                                    Ok(_) => {
+                                                        fltk::dialog::message(
+                                                            500,
+                                                            500,
+                                                            "Successfully changed",
+                                                        );
 
-                                                            reader_base.save();
-                                                            book_system.save();
-                                                        }
-
-                                                        Err(0) => {
-                                                            alert(500, 500, "Reader isn't found");
-                                                        }
-
-                                                        Err(1) => {
-                                                            alert(
-                                                                500,
-                                                                500,
-                                                                "Reader with same parameters already exists",
-                                                            );
-                                                        }
-
-                                                        Err(_) => {
-                                                            alert(
-                                                                500,
-                                                                500,
-                                                                "New second name is empty",
-                                                            );
-                                                        }
+                                                        reader_base.save();
+                                                        book_system.save();
                                                     }
-                                                },
 
-                                                Err(_) => {
-                                                    alert(500, 500, "Age input error");
+                                                    Err(0) => {
+                                                        alert(500, 500, "Reader not found");
+                                                    }
 
-                                                    println!(
-                                                        "{:?}",
-                                                        reader.last().unwrap().trim().parse::<u8>()
-                                                    )
+                                                    Err(1) => {
+                                                        alert(500, 500, "Reader already exists");
+                                                    }
+
+                                                    Err(_) => {
+                                                        alert(500, 500, "New 2-nd name is empty");
+                                                    }
                                                 }
                                             }
                                         }
@@ -360,7 +393,7 @@ pub fn change_father(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
-        "Change Name",
+        "Change mid Name",
         "First Name",
         "Second Names",
         "Middle Name",
@@ -378,6 +411,13 @@ pub fn change_father(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
                     inp.hide();
 
                     if let Ok(reader) = chng_reader_params {
+                        let rind;
+
+                        match check_reader(reader_base, &reader) {
+                            Ok(x) => rind = x,
+                            Err(_) => return,
+                        }
+
                         let (s3, r3) = app::channel();
 
                         let mut get_father =
@@ -393,55 +433,33 @@ pub fn change_father(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
                                         get_father.hide();
 
                                         if let Ok(new_father) = new_father_param {
-                                            match reader.last().unwrap().trim().parse::<u8>() {
-                                                Ok(a) => unsafe {
-                                                    match reader_base.change_father(
-                                                        reader.get_unchecked(0),
-                                                        reader.get_unchecked(1),
-                                                        reader.get_unchecked(2),
-                                                        a,
-                                                        new_father.get_unchecked(0).clone(),
-                                                    ) {
-                                                        Ok(_) => {
-                                                            fltk::dialog::message(
-                                                                500,
-                                                                500,
-                                                                "Successfully changed",
-                                                            );
+                                            unsafe {
+                                                match reader_base.change_father(
+                                                    rind,
+                                                    new_father.get_unchecked(0).clone(),
+                                                ) {
+                                                    Ok(_) => {
+                                                        fltk::dialog::message(
+                                                            500,
+                                                            500,
+                                                            "Successfully changed",
+                                                        );
 
-                                                            reader_base.save();
-                                                            book_system.save();
-                                                        }
-
-                                                        Err(0) => {
-                                                            alert(500, 500, "Reader isn't found");
-                                                        }
-
-                                                        Err(1) => {
-                                                            alert(
-                                                                500,
-                                                                500,
-                                                                "Reader with same parameters already exists",
-                                                            );
-                                                        }
-
-                                                        Err(_) => {
-                                                            alert(
-                                                                500,
-                                                                500,
-                                                                "New middle name is empty",
-                                                            );
-                                                        }
+                                                        reader_base.save();
+                                                        book_system.save();
                                                     }
-                                                },
 
-                                                Err(_) => {
-                                                    alert(500, 500, "Age input error");
+                                                    Err(0) => {
+                                                        alert(500, 500, "Reader not found");
+                                                    }
 
-                                                    println!(
-                                                        "{:?}",
-                                                        reader.last().unwrap().trim().parse::<u8>()
-                                                    )
+                                                    Err(1) => {
+                                                        alert(500, 500, "Reader already exists");
+                                                    }
+
+                                                    Err(_) => {
+                                                        alert(500, 500, "New middle name is empty");
+                                                    }
                                                 }
                                             }
                                         }
@@ -472,7 +490,7 @@ pub fn change_age(reader_base: &mut ReaderBase, book_system: &mut BookSystem, ap
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
-        "Change Name",
+        "Change Age",
         "First Name",
         "Second Names",
         "Middle Name",
@@ -490,6 +508,13 @@ pub fn change_age(reader_base: &mut ReaderBase, book_system: &mut BookSystem, ap
                     inp.hide();
 
                     if let Ok(reader) = chng_reader_params {
+                        let rind;
+
+                        match check_reader(reader_base, &reader) {
+                            Ok(x) => rind = x,
+                            Err(_) => return,
+                        }
+
                         let (s3, r3) = app::channel();
 
                         let mut get_age = Input1::<IntInput>::new("New Age", "New Age");
@@ -504,51 +529,32 @@ pub fn change_age(reader_base: &mut ReaderBase, book_system: &mut BookSystem, ap
                                         get_age.hide();
 
                                         if let Ok(new_age) = new_age_param {
-                                            match reader.last().unwrap().trim().parse::<u8>() {
-                                                Ok(a) => unsafe {
-                                                    match reader_base.change_father(
-                                                        reader.get_unchecked(0),
-                                                        reader.get_unchecked(1),
-                                                        reader.get_unchecked(2),
-                                                        a,
-                                                        new_age.get_unchecked(0).clone(),
-                                                    ) {
-                                                        Ok(_) => {
-                                                            fltk::dialog::message(
-                                                                500,
-                                                                500,
-                                                                "Successfully changed",
-                                                            );
+                                            if new_age.first().unwrap().is_empty() {
+                                                alert(500, 500, "New age is empty");
+                                                return;
+                                            }
 
-                                                            reader_base.save();
-                                                            book_system.save();
-                                                        }
+                                            unsafe {
+                                                match reader_base.change_age(
+                                                    rind,
+                                                    new_age.get_unchecked(0).clone(),
+                                                ) {
+                                                    Ok(_) => {
+                                                        fltk::dialog::message(
+                                                            500,
+                                                            500,
+                                                            "Successfully changed",
+                                                        );
 
-                                                        Err(0) => {
-                                                            alert(500, 500, "New age input error");
-                                                        }
-
-                                                        Err(1) => {
-                                                            alert(500, 500, "Reader isn't found");
-                                                        }
-
-                                                        Err(_) => {
-                                                            alert(
-                                                                500,
-                                                                500,
-                                                                "Reader with same parameters already exists",
-                                                            );
-                                                        }
+                                                        reader_base.save();
+                                                        book_system.save();
                                                     }
-                                                },
 
-                                                Err(_) => {
-                                                    alert(500, 500, "Age input error");
+                                                    Err(0) => alert(500, 500, "Age input error"),
 
-                                                    println!(
-                                                        "{:?}",
-                                                        reader.last().unwrap().trim().parse::<u8>()
-                                                    )
+                                                    Err(_) => {
+                                                        alert(500, 500, "Reader already exists")
+                                                    }
                                                 }
                                             }
                                         }
@@ -605,6 +611,11 @@ pub fn reader_info(reader_base: &mut ReaderBase, app: &App) {
                                     x,
                                 );
 
+                                if ind == reader_base.readers.len() {
+                                    alert(500, 500, "Reader isn't found");
+                                    return;
+                                }
+
                                 let mut wind = SingleWindow::new(
                                     800,
                                     100,
@@ -622,7 +633,7 @@ pub fn reader_info(reader_base: &mut ReaderBase, app: &App) {
                                 let mut table1 = VGrid::new(0, 0, 400, 100, "");
                                 table1.set_params(
                                     5 + (*reader_base.readers.get_unchecked(ind))
-                                        .borrow_mut()
+                                        .borrow()
                                         .books
                                         .len() as i32,
                                     1,
@@ -679,7 +690,7 @@ pub fn reader_info(reader_base: &mut ReaderBase, app: &App) {
                                 let mut table2 = VGrid::new(120, 0, 400, 600, "");
                                 table2.set_params(
                                     (*reader_base.readers.get_unchecked(ind))
-                                        .borrow_mut()
+                                        .borrow()
                                         .books
                                         .len() as i32,
                                     1,
@@ -687,7 +698,7 @@ pub fn reader_info(reader_base: &mut ReaderBase, app: &App) {
                                 );
 
                                 for i in 0..(*reader_base.readers.get_unchecked(ind))
-                                    .borrow_mut()
+                                    .borrow()
                                     .books
                                     .len()
                                 {
@@ -700,28 +711,28 @@ pub fn reader_info(reader_base: &mut ReaderBase, app: &App) {
                                             "№ {} Title: {} Author: {} Pages: {}",
                                             i + 1,
                                             (*reader_base.readers.get_unchecked(ind))
-                                                .borrow_mut()
+                                                .borrow()
                                                 .books
                                                 .get_unchecked(i)
                                                 .upgrade()
                                                 .unwrap()
-                                                .borrow_mut()
+                                                .borrow()
                                                 .title,
                                             (*reader_base.readers.get_unchecked(ind))
-                                                .borrow_mut()
+                                                .borrow()
                                                 .books
                                                 .get_unchecked(i)
                                                 .upgrade()
                                                 .unwrap()
-                                                .borrow_mut()
+                                                .borrow()
                                                 .author,
                                             (*reader_base.readers.get_unchecked(ind))
-                                                .borrow_mut()
+                                                .borrow()
                                                 .books
                                                 .get_unchecked(i)
                                                 .upgrade()
                                                 .unwrap()
-                                                .borrow_mut()
+                                                .borrow()
                                                 .pages
                                         )
                                         .as_str(),

@@ -123,7 +123,7 @@ mod book_tests {
                    format!("{:?}", (*book).borrow()));
 
         assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: true, readers.yaml: [\"Michael Jackson Joseph 60\"] }",
-                   format!("{:?}", (*book).borrow_mut().remove_reader(&(*(*reader2).borrow()) as *const Reader)));
+                   format!("{:?}", (*book).borrow_mut().remove_reader(&(*(*reader2).borrow()) as *mut Reader)));
 
         let mut x = (*book).borrow_mut();
 

@@ -4,13 +4,65 @@ use crate::reader::ReaderBase;
 use fltk::app;
 use fltk::app::{channel, App};
 use fltk::dialog::alert;
-use fltk::draw::capture_window;
 use fltk::frame::Frame;
 use fltk::group::VGrid;
 use fltk::input::*;
 use fltk::prelude::*;
 use fltk::window::SingleWindow;
 use std::num::ParseIntError;
+
+/// Function that checks if input was empty
+
+#[inline]
+pub(crate) fn empty_inp_book(inp: &Vec<String>) -> bool {
+    unsafe {
+        return if inp.get_unchecked(0).is_empty() {
+            alert(500, 500, "Title is empty");
+            true
+        } else if inp.get_unchecked(1).is_empty() {
+            alert(500, 500, "Author is empty");
+            true
+        } else if inp.get_unchecked(2).is_empty() {
+            alert(500, 500, "Pages are empty");
+            true
+        } else {
+            false
+        };
+    }
+}
+
+/// Function that checks if input is correct.
+/// Returns index of book, if it exists.
+/// or calls alert and returns error
+
+#[inline]
+pub(crate) fn check_book(book_system: &BookSystem, books: &Vec<String>) -> Result<usize, ()> {
+    let pages;
+    let ind;
+
+    unsafe {
+        if empty_inp_book(books) {
+            return Err(());
+        }
+
+        match books.get_unchecked(2).trim().parse::<u16>() {
+            Ok(x) => pages = x,
+            Err(_) => {
+                alert(500, 500, "Pages input error");
+                return Err(());
+            }
+        }
+
+        ind = book_system.find_book(books.get_unchecked(0), books.get_unchecked(1), pages);
+    }
+
+    if ind == book_system.books.len() {
+        alert(500, 500, "Book isn't found");
+        return Err(());
+    }
+
+    Ok(ind)
+}
 
 /// Function that add simple books.
 /// If number of books to add plus
@@ -35,9 +87,17 @@ pub fn add_books(book_system: &mut BookSystem, app: &App) {
                     inp.hide();
 
                     if let Ok(books) = new_books_params {
+                        let ind;
+
+                        match check_book(book_system, &books) {
+                            Ok(x) => ind = x,
+                            Err(_) => return,
+                        }
+
                         let (s3, r3) = app::channel();
                         let mut get_amount =
                             Input1::<IntInput>::new("Books amount", "Amount of books to add");
+
                         get_amount.show();
                         (*get_amount.ok).borrow_mut().emit(s3, true);
 
@@ -50,56 +110,18 @@ pub fn add_books(book_system: &mut BookSystem, app: &App) {
 
                                         if let Ok(amount) = amount_param {
                                             match amount.first().unwrap().trim().parse::<usize>() {
-                                                Ok(x) => {
-                                                    match books
-                                                        .last()
-                                                        .unwrap()
-                                                        .trim()
-                                                        .parse::<u16>()
-                                                    {
-                                                        Ok(a) => unsafe {
-                                                            match book_system.add_books(
-                                                                books.get_unchecked(0).clone(),
-                                                                books.get_unchecked(1).clone(),
-                                                                a,
-                                                                x,
-                                                            ) {
-                                                                Ok(_) => {
-                                                                    fltk::dialog::message(
-                                                                        500,
-                                                                        500,
-                                                                        "Successfully added",
-                                                                    );
-                                                                    book_system.save();
-                                                                }
-
-                                                                Err(0) => alert(
-                                                                    500,
-                                                                    500,
-                                                                    "Too much books",
-                                                                ),
-
-                                                                Err(_) => alert(
-                                                                    500,
-                                                                    500,
-                                                                    "The Book is not found",
-                                                                ),
-                                                            }
-                                                        },
-
-                                                        Err(_) => {
-                                                            alert(500, 500, "Pages input error");
-                                                            println!(
-                                                                "{:?}",
-                                                                books
-                                                                    .last()
-                                                                    .unwrap()
-                                                                    .trim()
-                                                                    .parse::<u16>()
-                                                            )
-                                                        }
+                                                Ok(x) => match book_system.add_books(ind, x) {
+                                                    Ok(_) => {
+                                                        fltk::dialog::message(
+                                                            500,
+                                                            500,
+                                                            "Successfully added",
+                                                        );
+                                                        book_system.save();
                                                     }
-                                                }
+
+                                                    Err(_) => alert(500, 500, "Too much books"),
+                                                },
 
                                                 Err(_) => {
                                                     alert(500, 500, "Amount of books input error");
@@ -153,6 +175,13 @@ pub fn remove_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, a
                     inp.hide();
 
                     if let Ok(book) = rem_book_params {
+                        let index;
+
+                        match check_book(book_system, &book) {
+                            Ok(x) => index = x,
+                            Err(_) => return,
+                        }
+
                         let (s3, r3) = app::channel();
                         let mut get_ind = Input1::<IntInput>::new("Book's number", "Book's number");
                         get_ind.show();
@@ -168,58 +197,22 @@ pub fn remove_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, a
                                         if let Ok(ind) = ind_param {
                                             match ind.first().unwrap().trim().parse::<usize>() {
                                                 Ok(x) => {
-                                                    match book.last().unwrap().trim().parse::<u16>()
-                                                    {
-                                                        Ok(a) => unsafe {
-                                                            match book_system.remove_one_book(
-                                                                book.get_unchecked(0),
-                                                                book.get_unchecked(1),
-                                                                a,
-                                                                x,
-                                                            ) {
-                                                                Ok(_) => {
-                                                                    fltk::dialog::message(
-                                                                        500,
-                                                                        500,
-                                                                        "Successfully removed",
-                                                                    );
-                                                                    book_system.save();
-                                                                    reader_base.save();
-                                                                }
-
-                                                                Err(0) => alert(
-                                                                    500,
-                                                                    500,
-                                                                    "The Book is not found",
-                                                                ),
-
-                                                                Err(_) => {
-                                                                    alert(
-                                                                        500,
-                                                                        500,
-                                                                        "Book's number input error",
-                                                                    );
-                                                                    println!(
-                                                                        "{:?}",
-                                                                        ind.last()
-                                                                            .unwrap()
-                                                                            .trim()
-                                                                            .parse::<usize>()
-                                                                    );
-                                                                }
-                                                            }
-                                                        },
-
-                                                        Err(_) => {
-                                                            alert(500, 500, "Pages input error");
-                                                            println!(
-                                                                "{:?}",
-                                                                book.last()
-                                                                    .unwrap()
-                                                                    .trim()
-                                                                    .parse::<u16>()
-                                                            )
+                                                    match book_system.remove_one_book(index, x) {
+                                                        Ok(_) => {
+                                                            fltk::dialog::message(
+                                                                500,
+                                                                500,
+                                                                "Successfully removed",
+                                                            );
+                                                            book_system.save();
+                                                            reader_base.save();
                                                         }
+
+                                                        Err(_) => alert(
+                                                            500,
+                                                            500,
+                                                            "Incorrect number of book",
+                                                        ),
                                                     }
                                                 }
 
@@ -270,6 +263,10 @@ pub fn add_book(book_system: &mut BookSystem, app: &App) {
                     inp.hide();
 
                     if let Ok(the_book) = new_book_params {
+                        if empty_inp_book(&the_book) {
+                            return;
+                        }
+
                         match the_book.last().unwrap().trim().parse::<u16>() {
                             Ok(x) => unsafe {
                                 match book_system.add_book(
@@ -323,27 +320,21 @@ pub fn remove_the_book(book_system: &mut BookSystem, reader_base: &mut ReaderBas
                     inp.hide();
 
                     if let Ok(the_book) = rem_book_params {
-                        match the_book.last().unwrap().trim().parse::<u16>() {
-                            Ok(x) => unsafe {
-                                match book_system.remove_book(
-                                    the_book.get_unchecked(0),
-                                    the_book.get_unchecked(1),
-                                    x,
-                                ) {
-                                    Ok(_) => {
-                                        fltk::dialog::message(500, 500, "Successfully removed");
-                                        book_system.save();
-                                        reader_base.save();
-                                    }
+                        let index;
 
-                                    Err(_) => alert(500, 500, "The Book isn't found"),
-                                }
-                            },
+                        match check_book(book_system, &the_book) {
+                            Ok(x) => index = x,
+                            Err(_) => return,
+                        }
 
-                            Err(_) => {
-                                alert(500, 500, "Pages input error");
-                                println!("{:?}", the_book.last().unwrap().trim().parse::<u16>())
+                        match book_system.remove_book(index) {
+                            Ok(_) => {
+                                fltk::dialog::message(500, 500, "Successfully removed");
+                                book_system.save();
+                                reader_base.save();
                             }
+
+                            Err(_) => alert(500, 500, "Wrong book's number"),
                         }
                     }
                 }
@@ -376,8 +367,16 @@ pub fn change_title(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
                     inp.hide();
 
                     if let Ok(book) = book_params {
+                        let index;
+
+                        match check_book(book_system, &book) {
+                            Ok(x) => index = x,
+                            Err(_) => return,
+                        }
+
                         let (s3, r3) = app::channel();
                         let mut get_title = Input1::<Input>::new("New Title", "New Title");
+
                         get_title.show();
                         (*get_title.ok).borrow_mut().emit(s3, true);
 
@@ -389,35 +388,31 @@ pub fn change_title(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
                                         get_title.hide();
 
                                         if let Ok(new_title) = title_param {
-                                            match book.last().unwrap().trim().parse::<u16>() {
-                                                Ok(a) => unsafe {
-                                                    match book_system.change_title(
-                                                        book.get_unchecked(0),
-                                                        book.get_unchecked(1),
-                                                        a,
-                                                        new_title.first().unwrap().clone(),
-                                                    ) {
-                                                        Ok(_) => {
-                                                            fltk::dialog::message(
-                                                                500,
+                                            unsafe {
+                                                if new_title.get_unchecked(0).is_empty() {
+                                                    alert(500, 500, "New title is empty");
+                                                    return;
+                                                }
+
+                                                match book_system.change_title(
+                                                    index,
+                                                    new_title.get_unchecked(0).clone(),
+                                                ) {
+                                                    Ok(_) => {
+                                                        fltk::dialog::message(
                                                             500,
-                                                            "Successfully changed", 
-                                                            );
-                                                            book_system.save();
-                                                            reader_base.save();
-                                                        }
-
-                                                        Err(0) => alert(500, 500, "The Book isn't found"),
-                                                        Err(_) => alert(500, 500, "Book with same parameters already exists")
+                                                            500,
+                                                            "Successfully changed",
+                                                        );
+                                                        book_system.save();
+                                                        reader_base.save();
                                                     }
-                                                },
 
-                                                Err(_) => {
-                                                    alert(500, 500, "Pages input error");
-                                                    println!(
-                                                        "{:?}",
-                                                        book.last().unwrap().trim().parse::<u16>()
-                                                    )
+                                                    Err(_) => alert(
+                                                        500,
+                                                        500,
+                                                        "Book with same parameters already exists",
+                                                    ),
                                                 }
                                             }
                                         }
@@ -447,7 +442,8 @@ pub fn change_title(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
 
 pub fn change_author(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input3::<Input, Input, IntInput>::new("Change Title", "Title", "Author", "Pages");
+    let mut inp =
+        Input3::<Input, Input, IntInput>::new("Change Author", "Title", "Author", "Pages");
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -460,8 +456,16 @@ pub fn change_author(book_system: &mut BookSystem, reader_base: &mut ReaderBase,
                     inp.hide();
 
                     if let Ok(book) = book_params {
+                        let index;
+
+                        match check_book(book_system, &book) {
+                            Ok(x) => index = x,
+                            Err(_) => return,
+                        }
+
                         let (s3, r3) = app::channel();
                         let mut get_author = Input1::<Input>::new("New Author", "New Author");
+
                         get_author.show();
                         (*get_author.ok).borrow_mut().emit(s3, true);
 
@@ -473,36 +477,31 @@ pub fn change_author(book_system: &mut BookSystem, reader_base: &mut ReaderBase,
                                         get_author.hide();
 
                                         if let Ok(new_author) = author_param {
-                                            match book.last().unwrap().trim().parse::<u16>() {
-                                                Ok(a) => unsafe {
-                                                    match book_system.change_author(
-                                                        book.get_unchecked(0),
-                                                        book.get_unchecked(1),
-                                                        a,
-                                                        new_author.first().unwrap().clone(),
-                                                    ) {
-                                                        Ok(_) => {
-                                                            fltk::dialog::message(
+                                            unsafe {
+                                                if new_author.get_unchecked(0).is_empty() {
+                                                    alert(500, 500, "New author is empty");
+                                                    return;
+                                                }
+
+                                                match book_system.change_author(
+                                                    index,
+                                                    new_author.get_unchecked(0).clone(),
+                                                ) {
+                                                    Ok(_) => {
+                                                        fltk::dialog::message(
                                                             500,
                                                             500,
                                                             "Successfully changed",
-                                                            );
-
-                                                            book_system.save();
-                                                            reader_base.save();
-                                                        }
-
-                                                        Err(0) => alert(500, 500, "The Book isn't found"),
-                                                        Err(_) => alert(500, 500, "Book with same parameters already exists")
+                                                        );
+                                                        book_system.save();
+                                                        reader_base.save();
                                                     }
-                                                },
 
-                                                Err(_) => {
-                                                    alert(500, 500, "Pages input error");
-                                                    println!(
-                                                        "{:?}",
-                                                        book.last().unwrap().trim().parse::<u16>()
-                                                    )
+                                                    Err(_) => alert(
+                                                        500,
+                                                        500,
+                                                        "Book with same parameters already exists",
+                                                    ),
                                                 }
                                             }
                                         }
@@ -532,7 +531,7 @@ pub fn change_author(book_system: &mut BookSystem, reader_base: &mut ReaderBase,
 
 pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input3::<Input, Input, IntInput>::new("Change Title", "Title", "Author", "Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new("Change Pages", "Title", "Author", "Pages");
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -545,9 +544,17 @@ pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
                     inp.hide();
 
                     if let Ok(book) = book_params {
+                        let index;
+
+                        match check_book(book_system, &book) {
+                            Ok(x) => index = x,
+                            Err(_) => return,
+                        }
+
                         let (s3, r3) = app::channel();
                         let mut get_pages =
                             Input1::<IntInput>::new("New Amount of Pages", "New Amount of Pages");
+
                         get_pages.show();
                         (*get_pages.ok).borrow_mut().emit(s3, true);
 
@@ -559,37 +566,37 @@ pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
                                         get_pages.hide();
 
                                         if let Ok(new_pages) = pages_param {
-                                            match book.last().unwrap().trim().parse::<u16>() {
-                                                Ok(a) => unsafe {
-                                                    match book_system.change_pages(
-                                                        book.get_unchecked(0),
-                                                        book.get_unchecked(1),
-                                                        a,
-                                                        new_pages.first().unwrap().clone(),
-                                                    ) {
-                                                        Ok(_) => {
-                                                            fltk::dialog::message(
+                                            unsafe {
+                                                if new_pages.get_unchecked(0).is_empty() {
+                                                    alert(500, 500, "New amount of pages is empty");
+                                                    return;
+                                                }
+
+                                                match book_system.change_pages(
+                                                    index,
+                                                    new_pages.get_unchecked(0).clone(),
+                                                ) {
+                                                    Ok(_) => {
+                                                        fltk::dialog::message(
                                                             500,
                                                             500,
                                                             "Successfully changed",
-                                                            );
-
-                                                            book_system.save();
-                                                            reader_base.save();
-                                                        }
-
-                                                        Err(0) => alert(500, 500, "New amount of pages input error"),
-                                                        Err(1) => alert(500, 500, "The Book isn't found"),
-                                                        Err(_) => alert(500, 500, "Book with same parameters already exists")
+                                                        );
+                                                        book_system.save();
+                                                        reader_base.save();
                                                     }
-                                                },
 
-                                                Err(_) => {
-                                                    alert(500, 500, "Pages input error");
-                                                    println!(
-                                                        "{:?}",
-                                                        book.last().unwrap().trim().parse::<u16>()
-                                                    )
+                                                    Err(0) => alert(
+                                                        500,
+                                                        500,
+                                                        "New amount of pages input error",
+                                                    ),
+
+                                                    Err(_) => alert(
+                                                        500,
+                                                        500,
+                                                        "Book with same parameters already exists",
+                                                    ),
                                                 }
                                             }
                                         }
@@ -639,6 +646,11 @@ pub fn book_info(book_system: &mut BookSystem, app: &App) {
                                     the_book.get_unchecked(1),
                                     x,
                                 );
+
+                                if ind == book_system.books.len() {
+                                    alert(500, 500, "Book isn't found");
+                                    return;
+                                }
 
                                 let mut wind = SingleWindow::new(
                                     800,

@@ -37,7 +37,7 @@
 - №: 2
   Title: Book
   Author: Author
-  Pages: 300
+  Pages: 500
   Simple Books:
     - Using: true
       Readers:
@@ -109,8 +109,20 @@
             - 7
             - 1
             - 2021
-    - Using: false
-      Readers: []
+    - Using: true
+      Readers:
+        - Name: Grand
+          Family: Master
+          Father: Yoda
+          Age: 250
+          Start date:
+            - 6
+            - 1
+            - 2021
+          Finish date:
+            - 7
+            - 1
+            - 2021
     - Using: false
       Readers: []
     - Using: false

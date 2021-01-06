@@ -16,25 +16,25 @@
   Family: Palpatine
   Father: Emperor
   Age: 90
-  Reading: Book Author 300
+  Reading: Book Author 500
 - №: 4
   Name: Harry
   Family: Potter
   Father: James
   Age: 18
-  Reading: Book Author 300
+  Reading: Book Author 500
 - №: 5
   Name: Jabba
   Family: Hutt
   Father: Hutt
   Age: 100
-  Reading: Book Author 300
+  Reading: Book Author 500
 - №: 6
   Name: Ron
   Family: Wizley
   Father: Arnold
   Age: 18
-  Reading: Book Author 300
+  Reading: Book Author 500
 - №: 7
   Name: Anakin
   Family: Skywalker
@@ -46,7 +46,7 @@
   Family: Kenobi
   Father: Master Jedi
   Age: 40
-  Reading: Book Author 300
+  Reading: Book Author 500
 - №: 9
   Name: Mace
   Family: Windu
@@ -58,4 +58,4 @@
   Family: Master
   Father: Yoda
   Age: 250
-  Reading: None
+  Reading: Book Author 500

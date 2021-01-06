@@ -1,6 +1,6 @@
 extern crate fltk;
-use self::fltk::draw;
 use crate::reader::ReaderBase;
+use fltk::draw;
 use fltk::prelude::*;
 use fltk::table::Table;
 

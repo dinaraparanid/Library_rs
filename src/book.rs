@@ -556,6 +556,7 @@ impl BookSystem {
     /// Finds The Book.
     /// If book is not found, it' ll return TheBooks amount
 
+    #[inline]
     pub fn find_book(&self, title: &String, author: &String, pages: u16) -> usize {
         unsafe {
             for i in 0..self.books.len() {
@@ -570,36 +571,49 @@ impl BookSystem {
         }
     }
 
-    /// Adds simple books
+    /// Adds simple books without any checks
 
     #[inline]
-    pub fn add_books(
-        &mut self,
-        title: String,
-        author: String,
-        pages: u16,
-        amount: usize,
-    ) -> ResultSelf<Self> {
-        let find = self.find_book(&title, &author, pages);
+    pub unsafe fn add_books_unchecked(&mut self, ind: usize, amount: usize) -> ResultSelf<Self> {
+        for _ in 0..amount {
+            (*self.books.get_unchecked(ind)).borrow_mut().add_book();
+        }
 
-        return if find == self.books.len() {
-            Err(1) // the book is not found
+        Ok(self)
+    }
+
+    /// Adds simple books with strong guarantee
+
+    #[inline]
+    pub fn add_books(&mut self, ind: usize, amount: usize) -> ResultSelf<Self> {
+        return if ind >= self.books.len() {
+            Err(1) // out of range
         } else {
             unsafe {
-                let size = (*self.books.get_unchecked(find)).borrow_mut().books.len() as u128;
+                let size = (*self.books.get_unchecked(ind)).borrow_mut().books.len() as u128;
 
                 if size + amount as u128 > usize::MAX as u128 {
                     return Err(0); // too much books
                 }
+                self.add_books_unchecked(ind, amount)
             }
-
-            for _ in 0..amount {
-                unsafe {
-                    (*self.books.get_unchecked(find)).borrow_mut().add_book();
-                }
-            }
-            Ok(self)
         };
+    }
+
+    /// Adds new TheBook and **ONE** simple
+    /// (I think it's logical)
+    /// No checks provided
+
+    #[inline]
+    pub unsafe fn add_book_unchecked(
+        &mut self,
+        title: String,
+        author: String,
+        pages: u16,
+    ) -> &mut Self {
+        self.books
+            .push(Rc::new(RefCell::new(TheBook::new(title, author, pages))));
+        self
     }
 
     /// Adds new TheBook and **ONE** simple
@@ -610,126 +624,141 @@ impl BookSystem {
         return if !self.books.is_empty()
             && self.find_book(&title, &author, pages) < self.books.len()
         {
-            Err(0)
+            Err(0) // already exists
         } else {
-            self.books
-                .push(Rc::new(RefCell::new(TheBook::new(title, author, pages))));
-            Ok(self)
+            Ok(unsafe { self.add_book_unchecked(title, author, pages) })
         };
+    }
+
+    /// Remove one simple book by index without any checks
+
+    #[inline]
+    pub unsafe fn remove_one_book_unchecked(&mut self, ind: usize, rind: usize) {
+        (*self.books.get_unchecked_mut(ind))
+            .borrow_mut()
+            .remove_book(rind)
+            .unwrap();
     }
 
     /// Remove one simple book by index
 
     #[inline]
-    pub fn remove_one_book(
-        &mut self,
-        title: &String,
-        author: &String,
-        pages: u16,
-        ind: usize,
-    ) -> ResultSelf<Self> {
-        let find = self.find_book(title, author, pages);
-
-        return if find == self.books.len() {
-            Err(0) // the book is not found
+    pub fn remove_one_book(&mut self, ind: usize, rind: usize) -> ResultSelf<Self> {
+        return if ind >= self.books.len() {
+            Err(0) // search ind (TheBook) out of range
         } else {
             unsafe {
-                if let Err(_) = (*self.books.get_unchecked_mut(find))
-                    .borrow_mut()
-                    .remove_book(ind)
-                {
-                    return Err(1); // ind error
+                if rind >= (*self.books.get_unchecked(ind)).borrow_mut().books.len() {
+                    return Err(1); // remove ind (simple) out of range
                 }
+
+                self.remove_one_book_unchecked(ind, rind);
             }
             Ok(self)
         };
+    }
+
+    /// Removes TheBook and all simple books without any checks
+
+    #[inline]
+    pub unsafe fn remove_book_unchecked(&mut self, ind: usize) -> &mut Self {
+        (**self.books.get_unchecked(ind))
+            .borrow_mut()
+            .remove_all_books();
+
+        self.books.remove(ind);
+        self
     }
 
     /// Removes TheBook and all simple books
 
     #[inline]
-    pub fn remove_book(&mut self, title: &String, author: &String, pages: u16) -> ResultSelf<Self> {
-        let find = self.find_book(title, author, pages);
+    pub fn remove_book(&mut self, ind: usize) -> ResultSelf<Self> {
+        return if ind >= self.books.len() {
+            Err(0) // out of range
+        } else {
+            Ok(unsafe { self.remove_book_unchecked(ind) })
+        };
+    }
 
-        return if find == self.books.len() {
-            Err(0)
+    /// Changes TheBook's and all simple books' title without any checks
+
+    #[inline]
+    pub unsafe fn change_title_unchecked(&mut self, ind: usize, new_title: String) -> &mut Self {
+        (**self.books.get_unchecked_mut(ind))
+            .borrow_mut()
+            .change_title(new_title);
+        self
+    }
+
+    /// Changes TheBook's and all simple books' title
+
+    #[inline]
+    pub fn change_title(&mut self, ind: usize, new_title: String) -> ResultSelf<Self> {
+        return if ind >= self.books.len() {
+            Err(0) // out of range
         } else {
             unsafe {
-                (**self.books.get_unchecked(find))
-                    .borrow_mut()
-                    .remove_all_books();
-            }
-            self.books.remove(find);
-            Ok(self)
-        };
-    }
-
-    /// Changes TheBook's and all simple books' title
-
-    #[inline]
-    pub fn change_title(
-        &mut self,
-        title: &String,
-        author: &String,
-        pages: u16,
-        new_title: String,
-    ) -> ResultSelf<Self> {
-        let find = self.find_book(title, author, pages);
-
-        return if find == self.books.len() {
-            Err(0) // not found
-        } else {
-            if self.find_book(&new_title, author, pages) < self.books.len() {
-                Err(1) // already exists
-            } else {
-                unsafe {
-                    (**self.books.get_unchecked_mut(find))
-                        .borrow_mut()
-                        .change_title(new_title);
+                if self.find_book(
+                    &new_title,
+                    &(*self.books.get_unchecked(ind)).borrow_mut().author,
+                    (*self.books.get_unchecked(ind)).borrow_mut().pages,
+                ) < self.books.len()
+                {
+                    Err(1) // already exists
+                } else {
+                    Ok(self.change_title_unchecked(ind, new_title))
                 }
-                Ok(self)
             }
         };
+    }
+
+    /// Changes TheBook's and all simple books' title without any checks
+
+    #[inline]
+    pub unsafe fn change_author_unchecked(&mut self, ind: usize, new_author: String) -> &mut Self {
+        (**self.books.get_unchecked_mut(ind))
+            .borrow_mut()
+            .change_author(new_author);
+        self
     }
 
     /// Changes TheBook's and all simple books' title
 
     #[inline]
-    pub fn change_author(
-        &mut self,
-        title: &String,
-        author: &String,
-        pages: u16,
-        new_author: String,
-    ) -> ResultSelf<Self> {
-        let find = self.find_book(title, author, pages);
-
-        return if find == self.books.len() {
-            Err(0) // not found
+    pub fn change_author(&mut self, ind: usize, new_author: String) -> ResultSelf<Self> {
+        return if ind >= self.books.len() {
+            Err(0) // out of range
         } else {
-            if self.find_book(title, &new_author, pages) < self.books.len() {
-                Err(1) // already exists
-            } else {
-                unsafe {
-                    (**self.books.get_unchecked_mut(find))
-                        .borrow_mut()
-                        .change_author(new_author);
+            unsafe {
+                if self.find_book(
+                    &(*self.books.get_unchecked(ind)).borrow_mut().title,
+                    &new_author,
+                    (*self.books.get_unchecked(ind)).borrow_mut().pages,
+                ) < self.books.len()
+                {
+                    Err(1) // already exists
+                } else {
+                    Ok(self.change_author_unchecked(ind, new_author))
                 }
-                Ok(self)
             }
         };
+    }
+
+    /// Changes TheBook's and all simple books' title without any checks
+
+    #[inline]
+    pub unsafe fn change_pages_unchecked(&mut self, ind: usize, new_pages: u16) -> &mut Self {
+        (**self.books.get_unchecked_mut(ind))
+            .borrow_mut()
+            .change_pages(new_pages);
+        self
     }
 
     /// Changes TheBook's and all simple books' title
 
     #[inline]
-    pub fn change_pages(
-        &mut self,
-        title: &String,
-        author: &String,
-        pages: u16,
-        new_pages: String,
-    ) -> ResultSelf<Self> {
+    pub fn change_pages(&mut self, ind: usize, new_pages: String) -> ResultSelf<Self> {
         let new_pages_num;
 
         match new_pages.trim().parse::<u16>() {
@@ -737,20 +766,20 @@ impl BookSystem {
             Err(_) => return Err(0), // parse error
         }
 
-        let find = self.find_book(title, author, pages);
-
-        return if find == self.books.len() {
+        return if ind == self.books.len() {
             Err(1) // not found
         } else {
-            if self.find_book(title, author, new_pages_num) < self.books.len() {
-                Err(2) // already exists
-            } else {
-                unsafe {
-                    (**self.books.get_unchecked_mut(find))
-                        .borrow_mut()
-                        .change_pages(new_pages_num);
+            unsafe {
+                if self.find_book(
+                    &(*self.books.get_unchecked(ind)).borrow_mut().title,
+                    &(*self.books.get_unchecked(ind)).borrow_mut().author,
+                    new_pages_num,
+                ) < self.books.len()
+                {
+                    Err(2) // already exists
+                } else {
+                    Ok(self.change_pages_unchecked(ind, new_pages_num))
                 }
-                Ok(self)
             }
         };
     }

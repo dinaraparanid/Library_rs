@@ -168,7 +168,7 @@ mod reader_tests {
 
         (*reader)
             .borrow_mut()
-            .remove_book(&(*(*book1).borrow()) as *const Book);
+            .remove_book(&(*(*book1).borrow()) as *mut Book);
 
         assert_eq!("Reader { name: \"Name\", family: \"Family\", father: \"Father\", age: 50, books.yaml: [\"LOL KEK 200\", \"KOK LEL 1000\"] }",
                    format!("{:?}", *(*reader).borrow())
@@ -307,11 +307,7 @@ mod reader_base_tests {
         assert_eq!("Reader Base { readers.yaml: [\"Reader { name: \\\"Name2\\\", family: \\\"Family2\\\", father: \\\"Father2\\\", age: 60, books.yaml: [] }\"] }",
                    format!("{:?}",
                            reader_base
-                               .remove_reader(
-                                   &"Name1".to_string(),
-                                   &"Family1".to_string(),
-                                   &"Father1".to_string(),
-                                   50, )
+                               .remove_reader(0)
                                .unwrap()));
 
         assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 50, is using: true, readers.yaml: [] }",
@@ -342,51 +338,15 @@ mod reader_base_tests {
         assert_eq!("Reader Base { readers.yaml: [\"Reader { name: \\\"Michael\\\", family: \\\"Jackson\\\", father: \\\"Joseph\\\", age: 60, books.yaml: [] }\"] }",
                    format!("{:?}",
                            reader_base
-                               .change_name(
-                                   &"Name1".to_string(),
-                                   &"Family1".to_string(),
-                                   &"Father1".to_string(),
-                                   10,
-                                   "Michael".to_string()
-                               )
+                               .change_name(0, "Michael".to_string())
                                .unwrap()
-                               .change_family(
-                                   &"Michael".to_string(),
-                                   &"Family1".to_string(),
-                                   &"Father1".to_string(),
-                                   10,
-                                   "Jackson".to_string()
-                               )
+                               .change_family(0, "Jackson".to_string())
                                .unwrap()
-                               .change_father(
-                                   &"Michael".to_string(),
-                                   &"Jackson".to_string(),
-                                   &"Father1".to_string(),
-                                   10,
-                                   "Joseph".to_string()
-                               )
+                               .change_father(0, "Joseph".to_string())
                                .unwrap()
-                               .change_age(
-                                   &"Michael".to_string(),
-                                   &"Jackson".to_string(),
-                                   &"Joseph".to_string(),
-                                   10,
-                                   "60".to_string()
-                               )
+                               .change_age(0, "60".to_string())
                                .unwrap()));
 
-        assert_eq!(
-            reader_base
-                .change_age(
-                    &"Michael".to_string(),
-                    &"Jackson".to_string(),
-                    &"Joseph".to_string(),
-                    60,
-                    "aba".to_string()
-                )
-                .err()
-                .unwrap(),
-            0
-        );
+        assert!(reader_base.change_age(0, "aba".to_string()).is_err());
     }
 }

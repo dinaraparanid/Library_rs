@@ -1,5 +1,6 @@
 extern crate yaml_rust;
 use crate::book::{Book, ResultSelf};
+use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::fmt::{Debug, Formatter, Result};
 use std::fs::File;
@@ -275,6 +276,7 @@ impl ReaderBase {
     /// If ok returns index,
     /// else returns amount of readers
 
+    #[inline]
     pub fn find_reader(&self, name: &String, family: &String, father: &String, age: u8) -> usize {
         for i in 0..self.readers.len() {
             unsafe {
@@ -288,6 +290,23 @@ impl ReaderBase {
             }
         }
         self.readers.len()
+    }
+
+    /// Adds reader by params.
+    /// No checks provided
+
+    #[inline]
+    pub unsafe fn add_reader_unchecked(
+        &mut self,
+        name: String,
+        family: String,
+        father: String,
+        age: u8,
+    ) -> &mut Self {
+        self.readers.push(Rc::new(RefCell::new(Reader::new(
+            name, family, father, age,
+        ))));
+        self
     }
 
     /// Adds reader by params.
@@ -305,13 +324,22 @@ impl ReaderBase {
         return if !self.readers.is_empty()
             && self.find_reader(&name, &family, &father, age) < self.readers.len()
         {
-            Err(0)
+            Err(0) // already exists
         } else {
-            self.readers.push(Rc::new(RefCell::new(Reader::new(
-                name, family, father, age,
-            ))));
-            Ok(self)
+            Ok(unsafe { self.add_reader_unchecked(name, family, father, age) })
         };
+    }
+
+    /// Removes reader by params.
+    /// No checks provided
+
+    #[inline]
+    pub unsafe fn remove_reader_unchecked(&mut self, ind: usize) -> &mut Self {
+        (**self.readers.get_unchecked_mut(ind))
+            .borrow_mut()
+            .remove_all_books();
+        self.readers.remove(ind);
+        self
     }
 
     /// Removes reader by params.
@@ -319,26 +347,23 @@ impl ReaderBase {
     /// it will report error
 
     #[inline]
-    pub fn remove_reader(
-        &mut self,
-        name: &String,
-        family: &String,
-        father: &String,
-        age: u8,
-    ) -> ResultSelf<Self> {
-        let find = self.find_reader(name, family, father, age);
-
-        return if find == self.readers.len() {
-            Err(0)
+    pub fn remove_reader(&mut self, ind: usize) -> ResultSelf<Self> {
+        return if ind >= self.readers.len() {
+            Err(0) // out of range
         } else {
-            unsafe {
-                (**self.readers.get_unchecked_mut(find))
-                    .borrow_mut()
-                    .remove_all_books();
-                self.readers.remove(find);
-                Ok(self)
-            }
+            Ok(unsafe { self.remove_reader_unchecked(ind) })
         };
+    }
+
+    /// Changes reader's name.
+    /// No checks provided
+
+    pub unsafe fn change_name_unchecked(&mut self, ind: usize, new_name: String) -> &mut Self {
+        (**self.readers.get_unchecked_mut(ind))
+            .borrow_mut()
+            .change_name(new_name)
+            .unwrap();
+        self
     }
 
     /// Changes reader's name.
@@ -346,33 +371,36 @@ impl ReaderBase {
     /// it will report error
 
     #[inline]
-    pub fn change_name(
-        &mut self,
-        name: &String,
-        family: &String,
-        father: &String,
-        age: u8,
-        new_name: String,
-    ) -> ResultSelf<Self> {
-        let find = self.find_reader(name, family, father, age);
-
-        return if find == self.readers.len() {
-            Err(0) // not found
+    pub fn change_name(&mut self, ind: usize, new_name: String) -> ResultSelf<Self> {
+        return if ind >= self.readers.len() {
+            Err(0) // out of range
         } else {
-            if self.find_reader(&new_name, family, father, age) < self.readers.len() {
-                Err(1) // already exists
-            } else {
-                unsafe {
-                    if let Err(_) = (**self.readers.get_unchecked_mut(find))
-                        .borrow_mut()
-                        .change_name(new_name)
-                    {
-                        return Err(2); // empty name
-                    }
+            unsafe {
+                if self.find_reader(
+                    &new_name,
+                    &(*self.readers.get_unchecked(ind)).borrow_mut().family,
+                    &(*self.readers.get_unchecked(ind)).borrow_mut().father,
+                    (*self.readers.get_unchecked(ind)).borrow_mut().age,
+                ) < self.readers.len()
+                {
+                    Err(1) // already exists
+                } else {
+                    Ok(self.change_name_unchecked(ind, new_name))
                 }
-                Ok(self)
             }
         };
+    }
+
+    /// Changes reader's 2-nd name.
+    /// No checks provided
+
+    #[inline]
+    pub unsafe fn change_family_unchecked(&mut self, ind: usize, new_family: String) -> &mut Self {
+        (**self.readers.get_unchecked_mut(ind))
+            .borrow_mut()
+            .change_family(new_family)
+            .unwrap();
+        self
     }
 
     /// Changes reader's 2-nd name.
@@ -380,33 +408,36 @@ impl ReaderBase {
     /// it will report error
 
     #[inline]
-    pub fn change_family(
-        &mut self,
-        name: &String,
-        family: &String,
-        father: &String,
-        age: u8,
-        new_family: String,
-    ) -> ResultSelf<Self> {
-        let find = self.find_reader(name, family, father, age);
-
-        return if find == self.readers.len() {
-            Err(0) // not found
+    pub fn change_family(&mut self, ind: usize, new_family: String) -> ResultSelf<Self> {
+        return if ind >= self.readers.len() {
+            Err(0) // out of range
         } else {
-            if self.find_reader(name, &new_family, father, age) < self.readers.len() {
-                Err(1) // already exists
-            } else {
-                unsafe {
-                    if let Err(_) = (**self.readers.get_unchecked_mut(find))
-                        .borrow_mut()
-                        .change_family(new_family)
-                    {
-                        return Err(2); // empty family
-                    }
+            unsafe {
+                if self.find_reader(
+                    &(*self.readers.get_unchecked(ind)).borrow_mut().name,
+                    &new_family,
+                    &(*self.readers.get_unchecked(ind)).borrow_mut().father,
+                    (*self.readers.get_unchecked(ind)).borrow_mut().age,
+                ) < self.readers.len()
+                {
+                    Err(1) // already exists
+                } else {
+                    Ok(self.change_family_unchecked(ind, new_family))
                 }
-                Ok(self)
             }
         };
+    }
+
+    /// Changes reader's mid. name.
+    /// No checks provided
+
+    #[inline]
+    pub unsafe fn change_father_unchecked(&mut self, ind: usize, new_father: String) -> &mut Self {
+        (**self.readers.get_unchecked_mut(ind))
+            .borrow_mut()
+            .change_father(new_father)
+            .unwrap();
+        self
     }
 
     /// Changes reader's mid. name.
@@ -414,33 +445,35 @@ impl ReaderBase {
     /// it will report error
 
     #[inline]
-    pub fn change_father(
-        &mut self,
-        name: &String,
-        family: &String,
-        father: &String,
-        age: u8,
-        new_father: String,
-    ) -> ResultSelf<Self> {
-        let find = self.find_reader(name, family, father, age);
-
-        return if find == self.readers.len() {
-            Err(0) // not found
+    pub fn change_father(&mut self, ind: usize, new_father: String) -> ResultSelf<Self> {
+        return if ind >= self.readers.len() {
+            Err(0) // out of range
         } else {
-            if self.find_reader(name, family, &new_father, age) < self.readers.len() {
-                Err(1) // already exists
-            } else {
-                unsafe {
-                    if let Err(_) = (**self.readers.get_unchecked_mut(find))
-                        .borrow_mut()
-                        .change_father(new_father)
-                    {
-                        return Err(2); // empty father
-                    }
+            unsafe {
+                if self.find_reader(
+                    &(*self.readers.get_unchecked(ind)).borrow_mut().name,
+                    &(*self.readers.get_unchecked(ind)).borrow_mut().family,
+                    &new_father,
+                    (*self.readers.get_unchecked(ind)).borrow_mut().age,
+                ) < self.readers.len()
+                {
+                    Err(1) // already exists
+                } else {
+                    Ok(self.change_father_unchecked(ind, new_father))
                 }
-                Ok(self)
             }
         };
+    }
+
+    /// Changes reader's age.
+    /// No checks provided
+
+    #[inline]
+    pub unsafe fn change_age_unchecked(&mut self, ind: usize, new_age: u8) -> &mut Self {
+        (**self.readers.get_unchecked_mut(ind))
+            .borrow_mut()
+            .change_age(new_age);
+        self
     }
 
     /// Changes reader's age.
@@ -448,14 +481,7 @@ impl ReaderBase {
     /// it will report error
 
     #[inline]
-    pub fn change_age(
-        &mut self,
-        name: &String,
-        family: &String,
-        father: &String,
-        age: u8,
-        new_age: String,
-    ) -> ResultSelf<Self> {
+    pub fn change_age(&mut self, ind: usize, new_age: String) -> ResultSelf<Self> {
         let new_age_num;
 
         match new_age.trim().parse::<u8>() {
@@ -463,20 +489,21 @@ impl ReaderBase {
             Err(_) => return Err(0), // parse error
         }
 
-        let find = self.find_reader(name, family, father, age);
-
-        return if find == self.readers.len() {
-            Err(1) // not found
+        return if ind >= self.readers.len() {
+            Err(1) // out of range
         } else {
-            if self.find_reader(name, family, father, new_age_num) < self.readers.len() {
-                Err(2) // already exists
-            } else {
-                unsafe {
-                    (**self.readers.get_unchecked_mut(find))
-                        .borrow_mut()
-                        .change_age(new_age_num);
+            unsafe {
+                if self.find_reader(
+                    &(*self.readers.get_unchecked(ind)).borrow_mut().name,
+                    &(*self.readers.get_unchecked(ind)).borrow_mut().family,
+                    &(*self.readers.get_unchecked(ind)).borrow_mut().father,
+                    new_age_num,
+                ) < self.readers.len()
+                {
+                    Err(2) // already exists
+                } else {
+                    Ok(self.change_age_unchecked(ind, new_age_num))
                 }
-                Ok(self)
             }
         };
     }
@@ -502,36 +529,46 @@ impl ReaderBase {
 
                 data.insert(
                     Yaml::String("Name".to_string()),
-                    Yaml::String((*self.readers.get_unchecked(guy)).borrow().name.clone()),
+                    Yaml::String((*self.readers.get_unchecked(guy)).borrow_mut().name.clone()),
                 );
 
                 data.insert(
                     Yaml::String("Family".to_string()),
-                    Yaml::String((*self.readers.get_unchecked(guy)).borrow().family.clone()),
+                    Yaml::String(
+                        (*self.readers.get_unchecked(guy))
+                            .borrow_mut()
+                            .family
+                            .clone(),
+                    ),
                 );
 
                 data.insert(
                     Yaml::String("Father".to_string()),
-                    Yaml::String((*self.readers.get_unchecked(guy)).borrow().father.clone()),
+                    Yaml::String(
+                        (*self.readers.get_unchecked(guy))
+                            .borrow_mut()
+                            .father
+                            .clone(),
+                    ),
                 );
 
                 data.insert(
                     Yaml::String("Age".to_string()),
-                    Yaml::Integer((*self.readers.get_unchecked(guy)).borrow().age as i64),
+                    Yaml::Integer((*self.readers.get_unchecked(guy)).borrow_mut().age as i64),
                 );
 
                 data.insert(
                     Yaml::String("Reading".to_string()),
                     Yaml::String(
                         if (*self.readers.get_unchecked(guy))
-                            .borrow()
+                            .borrow_mut()
                             .reading
                             .is_some()
                         {
                             format!(
                                 "{} {} {}",
                                 (*((*self.readers.get_unchecked(guy))
-                                    .borrow()
+                                    .borrow_mut()
                                     .reading
                                     .as_ref()
                                     .unwrap())
@@ -540,7 +577,7 @@ impl ReaderBase {
                                 .borrow()
                                 .title,
                                 (*((*self.readers.get_unchecked(guy))
-                                    .borrow()
+                                    .borrow_mut()
                                     .reading
                                     .as_ref()
                                     .unwrap())
@@ -549,7 +586,7 @@ impl ReaderBase {
                                 .borrow()
                                 .author,
                                 (*((*self.readers.get_unchecked(guy))
-                                    .borrow()
+                                    .borrow_mut()
                                     .reading
                                     .as_ref()
                                     .unwrap())
