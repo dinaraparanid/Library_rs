@@ -7,6 +7,7 @@ use fltk::dialog::alert;
 use fltk::draw::capture_window;
 use fltk::frame::Frame;
 use fltk::group::VGrid;
+use fltk::input::*;
 use fltk::prelude::*;
 use fltk::window::SingleWindow;
 use std::num::ParseIntError;
@@ -21,7 +22,7 @@ use std::num::ParseIntError;
 
 pub fn add_books(book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input3::new("Add Books", "Title", "Author", "Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new("Add Books", "Title", "Author", "Pages");
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -35,7 +36,8 @@ pub fn add_books(book_system: &mut BookSystem, app: &App) {
 
                     if let Ok(books) = new_books_params {
                         let (s3, r3) = app::channel();
-                        let mut get_amount = Input1::new("Books amount", "Amount of books to add");
+                        let mut get_amount =
+                            Input1::<IntInput>::new("Books amount", "Amount of books to add");
                         get_amount.show();
                         (*get_amount.ok).borrow_mut().emit(s3, true);
 
@@ -138,7 +140,7 @@ pub fn add_books(book_system: &mut BookSystem, app: &App) {
 
 pub fn remove_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input3::new("Remove Book", "Title", "Author", "Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new("Remove Book", "Title", "Author", "Pages");
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -152,7 +154,7 @@ pub fn remove_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, a
 
                     if let Ok(book) = rem_book_params {
                         let (s3, r3) = app::channel();
-                        let mut get_ind = Input1::new("Book's number", "Book's number");
+                        let mut get_ind = Input1::<IntInput>::new("Book's number", "Book's number");
                         get_ind.show();
                         (*get_ind.ok).borrow_mut().emit(s3, true);
 
@@ -255,7 +257,7 @@ pub fn remove_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, a
 
 pub fn add_book(book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input3::new("Add New Book", "Title", "Author", "Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new("Add New Book", "Title", "Author", "Pages");
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -308,7 +310,7 @@ pub fn add_book(book_system: &mut BookSystem, app: &App) {
 
 pub fn remove_the_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input3::new("Remove Books", "Title", "Author", "Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new("Remove Books", "Title", "Author", "Pages");
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -361,7 +363,7 @@ pub fn remove_the_book(book_system: &mut BookSystem, reader_base: &mut ReaderBas
 
 pub fn change_title(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input3::new("Change Title", "Title", "Author", "Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new("Change Title", "Title", "Author", "Pages");
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -375,7 +377,7 @@ pub fn change_title(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
 
                     if let Ok(book) = book_params {
                         let (s3, r3) = app::channel();
-                        let mut get_title = Input1::new("New Title", "New Title");
+                        let mut get_title = Input1::<Input>::new("New Title", "New Title");
                         get_title.show();
                         (*get_title.ok).borrow_mut().emit(s3, true);
 
@@ -445,7 +447,7 @@ pub fn change_title(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
 
 pub fn change_author(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input3::new("Change Title", "Title", "Author", "Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new("Change Title", "Title", "Author", "Pages");
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -459,7 +461,7 @@ pub fn change_author(book_system: &mut BookSystem, reader_base: &mut ReaderBase,
 
                     if let Ok(book) = book_params {
                         let (s3, r3) = app::channel();
-                        let mut get_author = Input1::new("New Author", "New Author");
+                        let mut get_author = Input1::<Input>::new("New Author", "New Author");
                         get_author.show();
                         (*get_author.ok).borrow_mut().emit(s3, true);
 
@@ -530,7 +532,7 @@ pub fn change_author(book_system: &mut BookSystem, reader_base: &mut ReaderBase,
 
 pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input3::new("Change Title", "Title", "Author", "Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new("Change Title", "Title", "Author", "Pages");
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -545,7 +547,7 @@ pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
                     if let Ok(book) = book_params {
                         let (s3, r3) = app::channel();
                         let mut get_pages =
-                            Input1::new("New Amount of Pages", "New Amount of Pages");
+                            Input1::<IntInput>::new("New Amount of Pages", "New Amount of Pages");
                         get_pages.show();
                         (*get_pages.ok).borrow_mut().emit(s3, true);
 
@@ -617,7 +619,7 @@ pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
 
 pub fn book_info(book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input3::new("Find Book", "Title", "Author", "Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new("Find Book", "Title", "Author", "Pages");
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);

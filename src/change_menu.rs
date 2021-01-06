@@ -1,9 +1,9 @@
 use fltk::button::Button;
 use fltk::dialog::*;
 use fltk::frame::Frame;
-use fltk::input::{Input, IntInput};
-use fltk::prelude::*;
+use fltk::input::{Input, InputExt, IntInput, SecretInput};
 use fltk::window::SingleWindow;
+use fltk::WidgetExt;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -43,53 +43,71 @@ pub trait Inputable {
 
 /// Changes one value
 
-pub struct Input1 {
+pub struct Input1<I>
+where
+    I: InputExt + WidgetBase,
+{
     wind: Rc<RefCell<SingleWindow>>,
     pub ok: Rc<RefCell<Button>>,
     what: Rc<RefCell<Frame>>,
-    input: Rc<RefCell<Input>>,
+    input: Rc<RefCell<I>>,
 }
 
 /// Changes two values
 
-pub struct Input2 {
+pub struct Input2<I, J>
+where
+    I: InputExt + WidgetBase,
+    J: InputExt + WidgetBase,
+{
     wind: Rc<RefCell<SingleWindow>>,
     pub ok: Rc<RefCell<Button>>,
     what1: Rc<RefCell<Frame>>,
-    input1: Rc<RefCell<Input>>,
+    input1: Rc<RefCell<I>>,
     what2: Rc<RefCell<Frame>>,
-    input2: Rc<RefCell<Input>>,
+    input2: Rc<RefCell<J>>,
 }
 
 /// Changes three values
 
-pub struct Input3 {
+pub struct Input3<I, J, L>
+where
+    I: InputExt + WidgetBase,
+    J: InputExt + WidgetBase,
+    L: InputExt + WidgetBase,
+{
     wind: Rc<RefCell<SingleWindow>>,
     pub ok: Rc<RefCell<Button>>,
     what1: Rc<RefCell<Frame>>,
-    input1: Rc<RefCell<Input>>,
+    input1: Rc<RefCell<I>>,
     what2: Rc<RefCell<Frame>>,
-    input2: Rc<RefCell<Input>>,
+    input2: Rc<RefCell<J>>,
     what3: Rc<RefCell<Frame>>,
-    input3: Rc<RefCell<Input>>,
+    input3: Rc<RefCell<L>>,
 }
 
 /// Changes four values
 
-pub struct Input4 {
+pub struct Input4<I, J, L, K>
+where
+    I: InputExt + WidgetBase,
+    J: InputExt + WidgetBase,
+    L: InputExt + WidgetBase,
+    K: InputExt + WidgetBase,
+{
     wind: Rc<RefCell<SingleWindow>>,
     pub ok: Rc<RefCell<Button>>,
     what1: Rc<RefCell<Frame>>,
-    input1: Rc<RefCell<Input>>,
+    input1: Rc<RefCell<I>>,
     what2: Rc<RefCell<Frame>>,
-    input2: Rc<RefCell<Input>>,
+    input2: Rc<RefCell<J>>,
     what3: Rc<RefCell<Frame>>,
-    input3: Rc<RefCell<Input>>,
+    input3: Rc<RefCell<L>>,
     what4: Rc<RefCell<Frame>>,
-    input4: Rc<RefCell<IntInput>>,
+    input4: Rc<RefCell<K>>,
 }
 
-impl Inputable for Input1 {
+impl<I: InputExt + WidgetBase> Inputable for Input1<I> {
     #[inline]
     fn get_wind(&self) -> &Rc<RefCell<SingleWindow>> {
         &self.wind
@@ -108,7 +126,7 @@ impl Inputable for Input1 {
     }
 }
 
-impl Input1 {
+impl<I: InputExt + WidgetBase> Input1<I> {
     /// Creates window with asking message and 1 input label
 
     #[inline]
@@ -120,7 +138,7 @@ impl Input1 {
 
         let wat: Rc<RefCell<Frame>> =
             Rc::new(RefCell::new(WidgetBase::new(-20, 80, 200, 30, what_mes)));
-        let inp: Rc<RefCell<Input>> = Rc::new(RefCell::new(WidgetBase::new(150, 80, 300, 30, "")));
+        let inp: Rc<RefCell<I>> = Rc::new(RefCell::new(WidgetBase::new(150, 80, 300, 30, "")));
 
         WidgetExt::set_label_size(&mut *(*wat).borrow_mut(), 12);
         InputExt::set_text_size(&mut *(inp).borrow_mut(), 15);
@@ -135,7 +153,11 @@ impl Input1 {
     }
 }
 
-impl Inputable for Input2 {
+impl<I, J> Inputable for Input2<I, J>
+where
+    I: InputExt + WidgetBase,
+    J: InputExt + WidgetBase,
+{
     #[inline]
     fn get_wind(&self) -> &Rc<RefCell<SingleWindow>> {
         &self.wind
@@ -160,11 +182,18 @@ impl Inputable for Input2 {
     }
 }
 
-impl Input2 {
+impl<I, J> Input2<I, J>
+where
+    I: InputExt + WidgetBase,
+    J: InputExt + WidgetBase,
+{
     /// Creates window with asking message and 2 input labels
 
     #[inline]
-    pub fn new(title: &str, what_mes1: &str, what_mes2: &str) -> Self {
+    pub fn new(title: &str, what_mes1: &str, what_mes2: &str) -> Self
+/*where
+        I: InputExt + WidgetBase,
+        J: InputExt + WidgetBase,            */ {
         let win: Rc<RefCell<SingleWindow>> =
             Rc::new(RefCell::new(WidgetBase::new(500, 500, 500, 200, title)));
         let but: Rc<RefCell<Button>> =
@@ -172,12 +201,11 @@ impl Input2 {
 
         let wat1: Rc<RefCell<Frame>> =
             Rc::new(RefCell::new(WidgetBase::new(-20, 20, 200, 30, what_mes1)));
-        let inp1: Rc<RefCell<Input>> = Rc::new(RefCell::new(WidgetBase::new(150, 20, 300, 30, "")));
+        let inp1: Rc<RefCell<I>> = Rc::new(RefCell::new(WidgetBase::new(150, 20, 300, 30, "")));
 
         let wat2: Rc<RefCell<Frame>> =
             Rc::new(RefCell::new(WidgetBase::new(-20, 100, 200, 30, what_mes2)));
-        let inp2: Rc<RefCell<Input>> =
-            Rc::new(RefCell::new(WidgetBase::new(150, 100, 300, 30, "")));
+        let inp2: Rc<RefCell<J>> = Rc::new(RefCell::new(WidgetBase::new(150, 100, 300, 30, "")));
 
         WidgetExt::set_label_size(&mut *(*wat1).borrow_mut(), 12);
         WidgetExt::set_label_size(&mut *(*wat2).borrow_mut(), 12);
@@ -196,7 +224,12 @@ impl Input2 {
     }
 }
 
-impl Inputable for Input3 {
+impl<I, J, L> Inputable for Input3<I, J, L>
+where
+    I: InputExt + WidgetBase,
+    J: InputExt + WidgetBase,
+    L: InputExt + WidgetBase,
+{
     #[inline]
     fn get_wind(&self) -> &Rc<RefCell<SingleWindow>> {
         &self.wind
@@ -224,11 +257,20 @@ impl Inputable for Input3 {
     }
 }
 
-impl Input3 {
+impl<I, J, L> Input3<I, J, L>
+where
+    I: InputExt + WidgetBase,
+    J: InputExt + WidgetBase,
+    L: InputExt + WidgetBase,
+{
     /// Creates window with asking message and 3 input labels
 
     #[inline]
-    pub fn new(title: &str, what_mes1: &str, what_mes2: &str, what_mes3: &str) -> Self {
+    pub fn new(title: &str, what_mes1: &str, what_mes2: &str, what_mes3: &str) -> Self
+/*where
+        I: InputExt + WidgetBase,
+        J: InputExt + WidgetBase,
+        L: InputExt + WidgetBase,      */ {
         let win: Rc<RefCell<SingleWindow>> =
             Rc::new(RefCell::new(WidgetBase::new(500, 500, 500, 200, title)));
         let but: Rc<RefCell<Button>> =
@@ -236,16 +278,15 @@ impl Input3 {
 
         let wat1: Rc<RefCell<Frame>> =
             Rc::new(RefCell::new(WidgetBase::new(-20, 20, 200, 30, what_mes1)));
-        let inp1: Rc<RefCell<Input>> = Rc::new(RefCell::new(WidgetBase::new(150, 20, 300, 30, "")));
+        let inp1: Rc<RefCell<I>> = Rc::new(RefCell::new(WidgetBase::new(150, 20, 300, 30, "")));
 
         let wat2: Rc<RefCell<Frame>> =
             Rc::new(RefCell::new(WidgetBase::new(-20, 60, 200, 30, what_mes2)));
-        let inp2: Rc<RefCell<Input>> = Rc::new(RefCell::new(WidgetBase::new(150, 60, 300, 30, "")));
+        let inp2: Rc<RefCell<J>> = Rc::new(RefCell::new(WidgetBase::new(150, 60, 300, 30, "")));
 
         let wat3: Rc<RefCell<Frame>> =
             Rc::new(RefCell::new(WidgetBase::new(-20, 100, 200, 30, what_mes3)));
-        let inp3: Rc<RefCell<Input>> =
-            Rc::new(RefCell::new(WidgetBase::new(150, 100, 300, 30, "")));
+        let inp3: Rc<RefCell<L>> = Rc::new(RefCell::new(WidgetBase::new(150, 100, 300, 30, "")));
 
         WidgetExt::set_label_size(&mut *(*wat1).borrow_mut(), 12);
         WidgetExt::set_label_size(&mut *(*wat2).borrow_mut(), 12);
@@ -268,7 +309,13 @@ impl Input3 {
     }
 }
 
-impl Inputable for Input4 {
+impl<I, J, L, K> Inputable for Input4<I, J, L, K>
+where
+    I: InputExt + WidgetBase,
+    J: InputExt + WidgetBase,
+    L: InputExt + WidgetBase,
+    K: InputExt + WidgetBase,
+{
     #[inline]
     fn get_wind(&self) -> &Rc<RefCell<SingleWindow>> {
         &self.wind
@@ -299,7 +346,13 @@ impl Inputable for Input4 {
     }
 }
 
-impl Input4 {
+impl<I, J, L, K> Input4<I, J, L, K>
+where
+    I: InputExt + WidgetBase,
+    J: InputExt + WidgetBase,
+    L: InputExt + WidgetBase,
+    K: InputExt + WidgetBase,
+{
     /// Creates window with asking message and 4 input labels
 
     #[inline]
@@ -309,7 +362,13 @@ impl Input4 {
         what_mes2: &str,
         what_mes3: &str,
         what_mes4: &str,
-    ) -> Self {
+    ) -> Self
+    where
+        I: InputExt + WidgetBase,
+        J: InputExt + WidgetBase,
+        L: InputExt + WidgetBase,
+        K: InputExt + WidgetBase,
+    {
         let win: Rc<RefCell<SingleWindow>> =
             Rc::new(RefCell::new(WidgetBase::new(500, 500, 500, 220, title)));
         let but: Rc<RefCell<Button>> =
@@ -317,20 +376,19 @@ impl Input4 {
 
         let wat1: Rc<RefCell<Frame>> =
             Rc::new(RefCell::new(WidgetBase::new(-20, 10, 200, 30, what_mes1)));
-        let inp1: Rc<RefCell<Input>> = Rc::new(RefCell::new(WidgetBase::new(150, 10, 300, 30, "")));
+        let inp1: Rc<RefCell<I>> = Rc::new(RefCell::new(WidgetBase::new(150, 10, 300, 30, "")));
 
         let wat2: Rc<RefCell<Frame>> =
             Rc::new(RefCell::new(WidgetBase::new(-20, 50, 200, 30, what_mes2)));
-        let inp2: Rc<RefCell<Input>> = Rc::new(RefCell::new(WidgetBase::new(150, 50, 300, 30, "")));
+        let inp2: Rc<RefCell<J>> = Rc::new(RefCell::new(WidgetBase::new(150, 50, 300, 30, "")));
 
         let wat3: Rc<RefCell<Frame>> =
             Rc::new(RefCell::new(WidgetBase::new(-20, 90, 200, 30, what_mes3)));
-        let inp3: Rc<RefCell<Input>> = Rc::new(RefCell::new(WidgetBase::new(150, 90, 300, 30, "")));
+        let inp3: Rc<RefCell<L>> = Rc::new(RefCell::new(WidgetBase::new(150, 90, 300, 30, "")));
 
         let wat4: Rc<RefCell<Frame>> =
             Rc::new(RefCell::new(WidgetBase::new(-20, 130, 200, 30, what_mes4)));
-        let inp4: Rc<RefCell<IntInput>> =
-            Rc::new(RefCell::new(WidgetBase::new(150, 130, 300, 30, "")));
+        let inp4: Rc<RefCell<K>> = Rc::new(RefCell::new(WidgetBase::new(150, 130, 300, 30, "")));
 
         WidgetExt::set_label_size(&mut *(*wat1).borrow_mut(), 12);
         WidgetExt::set_label_size(&mut *(*wat2).borrow_mut(), 12);

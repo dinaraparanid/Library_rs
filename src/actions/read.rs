@@ -6,6 +6,7 @@ use fltk::app::App;
 use fltk::dialog::alert;
 use fltk::frame::Frame;
 use fltk::group::VGrid;
+use fltk::input::*;
 use fltk::prelude::*;
 use fltk::window::SingleWindow;
 
@@ -16,7 +17,7 @@ use fltk::window::SingleWindow;
 pub fn add_reader(reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
 
-    let mut inp = Input4::new(
+    let mut inp = Input4::<Input, Input, Input, IntInput>::new(
         "Add Reader",
         "First Name",
         "Second Names",
@@ -77,7 +78,7 @@ pub fn add_reader(reader_base: &mut ReaderBase, app: &App) {
 pub fn remove_reader(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
 
-    let mut inp = Input4::new(
+    let mut inp = Input4::<Input, Input, Input, IntInput>::new(
         "Remove Reader",
         "First Name",
         "Second Names",
@@ -139,7 +140,7 @@ pub fn remove_reader(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
 pub fn change_name(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
 
-    let mut inp = Input4::new(
+    let mut inp = Input4::<Input, Input, Input, IntInput>::new(
         "Change Name",
         "First Name",
         "Second Names",
@@ -160,7 +161,7 @@ pub fn change_name(reader_base: &mut ReaderBase, book_system: &mut BookSystem, a
                     if let Ok(reader) = chng_reader_params {
                         let (s3, r3) = app::channel();
 
-                        let mut get_name = Input1::new("New Name", "New Name");
+                        let mut get_name = Input1::<Input>::new("New Name", "New Name");
                         get_name.show();
                         (*get_name.ok).borrow_mut().emit(s3, true);
 
@@ -246,7 +247,7 @@ pub fn change_name(reader_base: &mut ReaderBase, book_system: &mut BookSystem, a
 pub fn change_family(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
 
-    let mut inp = Input4::new(
+    let mut inp = Input4::<Input, Input, Input, IntInput>::new(
         "Change Name",
         "First Name",
         "Second Names",
@@ -267,7 +268,8 @@ pub fn change_family(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
                     if let Ok(reader) = chng_reader_params {
                         let (s3, r3) = app::channel();
 
-                        let mut get_family = Input1::new("New Second Name", "New Second Name");
+                        let mut get_family =
+                            Input1::<Input>::new("New Second Name", "New Second Name");
                         get_family.show();
                         (*get_family.ok).borrow_mut().emit(s3, true);
 
@@ -357,7 +359,7 @@ pub fn change_family(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
 pub fn change_father(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
 
-    let mut inp = Input4::new(
+    let mut inp = Input4::<Input, Input, Input, IntInput>::new(
         "Change Name",
         "First Name",
         "Second Names",
@@ -378,7 +380,8 @@ pub fn change_father(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
                     if let Ok(reader) = chng_reader_params {
                         let (s3, r3) = app::channel();
 
-                        let mut get_father = Input1::new("New Middle Name", "New Middle Name");
+                        let mut get_father =
+                            Input1::<Input>::new("New Middle Name", "New Middle Name");
                         get_father.show();
                         (*get_father.ok).borrow_mut().emit(s3, true);
 
@@ -468,7 +471,7 @@ pub fn change_father(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
 pub fn change_age(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
 
-    let mut inp = Input4::new(
+    let mut inp = Input4::<Input, Input, Input, IntInput>::new(
         "Change Name",
         "First Name",
         "Second Names",
@@ -489,7 +492,7 @@ pub fn change_age(reader_base: &mut ReaderBase, book_system: &mut BookSystem, ap
                     if let Ok(reader) = chng_reader_params {
                         let (s3, r3) = app::channel();
 
-                        let mut get_age = Input1::new("New Age", "New Age");
+                        let mut get_age = Input1::<IntInput>::new("New Age", "New Age");
                         get_age.show();
                         (*get_age.ok).borrow_mut().emit(s3, true);
 
@@ -574,7 +577,7 @@ pub fn change_age(reader_base: &mut ReaderBase, book_system: &mut BookSystem, ap
 
 pub fn reader_info(reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input4::new(
+    let mut inp = Input4::<Input, Input, Input, IntInput>::new(
         "Find Reader",
         "First Name",
         "Second Name",

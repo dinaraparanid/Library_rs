@@ -3,11 +3,12 @@ use fltk::app::AppScheme;
 use fltk::dialog::alert;
 use fltk::enums::Shortcut;
 use fltk::frame::Frame;
+use fltk::input::{Input, SecretInput};
 use fltk::table::Table;
 use fltk::{app, button::*, draw, menu::*, table, window::*};
 use librs::actions::{book::*, giveaway::*, read::*, reader_table::*};
 use librs::book::BookSystem;
-use librs::change_menu::{Input2, Inputable};
+use librs::change_menu::*;
 use librs::reader::ReaderBase;
 use std::cmp::max;
 use std::fs::File;
@@ -36,13 +37,32 @@ pub enum Message {
     GetBook,
 }
 
+/// Hashing login and password
+
+fn get_hash(str: &String, p: u128, module: u128, ans: &mut Vec<u128>) {
+    ans.resize(str.len(), 0);
+    let bytes = str.as_bytes();
+
+    unsafe {
+        *ans.get_unchecked_mut(0) = *bytes.get_unchecked(0) as u128;
+
+        for i in 1..str.len() {
+            *ans.get_unchecked_mut(i) = ((ans.get_unchecked(i - 1).overflowing_mul(p))
+                .0
+                .overflowing_add(*bytes.get_unchecked(i) as u128)
+                .0)
+                % module;
+        }
+    }
+}
+
 /// I'm **really sorry** about this,
 /// but FLTK's realisation requires it :(
 static mut READER_BASE: ReaderBase = ReaderBase::new();
 
 fn main() {
     let app = app::App::default().with_scheme(AppScheme::Plastic);
-    let (s, r) = app::channel::<Message>();
+    let (s, r) = app::channel();
     let mut book_system = BookSystem::new();
 
     unsafe {
@@ -57,7 +77,8 @@ fn main() {
 
     if adm.is_empty() {
         let (s, r) = app::channel();
-        let mut password = Input2::new("New User", "New Login", "New Password");
+        let mut password =
+            Input2::<Input, SecretInput>::new("New User", "New Login", "New Password");
         password.show();
 
         (*password.ok).borrow_mut().emit(s, true);
@@ -71,13 +92,23 @@ fn main() {
 
                         if let Ok(data) = input {
                             let mut new_password = File::create("src/admin.bin").unwrap();
+
+                            let mut hash1 = Vec::new();
+                            let mut hash2 = Vec::new();
+                            get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7, &mut hash1);
+                            get_hash(&data.last().unwrap(), 53, 1e9 as u128 + 7, &mut hash2);
+
                             new_password
                                 .write(
                                     format!(
                                         "{}",
-                                        data.first().unwrap().clone()
-                                            + "#"
-                                            + data.last().unwrap().as_str()
+                                        hash1.iter().map(|x| *x as u8 as char).collect::<String>()
+                                            + "\0"
+                                            + hash2
+                                                .iter()
+                                                .map(|x| *x as u8 as char)
+                                                .collect::<String>()
+                                                .as_str()
                                     )
                                     .as_bytes(),
                                 )
@@ -93,9 +124,9 @@ fn main() {
             }
         }
     } else {
-        let admin_data = adm.split('#').collect::<Vec<&str>>();
+        let admin_data = adm.split('\0').collect::<Vec<&str>>();
         let (s, r) = app::channel();
-        let mut password = Input2::new("Authorization", "Login", "Password");
+        let mut password = Input2::<Input, SecretInput>::new("Authorization", "Login", "Password");
         password.show();
 
         (*password.ok).borrow_mut().emit(s, true);
@@ -108,9 +139,18 @@ fn main() {
                         password.hide();
 
                         if let Ok(data) = input {
-                            if format!("{}", *data.first().unwrap())
-                                == format!("{}", admin_data.first().unwrap())
-                                && format!("{}", *data.last().unwrap())
+                            let mut hash1 = Vec::new();
+                            let mut hash2 = Vec::new();
+                            get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7, &mut hash1);
+                            get_hash(&data.last().unwrap(), 53, 1e9 as u128 + 7, &mut hash2);
+
+                            let rehash1 =
+                                hash1.iter().map(|x| *x as u8 as char).collect::<String>();
+                            let rehash2 =
+                                hash2.iter().map(|x| *x as u8 as char).collect::<String>();
+
+                            if format!("{}", rehash1) == format!("{}", admin_data.first().unwrap())
+                                && format!("{}", rehash2)
                                     == format!("{}", *admin_data.last().unwrap())
                             {
                                 fltk::dialog::message(500, 500, "Everything is Ok");
@@ -120,9 +160,9 @@ fn main() {
                                 alert(500, 500, "Wrong login or password");
                                 println!(
                                     "{} != {} or {} != {}",
-                                    *data.first().unwrap(),
+                                    rehash1,
                                     admin_data.first().unwrap(),
-                                    *data.last().unwrap(),
+                                    rehash2,
                                     admin_data.last().unwrap(),
                                 );
                                 app.quit();

@@ -7,6 +7,7 @@ use fltk::dialog::alert;
 use fltk::WidgetExt;
 use std::borrow::Borrow;
 use std::num::ParseIntError;
+use fltk::input::*;
 
 /// Function that gives book to reader.
 /// It requires you to input
@@ -16,7 +17,7 @@ use std::num::ParseIntError;
 
 pub fn give_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = fltk::app::channel();
-    let mut inp = Input4::new(
+    let mut inp = Input4::<Input, Input, Input, IntInput>::new(
         "Find Reader",
         "First Name",
         "Second Name",
@@ -36,7 +37,7 @@ pub fn give_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app
 
                     if let Ok(reader) = reader_params {
                         let (s3, r3) = fltk::app::channel();
-                        let mut inp2 = Input3::new(
+                        let mut inp2 = Input3::<Input, Input, IntInput>::new(
 	                        "Find Book",
 	                        "Title",
 	                        "Author", 
@@ -64,12 +65,11 @@ pub fn give_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app
                                                             .parse::<u16>()
                                                         {
                                                             Ok(y) => {
-                                                                let (s4, r4)
-	                                                                = fltk::app::channel();
-                                                                let mut inp3 = Input3::new(
+                                                                let (s4, r4) = fltk::app::channel();
+                                                                let mut inp3 = Input3::<IntInput, IntInput, IntInput>::new(
                                                                     "Set Return Date",
                                                                     "Day",
-                                                                    "Month",
+                                                                    "Month (number)",
                                                                     "Year",
                                                                 );
 
@@ -325,7 +325,7 @@ pub fn give_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app
 
 pub fn get_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = fltk::app::channel();
-    let mut inp = Input4::new(
+    let mut inp = Input4::<Input, Input, Input, IntInput>::new(
         "Find Reader",
         "First Name",
         "Second Name",
@@ -345,7 +345,7 @@ pub fn get_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app:
 
                     if let Ok(reader) = reader_params {
                         let (s3, r3) = fltk::app::channel();
-                        let mut inp2 = Input3::new(
+                        let mut inp2 = Input3::<Input, Input, IntInput>::new(
 	                        "Find Book",
 	                        "Title",
 	                        "Author", 
