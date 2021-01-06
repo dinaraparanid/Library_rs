@@ -1,13 +1,17 @@
 extern crate fltk;
 use fltk::app::AppScheme;
+use fltk::dialog::alert;
 use fltk::enums::Shortcut;
 use fltk::frame::Frame;
 use fltk::table::Table;
 use fltk::{app, button::*, draw, menu::*, table, window::*};
 use librs::actions::{book::*, giveaway::*, read::*, reader_table::*};
 use librs::book::BookSystem;
+use librs::change_menu::{Input2, Inputable};
 use librs::reader::ReaderBase;
 use std::cmp::max;
+use std::fs::File;
+use std::io::{Read, Write};
 
 /// All messages, which used to call functions
 
@@ -44,6 +48,98 @@ fn main() {
     unsafe {
         READER_BASE.load();
         book_system.load(&mut READER_BASE);
+    }
+
+    let mut admin = File::open("src/admin.bin").unwrap();
+    let mut adm = String::new();
+    admin.read_to_string(&mut adm).unwrap();
+    let mut success = false;
+
+    if adm.is_empty() {
+        let (s, r) = app::channel();
+        let mut password = Input2::new("New User", "New Login", "New Password");
+        password.show();
+
+        (*password.ok).borrow_mut().emit(s, true);
+
+        while app.wait() {
+            if let Some(msg) = r.recv() {
+                match msg {
+                    true => {
+                        let input = password.set_input();
+                        password.hide();
+
+                        if let Ok(data) = input {
+                            let mut new_password = File::create("src/admin.bin").unwrap();
+                            new_password
+                                .write(
+                                    format!(
+                                        "{}",
+                                        data.first().unwrap().clone()
+                                            + "#"
+                                            + data.last().unwrap().as_str()
+                                    )
+                                    .as_bytes(),
+                                )
+                                .unwrap();
+
+                            fltk::dialog::message(500, 500, "New login and password are saved");
+                            success = true;
+                            break;
+                        }
+                    }
+                    false => (),
+                }
+            }
+        }
+    } else {
+        let admin_data = adm.split('#').collect::<Vec<&str>>();
+        let (s, r) = app::channel();
+        let mut password = Input2::new("Authorization", "Login", "Password");
+        password.show();
+
+        (*password.ok).borrow_mut().emit(s, true);
+
+        while app.wait() {
+            if let Some(msg) = r.recv() {
+                match msg {
+                    true => {
+                        let input = password.set_input();
+                        password.hide();
+
+                        if let Ok(data) = input {
+                            if format!("{}", *data.first().unwrap())
+                                == format!("{}", admin_data.first().unwrap())
+                                && format!("{}", *data.last().unwrap())
+                                    == format!("{}", *admin_data.last().unwrap())
+                            {
+                                fltk::dialog::message(500, 500, "Everything is Ok");
+                                success = true;
+                                break;
+                            } else {
+                                alert(500, 500, "Wrong login or password");
+                                println!(
+                                    "{} != {} or {} != {}",
+                                    *data.first().unwrap(),
+                                    admin_data.first().unwrap(),
+                                    *data.last().unwrap(),
+                                    admin_data.last().unwrap(),
+                                );
+                                app.quit();
+                                return;
+                            }
+                        }
+                    }
+                    false => (),
+                }
+            }
+        }
+    }
+
+    if !success {
+        println!("KEK");
+        alert(500, 500, "Nothing was inputted");
+        return;
     }
 
     let mut main_window = MenuWindow::default()
