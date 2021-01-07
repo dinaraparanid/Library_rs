@@ -6,7 +6,7 @@ use fltk::frame::Frame;
 use fltk::input::{Input, SecretInput};
 use fltk::table::Table;
 use fltk::{app, button::*, draw, menu::*, table, window::*};
-use librs::actions::{book::*, giveaway::*, read::*, reader_table::*};
+use librs::actions::{book::*, giveaway::*, read::*, tables::*};
 use librs::book::BookSystem;
 use librs::change_menu::*;
 use librs::reader::ReaderBase;
@@ -35,6 +35,7 @@ pub enum Message {
     InfoTheBook,
     GiveBook,
     GetBook,
+    ShowAllBooks,
 }
 
 /// Hashing login and password
@@ -59,15 +60,15 @@ fn get_hash(str: &String, p: u128, module: u128, ans: &mut Vec<u128>) {
 /// I'm **really sorry** about this,
 /// but FLTK's realisation requires it :(
 static mut READER_BASE: ReaderBase = ReaderBase::new();
+static mut BOOK_SYSTEM: BookSystem = BookSystem::new();
 
 fn main() {
     let app = app::App::default().with_scheme(AppScheme::Plastic);
     let (s, r) = app::channel();
-    let mut book_system = BookSystem::new();
 
     unsafe {
         READER_BASE.load();
-        book_system.load(&mut READER_BASE);
+        BOOK_SYSTEM.load(&mut READER_BASE);
     }
 
     let mut admin = File::open("src/admin.bin").unwrap();
@@ -177,7 +178,6 @@ fn main() {
     }
 
     if !success {
-        println!("KEK");
         alert(500, 500, "Nothing was inputted");
         return;
     }
@@ -190,7 +190,6 @@ fn main() {
     let mut table = Table::new(10, 50, 1780, 890, "");
     table.set_rows(max(50, unsafe { READER_BASE.len() } as u32));
     table.set_row_header(true);
-    table.set_row_resize(true);
     table.set_cols(4);
     table.set_col_header(true);
     table.set_col_width_all(460);
@@ -227,7 +226,7 @@ fn main() {
             table::TableContext::RowHeader => draw_header(&format!("{}", row + 1), x, y, w, h),
 
             table::TableContext::Cell => draw_data(
-                &format!("{}", cell(col, row, &mut READER_BASE)),
+                &format!("{}", cell_reader(col, row, &mut READER_BASE)),
                 x,
                 y,
                 w,
@@ -363,6 +362,14 @@ fn main() {
     );
 
     menu.add_emit(
+        "&Books/Show list of all books\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        Message::ShowAllBooks,
+    );
+
+    menu.add_emit(
         "&Giveaway/Give book to reader\t",
         Shortcut::empty(),
         MenuFlag::Normal,
@@ -391,77 +398,79 @@ fn main() {
                     }
 
                     Message::RemoveReader => {
-                        remove_reader(&mut READER_BASE, &mut book_system, &app);
+                        remove_reader(&mut READER_BASE, &mut BOOK_SYSTEM, &app);
                         table.set_rows(max(50, READER_BASE.len() as u32));
                         table.redraw();
                     }
 
                     Message::ChangeName => {
-                        change_name(&mut READER_BASE, &mut book_system, &app);
+                        change_name(&mut READER_BASE, &mut BOOK_SYSTEM, &app);
                         table.redraw();
                     }
 
                     Message::ChangeFamily => {
-                        change_family(&mut READER_BASE, &mut book_system, &app);
+                        change_family(&mut READER_BASE, &mut BOOK_SYSTEM, &app);
                         table.redraw();
                     }
 
                     Message::ChangeFather => {
-                        change_father(&mut READER_BASE, &mut book_system, &app);
+                        change_father(&mut READER_BASE, &mut BOOK_SYSTEM, &app);
                         table.redraw();
                     }
 
                     Message::ChangeAge => {
-                        change_age(&mut READER_BASE, &mut book_system, &app);
+                        change_age(&mut READER_BASE, &mut BOOK_SYSTEM, &app);
                         table.redraw();
                     }
 
-                    Message::InfoReader => reader_info(&mut READER_BASE, &app),
+                    Message::InfoReader => reader_info(&READER_BASE, &app),
 
                     Message::AddBooks => {
-                        add_books(&mut book_system, &app);
+                        add_books(&mut BOOK_SYSTEM, &app);
                         table.redraw();
                     }
 
                     Message::RemoveBook => {
-                        remove_book(&mut book_system, &mut READER_BASE, &app);
+                        remove_book(&mut BOOK_SYSTEM, &mut READER_BASE, &app);
                         table.redraw();
                     }
 
                     Message::AddTheBook => {
-                        add_book(&mut book_system, &app);
+                        add_book(&mut BOOK_SYSTEM, &app);
                         table.redraw();
                     }
 
                     Message::RemoveTheBook => {
-                        remove_the_book(&mut book_system, &mut READER_BASE, &app);
+                        remove_the_book(&mut BOOK_SYSTEM, &mut READER_BASE, &app);
                         table.redraw();
                     }
 
                     Message::ChangeTitle => {
-                        change_title(&mut book_system, &mut READER_BASE, &app);
+                        change_title(&mut BOOK_SYSTEM, &mut READER_BASE, &app);
                         table.redraw();
                     }
 
                     Message::ChangeAuthor => {
-                        change_author(&mut book_system, &mut READER_BASE, &app);
+                        change_author(&mut BOOK_SYSTEM, &mut READER_BASE, &app);
                         table.redraw();
                     }
 
                     Message::ChangePages => {
-                        change_pages(&mut book_system, &mut READER_BASE, &app);
+                        change_pages(&mut BOOK_SYSTEM, &mut READER_BASE, &app);
                         table.redraw();
                     }
 
-                    Message::InfoTheBook => book_info(&mut book_system, &app),
+                    Message::InfoTheBook => book_info(&BOOK_SYSTEM, &app),
+
+                    Message::ShowAllBooks => show_all_books(&BOOK_SYSTEM),
 
                     Message::GiveBook => {
-                        give_book(&mut READER_BASE, &mut book_system, &app);
+                        give_book(&mut READER_BASE, &mut BOOK_SYSTEM, &app);
                         table.redraw();
                     }
 
                     Message::GetBook => {
-                        get_book(&mut READER_BASE, &mut book_system, &app);
+                        get_book(&mut READER_BASE, &mut BOOK_SYSTEM, &app);
                         table.redraw();
                     }
                 }

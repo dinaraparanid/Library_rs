@@ -581,7 +581,7 @@ pub fn change_age(reader_base: &mut ReaderBase, book_system: &mut BookSystem, ap
 /// If you have mistakes in input,
 /// program will let you know
 
-pub fn reader_info(reader_base: &mut ReaderBase, app: &App) {
+pub fn reader_info(reader_base: &ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
         "Find Reader",
@@ -672,7 +672,7 @@ pub fn reader_info(reader_base: &mut ReaderBase, app: &App) {
                                     30,
                                     format!(
                                         "Age: {}",
-                                        (*reader_base.readers.get_unchecked(ind)).borrow_mut().age
+                                        (*reader_base.readers.get_unchecked(ind)).borrow().age
                                     )
                                     .as_str(),
                                 ));

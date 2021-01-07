@@ -1,8 +1,12 @@
 extern crate fltk;
+use crate::book::{BookSystem, TheBook};
 use crate::reader::ReaderBase;
 use fltk::draw;
 use fltk::prelude::*;
 use fltk::table::Table;
+use std::borrow::Borrow;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 /// Function that draws borders
 /// of the table
@@ -35,42 +39,32 @@ pub fn draw_data(txt: &str, x: i32, y: i32, w: i32, h: i32, selected: bool) {
     draw::pop_clip();
 }
 
-/// Function that returns String with data.
+/// Function that returns String with reader's data.
 /// If column is 0, it' ll return reader's params,
 /// if column is 1, it' ll return books's params (or none)
 /// if column is 2, it' ll return start date's params (or none)
 /// if column is 2, it' ll return finish date's params (or none)
 
 #[inline]
-pub fn cell(x: i32, y: i32, reader_base: &mut ReaderBase) -> String {
+pub fn cell_reader(x: i32, y: i32, reader_base: &ReaderBase) -> String {
     unsafe {
         return if y < reader_base.readers.len() as i32 {
             if x == 0 {
                 format!(
                     "{} {} {}, {} years old",
-                    (*reader_base.readers.get_unchecked(y as usize))
-                        .borrow()
-                        .name,
-                    (*reader_base.readers.get_unchecked(y as usize))
-                        .borrow()
-                        .family,
-                    (*reader_base.readers.get_unchecked(y as usize))
-                        .borrow()
-                        .father,
-                    (*reader_base.readers.get_unchecked(y as usize))
-                        .borrow()
-                        .age
+                    RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).name,
+                    RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).family,
+                    RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).father,
+                    RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).age
                 )
-            } else if (*reader_base.readers.get_unchecked(y as usize))
-                .borrow()
+            } else if RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
                 .reading
                 .is_some()
             {
                 match x {
                     1 => format!(
                         "'{}' {}, {} pages",
-                        (*(*reader_base.readers.get_unchecked(y as usize))
-                            .borrow()
+                        (*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
                             .reading
                             .as_ref()
                             .unwrap()
@@ -78,8 +72,7 @@ pub fn cell(x: i32, y: i32, reader_base: &mut ReaderBase) -> String {
                             .unwrap())
                         .borrow()
                         .title,
-                        (*(*reader_base.readers.get_unchecked(y as usize))
-                            .borrow()
+                        (*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
                             .reading
                             .as_ref()
                             .unwrap()
@@ -87,8 +80,7 @@ pub fn cell(x: i32, y: i32, reader_base: &mut ReaderBase) -> String {
                             .unwrap())
                         .borrow()
                         .author,
-                        (*(*reader_base.readers.get_unchecked(y as usize))
-                            .borrow()
+                        (*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
                             .reading
                             .as_ref()
                             .unwrap()
@@ -100,8 +92,7 @@ pub fn cell(x: i32, y: i32, reader_base: &mut ReaderBase) -> String {
 
                     2 => format!(
                         "{}/{}/{}",
-                        ((*(*reader_base.readers.get_unchecked(y as usize))
-                            .borrow()
+                        ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
                             .reading
                             .as_ref()
                             .unwrap()
@@ -114,8 +105,7 @@ pub fn cell(x: i32, y: i32, reader_base: &mut ReaderBase) -> String {
                         .1)
                             .0
                             .day,
-                        ((*(*reader_base.readers.get_unchecked(y as usize))
-                            .borrow()
+                        ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
                             .reading
                             .as_ref()
                             .unwrap()
@@ -128,8 +118,7 @@ pub fn cell(x: i32, y: i32, reader_base: &mut ReaderBase) -> String {
                         .1)
                             .0
                             .month,
-                        ((*(*reader_base.readers.get_unchecked(y as usize))
-                            .borrow()
+                        ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
                             .reading
                             .as_ref()
                             .unwrap()
@@ -146,8 +135,7 @@ pub fn cell(x: i32, y: i32, reader_base: &mut ReaderBase) -> String {
 
                     _ => format!(
                         "{}/{}/{}",
-                        ((*(*reader_base.readers.get_unchecked(y as usize))
-                            .borrow()
+                        ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
                             .reading
                             .as_ref()
                             .unwrap()
@@ -160,8 +148,7 @@ pub fn cell(x: i32, y: i32, reader_base: &mut ReaderBase) -> String {
                         .1)
                             .1
                             .day,
-                        ((*(*reader_base.readers.get_unchecked(y as usize))
-                            .borrow()
+                        ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
                             .reading
                             .as_ref()
                             .unwrap()
@@ -174,8 +161,7 @@ pub fn cell(x: i32, y: i32, reader_base: &mut ReaderBase) -> String {
                         .1)
                             .1
                             .month,
-                        ((*(*reader_base.readers.get_unchecked(y as usize))
-                            .borrow()
+                        ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
                             .reading
                             .as_ref()
                             .unwrap()
@@ -197,4 +183,40 @@ pub fn cell(x: i32, y: i32, reader_base: &mut ReaderBase) -> String {
             "".to_string()
         };
     }
+}
+
+/// Function that returns String book's with data.
+/// If column is 0, it' ll return book's title,
+/// if column is 1, it' ll return books's author,
+/// if column is 2, it' ll return book's amount of pages
+/// if column is 2, it' ll return number of all books
+
+#[inline]
+pub fn cell_book(x: i32, y: i32, book_system: &'static BookSystem) -> String {
+    return format!(
+        "{}",
+        if y < book_system.books.len() as i32 {
+            unsafe {
+                match x {
+                    0 => RefCell::borrow(&(**book_system.books.get_unchecked(y as usize)))
+                        .title
+                        .clone(),
+                    1 => RefCell::borrow(&(**book_system.books.get_unchecked(y as usize)))
+                        .author
+                        .clone(),
+                    2 => RefCell::borrow(&(**book_system.books.get_unchecked(y as usize)))
+                        .pages
+                        .to_string(),
+                    _ => RefCell::borrow(&(**book_system.books.get_unchecked(y as usize)))
+                        .books
+                        .iter()
+                        .filter(|x| !(***x).borrow().is_using)
+                        .count()
+                        .to_string(),
+                }
+            }
+        } else {
+            "".to_string()
+        }
+    );
 }

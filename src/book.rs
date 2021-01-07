@@ -257,6 +257,10 @@ impl Book {
 
     #[inline]
     pub fn remove_reader(&mut self, reader: *mut Reader) -> &mut Self {
+        if reader.is_null() {
+            panic!("nullptr in book remove_reader");
+        }
+
         unsafe {
             if (*reader).reading.is_some() {
                 ((*reader).reading.as_ref().unwrap().upgrade().unwrap())
@@ -269,7 +273,7 @@ impl Book {
             .readers
             .clone()
             .into_iter()
-            .filter(|x| ((*x).0).upgrade().unwrap().as_ptr() as *const Reader != reader)
+            .filter(|x| ((*x).0).upgrade().unwrap().as_ptr() != reader)
             .collect();
         self
     }
@@ -391,7 +395,7 @@ impl BookInterface for TheBook {
                 (**x).borrow_mut().title = new_title.clone();
                 x.clone()
             })
-            .collect::<Vec<Rc<RefCell<Book>>>>();
+            .collect();
         self.title = new_title;
         self
     }
@@ -405,7 +409,7 @@ impl BookInterface for TheBook {
                 (**x).borrow_mut().author = new_author.clone();
                 x.clone()
             })
-            .collect::<Vec<Rc<RefCell<Book>>>>();
+            .collect();
         self.title = new_author;
         self
     }
@@ -420,7 +424,7 @@ impl BookInterface for TheBook {
                 (**x).borrow_mut().pages = new_pages;
                 x.clone()
             })
-            .collect::<Vec<Rc<RefCell<Book>>>>();
+            .collect();
         self
     }
 }
@@ -464,9 +468,8 @@ impl TheBook {
 
         for ind in 0..self.books.len() {
             unsafe {
-                if (*self.books.get_unchecked(ind)).borrow_mut().is_using
-                    && ((*self.books.get_unchecked(ind))
-                        .borrow_mut()
+                if RefCell::borrow(&(**self.books.get_unchecked(ind))).is_using
+                    && (RefCell::borrow(&(**self.books.get_unchecked(ind)))
                         .readers
                         .last()
                         .unwrap())
@@ -590,7 +593,9 @@ impl BookSystem {
             Err(1) // out of range
         } else {
             unsafe {
-                let size = (*self.books.get_unchecked(ind)).borrow_mut().books.len() as u128;
+                let size = RefCell::borrow(&(**self.books.get_unchecked(ind)))
+                    .books
+                    .len() as u128;
 
                 if size + amount as u128 > usize::MAX as u128 {
                     return Err(0); // too much books
@@ -648,7 +653,11 @@ impl BookSystem {
             Err(0) // search ind (TheBook) out of range
         } else {
             unsafe {
-                if rind >= (*self.books.get_unchecked(ind)).borrow_mut().books.len() {
+                if rind
+                    >= RefCell::borrow(&(**self.books.get_unchecked(ind)))
+                        .books
+                        .len()
+                {
                     return Err(1); // remove ind (simple) out of range
                 }
 
@@ -701,8 +710,8 @@ impl BookSystem {
             unsafe {
                 if self.find_book(
                     &new_title,
-                    &(*self.books.get_unchecked(ind)).borrow_mut().author,
-                    (*self.books.get_unchecked(ind)).borrow_mut().pages,
+                    &RefCell::borrow(&(**self.books.get_unchecked(ind))).author,
+                    RefCell::borrow(&(**self.books.get_unchecked(ind))).pages,
                 ) < self.books.len()
                 {
                     Err(1) // already exists
@@ -732,9 +741,9 @@ impl BookSystem {
         } else {
             unsafe {
                 if self.find_book(
-                    &(*self.books.get_unchecked(ind)).borrow_mut().title,
+                    &RefCell::borrow(&(**self.books.get_unchecked(ind))).title,
                     &new_author,
-                    (*self.books.get_unchecked(ind)).borrow_mut().pages,
+                    RefCell::borrow(&(**self.books.get_unchecked(ind))).pages,
                 ) < self.books.len()
                 {
                     Err(1) // already exists
@@ -771,8 +780,8 @@ impl BookSystem {
         } else {
             unsafe {
                 if self.find_book(
-                    &(*self.books.get_unchecked(ind)).borrow_mut().title,
-                    &(*self.books.get_unchecked(ind)).borrow_mut().author,
+                    &RefCell::borrow(&(**self.books.get_unchecked(ind))).title,
+                    &RefCell::borrow(&(**self.books.get_unchecked(ind))).author,
                     new_pages_num,
                 ) < self.books.len()
                 {
@@ -801,14 +810,17 @@ impl BookSystem {
 
                 data.insert(
                     Yaml::String("Title".to_string()),
-                    Yaml::String((*self.books.get_unchecked(book)).borrow_mut().title.clone()),
+                    Yaml::String(
+                        RefCell::borrow(&(**self.books.get_unchecked(book)))
+                            .title
+                            .clone(),
+                    ),
                 );
 
                 data.insert(
                     Yaml::String("Author".to_string()),
                     Yaml::String(
-                        (*self.books.get_unchecked(book))
-                            .borrow_mut()
+                        RefCell::borrow(&(**self.books.get_unchecked(book)))
                             .author
                             .clone(),
                     ),
@@ -816,7 +828,9 @@ impl BookSystem {
 
                 data.insert(
                     Yaml::String("Pages".to_string()),
-                    Yaml::Integer((*self.books.get_unchecked(book)).borrow_mut().pages as i64),
+                    Yaml::Integer(
+                        RefCell::borrow(&(**self.books.get_unchecked(book))).pages as i64,
+                    ),
                 );
 
                 let mut book_arr = Array::new();
@@ -831,26 +845,30 @@ impl BookSystem {
 
                             hash_reader.insert(
                                 Yaml::String("Name".to_string()),
-                                Yaml::String(((x.0).upgrade().unwrap()).borrow_mut().name.clone()),
+                                Yaml::String(
+                                    RefCell::borrow(&*((x.0).upgrade().unwrap())).name.clone(),
+                                ),
                             );
 
                             hash_reader.insert(
                                 Yaml::String("Family".to_string()),
                                 Yaml::String(
-                                    ((x.0).upgrade().unwrap()).borrow_mut().family.clone(),
+                                    RefCell::borrow(&*((x.0).upgrade().unwrap())).family.clone(),
                                 ),
                             );
 
                             hash_reader.insert(
                                 Yaml::String("Father".to_string()),
                                 Yaml::String(
-                                    ((x.0).upgrade().unwrap()).borrow_mut().father.clone(),
+                                    RefCell::borrow(&*((x.0).upgrade().unwrap())).father.clone(),
                                 ),
                             );
 
                             hash_reader.insert(
                                 Yaml::String("Age".to_string()),
-                                Yaml::Integer(((x.0).upgrade().unwrap()).borrow_mut().age as i64),
+                                Yaml::Integer(
+                                    RefCell::borrow(&*((x.0).upgrade().unwrap())).age as i64,
+                                ),
                             );
 
                             hash_reader.insert(
@@ -879,7 +897,7 @@ impl BookSystem {
 
                     hash_simple.insert(
                         Yaml::String("Using".to_string()),
-                        Yaml::Boolean((*simple).borrow_mut().is_using),
+                        Yaml::Boolean(RefCell::borrow(&(**simple)).is_using),
                     );
 
                     hash_simple.insert(Yaml::String("Readers".to_string()), Yaml::Array(readers));

@@ -1,14 +1,17 @@
+use crate::actions::tables::{cell_book, draw_data, draw_header};
 use crate::book::BookSystem;
 use crate::change_menu::*;
 use crate::reader::ReaderBase;
-use fltk::app;
 use fltk::app::{channel, App};
 use fltk::dialog::alert;
 use fltk::frame::Frame;
 use fltk::group::VGrid;
 use fltk::input::*;
 use fltk::prelude::*;
+use fltk::table::*;
 use fltk::window::SingleWindow;
+use fltk::{app, draw};
+use std::cmp::max;
 use std::num::ParseIntError;
 
 /// Function that checks if input was empty
@@ -624,7 +627,7 @@ pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
 /// If you have mistakes in input,
 /// program will let you know
 
-pub fn book_info(book_system: &mut BookSystem, app: &App) {
+pub fn book_info(book_system: &BookSystem, app: &App) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::<Input, Input, IntInput>::new("Find Book", "Title", "Author", "Pages");
 
@@ -700,7 +703,7 @@ pub fn book_info(book_system: &mut BookSystem, app: &App) {
                                     format!(
                                         "Amount of books: {}",
                                         (*book_system.books.get_unchecked(ind))
-                                            .borrow_mut()
+                                            .borrow()
                                             .books
                                             .len()
                                     )
@@ -727,4 +730,56 @@ pub fn book_info(book_system: &mut BookSystem, app: &App) {
             break;
         }
     }
+}
+
+#[inline]
+pub fn show_all_books(book_system: &'static BookSystem) {
+    let mut wind = SingleWindow::default()
+        .with_label("All Books")
+        .with_size(820, 550)
+        .center_screen();
+
+    let mut table = Table::new(10, 10, 800, 540, "");
+    table.set_rows(max(20, book_system.books.len() as u32));
+    table.set_row_header(true);
+    table.set_cols(4);
+    table.set_col_header(true);
+    table.set_col_width_all(190);
+    table.end();
+
+    table.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+        fltk::table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
+
+        fltk::table::TableContext::ColHeader => draw_header(
+            &format!(
+                "{}",
+                match col {
+                    0 => "Title",
+                    1 => "Author",
+                    2 => "Pages",
+                    _ => "Amount of available books",
+                }
+            ),
+            x,
+            y,
+            w,
+            h,
+        ),
+
+        fltk::table::TableContext::RowHeader => draw_header(&format!("{}", row + 1), x, y, w, h),
+
+        fltk::table::TableContext::Cell => draw_data(
+            &format!("{}", cell_book(col, row, book_system)),
+            x,
+            y,
+            w,
+            h,
+            t.is_selected(row, col),
+        ),
+
+        _ => (),
+    });
+
+    wind.end();
+    wind.show();
 }

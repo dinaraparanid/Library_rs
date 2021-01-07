@@ -117,10 +117,6 @@ impl Reader {
                 book_ptr = self.books.get_unchecked(i).upgrade().unwrap().as_ptr();
             }
 
-            if book_ptr.is_null() {
-                panic!("nullptr in Reader find_reader");
-            }
-
             if book_ptr == book.as_ptr() {
                 return i;
             }
@@ -150,6 +146,10 @@ impl Reader {
 
     #[inline]
     pub fn remove_book(&mut self, book: *mut Book) -> &mut Self {
+        if book.is_null() {
+            panic!("nullptr in reader remove_book");
+        }
+
         unsafe {
             if (*book).is_using
                 && *(*((*book).readers.last().unwrap().0).upgrade().unwrap()).borrow() == *self
@@ -378,9 +378,9 @@ impl ReaderBase {
             unsafe {
                 if self.find_reader(
                     &new_name,
-                    &(*self.readers.get_unchecked(ind)).borrow_mut().family,
-                    &(*self.readers.get_unchecked(ind)).borrow_mut().father,
-                    (*self.readers.get_unchecked(ind)).borrow_mut().age,
+                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).family,
+                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).father,
+                    RefCell::borrow(&(**self.readers.get_unchecked(ind))).age,
                 ) < self.readers.len()
                 {
                     Err(1) // already exists
@@ -414,10 +414,10 @@ impl ReaderBase {
         } else {
             unsafe {
                 if self.find_reader(
-                    &(*self.readers.get_unchecked(ind)).borrow_mut().name,
+                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).name,
                     &new_family,
-                    &(*self.readers.get_unchecked(ind)).borrow_mut().father,
-                    (*self.readers.get_unchecked(ind)).borrow_mut().age,
+                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).father,
+                    RefCell::borrow(&(**self.readers.get_unchecked(ind))).age,
                 ) < self.readers.len()
                 {
                     Err(1) // already exists
@@ -451,10 +451,10 @@ impl ReaderBase {
         } else {
             unsafe {
                 if self.find_reader(
-                    &(*self.readers.get_unchecked(ind)).borrow_mut().name,
-                    &(*self.readers.get_unchecked(ind)).borrow_mut().family,
+                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).name,
+                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).family,
                     &new_father,
-                    (*self.readers.get_unchecked(ind)).borrow_mut().age,
+                    RefCell::borrow(&(**self.readers.get_unchecked(ind))).age,
                 ) < self.readers.len()
                 {
                     Err(1) // already exists
@@ -494,9 +494,9 @@ impl ReaderBase {
         } else {
             unsafe {
                 if self.find_reader(
-                    &(*self.readers.get_unchecked(ind)).borrow_mut().name,
-                    &(*self.readers.get_unchecked(ind)).borrow_mut().family,
-                    &(*self.readers.get_unchecked(ind)).borrow_mut().father,
+                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).name,
+                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).family,
+                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).father,
                     new_age_num,
                 ) < self.readers.len()
                 {
@@ -529,14 +529,17 @@ impl ReaderBase {
 
                 data.insert(
                     Yaml::String("Name".to_string()),
-                    Yaml::String((*self.readers.get_unchecked(guy)).borrow_mut().name.clone()),
+                    Yaml::String(
+                        RefCell::borrow(&(**self.readers.get_unchecked(guy)))
+                            .name
+                            .clone(),
+                    ),
                 );
 
                 data.insert(
                     Yaml::String("Family".to_string()),
                     Yaml::String(
-                        (*self.readers.get_unchecked(guy))
-                            .borrow_mut()
+                        RefCell::borrow(&(**self.readers.get_unchecked(guy)))
                             .family
                             .clone(),
                     ),
@@ -545,8 +548,7 @@ impl ReaderBase {
                 data.insert(
                     Yaml::String("Father".to_string()),
                     Yaml::String(
-                        (*self.readers.get_unchecked(guy))
-                            .borrow_mut()
+                        RefCell::borrow(&(**self.readers.get_unchecked(guy)))
                             .father
                             .clone(),
                     ),
@@ -554,21 +556,19 @@ impl ReaderBase {
 
                 data.insert(
                     Yaml::String("Age".to_string()),
-                    Yaml::Integer((*self.readers.get_unchecked(guy)).borrow_mut().age as i64),
+                    Yaml::Integer(RefCell::borrow(&(**self.readers.get_unchecked(guy))).age as i64),
                 );
 
                 data.insert(
                     Yaml::String("Reading".to_string()),
                     Yaml::String(
-                        if (*self.readers.get_unchecked(guy))
-                            .borrow_mut()
+                        if RefCell::borrow(&(**self.readers.get_unchecked(guy)))
                             .reading
                             .is_some()
                         {
                             format!(
                                 "{} {} {}",
-                                (*((*self.readers.get_unchecked(guy))
-                                    .borrow_mut()
+                                (*(RefCell::borrow(&(**self.readers.get_unchecked(guy)))
                                     .reading
                                     .as_ref()
                                     .unwrap())
@@ -576,8 +576,7 @@ impl ReaderBase {
                                 .unwrap())
                                 .borrow()
                                 .title,
-                                (*((*self.readers.get_unchecked(guy))
-                                    .borrow_mut()
+                                (*(RefCell::borrow(&(**self.readers.get_unchecked(guy)))
                                     .reading
                                     .as_ref()
                                     .unwrap())
@@ -585,8 +584,7 @@ impl ReaderBase {
                                 .unwrap())
                                 .borrow()
                                 .author,
-                                (*((*self.readers.get_unchecked(guy))
-                                    .borrow_mut()
+                                (*(RefCell::borrow(&(**self.readers.get_unchecked(guy)))
                                     .reading
                                     .as_ref()
                                     .unwrap())
