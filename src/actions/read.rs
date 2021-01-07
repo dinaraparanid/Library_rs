@@ -78,27 +78,31 @@ pub(crate) fn check_reader(reader_base: &ReaderBase, reader: &Vec<String>) -> Re
     Ok(ind)
 }
 
-/// Function that returns index of simple book
+/// Function that returns index of simple book.
+/// Panics if book is not in vec of books.
+/// Can cause UB, that's why unsafe.
 
 #[inline]
-pub(crate) fn get_book_ind(book_system: &BookSystem, book: *mut Book) -> isize {
+pub(crate) unsafe fn get_book_ind(book_system: &BookSystem, book: *mut Book) -> isize {
     if book.is_null() {
         panic!("nullptr in actions/read get_book_ind");
     }
 
-    unsafe {
-        let the_book_ind = book_system.find_book(&(*book).title, &(*book).author, (*book).pages);
+    let the_book_ind = book_system.find_book(&(*book).title, &(*book).author, (*book).pages);
 
-        ((**(**book_system.books.get_unchecked(the_book_ind))
+    if the_book_ind == book_system.books.len() {
+        panic!("Index out of range");
+    }
+
+    ((**(**book_system.books.get_unchecked(the_book_ind))
             .borrow()
             .books
             .get_unchecked(0))
         .as_ptr()
-        .offset_from(book)
-        .abs()) // find distance between two Book raw pointers 
-            / std::mem::size_of::<Rc<RefCell<Book>>>() // but our vec contains smart pointers of another size
-            + 1
-    }
+        .offset_from(book) // find distance between two Book raw pointers 
+        .abs()) // distance must be >= 0 
+            / std::mem::size_of::<Rc<RefCell<Book>>>() as isize // but our vec contains smart pointers of another size
+            + 1 // for index
 }
 
 /// Function that adds reader.
