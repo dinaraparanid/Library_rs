@@ -1,15 +1,21 @@
-use crate::book::BookSystem;
+use crate::actions::tables::*;
+use crate::book::{Book, BookSystem};
 use crate::change_menu::*;
-use crate::reader::ReaderBase;
-use fltk::app;
+use crate::reader::{Reader, ReaderBase};
 use fltk::app::App;
 use fltk::dialog::alert;
 use fltk::frame::Frame;
 use fltk::group::VGrid;
 use fltk::input::*;
 use fltk::prelude::*;
+use fltk::table::Table;
 use fltk::window::SingleWindow;
+use fltk::{app, draw};
+use std::borrow::*;
+use std::cell::RefCell;
+use std::cmp::max;
 use std::num::ParseIntError;
+use std::rc::Rc;
 
 /// Function that checks if input was empty
 
@@ -70,6 +76,29 @@ pub(crate) fn check_reader(reader_base: &ReaderBase, reader: &Vec<String>) -> Re
     }
 
     Ok(ind)
+}
+
+/// Function that returns index of simple book
+
+#[inline]
+pub(crate) fn get_book_ind(book_system: &BookSystem, book: *mut Book) -> isize {
+    if book.is_null() {
+        panic!("nullptr in actions/read get_book_ind");
+    }
+
+    unsafe {
+        let the_book_ind = book_system.find_book(&(*book).title, &(*book).author, (*book).pages);
+
+        ((**(**book_system.books.get_unchecked(the_book_ind))
+            .borrow()
+            .books
+            .get_unchecked(0))
+        .as_ptr()
+        .offset_from(book)
+        .abs()) // find distance between two Book raw pointers 
+            / std::mem::size_of::<Rc<RefCell<Book>>>() // but our vec contains smart pointers of another size
+            + 1
+    }
 }
 
 /// Function that adds reader.
@@ -581,7 +610,7 @@ pub fn change_age(reader_base: &mut ReaderBase, book_system: &mut BookSystem, ap
 /// If you have mistakes in input,
 /// program will let you know
 
-pub fn reader_info(reader_base: &ReaderBase, app: &App) {
+pub fn reader_info(reader_base: &'static ReaderBase, book_system: &'static BookSystem, app: &App) {
     let (s2, r2) = app::channel();
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
         "Find Reader",
@@ -619,8 +648,8 @@ pub fn reader_info(reader_base: &ReaderBase, app: &App) {
                                 let mut wind = SingleWindow::new(
                                     800,
                                     100,
-                                    400,
-                                    800,
+                                    570,
+                                    600,
                                     format!(
                                         "{} {} {}",
                                         reader.get_unchecked(0).as_str(),
@@ -628,17 +657,11 @@ pub fn reader_info(reader_base: &ReaderBase, app: &App) {
                                         reader.get_unchecked(2).as_str()
                                     )
                                     .as_str(),
-                                );
+                                )
+                                .center_screen();
 
-                                let mut table1 = VGrid::new(0, 0, 400, 100, "");
-                                table1.set_params(
-                                    5 + (*reader_base.readers.get_unchecked(ind))
-                                        .borrow()
-                                        .books
-                                        .len() as i32,
-                                    1,
-                                    1,
-                                );
+                                let mut table1 = VGrid::new(0, 0, 570, 100, "");
+                                table1.set_params(6, 1, 1);
 
                                 table1.add(&Frame::new(
                                     10,
@@ -670,9 +693,72 @@ pub fn reader_info(reader_base: &ReaderBase, app: &App) {
                                     50,
                                     100,
                                     30,
+                                    format!("Age: {}", x).as_str(),
+                                ));
+
+                                table1.add(&Frame::new(
+                                    70,
+                                    50,
+                                    100,
+                                    30,
                                     format!(
-                                        "Age: {}",
-                                        (*reader_base.readers.get_unchecked(ind)).borrow().age
+                                        "Reading now: {}",
+                                        if (**reader_base.readers.get_unchecked(ind))
+                                            .borrow()
+                                            .reading
+                                            .is_some()
+                                        {
+                                            (*(**reader_base.readers.get_unchecked(ind))
+                                                .borrow()
+                                                .reading
+                                                .as_ref()
+                                                .unwrap()
+                                                .upgrade()
+                                                .unwrap())
+                                            .borrow()
+                                            .title
+                                            .clone()
+                                                + " "
+                                                + (*(**reader_base.readers.get_unchecked(ind))
+                                                    .borrow()
+                                                    .reading
+                                                    .as_ref()
+                                                    .unwrap()
+                                                    .upgrade()
+                                                    .unwrap())
+                                                .borrow()
+                                                .author
+                                                .as_str()
+                                                + " "
+                                                + (*(**reader_base.readers.get_unchecked(ind))
+                                                    .borrow()
+                                                    .reading
+                                                    .as_ref()
+                                                    .unwrap()
+                                                    .upgrade()
+                                                    .unwrap())
+                                                .borrow()
+                                                .pages
+                                                .to_string()
+                                                .as_str()
+                                                + "  ("
+                                                + get_book_ind(
+                                                    book_system,
+                                                    (*(**reader_base.readers.get_unchecked(ind))
+                                                        .borrow()
+                                                        .reading
+                                                        .as_ref()
+                                                        .unwrap()
+                                                        .upgrade()
+                                                        .unwrap())
+                                                    .as_ptr(),
+                                                )
+                                                .to_string()
+                                                .as_str()
+                                                + ")"
+                                        } else {
+                                            "None".to_string()
+                                        }
                                     )
                                     .as_str(),
                                 ));
@@ -687,62 +773,62 @@ pub fn reader_info(reader_base: &ReaderBase, app: &App) {
 
                                 table1.auto_layout();
 
-                                let mut table2 = VGrid::new(120, 0, 400, 600, "");
-                                table2.set_params(
-                                    (*reader_base.readers.get_unchecked(ind))
+                                let mut table2 = Table::new(0, 127, 570, 600, "");
+                                table2.set_rows(max(
+                                    30,
+                                    (**reader_base.readers.get_unchecked(ind))
                                         .borrow()
                                         .books
-                                        .len() as i32,
-                                    1,
-                                    1,
-                                );
-
-                                for i in 0..(*reader_base.readers.get_unchecked(ind))
-                                    .borrow()
-                                    .books
-                                    .len()
-                                {
-                                    table2.add(&Frame::new(
-                                        110 + i as i32 * 20,
-                                        50,
-                                        100,
-                                        30,
-                                        format!(
-                                            "№ {} Title: {} Author: {} Pages: {}",
-                                            i + 1,
-                                            (*reader_base.readers.get_unchecked(ind))
-                                                .borrow()
-                                                .books
-                                                .get_unchecked(i)
-                                                .upgrade()
-                                                .unwrap()
-                                                .borrow()
-                                                .title,
-                                            (*reader_base.readers.get_unchecked(ind))
-                                                .borrow()
-                                                .books
-                                                .get_unchecked(i)
-                                                .upgrade()
-                                                .unwrap()
-                                                .borrow()
-                                                .author,
-                                            (*reader_base.readers.get_unchecked(ind))
-                                                .borrow()
-                                                .books
-                                                .get_unchecked(i)
-                                                .upgrade()
-                                                .unwrap()
-                                                .borrow()
-                                                .pages
-                                        )
-                                        .as_str(),
-                                    ));
-                                }
-
-                                table2.auto_layout();
+                                        .len() as u32,
+                                ));
+                                table2.set_row_header(true);
+                                table2.set_cols(4);
+                                table2.set_col_header(true);
+                                table2.set_col_width_all(130);
+                                table2.end();
 
                                 wind.end();
                                 wind.show();
+
+                                table2.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+                                    fltk::table::TableContext::StartPage => {
+                                        draw::set_font(Font::Helvetica, 14)
+                                    }
+
+                                    fltk::table::TableContext::ColHeader => draw_header(
+                                        &format!(
+                                            "{}",
+                                            match col {
+                                                0 => "Title",
+                                                1 => "Author",
+                                                2 => "Pages",
+                                                _ => "Number of book",
+                                            }
+                                        ),
+                                        x,
+                                        y,
+                                        w,
+                                        h,
+                                    ),
+
+                                    fltk::table::TableContext::RowHeader => {
+                                        draw_header(&format!("{}", row + 1), x, y, w, h)
+                                    }
+
+                                    fltk::table::TableContext::Cell => draw_data(
+                                        &format!(
+                                            "{}",
+                                            cell_book2(col, row, ind, reader_base, book_system)
+                                        ),
+                                        x,
+                                        y,
+                                        w,
+                                        h,
+                                        t.is_selected(row, col),
+                                    ),
+
+                                    _ => (),
+                                });
                             },
 
                             Err(_) => {

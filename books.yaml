@@ -18,6 +18,18 @@
             - 6
             - 1
             - 2021
+        - Name: Luke
+          Family: Skywalker
+          Father: Anakin
+          Age: 20
+          Start date:
+            - 7
+            - 1
+            - 2021
+          Finish date:
+            - 8
+            - 1
+            - 2021
     - Using: true
       Readers:
         - Name: Han

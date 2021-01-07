@@ -1,6 +1,7 @@
 extern crate fltk;
-use crate::book::{BookSystem, TheBook};
-use crate::reader::ReaderBase;
+use crate::actions::read::get_book_ind;
+use crate::book::{Book, BookSystem, TheBook};
+use crate::reader::{Reader, ReaderBase};
 use fltk::draw;
 use fltk::prelude::*;
 use fltk::table::Table;
@@ -46,7 +47,7 @@ pub fn draw_data(txt: &str, x: i32, y: i32, w: i32, h: i32, selected: bool) {
 /// if column is 2, it' ll return finish date's params (or none)
 
 #[inline]
-pub fn cell_reader(x: i32, y: i32, reader_base: &ReaderBase) -> String {
+pub fn cell_reader(x: i32, y: i32, reader_base: &ReaderBase, book_system: &BookSystem) -> String {
     unsafe {
         return if y < reader_base.readers.len() as i32 {
             if x == 0 {
@@ -63,7 +64,7 @@ pub fn cell_reader(x: i32, y: i32, reader_base: &ReaderBase) -> String {
             {
                 match x {
                     1 => format!(
-                        "'{}' {}, {} pages",
+                        "'{}' {}, {} pages ({})",
                         (*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
                             .reading
                             .as_ref()
@@ -88,6 +89,16 @@ pub fn cell_reader(x: i32, y: i32, reader_base: &ReaderBase) -> String {
                             .unwrap())
                         .borrow()
                         .pages,
+                        get_book_ind(
+                            book_system,
+                            (*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
+                                .reading
+                                .as_ref()
+                                .unwrap()
+                                .upgrade()
+                                .unwrap())
+                            .as_ptr()
+                        )
                     ),
 
                     2 => format!(
@@ -219,4 +230,62 @@ pub fn cell_book(x: i32, y: i32, book_system: &'static BookSystem) -> String {
             "".to_string()
         }
     );
+}
+
+#[inline]
+pub fn cell_book2(
+    x: i32,
+    y: i32,
+    ind: usize,
+    reader_base: &'static ReaderBase,
+    book_system: &'static BookSystem,
+) -> String {
+    unsafe {
+        return format!(
+            "{}",
+            if y < RefCell::borrow(&(**reader_base.readers.get_unchecked(ind)))
+                .books
+                .len() as i32
+            {
+                match x {
+                    0 => (*RefCell::borrow(&(**reader_base.readers.get_unchecked(ind)))
+                        .books
+                        .get_unchecked(y as usize)
+                        .upgrade()
+                        .unwrap())
+                    .borrow()
+                    .title
+                    .clone(),
+                    1 => (*RefCell::borrow(&(**reader_base.readers.get_unchecked(ind)))
+                        .books
+                        .get_unchecked(y as usize)
+                        .upgrade()
+                        .unwrap())
+                    .borrow()
+                    .author
+                    .clone(),
+                    2 => (*RefCell::borrow(&(**reader_base.readers.get_unchecked(ind)))
+                        .books
+                        .get_unchecked(y as usize)
+                        .upgrade()
+                        .unwrap())
+                    .borrow()
+                    .author
+                    .to_string(),
+                    _ => get_book_ind(
+                        book_system,
+                        (*RefCell::borrow(&(**reader_base.readers.get_unchecked(ind)))
+                            .books
+                            .get_unchecked(y as usize)
+                            .upgrade()
+                            .unwrap())
+                        .as_ptr(),
+                    )
+                    .to_string(),
+                }
+            } else {
+                "".to_string()
+            }
+        );
+    }
 }

@@ -226,7 +226,10 @@ fn main() {
             table::TableContext::RowHeader => draw_header(&format!("{}", row + 1), x, y, w, h),
 
             table::TableContext::Cell => draw_data(
-                &format!("{}", cell_reader(col, row, &mut READER_BASE)),
+                &format!(
+                    "{}",
+                    cell_reader(col, row, &mut READER_BASE, &mut BOOK_SYSTEM)
+                ),
                 x,
                 y,
                 w,
@@ -423,7 +426,7 @@ fn main() {
                         table.redraw();
                     }
 
-                    Message::InfoReader => reader_info(&READER_BASE, &app),
+                    Message::InfoReader => reader_info(&READER_BASE, &mut BOOK_SYSTEM, &app),
 
                     Message::AddBooks => {
                         add_books(&mut BOOK_SYSTEM, &app);
