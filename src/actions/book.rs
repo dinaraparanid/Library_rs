@@ -732,6 +732,9 @@ pub fn book_info(book_system: &BookSystem, app: &App) {
     }
 }
 
+/// Function that shows all information about all existing books:
+/// title, author, num of pages and num of available simple books
+
 #[inline]
 pub fn show_all_books(book_system: &'static BookSystem) {
     let mut wind = SingleWindow::default()
