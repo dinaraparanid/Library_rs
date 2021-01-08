@@ -56,11 +56,13 @@ pub fn draw_data(
     draw::pop_clip();
 }
 
-/// Function that returns String with reader's data.
+/// Function that returns String with reader's data and color.
 /// If column is 0, it' ll return reader's params,
 /// if column is 1, it' ll return books's params (or none)
 /// if column is 2, it' ll return start date's params (or none)
-/// if column is 2, it' ll return finish date's params (or none)
+/// if column is 2, it' ll return finish date's params (or none).
+/// if reader is late, it' ll return some color,
+/// else none
 
 #[inline]
 pub fn cell_reader(
