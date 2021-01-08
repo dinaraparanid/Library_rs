@@ -4,8 +4,10 @@
 /// Reader tests
 
 mod reader_tests {
-    use crate::book::{Book, BookInterface, Date};
-    use crate::reader::Reader;
+    use crate::books::book::Book;
+    use crate::books::date::Date;
+    use crate::books::BookInterface;
+    use crate::reading::reader::Reader;
     use std::cell::RefCell;
     use std::rc::{Rc, Weak};
 
@@ -184,9 +186,9 @@ mod reader_tests {
 /// ReaderBase tests
 
 mod reader_base_tests {
-    use crate::book::{Book, Date};
-    use crate::reader::ReaderBase;
-    use std::borrow::BorrowMut;
+    use crate::books::book::Book;
+    use crate::books::date::Date;
+    use crate::reading::read_base::ReaderBase;
     use std::cell::RefCell;
     use std::rc::Rc;
 

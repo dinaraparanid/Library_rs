@@ -1,14 +1,14 @@
 #[allow(dead_code)]
 #[allow(unused_imports)]
-pub mod book;
+pub mod books;
 
 #[allow(dead_code)]
 #[allow(unused_imports)]
-pub mod reader;
+pub mod reading;
 
 #[allow(dead_code)]
 #[allow(unused_imports)]
-pub mod change_menu;
+pub mod change;
 
 #[allow(dead_code)]
 #[allow(unused_imports)]

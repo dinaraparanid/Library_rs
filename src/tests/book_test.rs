@@ -4,7 +4,7 @@
 /// Date tests
 
 mod date_tests {
-    use crate::book::Date;
+    use crate::books::date::Date;
 
     #[test]
     fn date_test() {
@@ -25,9 +25,10 @@ mod date_tests {
 /// Book tests
 
 mod book_tests {
-    use crate::book::{Book, BookInterface, Date};
-    use crate::reader::Reader;
-    use std::borrow::Borrow;
+    use crate::books::book::Book;
+    use crate::books::date::Date;
+    use crate::books::BookInterface;
+    use crate::reading::reader::Reader;
     use std::cell::RefCell;
     use std::rc::Rc;
 
@@ -135,8 +136,10 @@ mod book_tests {
 /// TheBook tests
 
 mod the_book_tests {
-    use crate::book::{BookInterface, Date, TheBook};
-    use crate::reader::Reader;
+    use crate::books::date::Date;
+    use crate::books::the_book::TheBook;
+    use crate::books::BookInterface;
+    use crate::reading::reader::Reader;
     use std::cell::RefCell;
     use std::rc::Rc;
 

@@ -1,7 +1,11 @@
+extern crate fltk;
 use crate::actions::tables::*;
-use crate::book::{Book, BookSystem};
-use crate::change_menu::*;
-use crate::reader::{Reader, ReaderBase};
+use crate::books::book::Book;
+use crate::books::book_sys::BookSystem;
+use crate::change::input1::Input1;
+use crate::change::input4::Input4;
+use crate::change::Inputable;
+use crate::reading::read_base::ReaderBase;
 use fltk::app::App;
 use fltk::dialog::alert;
 use fltk::frame::Frame;
@@ -11,7 +15,6 @@ use fltk::prelude::*;
 use fltk::table::Table;
 use fltk::window::SingleWindow;
 use fltk::{app, draw};
-use std::borrow::*;
 use std::cell::RefCell;
 use std::cmp::max;
 use std::num::ParseIntError;
@@ -88,19 +91,16 @@ pub(crate) fn get_book_ind(book_system: &BookSystem, book: *mut Book) -> usize {
     }
 
     unsafe {
-        let the_book_ind = book_system.find_book(&(*book).title, &(*book).author, (*book).pages);
-
-        if the_book_ind == book_system.books.len() {
-            panic!("Index out of range");
+        match book_system.find_book(&(*book).title, &(*book).author, (*book).pages) {
+            None => panic!("Index out of range"),
+            Some(ind) => {
+                (*(**book_system.books.get_unchecked(ind)).borrow().books)
+                    .iter()
+                    .position(|x| &*(**x).borrow() as *const Book == book)
+                    .unwrap()
+                    + 1
+            }
         }
-
-        (*(**book_system.books.get_unchecked(the_book_ind))
-            .borrow()
-            .books)
-            .iter()
-            .position(|x| &*(**x).borrow() as *const Book == book)
-            .unwrap()
-            + 1
     }
 }
 

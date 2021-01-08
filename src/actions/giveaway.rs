@@ -1,14 +1,17 @@
-use crate::actions::book::{check_book, empty_inp_book};
-use crate::actions::read::{check_reader, empty_inp_reader};
-use crate::book::{Book, BookSystem, Date};
-use crate::change_menu::*;
-use crate::reader::ReaderBase;
+extern crate fltk;
+use crate::actions::book::*;
+use crate::actions::read::*;
+use crate::books::book_sys::BookSystem;
+use crate::books::date::Date;
+use crate::change::input3::Input3;
+use crate::change::input4::Input4;
+use crate::change::Inputable;
+use crate::reading::read_base::ReaderBase;
 use fltk::app;
 use fltk::app::{channel, App};
 use fltk::dialog::alert;
 use fltk::input::*;
 use fltk::WidgetExt;
-use std::borrow::Borrow;
 use std::num::ParseIntError;
 
 /// Function that gives book to reader.
@@ -124,64 +127,59 @@ pub fn give_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app
 															                                            .borrow_mut()
 															                                            .get_unused();
 
-														                                            if simple_book
-															                                            != (*book_system
-															                                            .books
-															                                            .get_unchecked(bind))
-															                                            .borrow_mut()
-															                                            .books
-															                                            .len()
-														                                            {
-															                                            if (**reader_base
-																                                            .readers
-																                                            .get_unchecked(rind))
-																                                            .borrow()
-																                                            .reading
-																                                            .is_some() {
-																                                            alert(
+														                                            match simple_book {
+															                                            None => alert(500, 500, "There are no free books"),
+
+															                                            Some(sim) => {
+																                                            if (**reader_base
+																	                                            .readers
+																	                                            .get_unchecked(rind))
+																	                                            .borrow()
+																	                                            .reading
+																	                                            .is_some() {
+																	                                            alert(
+																		                                            500,
+																		                                            500,
+																		                                            "This reader is already reading another book"
+																	                                            );
+																	                                            return;
+																                                            }
+
+																                                            (*reader_base
+																	                                            .readers
+																	                                            .get_unchecked(rind))
+																	                                            .borrow_mut()
+																	                                            .start_reading(
+																		                                            (*book_system
+																			                                            .books
+																			                                            .get_unchecked(bind))
+																			                                            .borrow_mut()
+																			                                            .books
+																			                                            .get_unchecked(sim),
+																	                                            );
+
+																                                            (*(*book_system
+																	                                            .books
+																	                                            .get_unchecked(bind))
+																	                                            .borrow_mut()
+																	                                            .books
+																	                                            .get_unchecked(sim))
+																	                                            .borrow_mut()
+																	                                            .start_reading(
+																		                                            reader_base.readers
+																		                                                       .get_unchecked(rind),
+																		                                            date,
+																	                                            );
+
+																                                            fltk::dialog::message(
 																	                                            500,
 																	                                            500,
-																	                                            "This reader is already reading another book"
+																	                                            "Book successfully given to reader"
 																                                            );
-																                                            return;
+
+																                                            book_system.save();
+																                                            reader_base.save();
 															                                            }
-
-															                                            (*reader_base
-																                                            .readers
-																                                            .get_unchecked(rind))
-																                                            .borrow_mut()
-																                                            .start_reading(
-																	                                            (*book_system
-																		                                            .books
-																		                                            .get_unchecked(bind))
-																		                                            .borrow_mut()
-																		                                            .books
-																		                                            .get_unchecked(simple_book),
-																                                            );
-
-															                                            (*(*book_system
-																                                            .books
-																                                            .get_unchecked(bind))
-																                                            .borrow_mut()
-																                                            .books
-																                                            .get_unchecked(simple_book))
-																                                            .borrow_mut()
-																                                            .start_reading(
-																	                                            reader_base.readers
-																		                                            .get_unchecked(rind),
-																	                                            date,
-																                                            );
-
-															                                            fltk::dialog::message(
-																                                            500,
-																                                            500,
-																                                            "Book successfully given to reader"
-															                                            );
-
-															                                            book_system.save();
-															                                            reader_base.save();
-														                                            } else {
-															                                            alert(500, 500, "There are no free books");
 														                                            }
 													                                            }
 												                                            }
@@ -332,44 +330,43 @@ pub fn get_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app:
                                                             reader_base.readers.get_unchecked(rind),
                                                         );
 
-                                                if simple
-                                                    != (*book_system.books.get_unchecked(bind))
-                                                        .borrow_mut()
-                                                        .books
-                                                        .len()
-                                                {
-                                                    (*reader_base.readers.get_unchecked_mut(rind))
-                                                        .borrow_mut()
-                                                        .finish_reading();
-
-                                                    match (*(*book_system
-                                                        .books
-                                                        .get_unchecked(bind))
-                                                    .borrow_mut()
-                                                    .books
-                                                    .get_unchecked(simple))
-                                                    .borrow_mut()
-                                                    .finish_reading()
-                                                    {
-                                                        Ok(_) => fltk::dialog::message(
-                                                            500,
-                                                            500,
-                                                            "Book is returned",
-                                                        ),
-
-                                                        Err(_) => fltk::dialog::message(
-                                                            500,
-                                                            500,
-                                                            "Book is returned, but reader is late",
-                                                        ),
-                                                    }
-                                                    book_system.save();
-                                                } else {
-                                                    alert(
+                                                match simple {
+                                                    None => alert(
                                                         500,
                                                         500,
                                                         "This reader wasn't reading this book",
-                                                    );
+                                                    ),
+
+                                                    Some(sim) => {
+                                                        (*reader_base
+                                                            .readers
+                                                            .get_unchecked_mut(rind))
+                                                        .borrow_mut()
+                                                        .finish_reading();
+
+                                                        match (*(*book_system
+		                                                    .books
+		                                                    .get_unchecked(bind))
+		                                                    .borrow_mut()
+		                                                    .books
+		                                                    .get_unchecked(sim))
+		                                                    .borrow_mut()
+		                                                    .finish_reading()
+	                                                    {
+		                                                    Ok(_) => fltk::dialog::message(
+			                                                    500,
+			                                                    500,
+			                                                    "Book is returned",
+		                                                    ),
+
+		                                                    Err(_) => fltk::dialog::message(
+			                                                    500,
+			                                                    500,
+			                                                    "Book is returned, but reader is late",
+		                                                    ),
+	                                                    }
+                                                        book_system.save();
+                                                    }
                                                 }
                                             }
                                         }

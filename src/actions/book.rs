@@ -1,7 +1,10 @@
-use crate::actions::tables::{cell_book, draw_data, draw_header};
-use crate::book::BookSystem;
-use crate::change_menu::*;
-use crate::reader::ReaderBase;
+extern crate fltk;
+use crate::actions::tables::*;
+use crate::books::book_sys::BookSystem;
+use crate::change::input1::Input1;
+use crate::change::input3::Input3;
+use crate::change::Inputable;
+use crate::reading::read_base::ReaderBase;
 use fltk::app::{channel, App};
 use fltk::dialog::alert;
 use fltk::frame::Frame;
@@ -59,12 +62,14 @@ pub(crate) fn check_book(book_system: &BookSystem, books: &Vec<String>) -> Resul
         ind = book_system.find_book(books.get_unchecked(0), books.get_unchecked(1), pages);
     }
 
-    if ind == book_system.books.len() {
-        alert(500, 500, "Book isn't found");
-        return Err(());
-    }
+    return match ind {
+        Some(i) => Ok(i),
 
-    Ok(ind)
+        None => {
+            alert(500, 500, "Book isn't found");
+            Err(())
+        }
+    };
 }
 
 /// Function that add simple books.
@@ -650,7 +655,7 @@ pub fn book_info(book_system: &BookSystem, app: &App) {
                                     x,
                                 );
 
-                                if ind == book_system.books.len() {
+                                if ind.is_none() {
                                     alert(500, 500, "Book isn't found");
                                     return;
                                 }
@@ -702,7 +707,7 @@ pub fn book_info(book_system: &BookSystem, app: &App) {
                                     30,
                                     format!(
                                         "Amount of books: {}",
-                                        (*book_system.books.get_unchecked(ind))
+                                        (*book_system.books.get_unchecked(ind.unwrap()))
                                             .borrow()
                                             .books
                                             .len()

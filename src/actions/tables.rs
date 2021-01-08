@@ -1,11 +1,10 @@
 extern crate fltk;
 use crate::actions::read::get_book_ind;
-use crate::book::{Book, BookSystem, TheBook};
-use crate::reader::{Reader, ReaderBase};
+use crate::books::book_sys::BookSystem;
+use crate::reading::read_base::ReaderBase;
 use fltk::draw;
 use fltk::prelude::*;
 use fltk::table::Table;
-use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::rc::Rc;
 
