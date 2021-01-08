@@ -828,6 +828,7 @@ pub fn reader_info(reader_base: &'static ReaderBase, book_system: &'static BookS
                                         w,
                                         h,
                                         t.is_selected(row, col),
+                                        None,
                                     ),
 
                                     _ => (),

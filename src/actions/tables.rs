@@ -1,8 +1,11 @@
+extern crate chrono;
 extern crate fltk;
 use crate::actions::read::get_book_ind;
 use crate::books::book_sys::BookSystem;
+use crate::books::date::Date;
 use crate::reading::read_base::ReaderBase;
 use fltk::draw;
+use fltk::enums::Color;
 use fltk::prelude::*;
 use fltk::table::Table;
 use std::cell::RefCell;
@@ -23,17 +26,31 @@ pub fn draw_header(txt: &str, x: i32, y: i32, w: i32, h: i32) {
 /// Function that draws cells in table
 
 #[inline]
-pub fn draw_data(txt: &str, x: i32, y: i32, w: i32, h: i32, selected: bool) {
+pub fn draw_data(
+    txt: &str,
+    x: i32,
+    y: i32,
+    w: i32,
+    h: i32,
+    selected: bool,
+    color: Option<fltk::enums::Color>,
+) {
     draw::push_clip(x, y, w, h);
 
-    draw::set_draw_color(if selected {
-        Color::from_u32(0xD3D3D3)
+    draw::set_draw_color(if color.is_some() {
+        if selected {
+            fltk::enums::Color::DarkRed
+        } else {
+            fltk::enums::Color::Red
+        }
+    } else if selected {
+        fltk::enums::Color::from_u32(0xD3D3D3)
     } else {
-        Color::White
+        fltk::enums::Color::White
     });
 
     draw::draw_rectf(x, y, w, h);
-    draw::set_draw_color(Color::Gray0);
+    draw::set_draw_color(fltk::enums::Color::Gray0);
     draw::draw_text2(txt, x, y, w, h, Align::Center);
     draw::draw_rect(x, y, w, h);
     draw::pop_clip();
@@ -46,151 +63,191 @@ pub fn draw_data(txt: &str, x: i32, y: i32, w: i32, h: i32, selected: bool) {
 /// if column is 2, it' ll return finish date's params (or none)
 
 #[inline]
-pub fn cell_reader(x: i32, y: i32, reader_base: &ReaderBase, book_system: &BookSystem) -> String {
+pub fn cell_reader(
+    x: i32,
+    y: i32,
+    reader_base: &ReaderBase,
+    book_system: &BookSystem,
+) -> (String, Option<fltk::enums::Color>) {
     unsafe {
         return if y < reader_base.readers.len() as i32 {
+            let reader_date = Date::new(
+                ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
+                    .reading
+                    .as_ref()
+                    .unwrap()
+                    .upgrade()
+                    .unwrap())
+                .borrow()
+                .readers
+                .last()
+                .unwrap()
+                .1)
+                    .1
+                    .day,
+                ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
+                    .reading
+                    .as_ref()
+                    .unwrap()
+                    .upgrade()
+                    .unwrap())
+                .borrow()
+                .readers
+                .last()
+                .unwrap()
+                .1)
+                    .1
+                    .month,
+                ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
+                    .reading
+                    .as_ref()
+                    .unwrap()
+                    .upgrade()
+                    .unwrap())
+                .borrow()
+                .readers
+                .last()
+                .unwrap()
+                .1)
+                    .1
+                    .year,
+            )
+            .unwrap();
+
+            let color = {
+                let cur_date = Date::from(chrono::Utc::now());
+
+                if cur_date > reader_date {
+                    Some(Color::Red)
+                } else {
+                    None
+                }
+            };
+
             if x == 0 {
-                format!(
-                    "{} {} {}, {} years old",
-                    RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).name,
-                    RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).family,
-                    RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).father,
-                    RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).age
+                (
+                    format!(
+                        "{} {} {}, {} years old",
+                        RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).name,
+                        RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).family,
+                        RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).father,
+                        RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).age
+                    ),
+                    color,
                 )
             } else if RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
                 .reading
                 .is_some()
             {
                 match x {
-                    1 => format!(
-                        "'{}' {}, {} pages ({})",
-                        (*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
-                            .reading
-                            .as_ref()
-                            .unwrap()
-                            .upgrade()
-                            .unwrap())
-                        .borrow()
-                        .title,
-                        (*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
-                            .reading
-                            .as_ref()
-                            .unwrap()
-                            .upgrade()
-                            .unwrap())
-                        .borrow()
-                        .author,
-                        (*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
-                            .reading
-                            .as_ref()
-                            .unwrap()
-                            .upgrade()
-                            .unwrap())
-                        .borrow()
-                        .pages,
-                        get_book_ind(
-                            book_system,
+                    1 => (
+                        format!(
+                            "'{}' {}, {} pages ({})",
                             (*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
                                 .reading
                                 .as_ref()
                                 .unwrap()
                                 .upgrade()
                                 .unwrap())
-                            .as_ptr()
-                        )
+                            .borrow()
+                            .title,
+                            (*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
+                                .reading
+                                .as_ref()
+                                .unwrap()
+                                .upgrade()
+                                .unwrap())
+                            .borrow()
+                            .author,
+                            (*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
+                                .reading
+                                .as_ref()
+                                .unwrap()
+                                .upgrade()
+                                .unwrap())
+                            .borrow()
+                            .pages,
+                            get_book_ind(
+                                book_system,
+                                (*RefCell::borrow(
+                                    &(**reader_base.readers.get_unchecked(y as usize))
+                                )
+                                .reading
+                                .as_ref()
+                                .unwrap()
+                                .upgrade()
+                                .unwrap())
+                                .as_ptr()
+                            )
+                        ),
+                        color,
                     ),
 
-                    2 => format!(
-                        "{}/{}/{}",
-                        ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
+                    2 => (
+                        format!(
+                            "{}/{}/{}",
+                            ((*RefCell::borrow(
+                                &(**reader_base.readers.get_unchecked(y as usize))
+                            )
                             .reading
                             .as_ref()
                             .unwrap()
                             .upgrade()
                             .unwrap())
-                        .borrow()
-                        .readers
-                        .last()
-                        .unwrap()
-                        .1)
-                            .0
-                            .day,
-                        ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
+                            .borrow()
+                            .readers
+                            .last()
+                            .unwrap()
+                            .1)
+                                .0
+                                .day,
+                            ((*RefCell::borrow(
+                                &(**reader_base.readers.get_unchecked(y as usize))
+                            )
                             .reading
                             .as_ref()
                             .unwrap()
                             .upgrade()
                             .unwrap())
-                        .borrow()
-                        .readers
-                        .last()
-                        .unwrap()
-                        .1)
-                            .0
-                            .month,
-                        ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
+                            .borrow()
+                            .readers
+                            .last()
+                            .unwrap()
+                            .1)
+                                .0
+                                .month,
+                            ((*RefCell::borrow(
+                                &(**reader_base.readers.get_unchecked(y as usize))
+                            )
                             .reading
                             .as_ref()
                             .unwrap()
                             .upgrade()
                             .unwrap())
-                        .borrow()
-                        .readers
-                        .last()
-                        .unwrap()
-                        .1)
-                            .0
-                            .year,
+                            .borrow()
+                            .readers
+                            .last()
+                            .unwrap()
+                            .1)
+                                .0
+                                .year,
+                        ),
+                        color,
                     ),
 
-                    _ => format!(
-                        "{}/{}/{}",
-                        ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
-                            .reading
-                            .as_ref()
-                            .unwrap()
-                            .upgrade()
-                            .unwrap())
-                        .borrow()
-                        .readers
-                        .last()
-                        .unwrap()
-                        .1)
-                            .1
-                            .day,
-                        ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
-                            .reading
-                            .as_ref()
-                            .unwrap()
-                            .upgrade()
-                            .unwrap())
-                        .borrow()
-                        .readers
-                        .last()
-                        .unwrap()
-                        .1)
-                            .1
-                            .month,
-                        ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
-                            .reading
-                            .as_ref()
-                            .unwrap()
-                            .upgrade()
-                            .unwrap())
-                        .borrow()
-                        .readers
-                        .last()
-                        .unwrap()
-                        .1)
-                            .1
-                            .year,
+                    _ => (
+                        format!(
+                            "{}/{}/{}",
+                            reader_date.day, reader_date.month, reader_date.year,
+                        ),
+                        color,
                     ),
                 }
             } else {
-                "None".to_string()
+                ("None".to_string(), None)
             }
         } else {
-            "".to_string()
+            ("".to_string(), None)
         };
     }
 }

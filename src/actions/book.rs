@@ -783,6 +783,7 @@ pub fn show_all_books(book_system: &'static BookSystem) {
             w,
             h,
             t.is_selected(row, col),
+            None,
         ),
 
         _ => (),

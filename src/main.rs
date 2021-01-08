@@ -76,6 +76,7 @@ fn main() {
     let mut adm = String::new();
     admin.read_to_string(&mut adm).unwrap();
 
+    #[allow(unused_assignments)]
     let mut success = 0; // 0 - no input / 1 - ok / 2 - mistake
 
     if adm.is_empty() {
@@ -246,17 +247,18 @@ fn main() {
 
             table::TableContext::RowHeader => draw_header(&format!("{}", row + 1), x, y, w, h),
 
-            table::TableContext::Cell => draw_data(
-                &format!(
-                    "{}",
-                    cell_reader(col, row, &mut READER_BASE, &mut BOOK_SYSTEM)
-                ),
-                x,
-                y,
-                w,
-                h,
-                t.is_selected(row, col),
-            ),
+            table::TableContext::Cell => {
+                let pair = cell_reader(col, row, &mut READER_BASE, &mut BOOK_SYSTEM);
+                draw_data(
+                    &format!("{}", pair.0),
+                    x,
+                    y,
+                    w,
+                    h,
+                    t.is_selected(row, col),
+                    pair.1,
+                );
+            }
 
             _ => (),
         });

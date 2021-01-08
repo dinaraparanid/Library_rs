@@ -1,3 +1,4 @@
+use chrono::{DateTime, Datelike, Utc};
 use std::cmp::Ordering;
 
 /// Date structure, which contains day, month and year.
@@ -39,6 +40,14 @@ impl Ord for Date {
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
         self.partial_cmp(other).unwrap()
+    }
+}
+
+/// Constructor from chrono's library dates
+
+impl From<DateTime<Utc>> for Date {
+    fn from(date: DateTime<Utc>) -> Self {
+        Date::new(date.day() as u8, date.month() as u8, date.year() as u16).unwrap()
     }
 }
 
