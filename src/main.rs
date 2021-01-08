@@ -75,111 +75,131 @@ fn main() {
     let mut admin = File::open("src/admin.bin").unwrap();
     let mut adm = String::new();
     admin.read_to_string(&mut adm).unwrap();
-    let mut success = false;
+
+    let mut success = 0; // 0 - no input / 1 - ok / 2 - mistake
 
     if adm.is_empty() {
         let (s, r) = app::channel();
-        let mut password =
-            Input2::<Input, SecretInput>::new("New User", "New Login", "New Password");
-        password.show();
 
-        (*password.ok).borrow_mut().emit(s, true);
+        loop {
+            success = 0;
+            let mut password =
+                Input2::<Input, SecretInput>::new("New User", "New Login", "New Password");
+            password.show();
 
-        while app.wait() {
-            if let Some(msg) = r.recv() {
-                match msg {
-                    true => {
-                        let input = password.set_input();
-                        password.hide();
+            (*password.ok).borrow_mut().emit(s, true);
 
-                        if let Ok(data) = input {
-                            let mut new_password = File::create("src/admin.bin").unwrap();
+            while app.wait() {
+                if let Some(msg) = r.recv() {
+                    match msg {
+                        true => {
+                            let input = password.set_input();
+                            password.hide();
 
-                            let mut hash1 = Vec::new();
-                            let mut hash2 = Vec::new();
-                            get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7, &mut hash1);
-                            get_hash(&data.last().unwrap(), 53, 1e9 as u128 + 7, &mut hash2);
+                            if let Ok(data) = input {
+                                let mut new_password = File::create("src/admin.bin").unwrap();
+                                let mut hash1 = Vec::new();
+                                let mut hash2 = Vec::new();
+                                get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7, &mut hash1);
+                                get_hash(&data.last().unwrap(), 53, 1e9 as u128 + 7, &mut hash2);
 
-                            new_password
-                                .write(
-                                    format!(
-                                        "{}",
-                                        hash1.iter().map(|x| *x as u8 as char).collect::<String>()
-                                            + "\0"
-                                            + hash2
+                                new_password
+                                    .write(
+                                        format!(
+                                            "{}",
+                                            hash1
                                                 .iter()
                                                 .map(|x| *x as u8 as char)
                                                 .collect::<String>()
-                                                .as_str()
+                                                + "\0"
+                                                + hash2
+                                                    .iter()
+                                                    .map(|x| *x as u8 as char)
+                                                    .collect::<String>()
+                                                    .as_str()
+                                        )
+                                        .as_bytes(),
                                     )
-                                    .as_bytes(),
-                                )
-                                .unwrap();
+                                    .unwrap();
 
-                            fltk::dialog::message(500, 500, "New login and password are saved");
-                            success = true;
-                            break;
+                                fltk::dialog::message(500, 500, "New login and password are saved");
+                                success = 1;
+                                break;
+                            }
                         }
+                        false => (),
                     }
-                    false => (),
                 }
+            }
+
+            if success != 2 {
+                password.hide();
+                break;
             }
         }
     } else {
         let admin_data = adm.split('\0').collect::<Vec<&str>>();
         let (s, r) = app::channel();
-        let mut password = Input2::<Input, SecretInput>::new("Authorization", "Login", "Password");
-        password.show();
 
-        (*password.ok).borrow_mut().emit(s, true);
+        loop {
+            success = 0;
+            let mut password =
+                Input2::<Input, SecretInput>::new("Authorization", "Login", "Password");
+            password.show();
 
-        while app.wait() {
-            if let Some(msg) = r.recv() {
-                match msg {
-                    true => {
-                        let input = password.set_input();
-                        password.hide();
+            (*password.ok).borrow_mut().emit(s, true);
 
-                        if let Ok(data) = input {
-                            let mut hash1 = Vec::new();
-                            let mut hash2 = Vec::new();
-                            get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7, &mut hash1);
-                            get_hash(&data.last().unwrap(), 53, 1e9 as u128 + 7, &mut hash2);
+            while app.wait() {
+                if let Some(msg) = r.recv() {
+                    match msg {
+                        true => {
+                            let input = password.set_input();
+                            password.hide();
 
-                            let rehash1 =
-                                hash1.iter().map(|x| *x as u8 as char).collect::<String>();
-                            let rehash2 =
-                                hash2.iter().map(|x| *x as u8 as char).collect::<String>();
+                            if let Ok(data) = input {
+                                let mut hash1 = Vec::new();
+                                let mut hash2 = Vec::new();
+                                get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7, &mut hash1);
+                                get_hash(&data.last().unwrap(), 53, 1e9 as u128 + 7, &mut hash2);
 
-                            if format!("{}", rehash1) == format!("{}", admin_data.first().unwrap())
-                                && format!("{}", rehash2)
-                                    == format!("{}", *admin_data.last().unwrap())
-                            {
-                                fltk::dialog::message(500, 500, "Everything is Ok");
-                                success = true;
-                                break;
-                            } else {
-                                alert(500, 500, "Wrong login or password");
-                                println!(
-                                    "{} != {} or {} != {}",
-                                    rehash1,
-                                    admin_data.first().unwrap(),
-                                    rehash2,
-                                    admin_data.last().unwrap(),
-                                );
-                                app.quit();
-                                return;
+                                let rehash1 =
+                                    hash1.iter().map(|x| *x as u8 as char).collect::<String>();
+                                let rehash2 =
+                                    hash2.iter().map(|x| *x as u8 as char).collect::<String>();
+
+                                if format!("{}", rehash1)
+                                    == format!("{}", admin_data.first().unwrap())
+                                    && format!("{}", rehash2)
+                                        == format!("{}", *admin_data.last().unwrap())
+                                {
+                                    fltk::dialog::message(500, 500, "Everything is Ok");
+                                    success = 1;
+                                    break;
+                                } else {
+                                    success = 2;
+                                    alert(500, 500, "Wrong login or password. Try again");
+                                    println!(
+                                        "{} != {} or {} != {}",
+                                        rehash1,
+                                        admin_data.first().unwrap(),
+                                        rehash2,
+                                        admin_data.last().unwrap(),
+                                    );
+                                }
                             }
                         }
+                        false => (),
                     }
-                    false => (),
                 }
+            }
+
+            if success != 2 {
+                break;
             }
         }
     }
 
-    if !success {
-        alert(500, 500, "Nothing was inputted");
+    if success == 0 {
         return;
     }
 

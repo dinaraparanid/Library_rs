@@ -49,6 +49,7 @@ where
                 InputExt::value(&*(self.input3).borrow()),
             ]);
         } else {
+            self.hide();
             alert(500, 500, "Nothing inputted");
         }
 

@@ -31,6 +31,7 @@ impl<I: InputExt + WidgetBase> Inputable for Input1<I> {
         if !InputExt::value(&*((*self.input).borrow())).is_empty() {
             return Ok(vec![InputExt::value(&*(self.input).borrow())]);
         } else {
+            self.hide();
             alert(500, 500, "Nothing inputted");
         }
 
