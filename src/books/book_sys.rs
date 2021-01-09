@@ -448,12 +448,14 @@ impl BookSystem {
                     if simple["Using"].as_bool().unwrap() {
                         if let Some(last_reader) = simple["Readers"].as_vec().unwrap().last() {
                             unsafe {
-                                let ind = reader_base.find_reader(
-                                    &last_reader["Name"].as_str().unwrap().to_string(),
-                                    &last_reader["Family"].as_str().unwrap().to_string(),
-                                    &last_reader["Father"].as_str().unwrap().to_string(),
-                                    last_reader["Age"].as_i64().unwrap() as u8,
-                                );
+                                let ind = reader_base
+                                    .find_reader(
+                                        &last_reader["Name"].as_str().unwrap().to_string(),
+                                        &last_reader["Family"].as_str().unwrap().to_string(),
+                                        &last_reader["Father"].as_str().unwrap().to_string(),
+                                        last_reader["Age"].as_i64().unwrap() as u8,
+                                    )
+                                    .unwrap();
 
                                 (**reader_base.readers.get_unchecked_mut(ind))
                                     .borrow_mut()
@@ -469,12 +471,14 @@ impl BookSystem {
                     }
 
                     for reader in simple["Readers"].as_vec().unwrap().iter() {
-                        let ind = reader_base.find_reader(
-                            &reader["Name"].as_str().unwrap().to_string(),
-                            &reader["Family"].as_str().unwrap().to_string(),
-                            &reader["Father"].as_str().unwrap().to_string(),
-                            reader["Age"].as_i64().unwrap() as u8,
-                        );
+                        let ind = reader_base
+                            .find_reader(
+                                &reader["Name"].as_str().unwrap().to_string(),
+                                &reader["Family"].as_str().unwrap().to_string(),
+                                &reader["Father"].as_str().unwrap().to_string(),
+                                reader["Age"].as_i64().unwrap() as u8,
+                            )
+                            .unwrap();
 
                         (**(**self.books.last_mut().unwrap())
                             .borrow_mut()

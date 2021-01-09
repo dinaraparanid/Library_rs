@@ -73,12 +73,14 @@ pub(crate) fn check_reader(reader_base: &ReaderBase, reader: &Vec<String>) -> Re
         );
     }
 
-    if ind == reader_base.readers.len() {
-        alert(500, 500, "Reader isn't found");
-        return Err(());
-    }
+    return match ind {
+        None => {
+            alert(500, 500, "Reader isn't found");
+            Err(())
+        }
 
-    Ok(ind)
+        Some(i) => Ok(i),
+    };
 }
 
 /// Function that returns index of simple book.
@@ -643,7 +645,7 @@ pub fn reader_info(reader_base: &'static ReaderBase, book_system: &'static BookS
                                     x,
                                 );
 
-                                if ind == reader_base.readers.len() {
+                                if ind.is_none() {
                                     alert(500, 500, "Reader isn't found");
                                     return;
                                 }
@@ -706,12 +708,12 @@ pub fn reader_info(reader_base: &'static ReaderBase, book_system: &'static BookS
                                     30,
                                     format!(
                                         "Reading now: {}",
-                                        if (**reader_base.readers.get_unchecked(ind))
+                                        if (**reader_base.readers.get_unchecked(ind.unwrap()))
                                             .borrow()
                                             .reading
                                             .is_some()
                                         {
-                                            (*(**reader_base.readers.get_unchecked(ind))
+                                            (*(**reader_base.readers.get_unchecked(ind.unwrap()))
                                                 .borrow()
                                                 .reading
                                                 .as_ref()
@@ -722,24 +724,28 @@ pub fn reader_info(reader_base: &'static ReaderBase, book_system: &'static BookS
                                             .title
                                             .clone()
                                                 + " "
-                                                + (*(**reader_base.readers.get_unchecked(ind))
-                                                    .borrow()
-                                                    .reading
-                                                    .as_ref()
-                                                    .unwrap()
-                                                    .upgrade()
-                                                    .unwrap())
+                                                + (*(**reader_base
+                                                    .readers
+                                                    .get_unchecked(ind.unwrap()))
+                                                .borrow()
+                                                .reading
+                                                .as_ref()
+                                                .unwrap()
+                                                .upgrade()
+                                                .unwrap())
                                                 .borrow()
                                                 .author
                                                 .as_str()
                                                 + " "
-                                                + (*(**reader_base.readers.get_unchecked(ind))
-                                                    .borrow()
-                                                    .reading
-                                                    .as_ref()
-                                                    .unwrap()
-                                                    .upgrade()
-                                                    .unwrap())
+                                                + (*(**reader_base
+                                                    .readers
+                                                    .get_unchecked(ind.unwrap()))
+                                                .borrow()
+                                                .reading
+                                                .as_ref()
+                                                .unwrap()
+                                                .upgrade()
+                                                .unwrap())
                                                 .borrow()
                                                 .pages
                                                 .to_string()
@@ -747,13 +753,15 @@ pub fn reader_info(reader_base: &'static ReaderBase, book_system: &'static BookS
                                                 + "  ("
                                                 + get_book_ind(
                                                     book_system,
-                                                    (*(**reader_base.readers.get_unchecked(ind))
-                                                        .borrow()
-                                                        .reading
-                                                        .as_ref()
-                                                        .unwrap()
-                                                        .upgrade()
-                                                        .unwrap())
+                                                    (*(**reader_base
+                                                        .readers
+                                                        .get_unchecked(ind.unwrap()))
+                                                    .borrow()
+                                                    .reading
+                                                    .as_ref()
+                                                    .unwrap()
+                                                    .upgrade()
+                                                    .unwrap())
                                                     .as_ptr(),
                                                 )
                                                 .to_string()
@@ -779,7 +787,7 @@ pub fn reader_info(reader_base: &'static ReaderBase, book_system: &'static BookS
                                 let mut table2 = Table::new(0, 127, 570, 600, "");
                                 table2.set_rows(max(
                                     30,
-                                    (**reader_base.readers.get_unchecked(ind))
+                                    (**reader_base.readers.get_unchecked(ind.unwrap()))
                                         .borrow()
                                         .books
                                         .len() as u32,
@@ -821,7 +829,13 @@ pub fn reader_info(reader_base: &'static ReaderBase, book_system: &'static BookS
                                     fltk::table::TableContext::Cell => draw_data(
                                         &format!(
                                             "{}",
-                                            cell_book2(col, row, ind, reader_base, book_system)
+                                            cell_book2(
+                                                col,
+                                                row,
+                                                ind.unwrap(),
+                                                reader_base,
+                                                book_system
+                                            )
                                         ),
                                         x,
                                         y,

@@ -48,19 +48,19 @@ impl ReaderBase {
     /// else returns amount of readers
 
     #[inline]
-    pub fn find_reader(&self, name: &String, family: &String, father: &String, age: u8) -> usize {
-        for i in 0..self.readers.len() {
-            unsafe {
-                if (**self.readers.get_unchecked(i)).borrow().name == *name
-                    && (**self.readers.get_unchecked(i)).borrow().family == *family
-                    && (**self.readers.get_unchecked(i)).borrow().father == *father
-                    && (**self.readers.get_unchecked(i)).borrow().age == age
-                {
-                    return i;
-                }
-            }
-        }
-        self.readers.len()
+    pub fn find_reader(
+        &self,
+        name: &String,
+        family: &String,
+        father: &String,
+        age: u8,
+    ) -> Option<usize> {
+        self.readers.iter().position(|x| {
+            (**x).borrow().name == *name
+                && (**x).borrow().family == *family
+                && (**x).borrow().father == *father
+                && (**x).borrow().age == age
+        })
     }
 
     /// Adds reader by params.
@@ -93,7 +93,7 @@ impl ReaderBase {
         age: u8,
     ) -> ResultSelf<Self> {
         return if !self.readers.is_empty()
-            && self.find_reader(&name, &family, &father, age) < self.readers.len()
+            && self.find_reader(&name, &family, &father, age).is_some()
         {
             Err(0) // already exists
         } else {
@@ -147,12 +147,14 @@ impl ReaderBase {
             Err(0) // out of range
         } else {
             unsafe {
-                if self.find_reader(
-                    &new_name,
-                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).family,
-                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).father,
-                    RefCell::borrow(&(**self.readers.get_unchecked(ind))).age,
-                ) < self.readers.len()
+                if self
+                    .find_reader(
+                        &new_name,
+                        &RefCell::borrow(&(**self.readers.get_unchecked(ind))).family,
+                        &RefCell::borrow(&(**self.readers.get_unchecked(ind))).father,
+                        RefCell::borrow(&(**self.readers.get_unchecked(ind))).age,
+                    )
+                    .is_some()
                 {
                     Err(1) // already exists
                 } else {
@@ -184,12 +186,14 @@ impl ReaderBase {
             Err(0) // out of range
         } else {
             unsafe {
-                if self.find_reader(
-                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).name,
-                    &new_family,
-                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).father,
-                    RefCell::borrow(&(**self.readers.get_unchecked(ind))).age,
-                ) < self.readers.len()
+                if self
+                    .find_reader(
+                        &RefCell::borrow(&(**self.readers.get_unchecked(ind))).name,
+                        &new_family,
+                        &RefCell::borrow(&(**self.readers.get_unchecked(ind))).father,
+                        RefCell::borrow(&(**self.readers.get_unchecked(ind))).age,
+                    )
+                    .is_some()
                 {
                     Err(1) // already exists
                 } else {
@@ -221,12 +225,14 @@ impl ReaderBase {
             Err(0) // out of range
         } else {
             unsafe {
-                if self.find_reader(
-                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).name,
-                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).family,
-                    &new_father,
-                    RefCell::borrow(&(**self.readers.get_unchecked(ind))).age,
-                ) < self.readers.len()
+                if self
+                    .find_reader(
+                        &RefCell::borrow(&(**self.readers.get_unchecked(ind))).name,
+                        &RefCell::borrow(&(**self.readers.get_unchecked(ind))).family,
+                        &new_father,
+                        RefCell::borrow(&(**self.readers.get_unchecked(ind))).age,
+                    )
+                    .is_some()
                 {
                     Err(1) // already exists
                 } else {
@@ -264,12 +270,14 @@ impl ReaderBase {
             Err(1) // out of range
         } else {
             unsafe {
-                if self.find_reader(
-                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).name,
-                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).family,
-                    &RefCell::borrow(&(**self.readers.get_unchecked(ind))).father,
-                    new_age_num,
-                ) < self.readers.len()
+                if self
+                    .find_reader(
+                        &RefCell::borrow(&(**self.readers.get_unchecked(ind))).name,
+                        &RefCell::borrow(&(**self.readers.get_unchecked(ind))).family,
+                        &RefCell::borrow(&(**self.readers.get_unchecked(ind))).father,
+                        new_age_num,
+                    )
+                    .is_some()
                 {
                     Err(2) // already exists
                 } else {

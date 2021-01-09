@@ -366,6 +366,7 @@ pub fn get_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app:
 		                                                    ),
 	                                                    }
                                                         book_system.save();
+                                                        reader_base.save();
                                                     }
                                                 }
                                             }

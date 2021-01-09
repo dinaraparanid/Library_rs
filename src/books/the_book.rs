@@ -127,7 +127,7 @@ impl TheBook {
 
     #[inline]
     pub fn get_unused(&self) -> Option<usize> {
-        self.books.iter().position(|x| (**x).borrow().is_using)
+        self.books.iter().position(|x| !(**x).borrow().is_using)
     }
 
     /// Finds using book by reader

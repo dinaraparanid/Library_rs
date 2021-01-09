@@ -1,6 +1,7 @@
 extern crate chrono;
 extern crate fltk;
 use crate::actions::read::get_book_ind;
+use crate::books::book::Book;
 use crate::books::book_sys::BookSystem;
 use crate::books::date::Date;
 use crate::reading::read_base::ReaderBase;
@@ -9,7 +10,7 @@ use fltk::enums::Color;
 use fltk::prelude::*;
 use fltk::table::Table;
 use std::cell::RefCell;
-use std::rc::Rc;
+use std::rc::{Rc, Weak};
 
 /// Function that draws borders
 /// of the table
@@ -73,48 +74,55 @@ pub fn cell_reader(
 ) -> (String, Option<fltk::enums::Color>) {
     unsafe {
         return if y < reader_base.readers.len() as i32 {
-            let reader_date = Date::new(
-                ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
-                    .reading
-                    .as_ref()
+            let reader_date;
+
+            match RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).reading {
+                None => reader_date = Date::from(chrono::Utc::now()),
+                Some(_) => {
+                    reader_date = Date::new(
+                        ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
+                            .reading
+                            .as_ref()
+                            .unwrap()
+                            .upgrade()
+                            .unwrap())
+                        .borrow()
+                        .readers
+                        .last()
+                        .unwrap()
+                        .1)
+                            .1
+                            .day,
+                        ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
+                            .reading
+                            .as_ref()
+                            .unwrap()
+                            .upgrade()
+                            .unwrap())
+                        .borrow()
+                        .readers
+                        .last()
+                        .unwrap()
+                        .1)
+                            .1
+                            .month,
+                        ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
+                            .reading
+                            .as_ref()
+                            .unwrap()
+                            .upgrade()
+                            .unwrap())
+                        .borrow()
+                        .readers
+                        .last()
+                        .unwrap()
+                        .1)
+                            .1
+                            .year,
+                    )
                     .unwrap()
-                    .upgrade()
-                    .unwrap())
-                .borrow()
-                .readers
-                .last()
-                .unwrap()
-                .1)
-                    .1
-                    .day,
-                ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
-                    .reading
-                    .as_ref()
-                    .unwrap()
-                    .upgrade()
-                    .unwrap())
-                .borrow()
-                .readers
-                .last()
-                .unwrap()
-                .1)
-                    .1
-                    .month,
-                ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
-                    .reading
-                    .as_ref()
-                    .unwrap()
-                    .upgrade()
-                    .unwrap())
-                .borrow()
-                .readers
-                .last()
-                .unwrap()
-                .1)
-                    .1
-                    .year,
-            )
-            .unwrap();
+                }
+            }
 
             let color = {
                 let cur_date = Date::from(chrono::Utc::now());
