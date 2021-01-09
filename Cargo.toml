@@ -3,8 +3,9 @@ name = "librs"
 version = "0.1.0"
 authors = ["Paranid5 <dinaraparanid@gmail.com>"]
 edition = "2018"
+license = "MIT OR Apache-2.0"
+description = "Book libarary project including giveaway operations and gui interface. Beta version"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 chrono = "0.4.19"

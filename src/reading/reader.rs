@@ -91,23 +91,26 @@ impl Reader {
     }
 
     /// Find book by smart pointer.
-    /// If ok, returns index,
-    /// else returns amount of read books
+    /// If ok, returns index of the first occurrence,
+    /// else none
 
     #[inline]
-    pub fn find_book(&self, book: &Rc<RefCell<Book>>) -> usize {
-        for i in 0..self.books.len() {
-            let book_ptr;
+    pub fn find_book_first(&self, book: &Rc<RefCell<Book>>) -> Option<usize> {
+        self.books
+            .iter()
+            .position(|x| x.upgrade().unwrap().as_ptr() == book.as_ptr())
+    }
 
-            unsafe {
-                book_ptr = self.books.get_unchecked(i).upgrade().unwrap().as_ptr();
-            }
+    /// Find book by smart pointer.
+    /// If ok, returns index of the last occurrence,
+    /// else none
 
-            if book_ptr == book.as_ptr() {
-                return i;
-            }
-        }
-        self.books.len()
+    #[inline]
+    pub fn find_book_last(&self, book: &Rc<RefCell<Book>>) -> Option<usize> {
+        self.books
+            .iter()
+            .rev()
+            .position(|x| x.upgrade().unwrap().as_ptr() == book.as_ptr())
     }
 
     /// Function, that uses after giving book to reader.
@@ -128,27 +131,21 @@ impl Reader {
         self.reading = None;
     }
 
-    /// Removes book by raw pointer
+    /// Removes book
 
     #[inline]
-    pub fn remove_book(&mut self, book: *mut Book) -> &mut Self {
-        if book.is_null() {
-            panic!("nullptr in reader remove_book");
-        }
-
-        unsafe {
-            if (*book).is_using
-                && *(*((*book).readers.last().unwrap().0).upgrade().unwrap()).borrow() == *self
-            {
-                (*book).is_using = false;
-            }
+    pub fn remove_book(&mut self, book: &mut Book) -> &mut Self {
+        if book.is_using
+            && *(*(book.readers.last().unwrap().0).upgrade().unwrap()).borrow() == *self
+        {
+            book.is_using = false;
         }
 
         self.books = self
             .books
             .clone()
             .into_iter()
-            .filter(|x| (*(*x).upgrade().unwrap()).as_ptr() != book)
+            .filter(|x| (*(*x).upgrade().unwrap()).as_ptr() != book as *mut Book)
             .collect();
 
         self
@@ -181,7 +178,7 @@ impl Reader {
 
             (*self.books.last().unwrap().upgrade().unwrap())
                 .borrow_mut()
-                .remove_reader(self as *mut Reader);
+                .remove_reader(self);
             self.books.pop();
         }
         self
