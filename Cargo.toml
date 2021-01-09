@@ -5,6 +5,7 @@ authors = ["Paranid5 <dinaraparanid@gmail.com>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
 description = "Book libarary project including giveaway operations and gui interface. Beta version"
+homepage = "https://github.com/dinaraparanid/Library_rs"
 
 
 [dependencies]
