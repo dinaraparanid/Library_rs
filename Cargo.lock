@@ -13,6 +13,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
 
 [[package]]
+name = "booklibrs"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "fltk",
+ "yaml-rust",
+]
+
+[[package]]
 name = "cc"
 version = "1.0.66"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -83,15 +92,6 @@ name = "libc"
 version = "0.2.81"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1482821306169ec4d07f6aca392a4681f66c75c9918aa49641a2595db64053cb"
-
-[[package]]
-name = "librs"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "fltk",
- "yaml-rust",
-]
 
 [[package]]
 name = "linked-hash-map"
