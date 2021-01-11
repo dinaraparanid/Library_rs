@@ -41,8 +41,9 @@ pub enum Message {
 
 /// Hashing login and password
 
-fn get_hash(str: &String, p: u128, module: u128, ans: &mut Vec<u128>) {
-    ans.resize(str.len(), 0);
+#[inline]
+fn get_hash(str: &String, p: u128, module: u128) -> Vec<u128> {
+    let mut ans = vec![0; str.len()];
     let bytes = str.as_bytes();
 
     unsafe {
@@ -56,6 +57,8 @@ fn get_hash(str: &String, p: u128, module: u128, ans: &mut Vec<u128>) {
                 % module;
         }
     }
+
+    ans
 }
 
 /// I'm **really sorry** about this,
@@ -99,10 +102,8 @@ fn main() {
 
                             if let Ok(data) = input {
                                 let mut new_password = File::create("src/admin.bin").unwrap();
-                                let mut hash1 = Vec::new();
-                                let mut hash2 = Vec::new();
-                                get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7, &mut hash1);
-                                get_hash(&data.last().unwrap(), 53, 1e9 as u128 + 7, &mut hash2);
+                                let hash1 = get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7);
+                                let hash2 = get_hash(&data.last().unwrap(), 53, 1e9 as u128 + 7);
 
                                 new_password
                                     .write(
@@ -158,10 +159,8 @@ fn main() {
                             password.hide();
 
                             if let Ok(data) = input {
-                                let mut hash1 = Vec::new();
-                                let mut hash2 = Vec::new();
-                                get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7, &mut hash1);
-                                get_hash(&data.last().unwrap(), 53, 1e9 as u128 + 7, &mut hash2);
+                                let hash1 = get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7);
+                                let hash2 = get_hash(&data.last().unwrap(), 53, 1e9 as u128 + 7);
 
                                 let rehash1 =
                                     hash1.iter().map(|x| *x as u8 as char).collect::<String>();
@@ -209,7 +208,10 @@ fn main() {
         .with_size(1800, 900)
         .center_screen();
 
-    let mut table = Table::new(10, 50, 1780, 890, "");
+    let mut time = fltk::misc::Clock::new(1680, 10, 100, 100, "");
+    time.set_type(fltk::misc::ClockType::Square);
+
+    let mut table = Table::new(10, 120, 1780, 890, "");
     table.set_rows(max(50, unsafe { READER_BASE.len() } as u32));
     table.set_row_header(true);
     table.set_cols(4);
@@ -217,10 +219,10 @@ fn main() {
     table.set_col_width_all(460);
     table.end();
 
-    let mut hello = Frame::new(0, 5, 1800, 40, "BOOK LIBRARY INTERFACE");
+    let mut hello = Frame::new(0, 15, 1800, 80, "BOOK LIBRARY INTERFACE");
     hello.set_label_font(Font::Symbol);
     hello.set_label_color(Color::DarkBlue);
-    hello.set_label_size(30);
+    hello.set_label_size(50);
 
     main_window.end();
     main_window.make_resizable(true);

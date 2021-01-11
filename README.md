@@ -1,3 +1,6 @@
+BOOK LIBRARY INTERFACE
+-----------------------------------------------------
+
 This is a project that aims to create a system for issuing books in libraries.
 At the moment, all the basic operations are implemented, and there is also a graphical interface.
 

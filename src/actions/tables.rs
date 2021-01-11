@@ -1,5 +1,6 @@
 extern crate chrono;
 extern crate fltk;
+use self::chrono::{Datelike, Timelike};
 use crate::actions::read::get_book_ind;
 use crate::books::book::Book;
 use crate::books::book_sys::BookSystem;
@@ -354,4 +355,26 @@ pub fn cell_book2(
             }
         );
     }
+}
+
+/// Function that returns date and time as string.
+
+#[inline]
+pub fn cell_date_time(x: i32, y: i32) -> String {
+    return format!(
+        "{}",
+        if y == 0 {
+            match x {
+                0 => chrono::Local::now().day().to_string(),
+                1 => chrono::Local::now().month().to_string(),
+                _ => chrono::Local::now().year().to_string(),
+            }
+        } else {
+            match x {
+                0 => chrono::Local::now().hour().to_string(),
+                1 => chrono::Local::now().minute().to_string(),
+                _ => chrono::Local::now().second().to_string(),
+            }
+        }
+    );
 }

@@ -170,7 +170,7 @@ mod reader_tests {
 
         (*reader)
             .borrow_mut()
-            .remove_book(&(*(*book1).borrow()) as *mut Book);
+            .remove_book(&mut (*(*book1).borrow()));
 
         assert_eq!("Reader { name: \"Name\", family: \"Family\", father: \"Father\", age: 50, books.yaml: [\"LOL KEK 200\", \"KOK LEL 1000\"] }",
                    format!("{:?}", *(*reader).borrow())

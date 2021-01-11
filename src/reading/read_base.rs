@@ -1,6 +1,4 @@
 extern crate yaml_rust;
-use self::yaml_rust::yaml::Hash;
-use self::yaml_rust::{Yaml, YamlEmitter, YamlLoader};
 use crate::books::book::Book;
 use crate::books::ResultSelf;
 use crate::reading::reader::Reader;
@@ -9,6 +7,8 @@ use std::fmt::{Debug, Formatter};
 use std::fs::File;
 use std::io::{Read, Write};
 use std::rc::Rc;
+use yaml_rust::yaml::Hash;
+use yaml_rust::{Yaml, YamlEmitter, YamlLoader};
 
 /// Reader Base structure,
 /// which contains only readers
