@@ -137,10 +137,11 @@ impl Book {
 
     #[inline]
     pub fn remove_reader(&mut self, reader: &Reader) -> &mut Self {
-        if reader.reading.is_some() {
-            (reader.reading.as_ref().unwrap().upgrade().unwrap())
+        if self.is_using {
+            (*self.readers.last_mut().unwrap().0.upgrade().unwrap())
                 .borrow_mut()
-                .is_using = false;
+                .reading = None;
+            self.is_using = false;
         }
 
         self.readers = self
@@ -178,7 +179,7 @@ impl Book {
 
     #[inline]
     pub fn start_reading(&mut self, reader: &Rc<RefCell<Reader>>, date: Date) -> &mut Self {
-        let now = chrono::Utc::now();
+        let now = chrono::Local::now();
 
         self.readers.push((
             Rc::downgrade(&reader),
@@ -198,7 +199,7 @@ impl Book {
     #[inline]
     pub fn finish_reading(&mut self) -> ResultSelf<Self> {
         self.is_using = false;
-        let now = chrono::Utc::now();
+        let now = chrono::Local::now();
         let was = ((*self.readers.last().unwrap()).1).1;
 
         if now.day() as u8 > was.day

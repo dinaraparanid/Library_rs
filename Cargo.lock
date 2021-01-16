@@ -14,7 +14,7 @@ checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
 
 [[package]]
 name = "booklibrs"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "chrono",
  "fltk",
@@ -51,9 +51,9 @@ dependencies = [
 
 [[package]]
 name = "fltk"
-version = "0.13.1"
+version = "0.13.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ff76368228ef47e6a1bd085586396a74e57df403d4e266462674d156f92664b3"
+checksum = "9a1368fe6ea4908f5aad7d6f26c1ec650839ee1c5b1ecd58e4f766cb06a9e2b3"
 dependencies = [
  "bitflags",
  "fltk-derive",
@@ -63,9 +63,9 @@ dependencies = [
 
 [[package]]
 name = "fltk-derive"
-version = "0.13.1"
+version = "0.13.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "78077fe57cec72cfb38d91b3b9cf3601555084d3376b05d5368ae2c6f47807d7"
+checksum = "9223fa72f95065ef2e9ff3c411f9d3cd58dd26a2c81058a87898a944f58af845"
 dependencies = [
  "quote",
  "syn",
@@ -73,9 +73,9 @@ dependencies = [
 
 [[package]]
 name = "fltk-sys"
-version = "0.13.1"
+version = "0.13.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba6a7ea2206d7172e857d980f5fe41e5834ef31a4d05c1e85db0b7c3f345d2d2"
+checksum = "a9451366d944ec83a4d23ab34476e84a9e33ed3cd1d2f95f4c4925e99724ff51"
 dependencies = [
  "cmake",
  "libc",
@@ -89,9 +89,9 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "libc"
-version = "0.2.81"
+version = "0.2.82"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1482821306169ec4d07f6aca392a4681f66c75c9918aa49641a2595db64053cb"
+checksum = "89203f3fba0a3795506acaad8ebce3c80c0af93f994d5a1d7a0b1eeb23271929"
 
 [[package]]
 name = "linked-hash-map"
@@ -138,9 +138,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.57"
+version = "1.0.58"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4211ce9909eb971f111059df92c45640aad50a619cf55cd76476be803c4c68e6"
+checksum = "cc60a3d73ea6594cd712d830cc1f0390fd71542d8c8cd24e70cc54cdfd5e05d5"
 dependencies = [
  "proc-macro2",
  "quote",

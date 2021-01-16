@@ -103,7 +103,7 @@ fn main() {
                             if let Ok(data) = input {
                                 let mut new_password = File::create("src/admin.bin").unwrap();
                                 let hash1 = get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7);
-                                let hash2 = get_hash(&data.last().unwrap(), 53, 1e9 as u128 + 7);
+                                let hash2 = get_hash(&data.last().unwrap(), 101, 1e9 as u128 + 7);
 
                                 new_password
                                     .write(
@@ -160,7 +160,7 @@ fn main() {
 
                             if let Ok(data) = input {
                                 let hash1 = get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7);
-                                let hash2 = get_hash(&data.last().unwrap(), 53, 1e9 as u128 + 7);
+                                let hash2 = get_hash(&data.last().unwrap(), 101, 1e9 as u128 + 7);
 
                                 let rehash1 =
                                     hash1.iter().map(|x| *x as u8 as char).collect::<String>();
@@ -451,7 +451,10 @@ fn main() {
                         table.redraw();
                     }
 
-                    Message::InfoReader => reader_info(&READER_BASE, &mut BOOK_SYSTEM, &app),
+                    Message::InfoReader => {
+                        reader_info(&mut READER_BASE, &mut BOOK_SYSTEM, &app);
+                        table.redraw();
+                    }
 
                     Message::AddBooks => {
                         add_books(&mut BOOK_SYSTEM, &app);
@@ -488,7 +491,10 @@ fn main() {
                         table.redraw();
                     }
 
-                    Message::InfoTheBook => book_info(&BOOK_SYSTEM, &app),
+                    Message::InfoTheBook => {
+                        book_info(&mut BOOK_SYSTEM, &mut READER_BASE, &app);
+                        table.redraw();
+                    }
 
                     Message::ShowAllBooks => show_all_books(&BOOK_SYSTEM),
 

@@ -1,14 +1,14 @@
 [package]
 name = "booklibrs"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Paranid5 <dinaraparanid@gmail.com>"]
 edition = "2018"
 license = "MIT/Apache-2.0"
 description = "Book libarary project including giveaway operations and gui interface. Beta version"
 homepage = "https://github.com/dinaraparanid/Library_rs"
-documentation = "https://docs.rs/binartree/0.1.0/booklibrs/"
+documentation = "https://docs.rs/binartree/0.1.2/booklibrs/"
 
 [dependencies]
 chrono = "0.4.19"
-fltk = "0.13.1"
+fltk = "0.13.5"
 yaml-rust = "0.4.5"

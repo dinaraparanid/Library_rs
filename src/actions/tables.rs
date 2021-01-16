@@ -78,7 +78,7 @@ pub fn cell_reader(
             let reader_date;
 
             match RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).reading {
-                None => reader_date = Date::from(chrono::Utc::now()),
+                None => reader_date = Date::from(chrono::Local::now()),
                 Some(_) => {
                     reader_date = Date::new(
                         ((*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
@@ -126,7 +126,7 @@ pub fn cell_reader(
             }
 
             let color = {
-                let cur_date = Date::from(chrono::Utc::now());
+                let cur_date = Date::from(chrono::Local::now());
 
                 if cur_date > reader_date {
                     Some(Color::Red)
@@ -337,7 +337,7 @@ pub fn cell_book2(
                         .upgrade()
                         .unwrap())
                     .borrow()
-                    .author
+                    .pages
                     .to_string(),
                     _ => get_book_ind(
                         book_system,
@@ -360,21 +360,13 @@ pub fn cell_book2(
 /// Function that returns date and time as string.
 
 #[inline]
-pub fn cell_date_time(x: i32, y: i32) -> String {
+pub fn cell_date_time(x: i32) -> String {
     return format!(
         "{}",
-        if y == 0 {
-            match x {
-                0 => chrono::Local::now().day().to_string(),
-                1 => chrono::Local::now().month().to_string(),
-                _ => chrono::Local::now().year().to_string(),
-            }
-        } else {
-            match x {
-                0 => chrono::Local::now().hour().to_string(),
-                1 => chrono::Local::now().minute().to_string(),
-                _ => chrono::Local::now().second().to_string(),
-            }
+        match x {
+            0 => chrono::Local::now().day().to_string(),
+            1 => chrono::Local::now().month().to_string(),
+            _ => chrono::Local::now().year().to_string(),
         }
     );
 }

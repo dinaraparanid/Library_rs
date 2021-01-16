@@ -1,5 +1,5 @@
 extern crate chrono;
-use chrono::{DateTime, Datelike, Utc};
+use chrono::{DateTime, Datelike, Local};
 use std::cmp::Ordering;
 
 /// Date structure, which contains day, month and year.
@@ -46,8 +46,8 @@ impl Ord for Date {
 
 /// Constructor from chrono's library dates
 
-impl From<DateTime<Utc>> for Date {
-    fn from(date: DateTime<Utc>) -> Self {
+impl From<DateTime<Local>> for Date {
+    fn from(date: DateTime<Local>) -> Self {
         Date::new(date.day() as u8, date.month() as u8, date.year() as u16).unwrap()
     }
 }

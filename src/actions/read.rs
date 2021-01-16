@@ -1,4 +1,5 @@
 extern crate fltk;
+use self::fltk::menu::MenuFlag;
 use crate::actions::tables::*;
 use crate::books::book::Book;
 use crate::books::book_sys::BookSystem;
@@ -11,6 +12,7 @@ use fltk::dialog::alert;
 use fltk::frame::Frame;
 use fltk::group::VGrid;
 use fltk::input::*;
+use fltk::menu::MenuBar;
 use fltk::prelude::*;
 use fltk::table::Table;
 use fltk::window::SingleWindow;
@@ -611,11 +613,26 @@ pub fn change_age(reader_base: &mut ReaderBase, book_system: &mut BookSystem, ap
     }
 }
 
+/// Messages for info menu
+
+#[derive(Clone, Copy)]
+enum MessageReader {
+    ChangeName,
+    ChangeFamily,
+    ChangeFather,
+    ChangeAge,
+    RemoveThis,
+}
+
 /// Function that gives info about reader.
 /// If you have mistakes in input,
 /// program will let you know
 
-pub fn reader_info(reader_base: &'static ReaderBase, book_system: &'static BookSystem, app: &App) {
+pub fn reader_info(
+    reader_base: &'static mut ReaderBase,
+    book_system: &'static mut BookSystem,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
         "Find Reader",
@@ -799,7 +816,56 @@ pub fn reader_info(reader_base: &'static ReaderBase, book_system: &'static BookS
                                 table2.end();
 
                                 wind.end();
+
+                                let mut menu = MenuBar::new(0, 0, 65, 30, "");
+                                wind.add(&menu);
+
+                                let (s, r) = app::channel();
+
+                                menu.add_emit(
+                                    "&Change/Change name\t",
+                                    Shortcut::empty(),
+                                    MenuFlag::Normal,
+                                    s,
+                                    MessageReader::ChangeName,
+                                );
+
+                                menu.add_emit(
+                                    "&Change/Change family\t",
+                                    Shortcut::empty(),
+                                    MenuFlag::Normal,
+                                    s,
+                                    MessageReader::ChangeFamily,
+                                );
+
+                                menu.add_emit(
+                                    "&Change/Change father\t",
+                                    Shortcut::empty(),
+                                    MenuFlag::Normal,
+                                    s,
+                                    MessageReader::ChangeFather,
+                                );
+
+                                menu.add_emit(
+                                    "&Change/Change age\t",
+                                    Shortcut::empty(),
+                                    MenuFlag::Normal,
+                                    s,
+                                    MessageReader::ChangeAge,
+                                );
+
+                                menu.add_emit(
+                                    "&Change/Remove this reader\t",
+                                    Shortcut::empty(),
+                                    MenuFlag::Normal,
+                                    s,
+                                    MessageReader::RemoveThis,
+                                );
+
                                 wind.show();
+
+                                let base_ptr = reader_base as *mut ReaderBase;
+                                let sys_ptr = book_system as *mut BookSystem;
 
                                 table2.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
                                     fltk::table::TableContext::StartPage => {
@@ -833,8 +899,8 @@ pub fn reader_info(reader_base: &'static ReaderBase, book_system: &'static BookS
                                                 col,
                                                 row,
                                                 ind.unwrap(),
-                                                reader_base,
-                                                book_system
+                                                base_ptr.as_ref().unwrap(),
+                                                sys_ptr.as_ref().unwrap()
                                             )
                                         ),
                                         x,
@@ -847,6 +913,297 @@ pub fn reader_info(reader_base: &'static ReaderBase, book_system: &'static BookS
 
                                     _ => (),
                                 });
+
+                                while app.wait() {
+                                    if let Some(msg) = r.recv() {
+                                        match msg {
+                                            MessageReader::ChangeName => {
+                                                let (s3, r3) = app::channel();
+                                                let mut get_name =
+                                                    Input1::<Input>::new("New Name", "New Name");
+
+                                                get_name.show();
+                                                (*get_name.ok).borrow_mut().emit(s3, true);
+
+                                                while app.wait() {
+                                                    if let Some(mes) = r3.recv() {
+                                                        match mes {
+                                                            true => {
+                                                                let new_name_param =
+                                                                    get_name.set_input();
+                                                                get_name.hide();
+
+                                                                if let Ok(new_name) = new_name_param
+                                                                {
+                                                                    match reader_base.change_name(
+                                                                        ind.unwrap(),
+                                                                        new_name
+                                                                            .get_unchecked(0)
+                                                                            .clone(),
+                                                                    ) {
+                                                                        Ok(_) => {
+                                                                            fltk::dialog::message(
+                                                                                500,
+                                                                                500,
+                                                                                "Successfully changed",
+                                                                            );
+
+                                                                            reader_base.save();
+                                                                            book_system.save();
+                                                                        }
+
+                                                                        Err(0) => {
+                                                                            alert(
+                                                                                500,
+                                                                                500,
+                                                                                "Reader not found",
+                                                                            );
+                                                                        }
+
+                                                                        Err(1) => {
+                                                                            alert(500, 500, "Reader already exists");
+                                                                        }
+
+                                                                        Err(_) => {
+                                                                            alert(
+                                                                                500,
+                                                                                500,
+                                                                                "New name is empty",
+                                                                            );
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                            false => (),
+                                                        }
+                                                        break;
+                                                    } else if !get_name.shown() {
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            MessageReader::ChangeFamily => {
+                                                let (s3, r3) = app::channel();
+                                                let mut get_family = Input1::<Input>::new(
+                                                    "New Family",
+                                                    "New Family",
+                                                );
+
+                                                get_family.show();
+                                                (*get_family.ok).borrow_mut().emit(s3, true);
+
+                                                while app.wait() {
+                                                    if let Some(mes) = r3.recv() {
+                                                        match mes {
+                                                            true => {
+                                                                let new_family_param =
+                                                                    get_family.set_input();
+                                                                get_family.hide();
+
+                                                                if let Ok(new_family) =
+                                                                    new_family_param
+                                                                {
+                                                                    match reader_base.change_family(
+                                                                        ind.unwrap(),
+                                                                        new_family
+                                                                            .get_unchecked(0)
+                                                                            .clone(),
+                                                                    ) {
+                                                                        Ok(_) => {
+                                                                            fltk::dialog::message(
+                                                                                500,
+                                                                                500,
+                                                                                "Successfully changed",
+                                                                            );
+
+                                                                            reader_base.save();
+                                                                            book_system.save();
+                                                                        }
+
+                                                                        Err(0) => {
+                                                                            alert(
+                                                                                500,
+                                                                                500,
+                                                                                "Reader not found",
+                                                                            );
+                                                                        }
+
+                                                                        Err(1) => {
+                                                                            alert(500, 500, "Reader already exists");
+                                                                        }
+
+                                                                        Err(_) => {
+                                                                            alert(500, 500, "New 2-nd name is empty");
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                            false => (),
+                                                        }
+                                                        break;
+                                                    } else if !get_family.shown() {
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            MessageReader::ChangeFather => {
+                                                let (s3, r3) = app::channel();
+                                                let mut get_father = Input1::<Input>::new(
+                                                    "New Father",
+                                                    "New Father",
+                                                );
+
+                                                get_father.show();
+                                                (*get_father.ok).borrow_mut().emit(s3, true);
+
+                                                while app.wait() {
+                                                    if let Some(mes) = r3.recv() {
+                                                        match mes {
+                                                            true => {
+                                                                let new_father_param =
+                                                                    get_father.set_input();
+                                                                get_father.hide();
+
+                                                                if let Ok(new_father) =
+                                                                    new_father_param
+                                                                {
+                                                                    match reader_base.change_father(
+                                                                        ind.unwrap(),
+                                                                        new_father
+                                                                            .get_unchecked(0)
+                                                                            .clone(),
+                                                                    ) {
+                                                                        Ok(_) => {
+                                                                            fltk::dialog::message(
+                                                                                500,
+                                                                                500,
+                                                                                "Successfully changed",
+                                                                            );
+
+                                                                            reader_base.save();
+                                                                            book_system.save();
+                                                                        }
+
+                                                                        Err(0) => {
+                                                                            alert(
+                                                                                500,
+                                                                                500,
+                                                                                "Reader not found",
+                                                                            );
+                                                                        }
+
+                                                                        Err(1) => {
+                                                                            alert(500, 500, "Reader already exists");
+                                                                        }
+
+                                                                        Err(_) => {
+                                                                            alert(500, 500, "New mid name is empty");
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                            false => (),
+                                                        }
+                                                        break;
+                                                    } else if !get_father.shown() {
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            MessageReader::ChangeAge => {
+                                                let (s3, r3) = app::channel();
+
+                                                let mut get_age =
+                                                    Input1::<IntInput>::new("New Age", "New Age");
+                                                get_age.show();
+                                                (*get_age.ok).borrow_mut().emit(s3, true);
+
+                                                while app.wait() {
+                                                    if let Some(mes) = r3.recv() {
+                                                        match mes {
+                                                            true => {
+                                                                let new_age_param =
+                                                                    get_age.set_input();
+                                                                get_age.hide();
+
+                                                                if let Ok(new_age) = new_age_param {
+                                                                    if new_age
+                                                                        .first()
+                                                                        .unwrap()
+                                                                        .is_empty()
+                                                                    {
+                                                                        alert(
+                                                                            500,
+                                                                            500,
+                                                                            "New age is empty",
+                                                                        );
+                                                                        return;
+                                                                    }
+
+                                                                    match reader_base.change_age(
+                                                                        ind.unwrap(),
+                                                                        new_age
+                                                                            .get_unchecked(0)
+                                                                            .clone(),
+                                                                    ) {
+                                                                        Ok(_) => {
+                                                                            fltk::dialog::message(
+                                                                                500,
+                                                                                500,
+                                                                                "Successfully changed",
+                                                                            );
+
+                                                                            reader_base.save();
+                                                                            book_system.save();
+                                                                        }
+
+                                                                        Err(0) => alert(
+                                                                            500,
+                                                                            500,
+                                                                            "Age input error",
+                                                                        ),
+
+                                                                        Err(_) => alert(
+                                                                            500,
+                                                                            500,
+                                                                            "Reader already exists",
+                                                                        ),
+                                                                    }
+                                                                }
+                                                            }
+                                                            false => (),
+                                                        }
+                                                        break;
+                                                    } else if !get_age.shown() {
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            MessageReader::RemoveThis => {
+                                                match reader_base.remove_reader(ind.unwrap()) {
+                                                    Ok(_) => {
+                                                        fltk::dialog::message(
+                                                            500,
+                                                            500,
+                                                            "Successfully removed",
+                                                        );
+                                                        reader_base.save();
+                                                        book_system.save();
+                                                    }
+
+                                                    Err(_) => {
+                                                        alert(500, 500, "Reader not found");
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        return;
+                                    }
+                                }
                             },
 
                             Err(_) => {
@@ -860,7 +1217,7 @@ pub fn reader_info(reader_base: &'static ReaderBase, book_system: &'static BookS
             }
             break;
         } else if !inp.shown() {
-            break;
+            return;
         }
     }
 }

@@ -87,7 +87,7 @@ impl BookInterface for TheBook {
                 x.clone()
             })
             .collect();
-        self.title = new_author;
+        self.author = new_author;
         self
     }
 

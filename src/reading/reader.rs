@@ -136,8 +136,10 @@ impl Reader {
     #[inline]
     pub fn remove_book(&mut self, book: &mut Book) -> &mut Self {
         if book.is_using
-            && *(*(book.readers.last().unwrap().0).upgrade().unwrap()).borrow() == *self
+            && (*(book.readers.last().unwrap().0).upgrade().unwrap()).as_ptr()
+                == self as *mut Reader
         {
+            self.reading = None;
             book.is_using = false;
         }
 
@@ -160,7 +162,7 @@ impl Reader {
             if (*self.books.last().unwrap().upgrade().unwrap())
                 .borrow()
                 .is_using
-                && *(*((*self.books.last().unwrap().upgrade().unwrap())
+                && (*((*self.books.last().unwrap().upgrade().unwrap())
                     .borrow()
                     .readers
                     .last()
@@ -168,8 +170,8 @@ impl Reader {
                     .0)
                     .upgrade()
                     .unwrap())
-                .borrow()
-                    == *self
+                .as_ptr()
+                    == self as *mut Reader
             {
                 (*self.books.last().unwrap().upgrade().unwrap())
                     .borrow_mut()
