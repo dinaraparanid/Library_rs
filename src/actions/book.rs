@@ -74,6 +74,274 @@ pub(crate) fn check_book(book_system: &BookSystem, books: &Vec<String>) -> Resul
     };
 }
 
+/// Changing title of already known book
+
+#[inline]
+fn change_title_simple(
+    ind: usize,
+    book_system: &mut BookSystem,
+    reader_base: &mut ReaderBase,
+    app: &App,
+) {
+    let (s3, r3) = app::channel();
+    let mut get_title = Input1::<Input>::new("New Title", "New Title");
+
+    get_title.show();
+    (*get_title.ok).borrow_mut().emit(s3, true);
+
+    while app.wait() {
+        if let Some(msg) = r3.recv() {
+            match msg {
+                true => {
+                    let title_param = get_title.set_input();
+                    get_title.hide();
+
+                    if let Ok(new_title) = title_param {
+                        unsafe {
+                            if new_title.get_unchecked(0).is_empty() {
+                                alert(500, 500, "New title is empty");
+                            }
+
+                            match book_system.change_title(ind, new_title.get_unchecked(0).clone())
+                            {
+                                Ok(_) => {
+                                    fltk::dialog::message(500, 500, "Successfully changed");
+                                    book_system.save();
+                                    reader_base.save();
+                                }
+
+                                Err(_) => {
+                                    alert(500, 500, "Book with same parameters already exists")
+                                }
+                            }
+                        }
+                    }
+                }
+
+                false => (),
+            }
+        } else if !get_title.shown() {
+            return;
+        }
+    }
+}
+
+/// Changing author of already known book
+
+#[inline]
+fn change_author_simple(
+    ind: usize,
+    book_system: &mut BookSystem,
+    reader_base: &mut ReaderBase,
+    app: &App,
+) {
+    let (s3, r3) = app::channel();
+    let mut get_author = Input1::<Input>::new("New Author", "New Author");
+
+    get_author.show();
+    (*get_author.ok).borrow_mut().emit(s3, true);
+
+    while app.wait() {
+        if let Some(msg) = r3.recv() {
+            match msg {
+                true => {
+                    let author_param = get_author.set_input();
+                    get_author.hide();
+
+                    if let Ok(new_author) = author_param {
+                        unsafe {
+                            if new_author.get_unchecked(0).is_empty() {
+                                alert(500, 500, "New title is empty");
+                            }
+
+                            match book_system
+                                .change_author(ind, new_author.get_unchecked(0).clone())
+                            {
+                                Ok(_) => {
+                                    fltk::dialog::message(500, 500, "Successfully changed");
+                                    book_system.save();
+                                    reader_base.save();
+                                }
+
+                                Err(_) => {
+                                    alert(500, 500, "Book with same parameters already exists")
+                                }
+                            }
+                        }
+                    }
+                }
+
+                false => (),
+            }
+        } else if !get_author.shown() {
+            return;
+        }
+    }
+}
+
+/// Changing amount of pages of already known book
+
+#[inline]
+fn change_pages_simple(
+    ind: usize,
+    book_system: &mut BookSystem,
+    reader_base: &mut ReaderBase,
+    app: &App,
+) {
+    let (s3, r3) = app::channel();
+    let mut get_pages = Input1::<IntInput>::new("New Amount of Pages", "New Amount of Pages");
+
+    get_pages.show();
+    (*get_pages.ok).borrow_mut().emit(s3, true);
+
+    while app.wait() {
+        if let Some(msg) = r3.recv() {
+            match msg {
+                true => {
+                    let pages_param = get_pages.set_input();
+                    get_pages.hide();
+
+                    if let Ok(new_pages) = pages_param {
+                        unsafe {
+                            if new_pages.get_unchecked(0).is_empty() {
+                                alert(500, 500, "New amount of pages is empty");
+                                return;
+                            }
+
+                            match book_system.change_pages(ind, new_pages.get_unchecked(0).clone())
+                            {
+                                Ok(_) => {
+                                    fltk::dialog::message(500, 500, "Successfully changed");
+                                    book_system.save();
+                                    reader_base.save();
+                                }
+
+                                Err(0) => alert(500, 500, "New amount of pages input error"),
+
+                                Err(_) => {
+                                    alert(500, 500, "Book with same parameters already exists")
+                                }
+                            }
+                        }
+                    }
+                }
+
+                false => (),
+            }
+        } else if !get_pages.shown() {
+            return;
+        }
+    }
+}
+
+/// Removes already known the book
+
+#[inline]
+fn remove_the_book_simple(ind: usize, book_system: &mut BookSystem, reader_base: &mut ReaderBase) {
+    match book_system.remove_book(ind) {
+        Ok(_) => {
+            fltk::dialog::message(500, 500, "Successfully removed");
+            book_system.save();
+            reader_base.save();
+        }
+
+        Err(_) => alert(500, 500, "Wrong book's number"),
+    }
+}
+
+/// Adds simple books to already known the book
+
+#[inline]
+fn add_books_simple(ind: usize, book_system: &mut BookSystem, app: &App) {
+    let (s3, r3) = app::channel();
+    let mut get_amount = Input1::<IntInput>::new("Books amount", "Amount of books to add");
+
+    get_amount.show();
+    (*get_amount.ok).borrow_mut().emit(s3, true);
+
+    while app.wait() {
+        if let Some(msg) = r3.recv() {
+            match msg {
+                true => {
+                    let amount_param = get_amount.set_input();
+                    get_amount.hide();
+
+                    if let Ok(amount) = amount_param {
+                        match amount.first().unwrap().trim().parse::<usize>() {
+                            Ok(x) => match book_system.add_books(ind, x) {
+                                Ok(_) => {
+                                    fltk::dialog::message(500, 500, "Successfully added");
+                                    book_system.save();
+                                }
+
+                                Err(_) => alert(500, 500, "Too much books"),
+                            },
+
+                            Err(_) => {
+                                alert(500, 500, "Amount of books input error");
+                                println!("{:?}", amount.last().unwrap().trim().parse::<usize>())
+                            }
+                        }
+                    }
+                }
+
+                false => (),
+            }
+        } else if !get_amount.shown() {
+            return;
+        }
+    }
+}
+
+/// Removes one simple book from known the book
+
+#[inline]
+fn remove_book_simple(
+    index: usize,
+    book_system: &mut BookSystem,
+    reader_base: &mut ReaderBase,
+    app: &App,
+) {
+    let (s3, r3) = app::channel();
+    let mut get_ind = Input1::<IntInput>::new("Book's number", "Book's number");
+    get_ind.show();
+    (*get_ind.ok).borrow_mut().emit(s3, true);
+
+    while app.wait() {
+        if let Some(msg) = r3.recv() {
+            match msg {
+                true => {
+                    let ind_param = get_ind.set_input();
+                    get_ind.hide();
+
+                    if let Ok(ind) = ind_param {
+                        match ind.first().unwrap().trim().parse::<usize>() {
+                            Ok(x) => match book_system.remove_one_book(index, x) {
+                                Ok(_) => {
+                                    fltk::dialog::message(500, 500, "Successfully removed");
+                                    book_system.save();
+                                    reader_base.save();
+                                }
+
+                                Err(_) => alert(500, 500, "Incorrect number of book"),
+                            },
+
+                            Err(_) => {
+                                alert(500, 500, "Book's number input error");
+                                println!("{:?}", ind.last().unwrap().trim().parse::<usize>())
+                            }
+                        }
+                    }
+                }
+
+                false => (),
+            }
+        } else if !get_ind.shown() {
+            return;
+        }
+    }
+}
+
 /// Function that add simple books.
 /// If number of books to add plus
 /// number of existing books
@@ -82,6 +350,7 @@ pub(crate) fn check_book(book_system: &BookSystem, books: &Vec<String>) -> Resul
 /// If you have mistakes in input,
 /// program will let you know
 
+#[inline]
 pub fn add_books(book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::<Input, Input, IntInput>::new("Add Books", "Title", "Author", "Pages");
@@ -104,56 +373,7 @@ pub fn add_books(book_system: &mut BookSystem, app: &App) {
                             Err(_) => return,
                         }
 
-                        let (s3, r3) = app::channel();
-                        let mut get_amount =
-                            Input1::<IntInput>::new("Books amount", "Amount of books to add");
-
-                        get_amount.show();
-                        (*get_amount.ok).borrow_mut().emit(s3, true);
-
-                        while app.wait() {
-                            if let Some(msg) = r3.recv() {
-                                match msg {
-                                    true => {
-                                        let amount_param = get_amount.set_input();
-                                        get_amount.hide();
-
-                                        if let Ok(amount) = amount_param {
-                                            match amount.first().unwrap().trim().parse::<usize>() {
-                                                Ok(x) => match book_system.add_books(ind, x) {
-                                                    Ok(_) => {
-                                                        fltk::dialog::message(
-                                                            500,
-                                                            500,
-                                                            "Successfully added",
-                                                        );
-                                                        book_system.save();
-                                                    }
-
-                                                    Err(_) => alert(500, 500, "Too much books"),
-                                                },
-
-                                                Err(_) => {
-                                                    alert(500, 500, "Amount of books input error");
-                                                    println!(
-                                                        "{:?}",
-                                                        amount
-                                                            .last()
-                                                            .unwrap()
-                                                            .trim()
-                                                            .parse::<usize>()
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    false => (),
-                                }
-                            } else if !get_amount.shown() {
-                                break;
-                            }
-                        }
+                        add_books_simple(ind, book_system, app);
                     }
                 }
                 false => (),
@@ -170,6 +390,7 @@ pub fn add_books(book_system: &mut BookSystem, app: &App) {
 /// If you have mistakes in input,
 /// program will let you know
 
+#[inline]
 pub fn remove_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::<Input, Input, IntInput>::new("Remove Book", "Title", "Author", "Pages");
@@ -192,57 +413,7 @@ pub fn remove_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, a
                             Err(_) => return,
                         }
 
-                        let (s3, r3) = app::channel();
-                        let mut get_ind = Input1::<IntInput>::new("Book's number", "Book's number");
-                        get_ind.show();
-                        (*get_ind.ok).borrow_mut().emit(s3, true);
-
-                        while app.wait() {
-                            if let Some(msg) = r3.recv() {
-                                match msg {
-                                    true => {
-                                        let ind_param = get_ind.set_input();
-                                        get_ind.hide();
-
-                                        if let Ok(ind) = ind_param {
-                                            match ind.first().unwrap().trim().parse::<usize>() {
-                                                Ok(x) => {
-                                                    match book_system.remove_one_book(index, x) {
-                                                        Ok(_) => {
-                                                            fltk::dialog::message(
-                                                                500,
-                                                                500,
-                                                                "Successfully removed",
-                                                            );
-                                                            book_system.save();
-                                                            reader_base.save();
-                                                        }
-
-                                                        Err(_) => alert(
-                                                            500,
-                                                            500,
-                                                            "Incorrect number of book",
-                                                        ),
-                                                    }
-                                                }
-
-                                                Err(_) => {
-                                                    alert(500, 500, "Book's number input error");
-                                                    println!(
-                                                        "{:?}",
-                                                        ind.last().unwrap().trim().parse::<usize>()
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    false => (),
-                                }
-                            } else if !get_ind.shown() {
-                                break;
-                            }
-                        }
+                        remove_book_simple(index, book_system, reader_base, app);
                     }
                 }
                 false => (),
@@ -258,6 +429,7 @@ pub fn remove_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, a
 /// If you have mistakes in input,
 /// program will let you know
 
+#[inline]
 pub fn add_book(book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::<Input, Input, IntInput>::new("Add New Book", "Title", "Author", "Pages");
@@ -315,6 +487,7 @@ pub fn add_book(book_system: &mut BookSystem, app: &App) {
 /// If you have mistakes in input,
 /// program will let you know
 
+#[inline]
 pub fn remove_the_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::<Input, Input, IntInput>::new("Remove Books", "Title", "Author", "Pages");
@@ -337,15 +510,7 @@ pub fn remove_the_book(book_system: &mut BookSystem, reader_base: &mut ReaderBas
                             Err(_) => return,
                         }
 
-                        match book_system.remove_book(index) {
-                            Ok(_) => {
-                                fltk::dialog::message(500, 500, "Successfully removed");
-                                book_system.save();
-                                reader_base.save();
-                            }
-
-                            Err(_) => alert(500, 500, "Wrong book's number"),
-                        }
+                        remove_the_book_simple(index, book_system, reader_base);
                     }
                 }
                 false => (),
@@ -362,6 +527,7 @@ pub fn remove_the_book(book_system: &mut BookSystem, reader_base: &mut ReaderBas
 /// If you have mistakes in input,
 /// program will let you know
 
+#[inline]
 pub fn change_title(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::<Input, Input, IntInput>::new("Change Title", "Title", "Author", "Pages");
@@ -384,56 +550,7 @@ pub fn change_title(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
                             Err(_) => return,
                         }
 
-                        let (s3, r3) = app::channel();
-                        let mut get_title = Input1::<Input>::new("New Title", "New Title");
-
-                        get_title.show();
-                        (*get_title.ok).borrow_mut().emit(s3, true);
-
-                        while app.wait() {
-                            if let Some(msg) = r3.recv() {
-                                match msg {
-                                    true => {
-                                        let title_param = get_title.set_input();
-                                        get_title.hide();
-
-                                        if let Ok(new_title) = title_param {
-                                            unsafe {
-                                                if new_title.get_unchecked(0).is_empty() {
-                                                    alert(500, 500, "New title is empty");
-                                                    return;
-                                                }
-
-                                                match book_system.change_title(
-                                                    index,
-                                                    new_title.get_unchecked(0).clone(),
-                                                ) {
-                                                    Ok(_) => {
-                                                        fltk::dialog::message(
-                                                            500,
-                                                            500,
-                                                            "Successfully changed",
-                                                        );
-                                                        book_system.save();
-                                                        reader_base.save();
-                                                    }
-
-                                                    Err(_) => alert(
-                                                        500,
-                                                        500,
-                                                        "Book with same parameters already exists",
-                                                    ),
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    false => (),
-                                }
-                            } else if !get_title.shown() {
-                                break;
-                            }
-                        }
+                        change_title_simple(index, book_system, reader_base, app);
                     }
                 }
                 false => (),
@@ -450,6 +567,7 @@ pub fn change_title(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
 /// If you have mistakes in input,
 /// program will let you know
 
+#[inline]
 pub fn change_author(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
     let mut inp =
@@ -473,56 +591,7 @@ pub fn change_author(book_system: &mut BookSystem, reader_base: &mut ReaderBase,
                             Err(_) => return,
                         }
 
-                        let (s3, r3) = app::channel();
-                        let mut get_author = Input1::<Input>::new("New Author", "New Author");
-
-                        get_author.show();
-                        (*get_author.ok).borrow_mut().emit(s3, true);
-
-                        while app.wait() {
-                            if let Some(msg) = r3.recv() {
-                                match msg {
-                                    true => {
-                                        let author_param = get_author.set_input();
-                                        get_author.hide();
-
-                                        if let Ok(new_author) = author_param {
-                                            unsafe {
-                                                if new_author.get_unchecked(0).is_empty() {
-                                                    alert(500, 500, "New author is empty");
-                                                    return;
-                                                }
-
-                                                match book_system.change_author(
-                                                    index,
-                                                    new_author.get_unchecked(0).clone(),
-                                                ) {
-                                                    Ok(_) => {
-                                                        fltk::dialog::message(
-                                                            500,
-                                                            500,
-                                                            "Successfully changed",
-                                                        );
-                                                        book_system.save();
-                                                        reader_base.save();
-                                                    }
-
-                                                    Err(_) => alert(
-                                                        500,
-                                                        500,
-                                                        "Book with same parameters already exists",
-                                                    ),
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    false => (),
-                                }
-                            } else if !get_author.shown() {
-                                break;
-                            }
-                        }
+                        change_author_simple(index, book_system, reader_base, app);
                     }
                 }
                 false => (),
@@ -539,6 +608,7 @@ pub fn change_author(book_system: &mut BookSystem, reader_base: &mut ReaderBase,
 /// If you have mistakes in input,
 /// program will let you know
 
+#[inline]
 pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::<Input, Input, IntInput>::new("Change Pages", "Title", "Author", "Pages");
@@ -561,63 +631,7 @@ pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
                             Err(_) => return,
                         }
 
-                        let (s3, r3) = app::channel();
-                        let mut get_pages =
-                            Input1::<IntInput>::new("New Amount of Pages", "New Amount of Pages");
-
-                        get_pages.show();
-                        (*get_pages.ok).borrow_mut().emit(s3, true);
-
-                        while app.wait() {
-                            if let Some(msg) = r3.recv() {
-                                match msg {
-                                    true => {
-                                        let pages_param = get_pages.set_input();
-                                        get_pages.hide();
-
-                                        if let Ok(new_pages) = pages_param {
-                                            unsafe {
-                                                if new_pages.get_unchecked(0).is_empty() {
-                                                    alert(500, 500, "New amount of pages is empty");
-                                                    return;
-                                                }
-
-                                                match book_system.change_pages(
-                                                    index,
-                                                    new_pages.get_unchecked(0).clone(),
-                                                ) {
-                                                    Ok(_) => {
-                                                        fltk::dialog::message(
-                                                            500,
-                                                            500,
-                                                            "Successfully changed",
-                                                        );
-                                                        book_system.save();
-                                                        reader_base.save();
-                                                    }
-
-                                                    Err(0) => alert(
-                                                        500,
-                                                        500,
-                                                        "New amount of pages input error",
-                                                    ),
-
-                                                    Err(_) => alert(
-                                                        500,
-                                                        500,
-                                                        "Book with same parameters already exists",
-                                                    ),
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    false => (),
-                                }
-                            } else if !get_pages.shown() {
-                                break;
-                            }
-                        }
+                        change_pages_simple(index, book_system, reader_base, app);
                     }
                 }
                 false => (),
@@ -637,6 +651,8 @@ enum MessageBook {
     ChangeAuthor,
     ChangePages,
     RemoveThis,
+    RemoveSimple,
+    AddSimple,
 }
 
 /// Function that gives all information about TheBook:
@@ -731,7 +747,7 @@ pub fn book_info(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app
 
                                 wind.end();
 
-                                let mut menu = MenuBar::new(0, 0, 65, 30, "");
+                                let mut menu = MenuBar::new(0, 0, 210, 30, "");
                                 wind.add(&menu);
 
                                 let (s, r) = app::channel();
@@ -761,11 +777,27 @@ pub fn book_info(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app
                                 );
 
                                 menu.add_emit(
-                                    "&Change/Remove this book\t",
+                                    "&Remove/Remove all books\t",
                                     Shortcut::empty(),
                                     MenuFlag::Normal,
                                     s,
                                     MessageBook::RemoveThis,
+                                );
+
+                                menu.add_emit(
+                                    "&Remove/Remove one book\t",
+                                    Shortcut::empty(),
+                                    MenuFlag::Normal,
+                                    s,
+                                    MessageBook::RemoveSimple,
+                                );
+
+                                menu.add_emit(
+                                    "&Add book\t",
+                                    Shortcut::empty(),
+                                    MenuFlag::Normal,
+                                    s,
+                                    MessageBook::AddSimple,
                                 );
 
                                 wind.show();
@@ -773,209 +805,42 @@ pub fn book_info(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app
                                 while app.wait() {
                                     if let Some(msg) = r.recv() {
                                         match msg {
-                                            MessageBook::ChangeTitle => {
-                                                let (s3, r3) = app::channel();
-                                                let mut get_title =
-                                                    Input1::<Input>::new("New Title", "New Title");
+                                            MessageBook::ChangeTitle => change_title_simple(
+                                                ind.unwrap(),
+                                                book_system,
+                                                reader_base,
+                                                app,
+                                            ),
 
-                                                get_title.show();
-                                                (*get_title.ok).borrow_mut().emit(s3, true);
+                                            MessageBook::ChangeAuthor => change_author_simple(
+                                                ind.unwrap(),
+                                                book_system,
+                                                reader_base,
+                                                app,
+                                            ),
 
-                                                while app.wait() {
-                                                    if let Some(msg) = r3.recv() {
-                                                        match msg {
-                                                            true => {
-                                                                let title_param =
-                                                                    get_title.set_input();
-                                                                get_title.hide();
+                                            MessageBook::ChangePages => change_pages_simple(
+                                                ind.unwrap(),
+                                                book_system,
+                                                reader_base,
+                                                app,
+                                            ),
 
-                                                                if let Ok(new_title) = title_param {
-                                                                    if new_title
-                                                                        .get_unchecked(0)
-                                                                        .is_empty()
-                                                                    {
-                                                                        alert(
-                                                                            500,
-                                                                            500,
-                                                                            "New title is empty",
-                                                                        );
-                                                                    }
+                                            MessageBook::RemoveThis => remove_the_book_simple(
+                                                ind.unwrap(),
+                                                book_system,
+                                                reader_base,
+                                            ),
 
-                                                                    match book_system.change_title(
-                                                                        ind.unwrap(),
-                                                                        new_title.get_unchecked(0).clone(),
-                                                                    ) {
-                                                                        Ok(_) => {
-                                                                            fltk::dialog::message(
-                                                                                500,
-                                                                                500,
-                                                                                "Successfully changed",
-                                                                            );
-                                                                            book_system.save();
-                                                                            reader_base.save();
-                                                                        }
+                                            MessageBook::RemoveSimple => remove_book_simple(
+                                                ind.unwrap(),
+                                                book_system,
+                                                reader_base,
+                                                app,
+                                            ),
 
-                                                                        Err(_) => alert(
-                                                                            500,
-                                                                            500,
-                                                                            "Book with same parameters already exists",
-                                                                        ),
-                                                                    }
-                                                                }
-                                                            }
-
-                                                            false => (),
-                                                        }
-                                                    } else if !get_title.shown() {
-                                                        break;
-                                                    }
-                                                }
-                                            }
-
-                                            MessageBook::ChangeAuthor => {
-                                                let (s3, r3) = app::channel();
-                                                let mut get_author = Input1::<Input>::new(
-                                                    "New Author",
-                                                    "New Author",
-                                                );
-
-                                                get_author.show();
-                                                (*get_author.ok).borrow_mut().emit(s3, true);
-
-                                                while app.wait() {
-                                                    if let Some(msg) = r3.recv() {
-                                                        match msg {
-                                                            true => {
-                                                                let author_param =
-                                                                    get_author.set_input();
-                                                                get_author.hide();
-
-                                                                if let Ok(new_author) = author_param
-                                                                {
-                                                                    if new_author
-                                                                        .get_unchecked(0)
-                                                                        .is_empty()
-                                                                    {
-                                                                        alert(
-                                                                            500,
-                                                                            500,
-                                                                            "New author is empty",
-                                                                        );
-                                                                    }
-
-                                                                    match book_system.change_author(
-                                                                        ind.unwrap(),
-                                                                        new_author.get_unchecked(0).clone(),
-                                                                    ) {
-                                                                        Ok(_) => {
-                                                                            fltk::dialog::message(
-                                                                                500,
-                                                                                500,
-                                                                                "Successfully changed",
-                                                                            );
-                                                                            book_system.save();
-                                                                            reader_base.save();
-                                                                        }
-
-                                                                        Err(_) => alert(
-                                                                            500,
-                                                                            500,
-                                                                            "Book with same parameters already exists",
-                                                                        ),
-                                                                    }
-                                                                }
-                                                            }
-
-                                                            false => (),
-                                                        }
-                                                    } else if !get_author.shown() {
-                                                        break;
-                                                    }
-                                                }
-                                            }
-
-                                            MessageBook::ChangePages => {
-                                                let (s3, r3) = app::channel();
-                                                let mut get_pages = Input1::<IntInput>::new(
-                                                    "New Amount of Pages",
-                                                    "New Amount of Pages",
-                                                );
-
-                                                get_pages.show();
-                                                (*get_pages.ok).borrow_mut().emit(s3, true);
-
-                                                while app.wait() {
-                                                    if let Some(msg) = r3.recv() {
-                                                        match msg {
-                                                            true => {
-                                                                let pages_param =
-                                                                    get_pages.set_input();
-                                                                get_pages.hide();
-
-                                                                if let Ok(new_pages) = pages_param {
-                                                                    if new_pages
-                                                                        .get_unchecked(0)
-                                                                        .is_empty()
-                                                                    {
-                                                                        alert(
-                                                                            500,
-                                                                            500,
-                                                                            "New amount of pages is empty"
-                                                                        );
-                                                                    }
-
-                                                                    match book_system.change_pages(
-                                                                        ind.unwrap(),
-                                                                        new_pages.get_unchecked(0).clone(),
-                                                                    ) {
-                                                                        Ok(_) => {
-                                                                            fltk::dialog::message(
-                                                                                500,
-                                                                                500,
-                                                                                "Successfully changed",
-                                                                            );
-                                                                            book_system.save();
-                                                                            reader_base.save();
-                                                                        }
-
-                                                                        Err(0) => alert(
-                                                                            500,
-                                                                            500,
-                                                                            "New amount of pages input error",
-                                                                        ),
-
-                                                                        Err(_) => alert(
-                                                                            500,
-                                                                            500,
-                                                                            "Book with same parameters already exists",
-                                                                        ),
-                                                                    }
-                                                                }
-                                                            }
-                                                            false => (),
-                                                        }
-                                                    } else if !get_pages.shown() {
-                                                        break;
-                                                    }
-                                                }
-                                            }
-
-                                            MessageBook::RemoveThis => {
-                                                match book_system.remove_book(ind.unwrap()) {
-                                                    Ok(_) => {
-                                                        fltk::dialog::message(
-                                                            500,
-                                                            500,
-                                                            "Successfully removed",
-                                                        );
-                                                        book_system.save();
-                                                        reader_base.save();
-                                                    }
-
-                                                    Err(_) => {
-                                                        alert(500, 500, "Wrong book's number")
-                                                    }
-                                                }
+                                            MessageBook::AddSimple => {
+                                                add_books_simple(ind.unwrap(), book_system, app)
                                             }
                                         }
                                         return;
