@@ -22,6 +22,17 @@ use std::cmp::max;
 use std::num::ParseIntError;
 use std::rc::Rc;
 
+/// Messages for info menu
+
+#[derive(Clone, Copy)]
+enum MessageReader {
+    ChangeName,
+    ChangeFamily,
+    ChangeFather,
+    ChangeAge,
+    RemoveThis,
+}
+
 /// Function that checks if input was empty
 
 #[inline]
@@ -350,6 +361,296 @@ fn change_age_simple(
     }
 }
 
+/// Function that gives information
+/// about already known reader
+
+pub fn reader_info_simple(
+    ind: usize,
+    reader_base: &mut ReaderBase,
+    book_system: &mut BookSystem,
+    app: &App,
+) {
+    let mut wind;
+    let mut table2;
+
+    unsafe {
+        wind = SingleWindow::new(
+            800,
+            100,
+            570,
+            600,
+            format!(
+                "{} {} {}",
+                (*reader_base.readers.get_unchecked(ind)).borrow().name,
+                (*reader_base.readers.get_unchecked(ind)).borrow().family,
+                (*reader_base.readers.get_unchecked(ind)).borrow().father,
+            )
+            .as_str(),
+        )
+        .center_screen();
+
+        let mut table1 = VGrid::new(0, 0, 570, 100, "");
+        table1.set_params(6, 1, 1);
+
+        table1.add(&Frame::new(
+            10,
+            50,
+            100,
+            30,
+            format!(
+                "First Name: {}",
+                (*reader_base.readers.get_unchecked(ind)).borrow().name
+            )
+            .as_str(),
+        ));
+
+        table1.add(&Frame::new(
+            30,
+            50,
+            100,
+            30,
+            format!(
+                "Second Name: {}",
+                (*reader_base.readers.get_unchecked(ind)).borrow().family
+            )
+            .as_str(),
+        ));
+
+        table1.add(&Frame::new(
+            50,
+            50,
+            100,
+            30,
+            format!(
+                "Middle Name: {}",
+                (*reader_base.readers.get_unchecked(ind)).borrow().father
+            )
+            .as_str(),
+        ));
+
+        table1.add(&Frame::new(
+            70,
+            50,
+            100,
+            30,
+            format!(
+                "Age: {}",
+                (*reader_base.readers.get_unchecked(ind)).borrow().age
+            )
+            .as_str(),
+        ));
+
+        table1.add(&Frame::new(
+            70,
+            50,
+            100,
+            30,
+            format!(
+                "Reading now: {}",
+                if (**reader_base.readers.get_unchecked(ind))
+                    .borrow()
+                    .reading
+                    .is_some()
+                {
+                    (*(**reader_base.readers.get_unchecked(ind))
+                        .borrow()
+                        .reading
+                        .as_ref()
+                        .unwrap()
+                        .upgrade()
+                        .unwrap())
+                    .borrow()
+                    .title
+                    .clone()
+                        + " "
+                        + (*(**reader_base.readers.get_unchecked(ind))
+                            .borrow()
+                            .reading
+                            .as_ref()
+                            .unwrap()
+                            .upgrade()
+                            .unwrap())
+                        .borrow()
+                        .author
+                        .as_str()
+                        + " "
+                        + (*(**reader_base.readers.get_unchecked(ind))
+                            .borrow()
+                            .reading
+                            .as_ref()
+                            .unwrap()
+                            .upgrade()
+                            .unwrap())
+                        .borrow()
+                        .pages
+                        .to_string()
+                        .as_str()
+                        + "  ("
+                        + get_book_ind(
+                            book_system,
+                            (*(**reader_base.readers.get_unchecked(ind))
+                                .borrow()
+                                .reading
+                                .as_ref()
+                                .unwrap()
+                                .upgrade()
+                                .unwrap())
+                            .as_ptr(),
+                        )
+                        .to_string()
+                        .as_str()
+                        + ")"
+                } else {
+                    "None".to_string()
+                }
+            )
+            .as_str(),
+        ));
+
+        table1.add(&Frame::new(
+            90,
+            50,
+            100,
+            30,
+            format!("Books read by reader:").as_str(),
+        ));
+
+        table1.auto_layout();
+
+        table2 = Table::new(0, 127, 570, 600, "");
+        table2.set_rows(max(
+            30,
+            (**reader_base.readers.get_unchecked(ind))
+                .borrow()
+                .books
+                .len() as u32,
+        ));
+        table2.set_row_header(true);
+        table2.set_cols(4);
+        table2.set_col_header(true);
+        table2.set_col_width_all(130);
+        table2.end();
+    }
+
+    wind.end();
+
+    let mut menu = MenuBar::new(0, 0, 65, 30, "");
+    wind.add(&menu);
+
+    let (s, r) = app::channel();
+
+    menu.add_emit(
+        "&Change/Change name\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        MessageReader::ChangeName,
+    );
+
+    menu.add_emit(
+        "&Change/Change family\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        MessageReader::ChangeFamily,
+    );
+
+    menu.add_emit(
+        "&Change/Change father\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        MessageReader::ChangeFather,
+    );
+
+    menu.add_emit(
+        "&Change/Change age\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        MessageReader::ChangeAge,
+    );
+
+    menu.add_emit(
+        "Remove this reader\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        MessageReader::RemoveThis,
+    );
+
+    wind.show();
+
+    let base_ptr = reader_base as *mut ReaderBase;
+    let sys_ptr = book_system as *mut BookSystem;
+
+    table2.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+        fltk::table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
+
+        fltk::table::TableContext::ColHeader => draw_header(
+            &format!(
+                "{}",
+                match col {
+                    0 => "Title",
+                    1 => "Author",
+                    2 => "Pages",
+                    _ => "Number of book",
+                }
+            ),
+            x,
+            y,
+            w,
+            h,
+        ),
+
+        fltk::table::TableContext::RowHeader => draw_header(&format!("{}", row + 1), x, y, w, h),
+
+        fltk::table::TableContext::Cell => draw_data(
+            &format!(
+                "{}",
+                cell_book2(
+                    col,
+                    row,
+                    ind,
+                    unsafe { base_ptr.as_ref().unwrap() },
+                    unsafe { sys_ptr.as_ref().unwrap() }
+                )
+            ),
+            x,
+            y,
+            w,
+            h,
+            t.is_selected(row, col),
+            None,
+        ),
+
+        _ => (),
+    });
+
+    while app.wait() {
+        if let Some(msg) = r.recv() {
+            match msg {
+                MessageReader::ChangeName => change_name_simple(ind, reader_base, book_system, app),
+
+                MessageReader::ChangeFamily => {
+                    change_family_simple(ind, reader_base, book_system, app)
+                }
+
+                MessageReader::ChangeFather => {
+                    change_father_simple(ind, reader_base, book_system, app)
+                }
+
+                MessageReader::ChangeAge => change_age_simple(ind, reader_base, book_system, app),
+
+                MessageReader::RemoveThis => remove_reader_simple(ind, reader_base, book_system),
+            }
+            return;
+        } else if !wind.shown() {
+            return;
+        }
+    }
+}
+
 /// Function that adds reader.
 /// If you have mistakes in input,
 /// program will let you know
@@ -646,21 +947,11 @@ pub fn change_age(reader_base: &mut ReaderBase, book_system: &mut BookSystem, ap
     }
 }
 
-/// Messages for info menu
-
-#[derive(Clone, Copy)]
-enum MessageReader {
-    ChangeName,
-    ChangeFamily,
-    ChangeFather,
-    ChangeAge,
-    RemoveThis,
-}
-
 /// Function that gives info about reader.
 /// If you have mistakes in input,
 /// program will let you know
 
+#[inline]
 pub fn reader_info(
     reader_base: &'static mut ReaderBase,
     book_system: &'static mut BookSystem,
@@ -688,303 +979,16 @@ pub fn reader_info(
                     if let Ok(reader) = reader_params {
                         match reader.last().unwrap().trim().parse::<u8>() {
                             Ok(x) => unsafe {
-                                let ind = reader_base.find_reader(
+                                match reader_base.find_reader(
                                     reader.get_unchecked(0),
                                     reader.get_unchecked(1),
                                     reader.get_unchecked(2),
                                     x,
-                                );
+                                ) {
+                                    None => alert(500, 500, "Reader isn't found"),
 
-                                if ind.is_none() {
-                                    alert(500, 500, "Reader isn't found");
-                                    return;
-                                }
-
-                                let mut wind = SingleWindow::new(
-                                    800,
-                                    100,
-                                    570,
-                                    600,
-                                    format!(
-                                        "{} {} {}",
-                                        reader.get_unchecked(0).as_str(),
-                                        reader.get_unchecked(1).as_str(),
-                                        reader.get_unchecked(2).as_str()
-                                    )
-                                    .as_str(),
-                                )
-                                .center_screen();
-
-                                let mut table1 = VGrid::new(0, 0, 570, 100, "");
-                                table1.set_params(6, 1, 1);
-
-                                table1.add(&Frame::new(
-                                    10,
-                                    50,
-                                    100,
-                                    30,
-                                    format!("First Name: {}", reader.get_unchecked(0)).as_str(),
-                                ));
-
-                                table1.add(&Frame::new(
-                                    30,
-                                    50,
-                                    100,
-                                    30,
-                                    format!("Second Name: {}", reader.get_unchecked(1).as_str())
-                                        .as_str(),
-                                ));
-
-                                table1.add(&Frame::new(
-                                    50,
-                                    50,
-                                    100,
-                                    30,
-                                    format!("Middle Name: {}", reader.get_unchecked(2)).as_str(),
-                                ));
-
-                                table1.add(&Frame::new(
-                                    70,
-                                    50,
-                                    100,
-                                    30,
-                                    format!("Age: {}", x).as_str(),
-                                ));
-
-                                table1.add(&Frame::new(
-                                    70,
-                                    50,
-                                    100,
-                                    30,
-                                    format!(
-                                        "Reading now: {}",
-                                        if (**reader_base.readers.get_unchecked(ind.unwrap()))
-                                            .borrow()
-                                            .reading
-                                            .is_some()
-                                        {
-                                            (*(**reader_base.readers.get_unchecked(ind.unwrap()))
-                                                .borrow()
-                                                .reading
-                                                .as_ref()
-                                                .unwrap()
-                                                .upgrade()
-                                                .unwrap())
-                                            .borrow()
-                                            .title
-                                            .clone()
-                                                + " "
-                                                + (*(**reader_base
-                                                    .readers
-                                                    .get_unchecked(ind.unwrap()))
-                                                .borrow()
-                                                .reading
-                                                .as_ref()
-                                                .unwrap()
-                                                .upgrade()
-                                                .unwrap())
-                                                .borrow()
-                                                .author
-                                                .as_str()
-                                                + " "
-                                                + (*(**reader_base
-                                                    .readers
-                                                    .get_unchecked(ind.unwrap()))
-                                                .borrow()
-                                                .reading
-                                                .as_ref()
-                                                .unwrap()
-                                                .upgrade()
-                                                .unwrap())
-                                                .borrow()
-                                                .pages
-                                                .to_string()
-                                                .as_str()
-                                                + "  ("
-                                                + get_book_ind(
-                                                    book_system,
-                                                    (*(**reader_base
-                                                        .readers
-                                                        .get_unchecked(ind.unwrap()))
-                                                    .borrow()
-                                                    .reading
-                                                    .as_ref()
-                                                    .unwrap()
-                                                    .upgrade()
-                                                    .unwrap())
-                                                    .as_ptr(),
-                                                )
-                                                .to_string()
-                                                .as_str()
-                                                + ")"
-                                        } else {
-                                            "None".to_string()
-                                        }
-                                    )
-                                    .as_str(),
-                                ));
-
-                                table1.add(&Frame::new(
-                                    90,
-                                    50,
-                                    100,
-                                    30,
-                                    format!("Books read by reader:").as_str(),
-                                ));
-
-                                table1.auto_layout();
-
-                                let mut table2 = Table::new(0, 127, 570, 600, "");
-                                table2.set_rows(max(
-                                    30,
-                                    (**reader_base.readers.get_unchecked(ind.unwrap()))
-                                        .borrow()
-                                        .books
-                                        .len() as u32,
-                                ));
-                                table2.set_row_header(true);
-                                table2.set_cols(4);
-                                table2.set_col_header(true);
-                                table2.set_col_width_all(130);
-                                table2.end();
-
-                                wind.end();
-
-                                let mut menu = MenuBar::new(0, 0, 65, 30, "");
-                                wind.add(&menu);
-
-                                let (s, r) = app::channel();
-
-                                menu.add_emit(
-                                    "&Change/Change name\t",
-                                    Shortcut::empty(),
-                                    MenuFlag::Normal,
-                                    s,
-                                    MessageReader::ChangeName,
-                                );
-
-                                menu.add_emit(
-                                    "&Change/Change family\t",
-                                    Shortcut::empty(),
-                                    MenuFlag::Normal,
-                                    s,
-                                    MessageReader::ChangeFamily,
-                                );
-
-                                menu.add_emit(
-                                    "&Change/Change father\t",
-                                    Shortcut::empty(),
-                                    MenuFlag::Normal,
-                                    s,
-                                    MessageReader::ChangeFather,
-                                );
-
-                                menu.add_emit(
-                                    "&Change/Change age\t",
-                                    Shortcut::empty(),
-                                    MenuFlag::Normal,
-                                    s,
-                                    MessageReader::ChangeAge,
-                                );
-
-                                menu.add_emit(
-                                    "Remove this reader\t",
-                                    Shortcut::empty(),
-                                    MenuFlag::Normal,
-                                    s,
-                                    MessageReader::RemoveThis,
-                                );
-
-                                wind.show();
-
-                                let base_ptr = reader_base as *mut ReaderBase;
-                                let sys_ptr = book_system as *mut BookSystem;
-
-                                table2.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
-                                    fltk::table::TableContext::StartPage => {
-                                        draw::set_font(Font::Helvetica, 14)
-                                    }
-
-                                    fltk::table::TableContext::ColHeader => draw_header(
-                                        &format!(
-                                            "{}",
-                                            match col {
-                                                0 => "Title",
-                                                1 => "Author",
-                                                2 => "Pages",
-                                                _ => "Number of book",
-                                            }
-                                        ),
-                                        x,
-                                        y,
-                                        w,
-                                        h,
-                                    ),
-
-                                    fltk::table::TableContext::RowHeader => {
-                                        draw_header(&format!("{}", row + 1), x, y, w, h)
-                                    }
-
-                                    fltk::table::TableContext::Cell => draw_data(
-                                        &format!(
-                                            "{}",
-                                            cell_book2(
-                                                col,
-                                                row,
-                                                ind.unwrap(),
-                                                base_ptr.as_ref().unwrap(),
-                                                sys_ptr.as_ref().unwrap()
-                                            )
-                                        ),
-                                        x,
-                                        y,
-                                        w,
-                                        h,
-                                        t.is_selected(row, col),
-                                        None,
-                                    ),
-
-                                    _ => (),
-                                });
-
-                                while app.wait() {
-                                    if let Some(msg) = r.recv() {
-                                        match msg {
-                                            MessageReader::ChangeName => change_name_simple(
-                                                ind.unwrap(),
-                                                reader_base,
-                                                book_system,
-                                                app,
-                                            ),
-
-                                            MessageReader::ChangeFamily => change_family_simple(
-                                                ind.unwrap(),
-                                                reader_base,
-                                                book_system,
-                                                app,
-                                            ),
-
-                                            MessageReader::ChangeFather => change_father_simple(
-                                                ind.unwrap(),
-                                                reader_base,
-                                                book_system,
-                                                app,
-                                            ),
-
-                                            MessageReader::ChangeAge => change_age_simple(
-                                                ind.unwrap(),
-                                                reader_base,
-                                                book_system,
-                                                app,
-                                            ),
-
-                                            MessageReader::RemoveThis => remove_reader_simple(
-                                                ind.unwrap(),
-                                                reader_base,
-                                                book_system,
-                                            ),
-                                        }
-                                        return;
+                                    Some(ind) => {
+                                        reader_info_simple(ind, reader_base, book_system, app)
                                     }
                                 }
                             },

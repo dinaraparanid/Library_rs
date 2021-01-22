@@ -1,6 +1,7 @@
 extern crate chrono;
 extern crate fltk;
 use self::chrono::{Datelike, Timelike};
+use self::fltk::app::App;
 use crate::actions::read::get_book_ind;
 use crate::books::book::Book;
 use crate::books::book_sys::BookSystem;
@@ -9,7 +10,7 @@ use crate::reading::read_base::ReaderBase;
 use fltk::draw;
 use fltk::enums::Color;
 use fltk::prelude::*;
-use fltk::table::Table;
+use fltk::table::*;
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
 
@@ -70,8 +71,8 @@ pub fn draw_data(
 pub fn cell_reader(
     x: i32,
     y: i32,
-    reader_base: &ReaderBase,
-    book_system: &BookSystem,
+    reader_base: &mut ReaderBase,
+    book_system: &mut BookSystem,
 ) -> (String, Option<fltk::enums::Color>) {
     unsafe {
         return if y < reader_base.readers.len() as i32 {

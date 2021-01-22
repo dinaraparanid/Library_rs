@@ -19,6 +19,18 @@ use fltk::{app, draw};
 use std::cmp::max;
 use std::num::ParseIntError;
 
+/// Messages for info menu
+
+#[derive(Clone, Copy)]
+enum MessageBook {
+    ChangeTitle,
+    ChangeAuthor,
+    ChangePages,
+    RemoveThis,
+    RemoveSimple,
+    AddSimple,
+}
+
 /// Function that checks if input was empty
 
 #[inline]
@@ -342,6 +354,162 @@ fn remove_book_simple(
     }
 }
 
+/// Function that returns info
+/// of already known book
+
+pub fn book_info_simple(
+    ind: usize,
+    book_system: &mut BookSystem,
+    reader_base: &mut ReaderBase,
+    app: &App,
+) {
+    let mut wind;
+
+    unsafe {
+        wind = SingleWindow::new(
+            800,
+            500,
+            300,
+            200,
+            format!(
+                "{} {}",
+                book_system.books.get_unchecked(ind).borrow().title,
+                book_system.books.get_unchecked(ind).borrow().author
+            )
+            .as_str(),
+        );
+
+        let mut table = VGrid::new(0, 30, 300, 160, "");
+        table.set_params(4, 1, 1);
+
+        table.add(&Frame::new(
+            30,
+            50,
+            200,
+            30,
+            format!(
+                "Title: {}",
+                book_system.books.get_unchecked(ind).borrow().title
+            )
+            .as_str(),
+        ));
+
+        table.add(&Frame::new(
+            50,
+            50,
+            200,
+            30,
+            format!(
+                "Author: {}",
+                book_system.books.get_unchecked(ind).borrow().author
+            )
+            .as_str(),
+        ));
+
+        table.add(&Frame::new(
+            70,
+            50,
+            200,
+            30,
+            format!(
+                "Pages: {}",
+                book_system.books.get_unchecked(ind).borrow().pages
+            )
+            .as_str(),
+        ));
+
+        table.add(&Frame::new(
+            90,
+            50,
+            100,
+            30,
+            format!(
+                "Amount of books: {}",
+                (*book_system.books.get_unchecked(ind)).borrow().books.len()
+            )
+            .as_str(),
+        ));
+
+        table.auto_layout();
+
+        wind.end();
+    }
+
+    let mut menu = MenuBar::new(0, 0, 210, 30, "");
+    wind.add(&menu);
+
+    let (s, r) = app::channel();
+
+    menu.add_emit(
+        "&Change/Change title\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        MessageBook::ChangeTitle,
+    );
+
+    menu.add_emit(
+        "&Change/Change author\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        MessageBook::ChangeAuthor,
+    );
+
+    menu.add_emit(
+        "&Change/Change pages\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        MessageBook::ChangePages,
+    );
+
+    menu.add_emit(
+        "&Remove/Remove all books\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        MessageBook::RemoveThis,
+    );
+
+    menu.add_emit(
+        "&Remove/Remove one book\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        MessageBook::RemoveSimple,
+    );
+
+    menu.add_emit(
+        "&Add book\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        MessageBook::AddSimple,
+    );
+
+    wind.show();
+
+    while app.wait() {
+        if let Some(msg) = r.recv() {
+            match msg {
+                MessageBook::ChangeAuthor => {
+                    change_author_simple(ind, book_system, reader_base, app)
+                }
+
+                MessageBook::ChangeTitle => change_title_simple(ind, book_system, reader_base, app),
+                MessageBook::ChangePages => change_pages_simple(ind, book_system, reader_base, app),
+                MessageBook::RemoveThis => remove_the_book_simple(ind, book_system, reader_base),
+                MessageBook::RemoveSimple => remove_book_simple(ind, book_system, reader_base, app),
+                MessageBook::AddSimple => add_books_simple(ind, book_system, app),
+            }
+            return;
+        } else if !wind.shown() {
+            return;
+        }
+    }
+}
+
 /// Function that add simple books.
 /// If number of books to add plus
 /// number of existing books
@@ -643,23 +811,12 @@ pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
     }
 }
 
-/// Messages for info menu
-
-#[derive(Clone, Copy)]
-enum MessageBook {
-    ChangeTitle,
-    ChangeAuthor,
-    ChangePages,
-    RemoveThis,
-    RemoveSimple,
-    AddSimple,
-}
-
 /// Function that gives all information about TheBook:
 /// title, author, pages, amount of simple books.
 /// If you have mistakes in input,
 /// program will let you know
 
+#[inline]
 pub fn book_info(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::<Input, Input, IntInput>::new("Find Book", "Title", "Author", "Pages");
@@ -677,173 +834,15 @@ pub fn book_info(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app
                     if let Ok(the_book) = book_params {
                         match the_book.last().unwrap().trim().parse::<u16>() {
                             Ok(x) => unsafe {
-                                let ind = book_system.find_book(
+                                match book_system.find_book(
                                     the_book.get_unchecked(0),
                                     the_book.get_unchecked(1),
                                     x,
-                                );
+                                ) {
+                                    None => alert(500, 500, "Book isn't found"),
 
-                                if ind.is_none() {
-                                    alert(500, 500, "Book isn't found");
-                                    return;
-                                }
-
-                                let mut wind = SingleWindow::new(
-                                    800,
-                                    500,
-                                    300,
-                                    200,
-                                    format!(
-                                        "{} {}",
-                                        the_book.get_unchecked(0),
-                                        the_book.get_unchecked(1)
-                                    )
-                                    .as_str(),
-                                );
-
-                                let mut table = VGrid::new(0, 30, 300, 160, "");
-                                table.set_params(4, 1, 1);
-
-                                table.add(&Frame::new(
-                                    30,
-                                    50,
-                                    200,
-                                    30,
-                                    format!("Title: {}", the_book.get_unchecked(0)).as_str(),
-                                ));
-
-                                table.add(&Frame::new(
-                                    50,
-                                    50,
-                                    200,
-                                    30,
-                                    format!("Author: {}", the_book.get_unchecked(0)).as_str(),
-                                ));
-
-                                table.add(&Frame::new(
-                                    70,
-                                    50,
-                                    200,
-                                    30,
-                                    format!("Pages: {}", x).as_str(),
-                                ));
-
-                                table.add(&Frame::new(
-                                    90,
-                                    50,
-                                    100,
-                                    30,
-                                    format!(
-                                        "Amount of books: {}",
-                                        (*book_system.books.get_unchecked(ind.unwrap()))
-                                            .borrow()
-                                            .books
-                                            .len()
-                                    )
-                                    .as_str(),
-                                ));
-
-                                table.auto_layout();
-
-                                wind.end();
-
-                                let mut menu = MenuBar::new(0, 0, 210, 30, "");
-                                wind.add(&menu);
-
-                                let (s, r) = app::channel();
-
-                                menu.add_emit(
-                                    "&Change/Change title\t",
-                                    Shortcut::empty(),
-                                    MenuFlag::Normal,
-                                    s,
-                                    MessageBook::ChangeTitle,
-                                );
-
-                                menu.add_emit(
-                                    "&Change/Change author\t",
-                                    Shortcut::empty(),
-                                    MenuFlag::Normal,
-                                    s,
-                                    MessageBook::ChangeAuthor,
-                                );
-
-                                menu.add_emit(
-                                    "&Change/Change pages\t",
-                                    Shortcut::empty(),
-                                    MenuFlag::Normal,
-                                    s,
-                                    MessageBook::ChangePages,
-                                );
-
-                                menu.add_emit(
-                                    "&Remove/Remove all books\t",
-                                    Shortcut::empty(),
-                                    MenuFlag::Normal,
-                                    s,
-                                    MessageBook::RemoveThis,
-                                );
-
-                                menu.add_emit(
-                                    "&Remove/Remove one book\t",
-                                    Shortcut::empty(),
-                                    MenuFlag::Normal,
-                                    s,
-                                    MessageBook::RemoveSimple,
-                                );
-
-                                menu.add_emit(
-                                    "&Add book\t",
-                                    Shortcut::empty(),
-                                    MenuFlag::Normal,
-                                    s,
-                                    MessageBook::AddSimple,
-                                );
-
-                                wind.show();
-
-                                while app.wait() {
-                                    if let Some(msg) = r.recv() {
-                                        match msg {
-                                            MessageBook::ChangeTitle => change_title_simple(
-                                                ind.unwrap(),
-                                                book_system,
-                                                reader_base,
-                                                app,
-                                            ),
-
-                                            MessageBook::ChangeAuthor => change_author_simple(
-                                                ind.unwrap(),
-                                                book_system,
-                                                reader_base,
-                                                app,
-                                            ),
-
-                                            MessageBook::ChangePages => change_pages_simple(
-                                                ind.unwrap(),
-                                                book_system,
-                                                reader_base,
-                                                app,
-                                            ),
-
-                                            MessageBook::RemoveThis => remove_the_book_simple(
-                                                ind.unwrap(),
-                                                book_system,
-                                                reader_base,
-                                            ),
-
-                                            MessageBook::RemoveSimple => remove_book_simple(
-                                                ind.unwrap(),
-                                                book_system,
-                                                reader_base,
-                                                app,
-                                            ),
-
-                                            MessageBook::AddSimple => {
-                                                add_books_simple(ind.unwrap(), book_system, app)
-                                            }
-                                        }
-                                        return;
+                                    Some(ind) => {
+                                        book_info_simple(ind, book_system, reader_base, app)
                                     }
                                 }
                             },

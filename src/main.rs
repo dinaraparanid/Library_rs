@@ -1,4 +1,5 @@
 extern crate fltk;
+use booklibrs::actions::read::reader_info_simple;
 use booklibrs::actions::{book::*, giveaway::*, read::*, tables::*};
 use booklibrs::books::book_sys::BookSystem;
 use booklibrs::change::input2::Input2;
@@ -508,6 +509,22 @@ fn main() {
                         table.redraw();
                     }
                 }
+            }
+        }
+
+        unsafe {
+            for i in 0..READER_BASE.len() {
+                if table.is_selected(i as i32, 0) {
+                    reader_info_simple(i, &mut READER_BASE, &mut BOOK_SYSTEM, &app);
+                    table.unset_selection();
+                    break;
+                }
+
+                /*if table.is_selected(i as i32, 1) {
+                    book_info_simple(i, &mut BOOK_SYSTEM, &mut READER_BASE, &app);
+                    table.unset_selection();
+                    break;
+                }  */
             }
         }
     }

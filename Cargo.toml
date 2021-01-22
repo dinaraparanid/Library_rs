@@ -10,5 +10,5 @@ documentation = "https://docs.rs/binartree/0.1.2/booklibrs/"
 
 [dependencies]
 chrono = "0.4.19"
-fltk = "0.13.5"
+fltk = "0.13.9"
 yaml-rust = "0.4.5"
