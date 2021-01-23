@@ -4,10 +4,8 @@ pub mod input3;
 pub mod input4;
 
 extern crate fltk;
-use fltk::prelude::*;
-use fltk::window::SingleWindow;
-use std::cell::RefCell;
-use std::rc::Rc;
+use fltk::{prelude::*, window::SingleWindow};
+use std::{cell::RefCell, rc::Rc};
 
 /// Trait for change messages.
 

@@ -1,28 +1,35 @@
 extern crate fltk;
-use self::fltk::menu::MenuFlag;
-use crate::actions::tables::*;
-use crate::books::book_sys::BookSystem;
-use crate::change::input1::Input1;
-use crate::change::input3::Input3;
-use crate::change::Inputable;
-use crate::reading::read_base::ReaderBase;
-use fltk::app::{channel, App};
-use fltk::dialog::alert;
-use fltk::frame::Frame;
-use fltk::group::VGrid;
-use fltk::input::*;
-use fltk::menu::MenuBar;
-use fltk::prelude::*;
-use fltk::table::*;
-use fltk::window::SingleWindow;
-use fltk::{app, draw};
-use std::cmp::max;
-use std::num::ParseIntError;
+use crate::{
+    actions::{read::get_book_ind, tables::*},
+    books::{book::Book, book_sys::BookSystem},
+    change::{input1::Input1, input3::Input3, Inputable},
+    reading::read_base::ReaderBase,
+};
+use fltk::{
+    app,
+    app::App,
+    dialog::alert,
+    draw,
+    frame::Frame,
+    group::VGrid,
+    input::*,
+    menu::{MenuBar, MenuFlag},
+    prelude::*,
+    table::Table,
+    window::SingleWindow,
+};
+use std::{
+    borrow::Borrow,
+    cell::RefCell,
+    cmp::max,
+    num::ParseIntError,
+    rc::{Rc, Weak},
+};
 
-/// Messages for info menu
+/// Messages for info menu for The Book
 
 #[derive(Clone, Copy)]
-enum MessageBook {
+enum MessageTheBook {
     ChangeTitle,
     ChangeAuthor,
     ChangePages,
@@ -43,7 +50,7 @@ pub(crate) fn empty_inp_book(inp: &Vec<String>) -> bool {
             alert(500, 500, "Author is empty");
             true
         } else if inp.get_unchecked(2).is_empty() {
-            alert(500, 500, "Pages are empty");
+            alert(500, 500, "Amount of Pages are empty");
             true
         } else {
             false
@@ -68,7 +75,7 @@ pub(crate) fn check_book(book_system: &BookSystem, books: &Vec<String>) -> Resul
         match books.get_unchecked(2).trim().parse::<u16>() {
             Ok(x) => pages = x,
             Err(_) => {
-                alert(500, 500, "Pages input error");
+                alert(500, 500, "Amount of Pages input error");
                 return Err(());
             }
         }
@@ -354,10 +361,228 @@ fn remove_book_simple(
     }
 }
 
+/// Removes one known simple book from known the book
+
+#[inline]
+fn remove_book_simple2(
+    index: usize,
+    s_index: usize,
+    book_system: &mut BookSystem,
+    reader_base: &mut ReaderBase,
+) {
+    unsafe {
+        book_system.remove_one_book_unchecked(index, s_index);
+    }
+    fltk::dialog::message(500, 500, "Successfully removed");
+    book_system.save();
+    reader_base.save();
+}
+
+/// Function that gives information
+/// about already known simple book
+
+pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSystem, app: &App) {
+    match book {
+        None => return,
+        Some(b) => {
+            let mut wind = SingleWindow::new(
+                800,
+                100,
+                848,
+                600,
+                format!(
+                    "{} {} {}",
+                    (*b.upgrade().unwrap()).borrow().title,
+                    (*b.upgrade().unwrap()).borrow().author,
+                    (*b.upgrade().unwrap()).borrow().pages,
+                )
+                .as_str(),
+            )
+            .center_screen();
+
+            let mut table1 = VGrid::new(0, 0, 848, 100, "");
+            table1.set_params(6, 1, 1);
+
+            table1.add(&Frame::new(
+                10,
+                50,
+                100,
+                30,
+                format!("Title: {}", (*b.upgrade().unwrap()).borrow().title).as_str(),
+            ));
+
+            table1.add(&Frame::new(
+                30,
+                50,
+                100,
+                30,
+                format!("Author: {}", (*b.upgrade().unwrap()).borrow().author).as_str(),
+            ));
+
+            table1.add(&Frame::new(
+                50,
+                50,
+                100,
+                30,
+                format!(
+                    "Amount of Pages: {}",
+                    (*b.upgrade().unwrap()).borrow().pages,
+                )
+                .as_str(),
+            ));
+
+            table1.add(&Frame::new(
+                50,
+                50,
+                100,
+                30,
+                format!(
+                    "Order Number: {}",
+                    get_book_ind(book_system, b.upgrade().unwrap().as_ptr()),
+                )
+                .as_str(),
+            ));
+
+            table1.add(&Frame::new(
+                70,
+                50,
+                100,
+                30,
+                format!(
+                    "Now is Read By : {}",
+                    if (*b.upgrade().unwrap()).borrow().is_using {
+                        (*(*b.upgrade().unwrap())
+                            .borrow()
+                            .readers
+                            .last()
+                            .unwrap()
+                            .0
+                            .upgrade()
+                            .unwrap())
+                        .borrow()
+                        .name
+                        .clone()
+                            + " "
+                            + (*(*b.upgrade().unwrap())
+                                .borrow()
+                                .readers
+                                .last()
+                                .unwrap()
+                                .0
+                                .upgrade()
+                                .unwrap())
+                            .borrow()
+                            .family
+                            .as_str()
+                            + " "
+                            + (*(*b.upgrade().unwrap())
+                                .borrow()
+                                .readers
+                                .last()
+                                .unwrap()
+                                .0
+                                .upgrade()
+                                .unwrap())
+                            .borrow()
+                            .father
+                            .as_str()
+                            + " "
+                            + (*(*b.upgrade().unwrap())
+                                .borrow()
+                                .readers
+                                .last()
+                                .unwrap()
+                                .0
+                                .upgrade()
+                                .unwrap())
+                            .borrow()
+                            .age
+                            .to_string()
+                            .as_str()
+                    } else {
+                        "None".to_string()
+                    }
+                )
+                .as_str(),
+            ));
+
+            table1.add(&Frame::new(
+                90,
+                50,
+                100,
+                30,
+                format!("All Readers:").as_str(),
+            ));
+
+            table1.auto_layout();
+
+            let mut table2 = Table::new(0, 127, 848, 600, "");
+
+            table2.set_rows(max(
+                30,
+                (*b.upgrade().unwrap()).borrow().readers.len() as u32,
+            ));
+
+            table2.set_row_header(true);
+            table2.set_cols(6);
+            table2.set_col_header(true);
+            table2.set_col_width_all(130);
+            table2.end();
+
+            wind.end();
+            wind.show();
+
+            table2.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+                fltk::table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
+
+                fltk::table::TableContext::ColHeader => draw_header(
+                    &format!(
+                        "{}",
+                        match col {
+                            0 => "Name",
+                            1 => "2-nd Name",
+                            2 => "Middle Name",
+                            3 => "Age",
+                            4 => "Start",
+                            _ => "Finish",
+                        }
+                    ),
+                    x,
+                    y,
+                    w,
+                    h,
+                ),
+
+                fltk::table::TableContext::RowHeader => {
+                    draw_header(&format!("{}", row + 1), x, y, w, h)
+                }
+
+                fltk::table::TableContext::Cell => draw_data(
+                    &format!("{}", cell_reader2(col, row, b.clone(),)),
+                    x,
+                    y,
+                    w,
+                    h,
+                    t.is_selected(row, col),
+                    None,
+                ),
+
+                _ => (),
+            });
+
+            while app.wait() {
+                if !wind.shown() {
+                    return;
+                }
+            }
+        }
+    }
+}
+
 /// Function that returns info
 /// of already known book
 
-pub fn book_info_simple(
+pub fn the_book_info_simple(
     ind: usize,
     book_system: &mut BookSystem,
     reader_base: &mut ReaderBase,
@@ -373,8 +598,8 @@ pub fn book_info_simple(
             200,
             format!(
                 "{} {}",
-                book_system.books.get_unchecked(ind).borrow().title,
-                book_system.books.get_unchecked(ind).borrow().author
+                (**book_system.books.get_unchecked(ind)).borrow().title,
+                (**book_system.books.get_unchecked(ind)).borrow().author
             )
             .as_str(),
         );
@@ -389,7 +614,7 @@ pub fn book_info_simple(
             30,
             format!(
                 "Title: {}",
-                book_system.books.get_unchecked(ind).borrow().title
+                (**book_system.books.get_unchecked(ind)).borrow().title,
             )
             .as_str(),
         ));
@@ -401,7 +626,7 @@ pub fn book_info_simple(
             30,
             format!(
                 "Author: {}",
-                book_system.books.get_unchecked(ind).borrow().author
+                (**book_system.books.get_unchecked(ind)).borrow().author
             )
             .as_str(),
         ));
@@ -412,8 +637,8 @@ pub fn book_info_simple(
             200,
             30,
             format!(
-                "Pages: {}",
-                book_system.books.get_unchecked(ind).borrow().pages
+                "Amount of Pages: {}",
+                (**book_system.books.get_unchecked(ind)).borrow().pages
             )
             .as_str(),
         ));
@@ -425,7 +650,10 @@ pub fn book_info_simple(
             30,
             format!(
                 "Amount of books: {}",
-                (*book_system.books.get_unchecked(ind)).borrow().books.len()
+                (**book_system.books.get_unchecked(ind))
+                    .borrow()
+                    .books
+                    .len()
             )
             .as_str(),
         ));
@@ -445,7 +673,7 @@ pub fn book_info_simple(
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
-        MessageBook::ChangeTitle,
+        MessageTheBook::ChangeTitle,
     );
 
     menu.add_emit(
@@ -453,15 +681,15 @@ pub fn book_info_simple(
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
-        MessageBook::ChangeAuthor,
+        MessageTheBook::ChangeAuthor,
     );
 
     menu.add_emit(
-        "&Change/Change pages\t",
+        "&Change/Change amount of pages\t",
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
-        MessageBook::ChangePages,
+        MessageTheBook::ChangePages,
     );
 
     menu.add_emit(
@@ -469,7 +697,7 @@ pub fn book_info_simple(
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
-        MessageBook::RemoveThis,
+        MessageTheBook::RemoveThis,
     );
 
     menu.add_emit(
@@ -477,7 +705,7 @@ pub fn book_info_simple(
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
-        MessageBook::RemoveSimple,
+        MessageTheBook::RemoveSimple,
     );
 
     menu.add_emit(
@@ -485,7 +713,7 @@ pub fn book_info_simple(
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
-        MessageBook::AddSimple,
+        MessageTheBook::AddSimple,
     );
 
     wind.show();
@@ -493,15 +721,25 @@ pub fn book_info_simple(
     while app.wait() {
         if let Some(msg) = r.recv() {
             match msg {
-                MessageBook::ChangeAuthor => {
+                MessageTheBook::ChangeAuthor => {
                     change_author_simple(ind, book_system, reader_base, app)
                 }
 
-                MessageBook::ChangeTitle => change_title_simple(ind, book_system, reader_base, app),
-                MessageBook::ChangePages => change_pages_simple(ind, book_system, reader_base, app),
-                MessageBook::RemoveThis => remove_the_book_simple(ind, book_system, reader_base),
-                MessageBook::RemoveSimple => remove_book_simple(ind, book_system, reader_base, app),
-                MessageBook::AddSimple => add_books_simple(ind, book_system, app),
+                MessageTheBook::ChangeTitle => {
+                    change_title_simple(ind, book_system, reader_base, app)
+                }
+
+                MessageTheBook::ChangePages => {
+                    change_pages_simple(ind, book_system, reader_base, app)
+                }
+
+                MessageTheBook::RemoveSimple => {
+                    remove_book_simple(ind, book_system, reader_base, app)
+                }
+
+                MessageTheBook::AddSimple => add_books_simple(ind, book_system, app),
+
+                MessageTheBook::RemoveThis => remove_the_book_simple(ind, book_system, reader_base),
             }
             return;
         } else if !wind.shown() {
@@ -521,8 +759,8 @@ pub fn book_info_simple(
 #[inline]
 pub fn add_books(book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input3::<Input, Input, IntInput>::new("Add Books", "Title", "Author", "Pages");
-
+    let mut inp =
+        Input3::<Input, Input, IntInput>::new("Add Books", "Title", "Author", "Amount of Pages");
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
 
@@ -561,7 +799,8 @@ pub fn add_books(book_system: &mut BookSystem, app: &App) {
 #[inline]
 pub fn remove_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input3::<Input, Input, IntInput>::new("Remove Book", "Title", "Author", "Pages");
+    let mut inp =
+        Input3::<Input, Input, IntInput>::new("Remove Book", "Title", "Author", "Amount of Pages");
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -600,7 +839,8 @@ pub fn remove_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, a
 #[inline]
 pub fn add_book(book_system: &mut BookSystem, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input3::<Input, Input, IntInput>::new("Add New Book", "Title", "Author", "Pages");
+    let mut inp =
+        Input3::<Input, Input, IntInput>::new("Add New Book", "Title", "Author", "Amount of Pages");
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -658,7 +898,8 @@ pub fn add_book(book_system: &mut BookSystem, app: &App) {
 #[inline]
 pub fn remove_the_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input3::<Input, Input, IntInput>::new("Remove Books", "Title", "Author", "Pages");
+    let mut inp =
+        Input3::<Input, Input, IntInput>::new("Remove Books", "Title", "Author", "Amount of Pages");
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -698,7 +939,8 @@ pub fn remove_the_book(book_system: &mut BookSystem, reader_base: &mut ReaderBas
 #[inline]
 pub fn change_title(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input3::<Input, Input, IntInput>::new("Change Title", "Title", "Author", "Pages");
+    let mut inp =
+        Input3::<Input, Input, IntInput>::new("Change Title", "Title", "Author", "Amount of Pages");
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -738,8 +980,12 @@ pub fn change_title(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
 #[inline]
 pub fn change_author(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp =
-        Input3::<Input, Input, IntInput>::new("Change Author", "Title", "Author", "Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new(
+        "Change Author",
+        "Title",
+        "Author",
+        "Amount of Pages",
+    );
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -779,7 +1025,8 @@ pub fn change_author(book_system: &mut BookSystem, reader_base: &mut ReaderBase,
 #[inline]
 pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input3::<Input, Input, IntInput>::new("Change Pages", "Title", "Author", "Pages");
+    let mut inp =
+        Input3::<Input, Input, IntInput>::new("Change Pages", "Title", "Author", "Amount of Pages");
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -817,9 +1064,10 @@ pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
 /// program will let you know
 
 #[inline]
-pub fn book_info(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
+pub fn the_book_info(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
     let (s2, r2) = app::channel();
-    let mut inp = Input3::<Input, Input, IntInput>::new("Find Book", "Title", "Author", "Pages");
+    let mut inp =
+        Input3::<Input, Input, IntInput>::new("Find Book", "Title", "Author", "Amount of Pages");
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -832,24 +1080,102 @@ pub fn book_info(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app
                     inp.hide();
 
                     if let Ok(the_book) = book_params {
-                        match the_book.last().unwrap().trim().parse::<u16>() {
-                            Ok(x) => unsafe {
-                                match book_system.find_book(
-                                    the_book.get_unchecked(0),
-                                    the_book.get_unchecked(1),
-                                    x,
-                                ) {
-                                    None => alert(500, 500, "Book isn't found"),
+                        let index;
 
-                                    Some(ind) => {
-                                        book_info_simple(ind, book_system, reader_base, app)
+                        match check_book(book_system, &the_book) {
+                            Ok(x) => index = x,
+                            Err(_) => return,
+                        }
+
+                        the_book_info_simple(index, book_system, reader_base, app)
+                    }
+                }
+                false => (),
+            }
+            break;
+        } else if !inp.shown() {
+            return;
+        }
+    }
+}
+
+/// Function that gives all information about simple Book:
+/// title, author, pages, and readers (+ current reader).
+/// If you have mistakes in input,
+/// program will let you know
+
+#[inline]
+pub fn book_info(book_system: &BookSystem, app: &App) {
+    let (s2, r2) = app::channel();
+    let mut inp =
+        Input3::<Input, Input, IntInput>::new("Find Book", "Title", "Author", "Amount of Pages");
+
+    inp.show();
+    (*inp.ok).borrow_mut().emit(s2, true);
+
+    while app.wait() {
+        if let Some(message) = r2.recv() {
+            match message {
+                true => {
+                    let book_params = inp.set_input();
+                    inp.hide();
+
+                    if let Ok(the_book) = book_params {
+                        let index;
+
+                        match check_book(book_system, &the_book) {
+                            Ok(x) => index = x,
+                            Err(_) => return,
+                        }
+
+                        let (s, r) = app::channel();
+                        let mut inp2 = Input1::<IntInput>::new("Number", "Number of Book");
+
+                        inp2.show();
+                        (*inp2.ok).borrow_mut().emit(s, true);
+
+                        while app.wait() {
+                            if let Some(msg) = r.recv() {
+                                match msg {
+                                    true => {
+                                        let get_bind = inp2.set_input();
+                                        inp2.hide();
+
+                                        if let Ok(bind_v) = get_bind {
+                                            let bind = bind_v
+                                                .first()
+                                                .unwrap()
+                                                .trim()
+                                                .parse::<usize>()
+                                                .unwrap();
+
+                                            unsafe {
+                                                if bind
+                                                    > (**book_system.books.get_unchecked(index))
+                                                        .borrow()
+                                                        .books
+                                                        .len()
+                                                {
+                                                    alert(500, 500, "Incorrect number of book");
+                                                    return;
+                                                }
+
+                                                book_info_simple(
+                                                    Some(Rc::downgrade(
+                                                        (**book_system.books.get_unchecked(index))
+                                                            .borrow()
+                                                            .books
+                                                            .get_unchecked(bind - 1),
+                                                    )),
+                                                    book_system,
+                                                    app,
+                                                );
+                                            }
+                                        }
                                     }
-                                }
-                            },
 
-                            Err(_) => {
-                                alert(500, 500, "Pages input error");
-                                println!("{:?}", the_book.last().unwrap().trim().parse::<u16>())
+                                    false => (),
+                                }
                             }
                         }
                     }

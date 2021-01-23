@@ -1,8 +1,9 @@
-use crate::books::book::Book;
-use crate::books::ResultSelf;
-use std::cell::RefCell;
-use std::fmt::{Debug, Formatter, Result};
-use std::rc::{Rc, Weak};
+use crate::books::{book::Book, ResultSelf};
+use std::{
+    cell::RefCell,
+    fmt::{Debug, Formatter, Result},
+    rc::{Rc, Weak},
+};
 
 /// Reader structure, which contains
 /// name, family, father, age, ~~simple~~ books he' d read

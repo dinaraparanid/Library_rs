@@ -1,20 +1,29 @@
 extern crate fltk;
-use booklibrs::actions::read::reader_info_simple;
-use booklibrs::actions::{book::*, giveaway::*, read::*, tables::*};
-use booklibrs::books::book_sys::BookSystem;
-use booklibrs::change::input2::Input2;
-use booklibrs::change::Inputable;
-use booklibrs::reading::read_base::ReaderBase;
-use fltk::app::AppScheme;
-use fltk::dialog::alert;
-use fltk::enums::Shortcut;
-use fltk::frame::Frame;
-use fltk::input::{Input, SecretInput};
-use fltk::table::Table;
-use fltk::{app, button::*, draw, menu::*, table, window::*};
-use std::cmp::max;
-use std::fs::File;
-use std::io::{Read, Write};
+use booklibrs::{
+    actions::{book::*, giveaway::*, read::*, tables::*},
+    books::book_sys::BookSystem,
+    change::{input2::Input2, Inputable},
+    reading::read_base::ReaderBase,
+};
+use fltk::{
+    app,
+    app::AppScheme,
+    button::*,
+    dialog::alert,
+    draw,
+    enums::Shortcut,
+    frame::Frame,
+    input::{Input, SecretInput},
+    menu::*,
+    table,
+    table::Table,
+    window::*,
+};
+use std::{
+    cmp::max,
+    fs::File,
+    io::{Read, Write},
+};
 
 /// All messages, which used to call functions
 
@@ -35,6 +44,7 @@ pub enum Message {
     ChangeAuthor,
     ChangePages,
     InfoTheBook,
+    InfoBook,
     GiveBook,
     GetBook,
     ShowAllBooks,
@@ -383,11 +393,19 @@ fn main() {
     );
 
     menu.add_emit(
-        "&Books/Get book's information\t",
+        "&Books/Get type book's information\t",
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
         Message::InfoTheBook,
+    );
+
+    menu.add_emit(
+        "&Books/Get current book's information\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        Message::InfoBook,
     );
 
     menu.add_emit(
@@ -493,7 +511,12 @@ fn main() {
                     }
 
                     Message::InfoTheBook => {
-                        book_info(&mut BOOK_SYSTEM, &mut READER_BASE, &app);
+                        the_book_info(&mut BOOK_SYSTEM, &mut READER_BASE, &app);
+                        table.redraw();
+                    }
+
+                    Message::InfoBook => {
+                        book_info(&BOOK_SYSTEM, &app);
                         table.redraw();
                     }
 
@@ -520,11 +543,11 @@ fn main() {
                     break;
                 }
 
-                /*if table.is_selected(i as i32, 1) {
-                    book_info_simple(i, &mut BOOK_SYSTEM, &mut READER_BASE, &app);
+                if table.is_selected(i as i32, 1) {
+                    book_info_simple(READER_BASE.get_book(i), &mut BOOK_SYSTEM, &app);
                     table.unset_selection();
                     break;
-                }  */
+                }
             }
         }
     }

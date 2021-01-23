@@ -1,9 +1,12 @@
-use crate::books::book::Book;
-use crate::books::{BookInterface, ResultSelf};
-use crate::reading::reader::Reader;
-use std::cell::RefCell;
-use std::fmt::{Debug, Formatter};
-use std::rc::Rc;
+use crate::{
+    books::{book::Book, BookInterface, ResultSelf},
+    reading::reader::Reader,
+};
+use std::{
+    cell::RefCell,
+    fmt::{Debug, Formatter},
+    rc::Rc,
+};
 
 /// Interface Book structure, which contains
 /// title, author, amount of pages, and simple books

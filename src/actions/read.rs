@@ -1,26 +1,25 @@
 extern crate fltk;
-use self::fltk::menu::MenuFlag;
-use crate::actions::tables::*;
-use crate::books::book::Book;
-use crate::books::book_sys::BookSystem;
-use crate::change::input1::Input1;
-use crate::change::input4::Input4;
-use crate::change::Inputable;
-use crate::reading::read_base::ReaderBase;
-use fltk::app::App;
-use fltk::dialog::alert;
-use fltk::frame::Frame;
-use fltk::group::VGrid;
-use fltk::input::*;
-use fltk::menu::MenuBar;
-use fltk::prelude::*;
-use fltk::table::Table;
-use fltk::window::SingleWindow;
-use fltk::{app, draw};
-use std::cell::RefCell;
-use std::cmp::max;
-use std::num::ParseIntError;
-use std::rc::Rc;
+use crate::actions::book::book_info_simple;
+use crate::{
+    actions::tables::*,
+    books::{book::Book, book_sys::BookSystem},
+    change::{input1::Input1, input3::Input3, input4::Input4, Inputable},
+    reading::read_base::ReaderBase,
+};
+use fltk::{
+    app,
+    app::App,
+    dialog::alert,
+    draw,
+    frame::Frame,
+    group::VGrid,
+    input::*,
+    menu::{MenuBar, MenuFlag},
+    prelude::*,
+    table::Table,
+    window::SingleWindow,
+};
+use std::{cell::RefCell, cmp::max, num::ParseIntError, rc::Rc};
 
 /// Messages for info menu
 
@@ -534,7 +533,7 @@ pub fn reader_info_simple(
 
     wind.end();
 
-    let mut menu = MenuBar::new(0, 0, 65, 30, "");
+    let mut menu = MenuBar::new(0, 0, 190, 30, "");
     wind.add(&menu);
 
     let (s, r) = app::channel();
@@ -572,7 +571,7 @@ pub fn reader_info_simple(
     );
 
     menu.add_emit(
-        "Remove this reader\t",
+        "Remove reader\t",
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -630,23 +629,60 @@ pub fn reader_info_simple(
     while app.wait() {
         if let Some(msg) = r.recv() {
             match msg {
-                MessageReader::ChangeName => change_name_simple(ind, reader_base, book_system, app),
+                MessageReader::ChangeName => {
+                    change_name_simple(ind, reader_base, book_system, app);
+                    table2.redraw();
+                }
 
                 MessageReader::ChangeFamily => {
-                    change_family_simple(ind, reader_base, book_system, app)
+                    change_family_simple(ind, reader_base, book_system, app);
+                    table2.redraw();
                 }
 
                 MessageReader::ChangeFather => {
-                    change_father_simple(ind, reader_base, book_system, app)
+                    change_father_simple(ind, reader_base, book_system, app);
+                    table2.redraw();
                 }
 
-                MessageReader::ChangeAge => change_age_simple(ind, reader_base, book_system, app),
+                MessageReader::ChangeAge => {
+                    change_age_simple(ind, reader_base, book_system, app);
+                    table2.redraw();
+                }
 
-                MessageReader::RemoveThis => remove_reader_simple(ind, reader_base, book_system),
+                MessageReader::RemoveThis => {
+                    remove_reader_simple(ind, reader_base, book_system);
+                    table2.redraw();
+                }
             }
             return;
-        } else if !wind.shown() {
+        }
+
+        if !wind.shown() {
             return;
+        }
+
+        for i in 0..reader_base.readers.len() {
+            if table2.is_selected(i as i32, 0)
+                || table2.is_selected(i as i32, 1)
+                || table2.is_selected(i as i32, 2)
+                || table2.is_selected(i as i32, 3)
+            {
+                unsafe {
+                    book_info_simple(
+                        Some(
+                            (**reader_base.readers.get_unchecked(ind))
+                                .borrow()
+                                .books
+                                .get_unchecked(i)
+                                .clone(),
+                        ),
+                        book_system,
+                        app,
+                    );
+                }
+                table2.unset_selection();
+                break;
+            }
         }
     }
 }

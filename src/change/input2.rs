@@ -1,12 +1,7 @@
 extern crate fltk;
 use crate::change::Inputable;
-use fltk::button::Button;
-use fltk::dialog::alert;
-use fltk::frame::Frame;
-use fltk::prelude::*;
-use fltk::window::SingleWindow;
-use std::cell::RefCell;
-use std::rc::Rc;
+use fltk::{button::Button, dialog::alert, frame::Frame, prelude::*, window::SingleWindow};
+use std::{cell::RefCell, rc::Rc};
 
 /// Changes two values
 

@@ -1,17 +1,20 @@
 extern crate chrono;
-use crate::books::date::Date;
-use crate::books::{BookInterface, ResultSelf};
-use crate::reading::reader::Reader;
+use crate::{
+    books::{date::Date, BookInterface, ResultSelf},
+    reading::reader::Reader,
+};
 use chrono::Datelike;
-use std::cell::RefCell;
-use std::fmt::{Debug, Formatter, Result};
-use std::rc::{Rc, Weak};
+use std::{
+    cell::RefCell,
+    fmt::{Debug, Formatter, Result},
+    rc::{Rc, Weak},
+};
 
 /// Simple Book structure, which contains
 /// title, author, amount of pages, using status
 /// and readers with start and finish dates
 
-pub(crate) struct Book {
+pub struct Book {
     pub(crate) title: String,
     pub(crate) author: String,
     pub(crate) pages: u16,
@@ -100,7 +103,7 @@ impl Book {
     /// By default it has no readers and it isn't used
 
     #[inline]
-    pub fn new(new_title: String, new_author: String, new_pages: u16) -> Self {
+    pub(crate) fn new(new_title: String, new_author: String, new_pages: u16) -> Self {
         Book {
             title: new_title,
             author: new_author,
@@ -115,7 +118,7 @@ impl Book {
     /// else it will return reader index of the first occurrence
 
     #[inline]
-    pub fn find_reader_first(&self, reader: &Rc<RefCell<Reader>>) -> Option<usize> {
+    pub(crate) fn find_reader_first(&self, reader: &Rc<RefCell<Reader>>) -> Option<usize> {
         self.readers
             .iter()
             .position(|x| (*(x.0).upgrade().unwrap()).as_ptr() == (**reader).as_ptr())
@@ -126,7 +129,7 @@ impl Book {
     /// else it will return reader index of the last occurrence
 
     #[inline]
-    pub fn find_reader_last(&self, reader: &Rc<RefCell<Reader>>) -> Option<usize> {
+    pub(crate) fn find_reader_last(&self, reader: &Rc<RefCell<Reader>>) -> Option<usize> {
         self.readers
             .iter()
             .rev()
@@ -136,7 +139,7 @@ impl Book {
     /// Removes reader
 
     #[inline]
-    pub fn remove_reader(&mut self, reader: &Reader) -> &mut Self {
+    pub(crate) fn remove_reader(&mut self, reader: &Reader) -> &mut Self {
         if self.is_using {
             (*self.readers.last_mut().unwrap().0.upgrade().unwrap())
                 .borrow_mut()
@@ -158,7 +161,7 @@ impl Book {
     /// Removes all readers of book
 
     #[inline]
-    pub fn remove_all_readers(&mut self) -> &mut Self {
+    pub(crate) fn remove_all_readers(&mut self) -> &mut Self {
         if self.is_using {
             (*(self.readers.last_mut().unwrap().0).upgrade().unwrap())
                 .borrow_mut()
@@ -178,7 +181,7 @@ impl Book {
     /// It adds reader (converts rc to weak), start and return dates.
 
     #[inline]
-    pub fn start_reading(&mut self, reader: &Rc<RefCell<Reader>>, date: Date) -> &mut Self {
+    pub(crate) fn start_reading(&mut self, reader: &Rc<RefCell<Reader>>, date: Date) -> &mut Self {
         let now = chrono::Local::now();
 
         self.readers.push((
@@ -197,7 +200,7 @@ impl Book {
     /// It changes book's status and finish date  
 
     #[inline]
-    pub fn finish_reading(&mut self) -> ResultSelf<Self> {
+    pub(crate) fn finish_reading(&mut self) -> ResultSelf<Self> {
         self.is_using = false;
         let now = chrono::Local::now();
         let was = ((*self.readers.last().unwrap()).1).1;

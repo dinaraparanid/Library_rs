@@ -1,17 +1,20 @@
 extern crate yaml_rust;
-use crate::books::date::Date;
-use crate::books::the_book::TheBook;
-use crate::books::{BookInterface, ResultSelf};
-use crate::reading::read_base::ReaderBase;
-use crate::reading::reader::Reader;
-use std::borrow::*;
-use std::cell::RefCell;
-use std::fmt::{Debug, Formatter};
-use std::fs::File;
-use std::io::{Read, Write};
-use std::rc::{Rc, Weak};
-use yaml_rust::yaml::{Array, Hash};
-use yaml_rust::{Yaml, YamlEmitter, YamlLoader};
+use crate::{
+    books::{date::Date, the_book::TheBook, BookInterface, ResultSelf},
+    reading::{read_base::ReaderBase, reader::Reader},
+};
+use std::{
+    borrow::*,
+    cell::RefCell,
+    fmt::{Debug, Formatter},
+    fs::File,
+    io::{Read, Write},
+    rc::{Rc, Weak},
+};
+use yaml_rust::{
+    yaml::{Array, Hash},
+    Yaml, YamlEmitter, YamlLoader,
+};
 
 /// Reader Base structure,
 /// which contains only Book interfaces

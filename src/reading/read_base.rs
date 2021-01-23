@@ -1,14 +1,16 @@
 extern crate yaml_rust;
-use crate::books::book::Book;
-use crate::books::ResultSelf;
-use crate::reading::reader::Reader;
-use std::cell::RefCell;
-use std::fmt::{Debug, Formatter};
-use std::fs::File;
-use std::io::{Read, Write};
-use std::rc::Rc;
-use yaml_rust::yaml::Hash;
-use yaml_rust::{Yaml, YamlEmitter, YamlLoader};
+use crate::{
+    books::{book::Book, ResultSelf},
+    reading::reader::Reader,
+};
+use std::{
+    cell::RefCell,
+    fmt::{Debug, Formatter},
+    fs::File,
+    io::{Read, Write},
+    rc::{Rc, Weak},
+};
+use yaml_rust::{yaml::Hash, Yaml, YamlEmitter, YamlLoader};
 
 /// Reader Base structure,
 /// which contains only readers
@@ -292,6 +294,13 @@ impl ReaderBase {
     #[inline]
     pub fn len(&self) -> usize {
         self.readers.len()
+    }
+
+    /// Returns book (or None) which is read by reader now
+
+    #[inline]
+    pub fn get_book(&self, ind: usize) -> Option<Weak<RefCell<Book>>> {
+        unsafe { (**self.readers.get_unchecked(ind)).borrow().reading.clone() }
     }
 
     /// Saves everything to .yaml file

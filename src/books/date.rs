@@ -86,4 +86,11 @@ impl Date {
             }
         };
     }
+
+    /// Converts date to string
+
+    #[inline]
+    pub fn to_string(&self) -> String {
+        format!("{}/{}/{}", self.day, self.month, self.year)
+    }
 }

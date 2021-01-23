@@ -1,17 +1,17 @@
 extern crate fltk;
-use crate::actions::book::*;
-use crate::actions::read::*;
-use crate::books::book_sys::BookSystem;
-use crate::books::date::Date;
-use crate::change::input3::Input3;
-use crate::change::input4::Input4;
-use crate::change::Inputable;
-use crate::reading::read_base::ReaderBase;
-use fltk::app;
-use fltk::app::{channel, App};
-use fltk::dialog::alert;
-use fltk::input::*;
-use fltk::WidgetExt;
+use crate::{
+    actions::{book::*, read::*},
+    books::{book_sys::BookSystem, date::Date},
+    change::{input3::Input3, input4::Input4, Inputable},
+    reading::read_base::ReaderBase,
+};
+use fltk::{
+    app,
+    app::{channel, App},
+    dialog::alert,
+    input::*,
+    WidgetExt,
+};
 use std::num::ParseIntError;
 
 /// Function that gives book to reader.

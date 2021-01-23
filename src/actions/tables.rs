@@ -1,18 +1,16 @@
 extern crate chrono;
 extern crate fltk;
-use self::chrono::{Datelike, Timelike};
-use self::fltk::app::App;
-use crate::actions::read::get_book_ind;
-use crate::books::book::Book;
-use crate::books::book_sys::BookSystem;
-use crate::books::date::Date;
-use crate::reading::read_base::ReaderBase;
-use fltk::draw;
-use fltk::enums::Color;
-use fltk::prelude::*;
-use fltk::table::*;
-use std::cell::RefCell;
-use std::rc::{Rc, Weak};
+use crate::{
+    actions::read::get_book_ind,
+    books::{book::Book, book_sys::BookSystem, date::Date},
+    reading::read_base::ReaderBase,
+};
+use chrono::{Datelike, Timelike};
+use fltk::{app::App, draw, enums::Color, prelude::*, table::*};
+use std::{
+    cell::RefCell,
+    rc::{Rc, Weak},
+};
 
 /// Function that draws borders
 /// of the table
@@ -260,6 +258,85 @@ pub fn cell_reader(
             }
         } else {
             ("".to_string(), None)
+        };
+    }
+}
+
+/// Function that returns String with reader's data and color.
+/// If column is 0, it' ll return reader's params,
+/// if column is 1, it' ll return books's params (or none)
+/// if column is 2, it' ll return start date's params (or none)
+/// if column is 2, it' ll return finish date's params (or none).
+/// if reader is late, it' ll return some color,
+/// else none
+
+#[inline]
+pub fn cell_reader2(x: i32, y: i32, book: Weak<RefCell<Book>>) -> String {
+    unsafe {
+        return if y < (*book.upgrade().unwrap()).borrow().readers.len() as i32 {
+            match x {
+                0 => (*(*book.upgrade().unwrap())
+                    .borrow()
+                    .readers
+                    .get_unchecked(y as usize)
+                    .0
+                    .upgrade()
+                    .unwrap())
+                .borrow()
+                .name
+                .clone(),
+
+                1 => (*(*book.upgrade().unwrap())
+                    .borrow()
+                    .readers
+                    .get_unchecked(y as usize)
+                    .0
+                    .upgrade()
+                    .unwrap())
+                .borrow()
+                .family
+                .clone(),
+
+                2 => (*(*book.upgrade().unwrap())
+                    .borrow()
+                    .readers
+                    .get_unchecked(y as usize)
+                    .0
+                    .upgrade()
+                    .unwrap())
+                .borrow()
+                .father
+                .clone(),
+
+                3 => (*(*book.upgrade().unwrap())
+                    .borrow()
+                    .readers
+                    .get_unchecked(y as usize)
+                    .0
+                    .upgrade()
+                    .unwrap())
+                .borrow()
+                .age
+                .to_string(),
+
+                4 => ((*book.upgrade().unwrap())
+                    .borrow()
+                    .readers
+                    .get_unchecked(y as usize)
+                    .1)
+                    .0
+                    .to_string(),
+
+                _ => ((*book.upgrade().unwrap())
+                    .borrow()
+                    .readers
+                    .get_unchecked(y as usize)
+                    .1)
+                    .1
+                    .to_string(),
+            }
+        } else {
+            "".to_string()
         };
     }
 }
