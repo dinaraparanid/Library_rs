@@ -56,10 +56,7 @@ where
     /// Creates window with asking message and 2 input labels
 
     #[inline]
-    pub fn new(title: &str, what_mes1: &str, what_mes2: &str) -> Self
-/*where
-			I: InputExt + WidgetBase,
-			J: InputExt + WidgetBase,            */ {
+    pub fn new(title: &str, what_mes1: &str, what_mes2: &str) -> Self {
         let win: Rc<RefCell<SingleWindow>> =
             Rc::new(RefCell::new(WidgetBase::new(500, 500, 500, 200, title)));
         let but: Rc<RefCell<Button>> =

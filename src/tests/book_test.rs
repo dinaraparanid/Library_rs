@@ -9,16 +9,16 @@ mod date_tests {
     #[test]
     fn date_test() {
         let mut date = Date::new(0, 0, 0);
-        assert!(date.is_none());
+        assert!(date.is_err());
 
         date = Date::new(1, 13, 2020);
-        assert!(date.is_none());
+        assert!(date.is_err());
 
         date = Date::new(29, 2, 2019);
-        assert!(date.is_none());
+        assert!(date.is_err());
 
         date = Date::new(29, 2, 2020);
-        assert!(date.is_some());
+        assert!(date.is_ok());
     }
 }
 
@@ -75,19 +75,17 @@ mod book_tests {
             60,
         )));
 
-        assert!((*reader1).borrow_mut().start_reading(&book).is_ok());
+        (*reader1).borrow_mut().start_reading(&book);
 
-        assert!((*book)
+        (*book)
             .borrow_mut()
-            .start_reading(&reader1, Date::new(1, 1, 1).unwrap())
-            .is_ok());
+            .start_reading(&reader1, Date::new(1, 1, 1).unwrap());
 
-        assert!((*reader2).borrow_mut().start_reading(&book).is_err());
+        (*reader2).borrow_mut().start_reading(&book);
 
-        assert!((*book)
+        (*book)
             .borrow_mut()
-            .start_reading(&reader2, Date::new(1, 1, 1).unwrap())
-            .is_err());
+            .start_reading(&reader2, Date::new(1, 1, 1).unwrap());
 
         assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: true, readers.yaml: [\"Name Family Father 50\"] }",
                    format!("{:?}", (*book).borrow()));
@@ -97,18 +95,17 @@ mod book_tests {
         assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: false, readers.yaml: [\"Name Family Father 50\"] }",
                    format!("{:?}", (*book).borrow()));
 
-        assert!((*reader2).borrow_mut().start_reading(&book).is_ok());
+        (*reader2).borrow_mut().start_reading(&book);
 
-        assert!((*book)
+        (*book)
             .borrow_mut()
-            .start_reading(&reader2, Date::new(1, 1, 1).unwrap())
-            .is_ok());
+            .start_reading(&reader2, Date::new(1, 1, 1).unwrap());
 
         assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 200, is using: true, readers.yaml: [\"Name Family Father 50\", \"Another Name Another Family Another Father 60\"] }",
                    format!("{:?}", (*book).borrow()));
 
-        assert_eq!((*book).borrow().find_reader(&reader1), 0);
-        assert_eq!((*book).borrow().find_reader(&reader2), 1);
+        assert_eq!((*book).borrow().find_reader_first(&reader1).unwrap(), 0);
+        assert_eq!((*book).borrow().find_reader_first(&reader2).unwrap(), 1);
 
         (*reader1)
             .borrow_mut()
@@ -161,22 +158,22 @@ mod the_book_tests {
         for _ in 0..50 {
             let ind = the_book.get_unused();
 
-            assert!((*reader)
-                .borrow_mut()
-                .start_reading(the_book.books.get(ind).unwrap())
-                .is_ok());
+            assert!(ind.is_some());
 
-            assert!((**the_book.books.get(ind).unwrap())
+            (*reader)
                 .borrow_mut()
-                .start_reading(&reader, Date::new(1, 1, 1).unwrap())
-                .is_ok());
+                .start_reading(the_book.books.get(ind.unwrap()).unwrap());
+
+            (**the_book.books.get(ind.unwrap()).unwrap())
+                .borrow_mut()
+                .start_reading(&reader, Date::new(1, 1, 1).unwrap());
 
             the_book.add_book();
         }
 
         assert_eq!((*reader).borrow().books.len(), 50);
         assert_eq!(the_book.books.len(), 51);
-        assert_eq!(the_book.get_unused(), 50);
+        assert_eq!(the_book.get_unused().unwrap(), 50);
 
         assert!(the_book.remove_book(50).is_ok());
         assert_eq!((*reader).borrow().books.len(), 50);
@@ -209,10 +206,9 @@ mod the_book_tests {
             60,
         )));
 
-        assert!((*reader)
+        (*reader)
             .borrow_mut()
-            .start_reading(the_book.books.first().unwrap())
-            .is_ok());
+            .start_reading(the_book.books.first().unwrap());
 
         assert_eq!("Reader { name: \"Michael\", family: \"Jackson\", father: \"Joseph\", age: 60, books.yaml: [\"Title Author 200\"] }",
                    format!("{:?}", *(*reader).borrow()));

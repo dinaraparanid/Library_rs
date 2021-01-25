@@ -15,6 +15,7 @@ use fltk::{
     input::*,
     menu::{MenuBar, MenuFlag},
     prelude::*,
+    table,
     table::Table,
     window::SingleWindow,
 };
@@ -580,12 +581,12 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
 }
 
 /// Function that returns info
-/// of already known book
+/// of already known the book
 
 pub fn the_book_info_simple(
     ind: usize,
-    book_system: &mut BookSystem,
-    reader_base: &mut ReaderBase,
+    book_system: &'static mut BookSystem,
+    reader_base: &'static mut ReaderBase,
     app: &App,
 ) {
     let mut wind;
@@ -593,9 +594,9 @@ pub fn the_book_info_simple(
     unsafe {
         wind = SingleWindow::new(
             800,
-            500,
+            100,
             300,
-            200,
+            600,
             format!(
                 "{} {}",
                 (**book_system.books.get_unchecked(ind)).borrow().title,
@@ -604,8 +605,8 @@ pub fn the_book_info_simple(
             .as_str(),
         );
 
-        let mut table = VGrid::new(0, 30, 300, 160, "");
-        table.set_params(4, 1, 1);
+        let mut table = VGrid::new(0, 30, 300, 180, "");
+        table.set_params(5, 1, 1);
 
         table.add(&Frame::new(
             30,
@@ -658,7 +659,44 @@ pub fn the_book_info_simple(
             .as_str(),
         ));
 
+        table.add(&Frame::new(90, 50, 100, 30, format!("Genres:").as_str()));
+
         table.auto_layout();
+
+        let mut genre_table = Table::new(0, 200, 280, 380, "");
+
+        genre_table.set_rows(
+            if let Some(g) = &(**book_system.books.get_unchecked(ind)).borrow().genres {
+                max(20, g.len() as u32)
+            } else {
+                20
+            },
+        );
+
+        genre_table.set_cols(1);
+        genre_table.set_col_width_all(280);
+        genre_table.end();
+
+        let b = book_system.books.get_unchecked(ind).clone();
+
+        genre_table.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+            table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
+
+            table::TableContext::Cell => {
+                let gen = cell_genre(row, &b);
+                draw_data(
+                    &format!("{}", gen),
+                    x,
+                    y,
+                    w,
+                    h,
+                    t.is_selected(row, col),
+                    None,
+                );
+            }
+
+            _ => (),
+        });
 
         wind.end();
     }
@@ -1064,7 +1102,11 @@ pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
 /// program will let you know
 
 #[inline]
-pub fn the_book_info(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
+pub fn the_book_info(
+    book_system: &'static mut BookSystem,
+    reader_base: &'static mut ReaderBase,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
     let mut inp =
         Input3::<Input, Input, IntInput>::new("Find Book", "Title", "Author", "Amount of Pages");
@@ -1176,6 +1218,8 @@ pub fn book_info(book_system: &BookSystem, app: &App) {
 
                                     false => (),
                                 }
+                            } else if !inp2.shown() {
+                                return;
                             }
                         }
                     }

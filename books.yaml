@@ -58,6 +58,8 @@
             - 2021
     - Using: false
       Readers: []
+  Genres:
+    - mystery
 - №: 2
   Title: Book
   Author: Author
@@ -169,6 +171,9 @@
       Readers: []
     - Using: false
       Readers: []
+  Genres:
+    - classic
+    - mystery
 - №: 3
   Title: How to be a Jedi Master
   Author: Master Jedi
@@ -188,6 +193,8 @@
             - 7
             - 1
             - 2021
+  Genres:
+    - mystery
 - №: 4
   Title: How to not be a Motherfucker
   Author: Samuel Jackson
@@ -207,3 +214,5 @@
             - 7
             - 1
             - 2021
+  Genres:
+    - mystery

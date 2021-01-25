@@ -1,6 +1,7 @@
 pub(crate) mod book;
 pub mod book_sys;
 pub(crate) mod date;
+pub mod genres;
 pub(crate) mod the_book;
 
 /// Error-handling type.

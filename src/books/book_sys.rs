@@ -3,6 +3,8 @@ use crate::{
     books::{date::Date, the_book::TheBook, BookInterface, ResultSelf},
     reading::{read_base::ReaderBase, reader::Reader},
 };
+use std::collections::HashSet;
+use std::iter::FromIterator;
 use std::{
     borrow::*,
     cell::RefCell,
@@ -401,6 +403,19 @@ impl BookSystem {
                     Yaml::String("Simple Books".to_string()),
                     Yaml::Array(book_arr),
                 );
+
+                data.insert(
+                    Yaml::String("Genres".to_string()),
+                    if let Some(g) = &RefCell::borrow(&(**self.books.get_unchecked(book))).genres {
+                        Yaml::Array(Array::from_iter(
+                            g.iter()
+                                .map(|x| Yaml::String(x.clone()))
+                                .collect::<Vec<_>>(),
+                        ))
+                    } else {
+                        Yaml::Null
+                    },
+                );
             }
             array.push(Yaml::Hash(data));
         }
@@ -520,6 +535,21 @@ impl BookSystem {
                                         .unwrap()),
                                 ));
                         }
+                    }
+                }
+
+                if d["Genres"].is_null() {
+                    (**self.books.last_mut().unwrap()).borrow_mut().genres = None;
+                } else {
+                    (**self.books.last_mut().unwrap()).borrow_mut().genres = Some(HashSet::new());
+
+                    for genres in d["Genres"].as_vec().unwrap().iter() {
+                        (**self.books.last_mut().unwrap())
+                            .borrow_mut()
+                            .genres
+                            .as_mut()
+                            .unwrap()
+                            .insert(genres.as_str().unwrap().to_string());
                     }
                 }
             }

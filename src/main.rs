@@ -1,4 +1,6 @@
 extern crate fltk;
+use booklibrs::actions::genres::{add_genre, customize_book_genre, remove_genre};
+use booklibrs::books::genres::Genres;
 use booklibrs::{
     actions::{book::*, giveaway::*, read::*, tables::*},
     books::book_sys::BookSystem,
@@ -48,6 +50,9 @@ pub enum Message {
     GiveBook,
     GetBook,
     ShowAllBooks,
+    AddGenre,
+    RemoveGenre,
+    CustomizeBookGenre,
 }
 
 /// Hashing login and password
@@ -78,6 +83,7 @@ static mut READER_BASE: ReaderBase = ReaderBase::new();
 static mut BOOK_SYSTEM: BookSystem = BookSystem::new();
 
 fn main() {
+    let mut genres = Genres::new();
     let app = app::App::default().with_scheme(AppScheme::Plastic);
     let (s, r) = app::channel();
 
@@ -85,6 +91,8 @@ fn main() {
         READER_BASE.load();
         BOOK_SYSTEM.load(&mut READER_BASE);
     }
+
+    genres.load();
 
     let mut admin = File::open("src/admin.bin").unwrap();
     let mut adm = String::new();
@@ -409,6 +417,30 @@ fn main() {
     );
 
     menu.add_emit(
+        "&Books/Add genre\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        Message::AddGenre,
+    );
+
+    menu.add_emit(
+        "&Books/Remove genre\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        Message::RemoveGenre,
+    );
+
+    menu.add_emit(
+        "&Books/Customize book genres\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        Message::CustomizeBookGenre,
+    );
+
+    menu.add_emit(
         "&Books/Show list of all books\t",
         Shortcut::empty(),
         MenuFlag::Normal,
@@ -518,6 +550,14 @@ fn main() {
                     Message::InfoBook => {
                         book_info(&BOOK_SYSTEM, &app);
                         table.redraw();
+                    }
+
+                    Message::AddGenre => add_genre(&mut genres, &app),
+
+                    Message::RemoveGenre => remove_genre(&mut genres, &app),
+
+                    Message::CustomizeBookGenre => {
+                        customize_book_genre(&genres, &mut BOOK_SYSTEM, &app)
                     }
 
                     Message::ShowAllBooks => show_all_books(&BOOK_SYSTEM),

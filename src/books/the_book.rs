@@ -4,18 +4,20 @@ use crate::{
 };
 use std::{
     cell::RefCell,
+    collections::HashSet,
     fmt::{Debug, Formatter},
     rc::Rc,
 };
 
 /// Interface Book structure, which contains
-/// title, author, amount of pages, and simple books
+/// title, author, amount of pages, simple books and genres.yaml
 
 pub(crate) struct TheBook {
     pub(crate) title: String,
     pub(crate) author: String,
     pub(crate) pages: u16,
     pub(crate) books: Vec<Rc<RefCell<Book>>>,
+    pub(crate) genres: Option<HashSet<String>>,
 }
 
 /// Destructor for TheBook.
@@ -58,6 +60,7 @@ impl Debug for TheBook {
                     .map(|x| format!("{:?}", *(**x).borrow()))
                     .collect::<Vec<String>>(),
             )
+            .field("genres.yaml", &self.genres)
             .finish()
     }
 }
@@ -119,6 +122,7 @@ impl TheBook {
             author: new_author,
             pages: new_pages,
             books: vec![],
+            genres: None,
         };
 
         book.add_book();
@@ -189,5 +193,45 @@ impl TheBook {
             self.books.pop().unwrap();
         }
         self
+    }
+
+    /// Adds new genre to book
+    /// If this genre is already exists,
+    /// it will return false
+    /// else true
+
+    #[inline]
+    pub fn add_genre(&mut self, genre: String) -> bool {
+        if let None = self.genres {
+            self.genres = Some(HashSet::new());
+        }
+
+        self.genres.as_mut().unwrap().insert(genre)
+    }
+
+    /// Removes genre from book
+    /// If this genre is found,
+    /// it will return true
+    /// else false
+
+    #[inline]
+    pub fn remove_genre(&mut self, genre: &String) -> bool {
+        return if let None = self.genres {
+            false
+        } else if self.genres.as_ref().unwrap().len() == 1
+            && *self.genres.as_ref().unwrap().iter().next().unwrap() == *genre
+        {
+            self.genres
+                .as_mut()
+                .unwrap()
+                .remove(genre.to_lowercase().as_str());
+            self.genres = None;
+            true
+        } else {
+            self.genres
+                .as_mut()
+                .unwrap()
+                .remove(genre.to_lowercase().as_str())
+        };
     }
 }

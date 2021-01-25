@@ -2,6 +2,7 @@ extern crate chrono;
 extern crate fltk;
 use crate::{
     actions::read::get_book_ind,
+    books::the_book::TheBook,
     books::{book::Book, book_sys::BookSystem, date::Date},
     reading::read_base::ReaderBase,
 };
@@ -447,4 +448,32 @@ pub fn cell_date_time(x: i32) -> String {
             _ => chrono::Local::now().year().to_string(),
         }
     );
+}
+
+/// Function that returns genre as string.
+
+#[inline]
+pub(crate) fn cell_genre(x: i32, book: &Rc<RefCell<TheBook>>) -> String {
+    return unsafe {
+        format!(
+            "{}",
+            if x == 0 {
+                if let Some(g) = &(*(*book).as_ptr()).genres {
+                    g.iter().next().unwrap().as_str()
+                } else {
+                    "None"
+                }
+            } else {
+                if let Some(g) = &(*(*book).as_ptr()).genres {
+                    if (x as usize) < g.len() {
+                        g.iter().skip(x as usize).next().unwrap().as_str()
+                    } else {
+                        ""
+                    }
+                } else {
+                    ""
+                }
+            }
+        )
+    };
 }
