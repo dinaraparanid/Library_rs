@@ -1,26 +1,31 @@
 extern crate fltk;
-use booklibrs::actions::genres::{add_genre, customize_book_genre, remove_genre};
-use booklibrs::books::genres::Genres;
 use booklibrs::{
-    actions::{book::*, giveaway::*, read::*, tables::*},
-    books::book_sys::BookSystem,
+    actions::{
+        book::*,
+        genres::{add_genre, customize_book_genre, remove_genre},
+        giveaway::*,
+        read::*,
+        tables::*,
+    },
+    books::{book_sys::BookSystem, genres::Genres},
     change::{input2::Input2, Inputable},
     reading::read_base::ReaderBase,
 };
 use fltk::{
     app,
-    app::AppScheme,
     button::*,
     dialog::alert,
     draw,
     enums::Shortcut,
     frame::Frame,
+    image::*,
     input::{Input, SecretInput},
     menu::*,
     table,
     table::Table,
     window::*,
 };
+use std::error::Error;
 use std::{
     cmp::max,
     fs::File,
@@ -82,9 +87,9 @@ fn get_hash(str: &String, p: u128, module: u128) -> Vec<u128> {
 static mut READER_BASE: ReaderBase = ReaderBase::new();
 static mut BOOK_SYSTEM: BookSystem = BookSystem::new();
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     let mut genres = Genres::new();
-    let app = app::App::default().with_scheme(AppScheme::Plastic);
+    let app = app::App::default(); //.with_scheme(AppScheme::Plastic);
     let (s, r) = app::channel();
 
     unsafe {
@@ -94,9 +99,9 @@ fn main() {
 
     genres.load();
 
-    let mut admin = File::open("src/admin.bin").unwrap();
+    let mut admin = File::open("src/utils/admin.bin")?;
     let mut adm = String::new();
-    admin.read_to_string(&mut adm).unwrap();
+    admin.read_to_string(&mut adm)?;
 
     #[allow(unused_assignments)]
     let mut success = 0; // 0 - no input / 1 - ok / 2 - mistake
@@ -120,28 +125,23 @@ fn main() {
                             password.hide();
 
                             if let Ok(data) = input {
-                                let mut new_password = File::create("src/admin.bin").unwrap();
+                                let mut new_password = File::create("src/utils/admin.bin").unwrap();
                                 let hash1 = get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7);
                                 let hash2 = get_hash(&data.last().unwrap(), 101, 1e9 as u128 + 7);
 
-                                new_password
-                                    .write(
-                                        format!(
-                                            "{}",
-                                            hash1
+                                new_password.write(
+                                    format!(
+                                        "{}",
+                                        hash1.iter().map(|x| *x as u8 as char).collect::<String>()
+                                            + "\0"
+                                            + hash2
                                                 .iter()
                                                 .map(|x| *x as u8 as char)
                                                 .collect::<String>()
-                                                + "\0"
-                                                + hash2
-                                                    .iter()
-                                                    .map(|x| *x as u8 as char)
-                                                    .collect::<String>()
-                                                    .as_str()
-                                        )
-                                        .as_bytes(),
+                                                .as_str()
                                     )
-                                    .unwrap();
+                                    .as_bytes(),
+                                )?;
 
                                 fltk::dialog::message(500, 500, "New login and password are saved");
                                 success = 1;
@@ -219,13 +219,23 @@ fn main() {
     }
 
     if success == 0 {
-        return;
+        return Ok(());
     }
 
     let mut main_window = MenuWindow::default()
         .with_label("Library System")
         .with_size(1800, 900)
         .center_screen();
+
+    let mut frame = Frame::new(0, 0, 1800, 900, "");
+    let mut background = SharedImage::load("src/utils/background.jpg")?;
+    background.scale(main_window.width(), main_window.height(), true, true);
+    frame.draw2(move |f| {
+        background.scale(f.width(), f.height(), true, true);
+        background.draw(f.x(), f.y(), f.width(), f.height());
+    });
+
+    main_window.set_icon(Some(JpegImage::load("src/utils/icon.jpg")?));
 
     let mut time = fltk::misc::Clock::new(1680, 10, 100, 100, "");
     time.set_type(fltk::misc::ClockType::Square);
@@ -593,4 +603,5 @@ fn main() {
     }
 
     app.run().unwrap();
+    Ok(())
 }

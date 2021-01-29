@@ -63,7 +63,7 @@ impl Genres {
         hash.insert(Yaml::String("Genres".to_string()), Yaml::Array(array));
         emitter.dump(&Yaml::Hash(hash)).unwrap();
 
-        let mut file = File::create("genres.yaml").unwrap();
+        let mut file = File::create("src/utils/genres.yaml").unwrap();
         file.write_all(string.as_bytes()).unwrap();
     }
 
@@ -71,7 +71,7 @@ impl Genres {
 
     #[inline]
     pub fn load(&mut self) {
-        let mut file = File::open("genres.yaml").unwrap();
+        let mut file = File::open("src/utils/genres.yaml").unwrap();
         let mut string = String::new();
         file.read_to_string(&mut string).unwrap();
 

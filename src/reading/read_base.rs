@@ -395,7 +395,7 @@ impl ReaderBase {
         let mut emitter = YamlEmitter::new(&mut string);
         emitter.dump(&Yaml::Array(array)).unwrap();
 
-        let mut file = File::create("readers.yaml").unwrap();
+        let mut file = File::create("src/utils/readers.yaml").unwrap();
         file.write_all(string.as_bytes()).unwrap();
     }
 
@@ -403,7 +403,7 @@ impl ReaderBase {
 
     #[inline]
     pub fn load(&mut self) {
-        let mut file = File::open("readers.yaml").unwrap();
+        let mut file = File::open("src/utils/readers.yaml").unwrap();
         let mut string = String::new();
         file.read_to_string(&mut string).unwrap();
 

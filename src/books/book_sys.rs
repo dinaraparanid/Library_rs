@@ -424,7 +424,7 @@ impl BookSystem {
         let mut emitter = YamlEmitter::new(&mut string);
         emitter.dump(&Yaml::Array(array)).unwrap();
 
-        let mut file = File::create("books.yaml").unwrap();
+        let mut file = File::create("src/utils/books.yaml").unwrap();
         file.write_all(string.as_bytes()).unwrap();
     }
 
@@ -432,7 +432,7 @@ impl BookSystem {
 
     #[inline]
     pub fn load(&mut self, reader_base: &mut ReaderBase) {
-        let mut file = File::open("books.yaml").unwrap();
+        let mut file = File::open("src/utils/books.yaml").unwrap();
         let mut string = String::new();
         file.read_to_string(&mut string).unwrap();
 

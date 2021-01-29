@@ -125,26 +125,20 @@ mod reader_tests {
                                (*reader)
                                    .borrow_mut()
                                    .start_reading(&book1)
-                                   .unwrap()
                                    .start_reading(&book2)
-                                   .unwrap()
-                                   .start_reading(&book3)
-                                   .unwrap()));
+                                   .start_reading(&book3)));
 
-        assert!((*book1)
+        (*book1)
             .borrow_mut()
-            .start_reading(&reader, Date::new(1, 1, 1).unwrap())
-            .is_ok());
+            .start_reading(&reader, Date::new(1, 1, 1).unwrap());
 
-        assert!((*book2)
+        (*book2)
             .borrow_mut()
-            .start_reading(&reader, Date::new(1, 1, 1).unwrap())
-            .is_ok());
+            .start_reading(&reader, Date::new(1, 1, 1).unwrap());
 
-        assert!((*book3)
+        (*book3)
             .borrow_mut()
-            .start_reading(&reader, Date::new(1, 1, 1).unwrap())
-            .is_ok());
+            .start_reading(&reader, Date::new(1, 1, 1).unwrap());
 
         (*book1)
             .borrow_mut()
@@ -170,7 +164,7 @@ mod reader_tests {
 
         (*reader)
             .borrow_mut()
-            .remove_book(&mut (*(*book1).borrow()));
+            .remove_book(&mut (*(*book1).borrow_mut()));
 
         assert_eq!("Reader { name: \"Name\", family: \"Family\", father: \"Father\", age: 50, books.yaml: [\"LOL KEK 200\", \"KOK LEL 1000\"] }",
                    format!("{:?}", *(*reader).borrow())
@@ -223,7 +217,7 @@ mod reader_base_tests {
                 &"Father1".to_string(),
                 50
             ),
-            0
+            Some(0)
         );
 
         assert_eq!(
@@ -233,7 +227,7 @@ mod reader_base_tests {
                 &"Father2".to_string(),
                 60
             ),
-            1
+            Some(1)
         );
 
         assert_eq!(
@@ -243,7 +237,7 @@ mod reader_base_tests {
                 &"Error".to_string(),
                 50
             ),
-            reader_base.readers.len()
+            None
         );
 
         let book1 = Rc::new(RefCell::new(Book::new(
@@ -267,35 +261,23 @@ mod reader_base_tests {
         (*(*reader_base.readers.first_mut().unwrap()))
             .borrow_mut()
             .start_reading(&book1)
-            .unwrap()
             .start_reading(&book2)
-            .unwrap()
-            .start_reading(&book3)
-            .unwrap();
+            .start_reading(&book3);
 
-        assert!((*book1)
-            .borrow_mut()
-            .start_reading(
-                &(*reader_base.readers.first_mut().unwrap()),
-                Date::new(1, 1, 1).unwrap(),
-            )
-            .is_ok());
+        (*book1).borrow_mut().start_reading(
+            &(*reader_base.readers.first_mut().unwrap()),
+            Date::new(1, 1, 1).unwrap(),
+        );
 
-        assert!((*book2)
-            .borrow_mut()
-            .start_reading(
-                &(*reader_base.readers.first_mut().unwrap()),
-                Date::new(1, 1, 1).unwrap(),
-            )
-            .is_ok());
+        (*book2).borrow_mut().start_reading(
+            &(*reader_base.readers.first_mut().unwrap()),
+            Date::new(1, 1, 1).unwrap(),
+        );
 
-        assert!((*book3)
-            .borrow_mut()
-            .start_reading(
-                &(*reader_base.readers.first_mut().unwrap()),
-                Date::new(1, 1, 1).unwrap(),
-            )
-            .is_ok());
+        (*book3).borrow_mut().start_reading(
+            &(*reader_base.readers.first_mut().unwrap()),
+            Date::new(1, 1, 1).unwrap(),
+        );
 
         assert_eq!("Book { title: \"Title1\", author: \"Author1\", pages: 50, is using: true, readers.yaml: [\"Name1 Family1 Father1 50\"] }",
                    format!("{:?}", *(*book1).borrow()));
