@@ -1,10 +1,12 @@
 extern crate fltk;
+
 use crate::{
     actions::{read::get_book_ind, tables::*},
     books::{book::Book, book_sys::BookSystem},
     change::{input1::Input1, input3::Input3, Inputable},
     reading::read_base::ReaderBase,
 };
+
 use fltk::{
     app,
     app::App,
@@ -19,6 +21,7 @@ use fltk::{
     table::Table,
     window::SingleWindow,
 };
+
 use std::{
     borrow::Borrow,
     cell::RefCell,

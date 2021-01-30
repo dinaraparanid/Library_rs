@@ -1,18 +1,21 @@
 extern crate yaml_rust;
+
 use crate::{
     books::{date::Date, the_book::TheBook, BookInterface, ResultSelf},
     reading::{read_base::ReaderBase, reader::Reader},
 };
-use std::collections::HashSet;
-use std::iter::FromIterator;
+
 use std::{
     borrow::*,
     cell::RefCell,
+    collections::HashSet,
     fmt::{Debug, Formatter},
     fs::File,
     io::{Read, Write},
+    iter::FromIterator,
     rc::{Rc, Weak},
 };
+
 use yaml_rust::{
     yaml::{Array, Hash},
     Yaml, YamlEmitter, YamlLoader,

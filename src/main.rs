@@ -1,16 +1,12 @@
 extern crate fltk;
+
 use booklibrs::{
-    actions::{
-        book::*,
-        genres::{add_genre, customize_book_genre, remove_genre},
-        giveaway::*,
-        read::*,
-        tables::*,
-    },
+    actions::{book::*, genres::*, giveaway::*, read::*, tables::*},
     books::{book_sys::BookSystem, genres::Genres},
     change::{input2::Input2, Inputable},
     reading::read_base::ReaderBase,
 };
+
 use fltk::{
     app,
     button::*,
@@ -25,13 +21,14 @@ use fltk::{
     table::Table,
     window::*,
 };
-use std::cell::RefCell;
-use std::error::Error;
-use std::rc::Rc;
+
 use std::{
+    cell::RefCell,
     cmp::max,
+    error::Error,
     fs::File,
     io::{Read, Write},
+    rc::Rc,
 };
 
 /// All messages, which used to call functions

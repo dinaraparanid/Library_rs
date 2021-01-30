@@ -1,11 +1,12 @@
 extern crate fltk;
-use crate::actions::book::book_info_simple;
+
 use crate::{
-    actions::tables::*,
+    actions::{book::book_info_simple, tables::*},
     books::{book::Book, book_sys::BookSystem},
     change::{input1::Input1, input3::Input3, input4::Input4, Inputable},
     reading::read_base::ReaderBase,
 };
+
 use fltk::{
     app,
     app::App,
@@ -19,6 +20,7 @@ use fltk::{
     table::Table,
     window::SingleWindow,
 };
+
 use std::{cell::RefCell, cmp::max, num::ParseIntError, rc::Rc};
 
 /// Messages for info menu

@@ -1,10 +1,12 @@
 extern crate fltk;
+
 use crate::{
     actions::{book::*, read::*},
     books::{book_sys::BookSystem, date::Date},
     change::{input3::Input3, input4::Input4, Inputable},
     reading::read_base::ReaderBase,
 };
+
 use fltk::{
     app,
     app::{channel, App},
@@ -12,6 +14,7 @@ use fltk::{
     input::*,
     WidgetExt,
 };
+
 use std::num::ParseIntError;
 
 /// Function that gives book to reader.

@@ -1,13 +1,17 @@
 extern crate chrono;
 extern crate fltk;
+
 use crate::{
     actions::read::get_book_ind,
     books::the_book::TheBook,
     books::{book::Book, book_sys::BookSystem, date::Date},
     reading::read_base::ReaderBase,
 };
+
 use chrono::{Datelike, Timelike};
+
 use fltk::{app::App, draw, enums::Color, prelude::*, table::*};
+
 use std::{
     cell::RefCell,
     rc::{Rc, Weak},

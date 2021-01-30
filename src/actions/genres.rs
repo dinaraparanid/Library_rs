@@ -1,19 +1,22 @@
 extern crate fltk;
-use self::fltk::browser::CheckBrowser;
+
 use crate::{
     actions::book::check_book,
     books::{book_sys::BookSystem, genres::Genres},
     change::{input1::Input1, input3::Input3, Inputable},
 };
+
 use fltk::{
     app,
     app::App,
+    browser::CheckBrowser,
     dialog::alert,
     input::{Input, IntInput},
     menu::Choice,
     prelude::*,
     window::SingleWindow,
 };
+
 use std::collections::HashSet;
 
 /// Function that adds new genre.

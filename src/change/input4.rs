@@ -1,8 +1,11 @@
 extern crate fltk;
+
 use crate::change::Inputable;
+
 use fltk::{
     button::Button, dialog::alert, frame::Frame, prelude::*, window::SingleWindow, WidgetExt,
 };
+
 use std::{cell::RefCell, rc::Rc};
 
 /// Changes four values

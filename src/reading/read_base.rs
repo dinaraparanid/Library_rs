@@ -1,8 +1,10 @@
 extern crate yaml_rust;
+
 use crate::{
     books::{book::Book, ResultSelf},
     reading::reader::Reader,
 };
+
 use std::{
     cell::RefCell,
     fmt::{Debug, Formatter},
@@ -10,6 +12,7 @@ use std::{
     io::{Read, Write},
     rc::{Rc, Weak},
 };
+
 use yaml_rust::{yaml::Hash, Yaml, YamlEmitter, YamlLoader};
 
 /// Reader Base structure,
