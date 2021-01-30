@@ -989,8 +989,8 @@ pub fn change_age(reader_base: &mut ReaderBase, book_system: &mut BookSystem, ap
 
 #[inline]
 pub fn reader_info(
-    reader_base: &'static mut ReaderBase,
-    book_system: &'static mut BookSystem,
+    reader_base: Rc<RefCell<ReaderBase>>,
+    book_system: Rc<RefCell<BookSystem>>,
     app: &App,
 ) {
     let (s2, r2) = app::channel();
@@ -1015,7 +1015,7 @@ pub fn reader_info(
                     if let Ok(reader) = reader_params {
                         match reader.last().unwrap().trim().parse::<u8>() {
                             Ok(x) => unsafe {
-                                match reader_base.find_reader(
+                                match (*reader_base).borrow().find_reader(
                                     reader.get_unchecked(0),
                                     reader.get_unchecked(1),
                                     reader.get_unchecked(2),
@@ -1023,9 +1023,12 @@ pub fn reader_info(
                                 ) {
                                     None => alert(500, 500, "Reader isn't found"),
 
-                                    Some(ind) => {
-                                        reader_info_simple(ind, reader_base, book_system, app)
-                                    }
+                                    Some(ind) => reader_info_simple(
+                                        ind,
+                                        &mut *(*reader_base).borrow_mut(),
+                                        &mut *(*book_system).borrow_mut(),
+                                        app,
+                                    ),
                                 }
                             },
 

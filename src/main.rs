@@ -25,7 +25,9 @@ use fltk::{
     table::Table,
     window::*,
 };
+use std::cell::RefCell;
 use std::error::Error;
+use std::rc::Rc;
 use std::{
     cmp::max,
     fs::File,
@@ -82,20 +84,18 @@ fn get_hash(str: &String, p: u128, module: u128) -> Vec<u128> {
     ans
 }
 
-/// I'm **really sorry** about this,
-/// but FLTK's realisation requires it :(
-static mut READER_BASE: ReaderBase = ReaderBase::new();
-static mut BOOK_SYSTEM: BookSystem = BookSystem::new();
-
 fn main() -> Result<(), Box<dyn Error>> {
+    let reader_base = Rc::new(RefCell::new(ReaderBase::new()));
+    let book_system = Rc::new(RefCell::new(BookSystem::new()));
     let mut genres = Genres::new();
+
     let app = app::App::default().with_scheme(fltk::app::AppScheme::Plastic);
     let (s, r) = app::channel();
 
-    unsafe {
-        READER_BASE.load();
-        BOOK_SYSTEM.load(&mut READER_BASE);
-    }
+    (*reader_base).borrow_mut().load();
+    (*book_system)
+        .borrow_mut()
+        .load(&mut (*reader_base).borrow_mut());
 
     genres.load();
 
@@ -241,7 +241,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     time.set_type(fltk::misc::ClockType::Square);
 
     let mut table = Table::new(10, 120, 1780, 890, "");
-    table.set_rows(max(50, unsafe { READER_BASE.len() } as u32));
+    table.set_rows(max(50, (*reader_base).borrow().len() as u32));
     table.set_row_header(true);
     table.set_cols(4);
     table.set_col_header(true);
@@ -256,44 +256,46 @@ fn main() -> Result<(), Box<dyn Error>> {
     main_window.end();
     main_window.make_resizable(true);
 
-    unsafe {
-        table.draw_cell2(|t, ctx, row, col, x, y, w, h| match ctx {
-            table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
+    let rb = reader_base.clone();
+    let bs = book_system.clone();
 
-            table::TableContext::ColHeader => draw_header(
-                &format!(
-                    "{}",
-                    match col {
-                        0 => "Reader",
-                        1 => "Book",
-                        2 => "Start Date",
-                        _ => "Finish Date",
-                    }
-                ),
+    table.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+        table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
+
+        table::TableContext::ColHeader => draw_header(
+            &format!(
+                "{}",
+                match col {
+                    0 => "Reader",
+                    1 => "Book",
+                    2 => "Start Date",
+                    _ => "Finish Date",
+                }
+            ),
+            x,
+            y,
+            w,
+            h,
+        ),
+
+        table::TableContext::RowHeader => draw_header(&format!("{}", row + 1), x, y, w, h),
+
+        table::TableContext::Cell => {
+            let pair = cell_reader(col, row, &mut (*rb).borrow_mut(), &mut (*bs).borrow_mut());
+
+            draw_data(
+                &format!("{}", pair.0),
                 x,
                 y,
                 w,
                 h,
-            ),
+                t.is_selected(row, col),
+                pair.1,
+            );
+        }
 
-            table::TableContext::RowHeader => draw_header(&format!("{}", row + 1), x, y, w, h),
-
-            table::TableContext::Cell => {
-                let pair = cell_reader(col, row, &mut READER_BASE, &mut BOOK_SYSTEM);
-                draw_data(
-                    &format!("{}", pair.0),
-                    x,
-                    y,
-                    w,
-                    h,
-                    t.is_selected(row, col),
-                    pair.1,
-                );
-            }
-
-            _ => (),
-        });
-    }
+        _ => (),
+    });
 
     let mut menu = MenuBar::new(0, 0, 200, 30, "");
     main_window.add(&menu);
@@ -476,128 +478,186 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     main_window.show();
 
+    let rb = reader_base.clone();
+    let bs = book_system.clone();
+
     while app.wait() {
         if let Some(msg) = r.recv() {
-            unsafe {
-                match msg {
-                    Message::AddReader => {
-                        add_reader(&mut READER_BASE, &app);
-                        table.set_rows(max(50, READER_BASE.len() as u32));
-                        table.redraw();
-                    }
+            match msg {
+                Message::AddReader => {
+                    add_reader(&mut (*reader_base).borrow_mut(), &app);
+                    table.set_rows(max(50, (*reader_base).borrow().len() as u32));
+                    table.redraw();
+                }
 
-                    Message::RemoveReader => {
-                        remove_reader(&mut READER_BASE, &mut BOOK_SYSTEM, &app);
-                        table.set_rows(max(50, READER_BASE.len() as u32));
-                        table.redraw();
-                    }
+                Message::RemoveReader => {
+                    remove_reader(
+                        &mut (*reader_base).borrow_mut(),
+                        &mut (*book_system).borrow_mut(),
+                        &app,
+                    );
+                    table.set_rows(max(50, (*reader_base).borrow().len() as u32));
+                    table.redraw();
+                }
 
-                    Message::ChangeName => {
-                        change_name(&mut READER_BASE, &mut BOOK_SYSTEM, &app);
-                        table.redraw();
-                    }
+                Message::ChangeName => {
+                    change_name(
+                        &mut (*reader_base).borrow_mut(),
+                        &mut (*book_system).borrow_mut(),
+                        &app,
+                    );
+                    table.redraw();
+                }
 
-                    Message::ChangeFamily => {
-                        change_family(&mut READER_BASE, &mut BOOK_SYSTEM, &app);
-                        table.redraw();
-                    }
+                Message::ChangeFamily => {
+                    change_family(
+                        &mut (*reader_base).borrow_mut(),
+                        &mut (*book_system).borrow_mut(),
+                        &app,
+                    );
+                    table.redraw();
+                }
 
-                    Message::ChangeFather => {
-                        change_father(&mut READER_BASE, &mut BOOK_SYSTEM, &app);
-                        table.redraw();
-                    }
+                Message::ChangeFather => {
+                    change_father(
+                        &mut (*reader_base).borrow_mut(),
+                        &mut (*book_system).borrow_mut(),
+                        &app,
+                    );
+                    table.redraw();
+                }
 
-                    Message::ChangeAge => {
-                        change_age(&mut READER_BASE, &mut BOOK_SYSTEM, &app);
-                        table.redraw();
-                    }
+                Message::ChangeAge => {
+                    change_age(
+                        &mut (*reader_base).borrow_mut(),
+                        &mut (*book_system).borrow_mut(),
+                        &app,
+                    );
+                    table.redraw();
+                }
 
-                    Message::InfoReader => {
-                        reader_info(&mut READER_BASE, &mut BOOK_SYSTEM, &app);
-                        table.redraw();
-                    }
+                Message::InfoReader => {
+                    reader_info(rb.clone(), bs.clone(), &app);
+                    table.redraw();
+                }
 
-                    Message::AddBooks => {
-                        add_books(&mut BOOK_SYSTEM, &app);
-                        table.redraw();
-                    }
+                Message::AddBooks => {
+                    add_books(&mut (*book_system).borrow_mut(), &app);
+                    table.redraw();
+                }
 
-                    Message::RemoveBook => {
-                        remove_book(&mut BOOK_SYSTEM, &mut READER_BASE, &app);
-                        table.redraw();
-                    }
+                Message::RemoveBook => {
+                    remove_book(
+                        &mut (*book_system).borrow_mut(),
+                        &mut (*reader_base).borrow_mut(),
+                        &app,
+                    );
+                    table.redraw();
+                }
 
-                    Message::AddTheBook => {
-                        add_book(&mut BOOK_SYSTEM, &app);
-                        table.redraw();
-                    }
+                Message::AddTheBook => {
+                    add_book(&mut (*book_system).borrow_mut(), &app);
+                    table.redraw();
+                }
 
-                    Message::RemoveTheBook => {
-                        remove_the_book(&mut BOOK_SYSTEM, &mut READER_BASE, &app);
-                        table.redraw();
-                    }
+                Message::RemoveTheBook => {
+                    remove_the_book(
+                        &mut (*book_system).borrow_mut(),
+                        &mut (*reader_base).borrow_mut(),
+                        &app,
+                    );
+                    table.redraw();
+                }
 
-                    Message::ChangeTitle => {
-                        change_title(&mut BOOK_SYSTEM, &mut READER_BASE, &app);
-                        table.redraw();
-                    }
+                Message::ChangeTitle => {
+                    change_title(
+                        &mut (*book_system).borrow_mut(),
+                        &mut (*reader_base).borrow_mut(),
+                        &app,
+                    );
+                    table.redraw();
+                }
 
-                    Message::ChangeAuthor => {
-                        change_author(&mut BOOK_SYSTEM, &mut READER_BASE, &app);
-                        table.redraw();
-                    }
+                Message::ChangeAuthor => {
+                    change_author(
+                        &mut (*book_system).borrow_mut(),
+                        &mut (*reader_base).borrow_mut(),
+                        &app,
+                    );
+                    table.redraw();
+                }
 
-                    Message::ChangePages => {
-                        change_pages(&mut BOOK_SYSTEM, &mut READER_BASE, &app);
-                        table.redraw();
-                    }
+                Message::ChangePages => {
+                    change_pages(
+                        &mut (*book_system).borrow_mut(),
+                        &mut (*reader_base).borrow_mut(),
+                        &app,
+                    );
+                    table.redraw();
+                }
 
-                    Message::InfoTheBook => {
-                        the_book_info(&mut BOOK_SYSTEM, &mut READER_BASE, &app);
-                        table.redraw();
-                    }
+                Message::InfoTheBook => {
+                    the_book_info(bs.clone(), rb.clone(), &app);
+                    table.redraw();
+                }
 
-                    Message::InfoBook => {
-                        book_info(&BOOK_SYSTEM, &app);
-                        table.redraw();
-                    }
+                Message::InfoBook => {
+                    book_info(&(*book_system).borrow(), &app);
+                    table.redraw();
+                }
 
-                    Message::AddGenre => add_genre(&mut genres, &app),
+                Message::AddGenre => add_genre(&mut genres, &app),
 
-                    Message::RemoveGenre => remove_genre(&mut genres, &app),
+                Message::RemoveGenre => remove_genre(&mut genres, &app),
 
-                    Message::CustomizeBookGenre => {
-                        customize_book_genre(&genres, &mut BOOK_SYSTEM, &app)
-                    }
+                Message::CustomizeBookGenre => {
+                    customize_book_genre(&genres, &mut (*book_system).borrow_mut(), &app)
+                }
 
-                    Message::ShowAllBooks => show_all_books(&BOOK_SYSTEM),
+                Message::ShowAllBooks => show_all_books(bs.clone()),
 
-                    Message::GiveBook => {
-                        give_book(&mut READER_BASE, &mut BOOK_SYSTEM, &app);
-                        table.redraw();
-                    }
+                Message::GiveBook => {
+                    give_book(
+                        &mut (*reader_base).borrow_mut(),
+                        &mut (*book_system).borrow_mut(),
+                        &app,
+                    );
+                    table.redraw();
+                }
 
-                    Message::GetBook => {
-                        get_book(&mut READER_BASE, &mut BOOK_SYSTEM, &app);
-                        table.redraw();
-                    }
+                Message::GetBook => {
+                    get_book(
+                        &mut (*reader_base).borrow_mut(),
+                        &mut (*book_system).borrow_mut(),
+                        &app,
+                    );
+                    table.redraw();
                 }
             }
         }
 
-        unsafe {
-            for i in 0..READER_BASE.len() {
-                if table.is_selected(i as i32, 0) {
-                    reader_info_simple(i, &mut READER_BASE, &mut BOOK_SYSTEM, &app);
-                    table.unset_selection();
-                    break;
-                }
+        let len = (*reader_base).borrow().len();
 
-                if table.is_selected(i as i32, 1) {
-                    book_info_simple(READER_BASE.get_book(i), &mut BOOK_SYSTEM, &app);
-                    table.unset_selection();
-                    break;
-                }
+        for i in 0..len {
+            if table.is_selected(i as i32, 0) {
+                reader_info_simple(
+                    i,
+                    &mut (*reader_base).borrow_mut(),
+                    &mut (*book_system).borrow_mut(),
+                    &app,
+                );
+                table.unset_selection();
+                break;
+            }
+
+            if table.is_selected(i as i32, 1) {
+                book_info_simple(
+                    (*reader_base).borrow().get_book(i),
+                    &mut (*book_system).borrow_mut(),
+                    &app,
+                );
+                table.unset_selection();
+                break;
             }
         }
     }

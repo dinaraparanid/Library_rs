@@ -349,7 +349,7 @@ pub fn cell_reader2(x: i32, y: i32, book: Weak<RefCell<Book>>) -> String {
 /// if column is 2, it' ll return number of all books
 
 #[inline]
-pub fn cell_book(x: i32, y: i32, book_system: &'static BookSystem) -> String {
+pub fn cell_book(x: i32, y: i32, book_system: &BookSystem) -> String {
     return format!(
         "{}",
         if y < book_system.books.len() as i32 {
@@ -383,8 +383,8 @@ pub fn cell_book2(
     x: i32,
     y: i32,
     ind: usize,
-    reader_base: &'static ReaderBase,
-    book_system: &'static BookSystem,
+    reader_base: &ReaderBase,
+    book_system: &BookSystem,
 ) -> String {
     unsafe {
         return format!(

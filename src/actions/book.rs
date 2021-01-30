@@ -585,8 +585,8 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
 
 pub fn the_book_info_simple(
     ind: usize,
-    book_system: &'static mut BookSystem,
-    reader_base: &'static mut ReaderBase,
+    book_system: &mut BookSystem,
+    reader_base: &mut ReaderBase,
     app: &App,
 ) {
     let mut wind;
@@ -1103,8 +1103,8 @@ pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
 
 #[inline]
 pub fn the_book_info(
-    book_system: &'static mut BookSystem,
-    reader_base: &'static mut ReaderBase,
+    book_system: Rc<RefCell<BookSystem>>,
+    reader_base: Rc<RefCell<ReaderBase>>,
     app: &App,
 ) {
     let (s2, r2) = app::channel();
@@ -1124,12 +1124,17 @@ pub fn the_book_info(
                     if let Ok(the_book) = book_params {
                         let index;
 
-                        match check_book(book_system, &the_book) {
+                        match check_book(&(*book_system).borrow(), &the_book) {
                             Ok(x) => index = x,
                             Err(_) => return,
                         }
 
-                        the_book_info_simple(index, book_system, reader_base, app)
+                        the_book_info_simple(
+                            index,
+                            &mut *(*book_system).borrow_mut(),
+                            &mut *(*reader_base).borrow_mut(),
+                            app,
+                        )
                     }
                 }
                 false => (),
@@ -1237,14 +1242,14 @@ pub fn book_info(book_system: &BookSystem, app: &App) {
 /// title, author, num of pages and num of available simple books
 
 #[inline]
-pub fn show_all_books(book_system: &'static BookSystem) {
+pub fn show_all_books(book_system: Rc<RefCell<BookSystem>>) {
     let mut wind = SingleWindow::default()
         .with_label("All Books")
         .with_size(820, 550)
         .center_screen();
 
     let mut table = Table::new(10, 10, 800, 540, "");
-    table.set_rows(max(20, book_system.books.len() as u32));
+    table.set_rows(max(20, (*book_system).borrow().books.len() as u32));
     table.set_row_header(true);
     table.set_cols(4);
     table.set_col_header(true);
@@ -1273,7 +1278,7 @@ pub fn show_all_books(book_system: &'static BookSystem) {
         fltk::table::TableContext::RowHeader => draw_header(&format!("{}", row + 1), x, y, w, h),
 
         fltk::table::TableContext::Cell => draw_data(
-            &format!("{}", cell_book(col, row, book_system)),
+            &format!("{}", cell_book(col, row, &*(*book_system).borrow())),
             x,
             y,
             w,
