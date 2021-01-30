@@ -3,8 +3,7 @@ extern crate fltk;
 
 use crate::{
     actions::read::get_book_ind,
-    books::the_book::TheBook,
-    books::{book::Book, book_sys::BookSystem, date::Date},
+    books::{book::Book, book_sys::BookSystem, date::Date, genres::Genres, the_book::TheBook},
     reading::read_base::ReaderBase,
 };
 
@@ -74,8 +73,8 @@ pub fn draw_data(
 pub fn cell_reader(
     x: i32,
     y: i32,
-    reader_base: &mut ReaderBase,
-    book_system: &mut BookSystem,
+    reader_base: &ReaderBase,
+    book_system: &BookSystem,
 ) -> (String, Option<fltk::enums::Color>) {
     unsafe {
         return if y < reader_base.readers.len() as i32 {
@@ -382,6 +381,10 @@ pub fn cell_book(x: i32, y: i32, book_system: &BookSystem) -> String {
     );
 }
 
+/// Function that returns
+/// name, 2-nd name, mid name and age
+/// of reader with known index
+
 #[inline]
 pub fn cell_book2(
     x: i32,
@@ -440,6 +443,38 @@ pub fn cell_book2(
     }
 }
 
+/// Function that returns String book's with spec genre.
+
+#[inline]
+pub fn cell_book3(y: i32, books: &Vec<(String, String, u16)>) -> String {
+    return format!(
+        "{}",
+        {
+            if books.is_empty() {
+                if y == 0 {
+                    "None"
+                } else {
+                    ""
+                }
+            } else {
+                if y < books.len() as i32 {
+                    unsafe {
+                        return format!(
+                            "{} {} {}",
+                            books.get_unchecked(y as usize).0,
+                            books.get_unchecked(y as usize).1,
+                            books.get_unchecked(y as usize).2
+                        );
+                    }
+                } else {
+                    ""
+                }
+            }
+        }
+        .to_string()
+    );
+}
+
 /// Function that returns date and time as string.
 
 #[inline]
@@ -454,7 +489,7 @@ pub fn cell_date_time(x: i32) -> String {
     );
 }
 
-/// Function that returns genre as string.
+/// Function that returns book's genre as string.
 
 #[inline]
 pub(crate) fn cell_genre(x: i32, book: &Rc<RefCell<TheBook>>) -> String {
@@ -480,4 +515,24 @@ pub(crate) fn cell_genre(x: i32, book: &Rc<RefCell<TheBook>>) -> String {
             }
         )
     };
+}
+
+/// Function that returns genre as string.
+
+#[inline]
+pub(crate) fn cell_genre2(y: i32, genres: &Genres) -> String {
+    return format!(
+        "{}",
+        if y < genres.genres.len() as i32 {
+            genres
+                .genres
+                .iter()
+                .skip(y as usize)
+                .next()
+                .unwrap()
+                .as_str()
+        } else {
+            ""
+        }
+    );
 }

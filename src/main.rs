@@ -54,9 +54,11 @@ pub enum Message {
     GiveBook,
     GetBook,
     ShowAllBooks,
+    ShowGenres,
     AddGenre,
     RemoveGenre,
     CustomizeBookGenre,
+    FindByGenre,
 }
 
 /// Hashing login and password
@@ -84,7 +86,7 @@ fn get_hash(str: &String, p: u128, module: u128) -> Vec<u128> {
 fn main() -> Result<(), Box<dyn Error>> {
     let reader_base = Rc::new(RefCell::new(ReaderBase::new()));
     let book_system = Rc::new(RefCell::new(BookSystem::new()));
-    let mut genres = Genres::new();
+    let genres = Rc::new(RefCell::new(Genres::new()));
 
     let app = app::App::default().with_scheme(fltk::app::AppScheme::Plastic);
     let (s, r) = app::channel();
@@ -94,7 +96,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .borrow_mut()
         .load(&mut (*reader_base).borrow_mut());
 
-    genres.load();
+    (*genres).borrow_mut().load();
 
     let mut admin = File::open("src/utils/admin.bin")?;
     let mut adm = String::new();
@@ -227,10 +229,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut frame = Frame::new(0, 0, 1800, 900, "");
     let mut background = SharedImage::load("src/utils/background.jpg")?;
     background.scale(main_window.width(), main_window.height(), true, true);
-    frame.draw2(move |f| {
-        background.scale(f.width(), f.height(), true, true);
-        background.draw(f.x(), f.y(), f.width(), f.height());
-    });
+    frame.draw2(move |f| background.draw(f.x(), f.y(), f.width(), f.height()));
 
     main_window.set_icon(Some(JpegImage::load("src/utils/icon.jpg")?));
 
@@ -278,7 +277,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         table::TableContext::RowHeader => draw_header(&format!("{}", row + 1), x, y, w, h),
 
         table::TableContext::Cell => {
-            let pair = cell_reader(col, row, &mut (*rb).borrow_mut(), &mut (*bs).borrow_mut());
+            let pair = unsafe { cell_reader(col, row, &*(*rb).as_ptr(), &*(*bs).as_ptr()) };
 
             draw_data(
                 &format!("{}", pair.0),
@@ -426,6 +425,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
+        "&Books/Show all existing genres\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        Message::ShowGenres,
+    );
+
+    menu.add_emit(
         "&Books/Add genre\t",
         Shortcut::empty(),
         MenuFlag::Normal,
@@ -447,6 +454,14 @@ fn main() -> Result<(), Box<dyn Error>> {
         MenuFlag::Normal,
         s,
         Message::CustomizeBookGenre,
+    );
+
+    menu.add_emit(
+        "&Books/Find books by genre\t",
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        Message::FindByGenre,
     );
 
     menu.add_emit(
@@ -474,9 +489,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     main_window.show();
-
-    let rb = reader_base.clone();
-    let bs = book_system.clone();
 
     while app.wait() {
         if let Some(msg) = r.recv() {
@@ -534,7 +546,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
 
                 Message::InfoReader => {
-                    reader_info(rb.clone(), bs.clone(), &app);
+                    reader_info(reader_base.clone(), book_system.clone(), &app);
                     table.redraw();
                 }
 
@@ -594,7 +606,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
 
                 Message::InfoTheBook => {
-                    the_book_info(bs.clone(), rb.clone(), &app);
+                    the_book_info(book_system.clone(), reader_base.clone(), &app);
                     table.redraw();
                 }
 
@@ -603,15 +615,21 @@ fn main() -> Result<(), Box<dyn Error>> {
                     table.redraw();
                 }
 
-                Message::AddGenre => add_genre(&mut genres, &app),
+                Message::ShowGenres => all_genres(genres.clone(), &*(*book_system).borrow(), &app),
 
-                Message::RemoveGenre => remove_genre(&mut genres, &app),
+                Message::AddGenre => add_genre(&mut (*genres).borrow_mut(), &app),
 
-                Message::CustomizeBookGenre => {
-                    customize_book_genre(&genres, &mut (*book_system).borrow_mut(), &app)
-                }
+                Message::RemoveGenre => remove_genre(&mut (*genres).borrow_mut(), &app),
 
-                Message::ShowAllBooks => show_all_books(bs.clone()),
+                Message::CustomizeBookGenre => customize_book_genre(
+                    &(*genres).borrow(),
+                    &mut (*book_system).borrow_mut(),
+                    &app,
+                ),
+
+                Message::FindByGenre => find_by_genre(&*(*book_system).borrow(), &app),
+
+                Message::ShowAllBooks => show_all_books(book_system.clone()),
 
                 Message::GiveBook => {
                     give_book(
@@ -643,6 +661,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     &mut (*book_system).borrow_mut(),
                     &app,
                 );
+
                 table.unset_selection();
                 break;
             }
@@ -653,6 +672,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     &mut (*book_system).borrow_mut(),
                     &app,
                 );
+
                 table.unset_selection();
                 break;
             }

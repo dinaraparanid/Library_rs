@@ -1,9 +1,13 @@
 extern crate fltk;
 
 use crate::{
-    actions::book::check_book,
+    actions::{
+        book::check_book,
+        tables::{cell_book3, cell_genre2, draw_data},
+    },
     books::{book_sys::BookSystem, genres::Genres},
     change::{input1::Input1, input3::Input3, Inputable},
+    reading::read_base::ReaderBase,
 };
 
 use fltk::{
@@ -11,13 +15,18 @@ use fltk::{
     app::App,
     browser::CheckBrowser,
     dialog::alert,
+    draw,
     input::{Input, IntInput},
     menu::Choice,
     prelude::*,
+    table,
+    table::Table,
     window::SingleWindow,
 };
 
-use std::collections::HashSet;
+use std::borrow::Borrow;
+use std::time::Duration;
+use std::{cell::RefCell, cmp::max, collections::HashSet, rc::Rc};
 
 /// Function that adds new genre.
 /// If you have mistakes in input,
@@ -249,6 +258,146 @@ pub fn customize_book_genre(genres: &Genres, book_system: &mut BookSystem, app: 
             break;
         } else if !inp.shown() {
             break;
+        }
+    }
+}
+
+#[inline]
+pub(crate) fn find_by_genre_simple(genre: &String, book_system: &BookSystem) {
+    let mut wind = SingleWindow::new(500, 500, 300, 400, "Books with spec genre");
+    let mut book_table = Table::new(0, 0, 300, 400, "");
+
+    let mut find = vec![];
+
+    for x in &book_system.books {
+        if (**x).borrow().genres.is_some()
+            && (**x)
+                .borrow()
+                .genres
+                .as_ref()
+                .unwrap()
+                .contains(genre.as_str())
+        {
+            find.push((
+                (**x).borrow().title.clone(),
+                (**x).borrow().author.clone(),
+                (**x).borrow().pages.clone(),
+            ))
+        }
+    }
+
+    book_table.set_rows(max(20, find.len() as u32));
+
+    book_table.set_cols(1);
+    book_table.set_col_width_all(300);
+    book_table.end();
+
+    book_table.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+        table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
+
+        table::TableContext::Cell => {
+            let gen = cell_book3(row, &find);
+            draw_data(
+                &format!("{}", gen),
+                x,
+                y,
+                w,
+                h,
+                t.is_selected(row, col),
+                None,
+            );
+        }
+
+        _ => (),
+    });
+
+    wind.end();
+    wind.show();
+}
+
+/// Function that shows
+/// all books with specific genre
+
+#[inline]
+pub fn find_by_genre(book_system: &BookSystem, app: &App) {
+    let (s, r) = app::channel();
+    let mut inp = Input1::<Input>::new("Input Genre", "Genre");
+
+    inp.show();
+    (*inp.ok).borrow_mut().emit(s, true);
+
+    while app.wait() {
+        if let Some(message) = r.recv() {
+            match message {
+                true => {
+                    let genre_params = inp.set_input();
+                    inp.hide();
+
+                    if let Ok(genre) = genre_params {
+                        find_by_genre_simple(genre.first().unwrap(), book_system);
+                    }
+                }
+                false => (),
+            }
+            break;
+        } else if !inp.shown() {
+            break;
+        }
+    }
+}
+
+/// Function that shows
+/// all books with specific genre
+
+#[inline]
+pub fn all_genres(genres: Rc<RefCell<Genres>>, book_system: &BookSystem, app: &App) {
+    let mut wind = SingleWindow::new(500, 500, 300, 400, "All Genres");
+
+    let mut tab = Table::new(0, 0, 300, 400, "");
+    tab.set_rows(max(20, (*genres).borrow().genres.len() as u32));
+    tab.set_cols(1);
+    tab.set_col_width_all(300);
+    tab.end();
+
+    let gen = genres.clone();
+
+    tab.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+        table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
+
+        table::TableContext::Cell => {
+            let gen = cell_genre2(row, &*(*gen).borrow());
+            draw_data(
+                &format!("{}", gen),
+                x,
+                y,
+                w,
+                h,
+                t.is_selected(row, col),
+                None,
+            );
+        }
+
+        _ => (),
+    });
+
+    wind.end();
+    wind.show();
+
+    while app.wait() {
+        if !wind.shown() {
+            return;
+        }
+
+        let len = (*genres).borrow().genres.len();
+        for ind in 0..len {
+            if tab.is_selected(ind as i32, 0) {
+                find_by_genre_simple(
+                    (*genres).borrow().genres.iter().skip(ind).next().unwrap(),
+                    book_system,
+                );
+                tab.unset_selection();
+                break;
+            }
         }
     }
 }
