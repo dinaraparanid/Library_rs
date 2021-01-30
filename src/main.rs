@@ -89,7 +89,7 @@ static mut BOOK_SYSTEM: BookSystem = BookSystem::new();
 
 fn main() -> Result<(), Box<dyn Error>> {
     let mut genres = Genres::new();
-    let app = app::App::default(); //.with_scheme(AppScheme::Plastic);
+    let app = app::App::default().with_scheme(fltk::app::AppScheme::Plastic);
     let (s, r) = app::channel();
 
     unsafe {
