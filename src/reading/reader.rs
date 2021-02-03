@@ -75,6 +75,28 @@ impl PartialEq for Reader {
 
 impl Eq for Reader {}
 
+/// Clones reader
+/// All pointers to books advance reference counter by 1
+
+impl Clone for Reader {
+    #[inline]
+    fn clone(&self) -> Self {
+        Reader {
+            name: self.name.clone(),
+            family: self.family.clone(),
+            father: self.father.clone(),
+            age: self.age,
+            books: self.books.iter().map(|x| x.clone()).collect(),
+            reading: self.reading.clone(),
+        }
+    }
+
+    #[inline]
+    fn clone_from(&mut self, other: &Self) {
+        *self = other.clone()
+    }
+}
+
 impl Reader {
     /// Creates new Reader with chosen
     /// 1-st name, 2-nd name, mid. name and age.

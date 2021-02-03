@@ -73,6 +73,31 @@ impl Debug for Book {
     }
 }
 
+/// Clone simple book.
+/// All pointers to readers advance reference count by 1
+
+impl Clone for Book {
+    #[inline]
+    fn clone(&self) -> Self {
+        Book {
+            title: self.title.clone(),
+            author: self.author.clone(),
+            pages: self.pages,
+            is_using: self.is_using,
+            readers: self
+                .readers
+                .iter()
+                .map(|x| (x.0.clone(), (x.1).clone()))
+                .collect(),
+        }
+    }
+
+    #[inline]
+    fn clone_from(&mut self, other: &Self) {
+        *self = other.clone()
+    }
+}
+
 /// Implementation of Book Interface trait for simple book
 
 impl BookInterface for Book {

@@ -24,6 +24,7 @@ use yaml_rust::{
 /// Reader Base structure,
 /// which contains only Book interfaces
 
+#[derive(Clone)]
 pub struct BookSystem {
     pub(crate) books: Vec<Rc<RefCell<TheBook>>>,
 }
@@ -289,6 +290,14 @@ impl BookSystem {
                 }
             }
         };
+    }
+
+    /// Deletes all books
+
+    #[inline]
+    pub(crate) fn clear(&mut self) -> &mut Self {
+        self.books.clear();
+        self
     }
 
     /// Save to .yaml file

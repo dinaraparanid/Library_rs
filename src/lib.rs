@@ -16,4 +16,8 @@ pub mod actions;
 
 #[allow(dead_code)]
 #[allow(unused_imports)]
+pub mod restore;
+
+#[allow(dead_code)]
+#[allow(unused_imports)]
 mod tests;

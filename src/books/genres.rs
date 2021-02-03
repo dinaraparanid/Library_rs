@@ -11,7 +11,7 @@ use yaml_rust::{yaml::Array, Yaml, YamlEmitter, YamlLoader};
 
 /// All existing genres.yaml of books
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Genres {
     pub(crate) genres: HashSet<String>,
 }
@@ -42,6 +42,14 @@ impl Genres {
     #[inline]
     pub fn remove(&mut self, genre: &String) -> bool {
         self.genres.remove(genre.to_lowercase().as_str())
+    }
+    
+    /// Deletes all genres
+    
+    #[inline]
+    pub(crate) fn clear(&mut self) -> &mut Self {
+        self.genres.clear();
+        self
     }
 
     /// Saves all genres to yaml file

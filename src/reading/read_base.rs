@@ -18,6 +18,7 @@ use yaml_rust::{yaml::Hash, Yaml, YamlEmitter, YamlLoader};
 /// Reader Base structure,
 /// which contains only readers
 
+#[derive(Clone)]
 pub struct ReaderBase {
     pub(crate) readers: Vec<Rc<RefCell<Reader>>>,
 }
@@ -304,6 +305,14 @@ impl ReaderBase {
     #[inline]
     pub fn get_book(&self, ind: usize) -> Option<Weak<RefCell<Book>>> {
         unsafe { (**self.readers.get_unchecked(ind)).borrow().reading.clone() }
+    }
+
+    /// Deletes all readers
+
+    #[inline]
+    pub(crate) fn clear(&mut self) -> &mut Self {
+        self.readers.clear();
+        self
     }
 
     /// Saves everything to .yaml file
