@@ -6,7 +6,7 @@ edition = "2018"
 license = "MIT/Apache-2.0"
 description = "Book libarary project including giveaway operations and gui interface. Beta version. Login: 'a', Password: 'a'"
 homepage = "https://github.com/dinaraparanid/Library_rs"
-documentation = "https://docs.rs/binartree/0.1.5/booklibrs/"
+documentation = "https://docs.rs/binartree/0.1.6/booklibrs/"
 
 [dependencies]
 chrono = "0.4.19"
