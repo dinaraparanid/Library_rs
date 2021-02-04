@@ -27,6 +27,7 @@ pub struct ReaderBase {
 /// It used to debug code
 
 impl Debug for ReaderBase {
+    #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Reader Base")
             .field(
@@ -135,6 +136,7 @@ impl ReaderBase {
     /// Changes reader's name.
     /// No checks provided
 
+    #[inline]
     pub unsafe fn change_name_unchecked(&mut self, ind: usize, new_name: String) -> &mut Self {
         (**self.readers.get_unchecked_mut(ind))
             .borrow_mut()
@@ -307,7 +309,8 @@ impl ReaderBase {
         unsafe { (**self.readers.get_unchecked(ind)).borrow().reading.clone() }
     }
 
-    /// Deletes all readers
+    /// Deletes all readers from current Reade Base
+    /// (But not readers themselves)
 
     #[inline]
     pub(crate) fn clear(&mut self) -> &mut Self {
@@ -317,7 +320,6 @@ impl ReaderBase {
 
     /// Saves everything to .yaml file
 
-    #[inline]
     pub(crate) fn save(&self) {
         let mut array = yaml_rust::yaml::Array::new();
 

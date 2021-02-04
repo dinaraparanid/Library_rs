@@ -39,6 +39,7 @@ impl Drop for Book {
 /// It is used to debug code.
 
 impl Debug for Book {
+    #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         f.debug_struct("Book")
             .field("title", &self.title)

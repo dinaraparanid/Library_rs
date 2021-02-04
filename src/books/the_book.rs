@@ -49,6 +49,7 @@ impl Eq for TheBook {}
 /// It is used to debug code
 
 impl Debug for TheBook {
+    #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("The Book")
             .field("title", &self.title)

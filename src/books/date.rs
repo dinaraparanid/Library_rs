@@ -18,6 +18,7 @@ pub(crate) struct Date {
 /// (as it works in real world)
 
 impl PartialOrd for Date {
+    #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         return if self.year < other.year {
             Some(Ordering::Less)
@@ -48,6 +49,7 @@ impl Ord for Date {
 /// Constructor from chrono's library dates
 
 impl From<DateTime<Local>> for Date {
+    #[inline]
     fn from(date: DateTime<Local>) -> Self {
         Date::new(date.day() as u8, date.month() as u8, date.year() as u16).unwrap()
     }

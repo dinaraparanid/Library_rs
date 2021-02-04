@@ -43,9 +43,9 @@ impl Genres {
     pub fn remove(&mut self, genre: &String) -> bool {
         self.genres.remove(genre.to_lowercase().as_str())
     }
-    
-    /// Deletes all genres
-    
+
+    /// Deletes all genres from current genres keeper
+
     #[inline]
     pub(crate) fn clear(&mut self) -> &mut Self {
         self.genres.clear();

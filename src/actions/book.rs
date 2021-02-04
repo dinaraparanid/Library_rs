@@ -2,9 +2,10 @@ extern crate fltk;
 
 use crate::{
     actions::{read::get_book_ind, tables::*},
-    books::{book::Book, book_sys::BookSystem},
+    books::{book::Book, book_sys::BookSystem, genres::Genres},
     change::{input1::Input1, input3::Input3, Inputable},
     reading::read_base::ReaderBase,
+    restore::caretaker::Caretaker,
 };
 
 use fltk::{
@@ -104,6 +105,8 @@ fn change_title_simple(
     ind: usize,
     book_system: &mut BookSystem,
     reader_base: &mut ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
     app: &App,
 ) {
     let (s3, r3) = app::channel();
@@ -131,6 +134,7 @@ fn change_title_simple(
                                     fltk::dialog::message(500, 500, "Successfully changed");
                                     book_system.save();
                                     reader_base.save();
+                                    caretaker.add_memento(reader_base, book_system, genres);
                                 }
 
                                 Err(_) => {
@@ -156,6 +160,8 @@ fn change_author_simple(
     ind: usize,
     book_system: &mut BookSystem,
     reader_base: &mut ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
     app: &App,
 ) {
     let (s3, r3) = app::channel();
@@ -184,6 +190,7 @@ fn change_author_simple(
                                     fltk::dialog::message(500, 500, "Successfully changed");
                                     book_system.save();
                                     reader_base.save();
+                                    caretaker.add_memento(reader_base, book_system, genres);
                                 }
 
                                 Err(_) => {
@@ -209,6 +216,8 @@ fn change_pages_simple(
     ind: usize,
     book_system: &mut BookSystem,
     reader_base: &mut ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
     app: &App,
 ) {
     let (s3, r3) = app::channel();
@@ -237,6 +246,7 @@ fn change_pages_simple(
                                     fltk::dialog::message(500, 500, "Successfully changed");
                                     book_system.save();
                                     reader_base.save();
+                                    caretaker.add_memento(reader_base, book_system, genres);
                                 }
 
                                 Err(0) => alert(500, 500, "New amount of pages input error"),
@@ -260,12 +270,19 @@ fn change_pages_simple(
 /// Removes already known the book
 
 #[inline]
-fn remove_the_book_simple(ind: usize, book_system: &mut BookSystem, reader_base: &mut ReaderBase) {
+fn remove_the_book_simple(
+    ind: usize,
+    book_system: &mut BookSystem,
+    reader_base: &mut ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+) {
     match book_system.remove_book(ind) {
         Ok(_) => {
             fltk::dialog::message(500, 500, "Successfully removed");
             book_system.save();
             reader_base.save();
+            caretaker.add_memento(reader_base, book_system, genres);
         }
 
         Err(_) => alert(500, 500, "Wrong book's number"),
@@ -275,7 +292,14 @@ fn remove_the_book_simple(ind: usize, book_system: &mut BookSystem, reader_base:
 /// Adds simple books to already known the book
 
 #[inline]
-fn add_books_simple(ind: usize, book_system: &mut BookSystem, app: &App) {
+fn add_books_simple(
+    ind: usize,
+    book_system: &mut BookSystem,
+    reader_base: &ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s3, r3) = app::channel();
     let mut get_amount = Input1::<IntInput>::new("Books amount", "Amount of books to add");
 
@@ -295,6 +319,7 @@ fn add_books_simple(ind: usize, book_system: &mut BookSystem, app: &App) {
                                 Ok(_) => {
                                     fltk::dialog::message(500, 500, "Successfully added");
                                     book_system.save();
+                                    caretaker.add_memento(reader_base, book_system, genres);
                                 }
 
                                 Err(_) => alert(500, 500, "Too much books"),
@@ -323,6 +348,8 @@ fn remove_book_simple(
     index: usize,
     book_system: &mut BookSystem,
     reader_base: &mut ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
     app: &App,
 ) {
     let (s3, r3) = app::channel();
@@ -344,6 +371,7 @@ fn remove_book_simple(
                                     fltk::dialog::message(500, 500, "Successfully removed");
                                     book_system.save();
                                     reader_base.save();
+                                    caretaker.add_memento(reader_base, book_system, genres);
                                 }
 
                                 Err(_) => alert(500, 500, "Incorrect number of book"),
@@ -373,6 +401,8 @@ fn remove_book_simple2(
     s_index: usize,
     book_system: &mut BookSystem,
     reader_base: &mut ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
 ) {
     unsafe {
         book_system.remove_one_book_unchecked(index, s_index);
@@ -380,6 +410,7 @@ fn remove_book_simple2(
     fltk::dialog::message(500, 500, "Successfully removed");
     book_system.save();
     reader_base.save();
+    caretaker.add_memento(reader_base, book_system, genres);
 }
 
 /// Function that gives information
@@ -590,6 +621,8 @@ pub fn the_book_info_simple(
     ind: usize,
     book_system: &mut BookSystem,
     reader_base: &mut ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
     app: &App,
 ) {
     let mut wind;
@@ -763,24 +796,28 @@ pub fn the_book_info_simple(
         if let Some(msg) = r.recv() {
             match msg {
                 MessageTheBook::ChangeAuthor => {
-                    change_author_simple(ind, book_system, reader_base, app)
+                    change_author_simple(ind, book_system, reader_base, genres, caretaker, app)
                 }
 
                 MessageTheBook::ChangeTitle => {
-                    change_title_simple(ind, book_system, reader_base, app)
+                    change_title_simple(ind, book_system, reader_base, genres, caretaker, app)
                 }
 
                 MessageTheBook::ChangePages => {
-                    change_pages_simple(ind, book_system, reader_base, app)
+                    change_pages_simple(ind, book_system, reader_base, genres, caretaker, app)
                 }
 
                 MessageTheBook::RemoveSimple => {
-                    remove_book_simple(ind, book_system, reader_base, app)
+                    remove_book_simple(ind, book_system, reader_base, genres, caretaker, app)
                 }
 
-                MessageTheBook::AddSimple => add_books_simple(ind, book_system, app),
+                MessageTheBook::AddSimple => {
+                    add_books_simple(ind, book_system, reader_base, genres, caretaker, app)
+                }
 
-                MessageTheBook::RemoveThis => remove_the_book_simple(ind, book_system, reader_base),
+                MessageTheBook::RemoveThis => {
+                    remove_the_book_simple(ind, book_system, reader_base, genres, caretaker)
+                }
             }
             return;
         } else if !wind.shown() {
@@ -798,7 +835,13 @@ pub fn the_book_info_simple(
 /// program will let you know
 
 #[inline]
-pub fn add_books(book_system: &mut BookSystem, app: &App) {
+pub fn add_books(
+    book_system: &mut BookSystem,
+    reader_base: &ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
     let mut inp =
         Input3::<Input, Input, IntInput>::new("Add Books", "Title", "Author", "Amount of Pages");
@@ -820,7 +863,7 @@ pub fn add_books(book_system: &mut BookSystem, app: &App) {
                             Err(_) => return,
                         }
 
-                        add_books_simple(ind, book_system, app);
+                        add_books_simple(ind, book_system, reader_base, genres, caretaker, app);
                     }
                 }
                 false => (),
@@ -838,7 +881,13 @@ pub fn add_books(book_system: &mut BookSystem, app: &App) {
 /// program will let you know
 
 #[inline]
-pub fn remove_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
+pub fn remove_book(
+    book_system: &mut BookSystem,
+    reader_base: &mut ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
     let mut inp =
         Input3::<Input, Input, IntInput>::new("Remove Book", "Title", "Author", "Amount of Pages");
@@ -861,7 +910,7 @@ pub fn remove_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, a
                             Err(_) => return,
                         }
 
-                        remove_book_simple(index, book_system, reader_base, app);
+                        remove_book_simple(index, book_system, reader_base, genres, caretaker, app);
                     }
                 }
                 false => (),
@@ -878,7 +927,13 @@ pub fn remove_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, a
 /// program will let you know
 
 #[inline]
-pub fn add_book(book_system: &mut BookSystem, app: &App) {
+pub fn add_book(
+    book_system: &mut BookSystem,
+    reader_base: &ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
     let mut inp =
         Input3::<Input, Input, IntInput>::new("Add New Book", "Title", "Author", "Amount of Pages");
@@ -908,6 +963,7 @@ pub fn add_book(book_system: &mut BookSystem, app: &App) {
                                     Ok(_) => {
                                         fltk::dialog::message(500, 500, "Successfully added");
                                         book_system.save();
+                                        caretaker.add_memento(reader_base, book_system, genres);
                                     }
 
                                     Err(_) => {
@@ -937,7 +993,13 @@ pub fn add_book(book_system: &mut BookSystem, app: &App) {
 /// program will let you know
 
 #[inline]
-pub fn remove_the_book(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
+pub fn remove_the_book(
+    book_system: &mut BookSystem,
+    reader_base: &mut ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
     let mut inp =
         Input3::<Input, Input, IntInput>::new("Remove Books", "Title", "Author", "Amount of Pages");
@@ -960,7 +1022,7 @@ pub fn remove_the_book(book_system: &mut BookSystem, reader_base: &mut ReaderBas
                             Err(_) => return,
                         }
 
-                        remove_the_book_simple(index, book_system, reader_base);
+                        remove_the_book_simple(index, book_system, reader_base, genres, caretaker);
                     }
                 }
                 false => (),
@@ -978,7 +1040,13 @@ pub fn remove_the_book(book_system: &mut BookSystem, reader_base: &mut ReaderBas
 /// program will let you know
 
 #[inline]
-pub fn change_title(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
+pub fn change_title(
+    book_system: &mut BookSystem,
+    reader_base: &mut ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
     let mut inp =
         Input3::<Input, Input, IntInput>::new("Change Title", "Title", "Author", "Amount of Pages");
@@ -1001,7 +1069,14 @@ pub fn change_title(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
                             Err(_) => return,
                         }
 
-                        change_title_simple(index, book_system, reader_base, app);
+                        change_title_simple(
+                            index,
+                            book_system,
+                            reader_base,
+                            genres,
+                            caretaker,
+                            app,
+                        );
                     }
                 }
                 false => (),
@@ -1019,7 +1094,13 @@ pub fn change_title(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
 /// program will let you know
 
 #[inline]
-pub fn change_author(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
+pub fn change_author(
+    book_system: &mut BookSystem,
+    reader_base: &mut ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::<Input, Input, IntInput>::new(
         "Change Author",
@@ -1046,7 +1127,14 @@ pub fn change_author(book_system: &mut BookSystem, reader_base: &mut ReaderBase,
                             Err(_) => return,
                         }
 
-                        change_author_simple(index, book_system, reader_base, app);
+                        change_author_simple(
+                            index,
+                            book_system,
+                            reader_base,
+                            genres,
+                            caretaker,
+                            app,
+                        );
                     }
                 }
                 false => (),
@@ -1064,7 +1152,13 @@ pub fn change_author(book_system: &mut BookSystem, reader_base: &mut ReaderBase,
 /// program will let you know
 
 #[inline]
-pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, app: &App) {
+pub fn change_pages(
+    book_system: &mut BookSystem,
+    reader_base: &mut ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
     let mut inp =
         Input3::<Input, Input, IntInput>::new("Change Pages", "Title", "Author", "Amount of Pages");
@@ -1087,7 +1181,14 @@ pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
                             Err(_) => return,
                         }
 
-                        change_pages_simple(index, book_system, reader_base, app);
+                        change_pages_simple(
+                            index,
+                            book_system,
+                            reader_base,
+                            genres,
+                            caretaker,
+                            app,
+                        );
                     }
                 }
                 false => (),
@@ -1108,6 +1209,8 @@ pub fn change_pages(book_system: &mut BookSystem, reader_base: &mut ReaderBase, 
 pub fn the_book_info(
     book_system: Rc<RefCell<BookSystem>>,
     reader_base: Rc<RefCell<ReaderBase>>,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
     app: &App,
 ) {
     let (s2, r2) = app::channel();
@@ -1136,6 +1239,8 @@ pub fn the_book_info(
                             index,
                             &mut *(*book_system).borrow_mut(),
                             &mut *(*reader_base).borrow_mut(),
+                            genres,
+                            caretaker,
                             app,
                         )
                     }

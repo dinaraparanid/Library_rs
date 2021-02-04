@@ -172,8 +172,8 @@
     - Using: false
       Readers: []
   Genres:
-    - classic
     - mystery
+    - classic
 - №: 3
   Title: How to be a Jedi Master
   Author: Master Jedi

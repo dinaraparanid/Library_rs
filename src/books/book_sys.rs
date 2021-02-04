@@ -33,6 +33,7 @@ pub struct BookSystem {
 /// It is used for debug code
 
 impl Debug for BookSystem {
+    #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Book System")
             .field(
@@ -292,7 +293,8 @@ impl BookSystem {
         };
     }
 
-    /// Deletes all books
+    /// Deletes all books from current Book System
+    /// (But not Books themselves)
 
     #[inline]
     pub(crate) fn clear(&mut self) -> &mut Self {
@@ -302,7 +304,6 @@ impl BookSystem {
 
     /// Save to .yaml file
 
-    #[inline]
     pub fn save(&self) {
         let mut array = Array::new();
 

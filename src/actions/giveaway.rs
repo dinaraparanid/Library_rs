@@ -2,9 +2,10 @@ extern crate fltk;
 
 use crate::{
     actions::{book::*, read::*},
-    books::{book_sys::BookSystem, date::Date},
+    books::{book_sys::BookSystem, date::Date, genres::Genres},
     change::{input3::Input3, input4::Input4, Inputable},
     reading::read_base::ReaderBase,
+    restore::caretaker::Caretaker,
 };
 
 use fltk::{
@@ -23,7 +24,13 @@ use std::num::ParseIntError;
 /// If you have mistakes in input,
 /// program will let you know
 
-pub fn give_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
+pub fn give_book(
+    reader_base: &mut ReaderBase,
+    book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = fltk::app::channel();
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
         "Find Reader",
@@ -182,6 +189,7 @@ pub fn give_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app
 
 																                                            book_system.save();
 																                                            reader_base.save();
+																                                            caretaker.add_memento(reader_base, book_system, genres);
 															                                            }
 														                                            }
 													                                            }
@@ -271,7 +279,13 @@ pub fn give_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app
 /// If you have mistakes in input,
 /// program will let you know
 
-pub fn get_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
+pub fn get_book(
+    reader_base: &mut ReaderBase,
+    book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = fltk::app::channel();
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
         "Find Reader",
@@ -368,8 +382,14 @@ pub fn get_book(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app:
 			                                                    "Book is returned, but reader is late",
 		                                                    ),
 	                                                    }
+
                                                         book_system.save();
                                                         reader_base.save();
+                                                        caretaker.add_memento(
+                                                            reader_base,
+                                                            book_system,
+                                                            genres,
+                                                        );
                                                     }
                                                 }
                                             }

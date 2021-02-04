@@ -8,6 +8,7 @@ use crate::{
     books::{book_sys::BookSystem, genres::Genres},
     change::{input1::Input1, input3::Input3, Inputable},
     reading::read_base::ReaderBase,
+    restore::caretaker::Caretaker,
 };
 
 use fltk::{
@@ -24,16 +25,20 @@ use fltk::{
     window::SingleWindow,
 };
 
-use std::borrow::Borrow;
-use std::time::Duration;
-use std::{cell::RefCell, cmp::max, collections::HashSet, rc::Rc};
+use std::{borrow::Borrow, cell::RefCell, cmp::max, collections::HashSet, rc::Rc};
 
 /// Function that adds new genre.
 /// If you have mistakes in input,
 /// program will let you know
 
 #[inline]
-pub fn add_genre(genres: &mut Genres, app: &App) {
+pub fn add_genre(
+    genres: &mut Genres,
+    reader_base: &ReaderBase,
+    book_system: &BookSystem,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
     let mut inp = Input1::<Input>::new("Add Genre", "New Genre");
 
@@ -54,6 +59,7 @@ pub fn add_genre(genres: &mut Genres, app: &App) {
                             genres.add(genre.first().unwrap().clone());
                             fltk::dialog::message(500, 500, "Successfully added");
                             genres.save();
+                            caretaker.add_memento(reader_base, book_system, genres);
                         }
                     }
                 }
@@ -71,7 +77,13 @@ pub fn add_genre(genres: &mut Genres, app: &App) {
 /// program will let you know
 
 #[inline]
-pub fn remove_genre(genres: &mut Genres, app: &App) {
+pub fn remove_genre(
+    genres: &mut Genres,
+    reader_base: &ReaderBase,
+    book_system: &BookSystem,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
     let mut inp = Input1::<Input>::new("Remove Genre", "Genre");
 
@@ -92,6 +104,7 @@ pub fn remove_genre(genres: &mut Genres, app: &App) {
                             genres.remove(genre.first().unwrap());
                             fltk::dialog::message(500, 500, "Successfully removed");
                             genres.save();
+                            caretaker.add_memento(reader_base, book_system, genres);
                         }
                     }
                 }
@@ -110,7 +123,13 @@ pub fn remove_genre(genres: &mut Genres, app: &App) {
 /// program will let you know
 
 #[inline]
-pub fn customize_book_genre(genres: &Genres, book_system: &mut BookSystem, app: &App) {
+pub fn customize_book_genre(
+    genres: &Genres,
+    book_system: &mut BookSystem,
+    reader_base: &ReaderBase,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
     let mut inp =
         Input3::<Input, Input, IntInput>::new("Add Genre", "Title", "Author", "Amount of Pages");
@@ -245,6 +264,7 @@ pub fn customize_book_genre(genres: &Genres, book_system: &mut BookSystem, app: 
                                     }
                                 }
                                 book_system.save();
+                                caretaker.add_memento(reader_base, book_system, genres);
                             }
 
                             if !wind.shown() {

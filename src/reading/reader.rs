@@ -35,6 +35,7 @@ impl Drop for Reader {
 /// It's used to debug code
 
 impl Debug for Reader {
+    #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         f.debug_struct("Reader")
             .field("name", &self.name)

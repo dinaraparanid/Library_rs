@@ -2,9 +2,10 @@ extern crate fltk;
 
 use crate::{
     actions::{book::book_info_simple, tables::*},
-    books::{book::Book, book_sys::BookSystem},
+    books::{book::Book, book_sys::BookSystem, genres::Genres},
     change::{input1::Input1, input3::Input3, input4::Input4, Inputable},
     reading::read_base::ReaderBase,
+    restore::caretaker::Caretaker,
 };
 
 use fltk::{
@@ -123,12 +124,19 @@ pub(crate) fn get_book_ind(book_system: &BookSystem, book: *mut Book) -> usize {
 /// Removes already known reader
 
 #[inline]
-fn remove_reader_simple(ind: usize, reader_base: &mut ReaderBase, book_system: &mut BookSystem) {
+fn remove_reader_simple(
+    ind: usize,
+    reader_base: &mut ReaderBase,
+    book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+) {
     match reader_base.remove_reader(ind) {
         Ok(_) => {
             fltk::dialog::message(500, 500, "Successfully removed");
             reader_base.save();
             book_system.save();
+            caretaker.add_memento(reader_base, book_system, genres);
         }
 
         Err(_) => {
@@ -144,6 +152,8 @@ fn change_name_simple(
     ind: usize,
     reader_base: &mut ReaderBase,
     book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
     app: &App,
 ) {
     let (s3, r3) = app::channel();
@@ -167,6 +177,7 @@ fn change_name_simple(
 
                                     reader_base.save();
                                     book_system.save();
+                                    caretaker.add_memento(reader_base, book_system, genres);
                                 }
 
                                 Err(0) => {
@@ -200,6 +211,8 @@ fn change_family_simple(
     ind: usize,
     reader_base: &mut ReaderBase,
     book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
     app: &App,
 ) {
     let (s3, r3) = app::channel();
@@ -225,6 +238,7 @@ fn change_family_simple(
 
                                     reader_base.save();
                                     book_system.save();
+                                    caretaker.add_memento(reader_base, book_system, genres);
                                 }
 
                                 Err(0) => {
@@ -258,6 +272,8 @@ fn change_father_simple(
     ind: usize,
     reader_base: &mut ReaderBase,
     book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
     app: &App,
 ) {
     let (s3, r3) = app::channel();
@@ -283,6 +299,7 @@ fn change_father_simple(
 
                                     reader_base.save();
                                     book_system.save();
+                                    caretaker.add_memento(reader_base, book_system, genres);
                                 }
 
                                 Err(0) => {
@@ -316,6 +333,8 @@ fn change_age_simple(
     ind: usize,
     reader_base: &mut ReaderBase,
     book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
     app: &App,
 ) {
     let (s3, r3) = app::channel();
@@ -344,6 +363,7 @@ fn change_age_simple(
 
                                     reader_base.save();
                                     book_system.save();
+                                    caretaker.add_memento(reader_base, book_system, genres);
                                 }
 
                                 Err(0) => alert(500, 500, "Age input error"),
@@ -369,6 +389,8 @@ pub fn reader_info_simple(
     ind: usize,
     reader_base: &mut ReaderBase,
     book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
     app: &App,
 ) {
     let mut wind;
@@ -632,27 +654,27 @@ pub fn reader_info_simple(
         if let Some(msg) = r.recv() {
             match msg {
                 MessageReader::ChangeName => {
-                    change_name_simple(ind, reader_base, book_system, app);
+                    change_name_simple(ind, reader_base, book_system, genres, caretaker, app);
                     table2.redraw();
                 }
 
                 MessageReader::ChangeFamily => {
-                    change_family_simple(ind, reader_base, book_system, app);
+                    change_family_simple(ind, reader_base, book_system, genres, caretaker, app);
                     table2.redraw();
                 }
 
                 MessageReader::ChangeFather => {
-                    change_father_simple(ind, reader_base, book_system, app);
+                    change_father_simple(ind, reader_base, book_system, genres, caretaker, app);
                     table2.redraw();
                 }
 
                 MessageReader::ChangeAge => {
-                    change_age_simple(ind, reader_base, book_system, app);
+                    change_age_simple(ind, reader_base, book_system, genres, caretaker, app);
                     table2.redraw();
                 }
 
                 MessageReader::RemoveThis => {
-                    remove_reader_simple(ind, reader_base, book_system);
+                    remove_reader_simple(ind, reader_base, book_system, genres, caretaker);
                     table2.redraw();
                 }
             }
@@ -694,7 +716,13 @@ pub fn reader_info_simple(
 /// program will let you know
 
 #[inline]
-pub fn add_reader(reader_base: &mut ReaderBase, app: &App) {
+pub fn add_reader(
+    reader_base: &mut ReaderBase,
+    book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
@@ -731,6 +759,7 @@ pub fn add_reader(reader_base: &mut ReaderBase, app: &App) {
                                     Ok(_) => {
                                         fltk::dialog::message(500, 500, "Successfully added");
                                         reader_base.save();
+                                        caretaker.add_memento(reader_base, book_system, genres);
                                     }
 
                                     Err(_) => {
@@ -760,7 +789,13 @@ pub fn add_reader(reader_base: &mut ReaderBase, app: &App) {
 /// program will let you know
 
 #[inline]
-pub fn remove_reader(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
+pub fn remove_reader(
+    reader_base: &mut ReaderBase,
+    book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
@@ -789,7 +824,7 @@ pub fn remove_reader(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
                             Err(_) => return,
                         }
 
-                        remove_reader_simple(rind, reader_base, book_system);
+                        remove_reader_simple(rind, reader_base, book_system, genres, caretaker);
                     }
                 }
                 false => (),
@@ -806,7 +841,13 @@ pub fn remove_reader(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
 /// program will let you know
 
 #[inline]
-pub fn change_name(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
+pub fn change_name(
+    reader_base: &mut ReaderBase,
+    book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
@@ -835,7 +876,7 @@ pub fn change_name(reader_base: &mut ReaderBase, book_system: &mut BookSystem, a
                             Err(_) => return,
                         }
 
-                        change_name_simple(rind, reader_base, book_system, app);
+                        change_name_simple(rind, reader_base, book_system, genres, caretaker, app);
                     }
                 }
                 false => (),
@@ -852,7 +893,13 @@ pub fn change_name(reader_base: &mut ReaderBase, book_system: &mut BookSystem, a
 /// program will let you know
 
 #[inline]
-pub fn change_family(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
+pub fn change_family(
+    reader_base: &mut ReaderBase,
+    book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
@@ -881,7 +928,14 @@ pub fn change_family(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
                             Err(_) => return,
                         }
 
-                        change_family_simple(rind, reader_base, book_system, app);
+                        change_family_simple(
+                            rind,
+                            reader_base,
+                            book_system,
+                            genres,
+                            caretaker,
+                            app,
+                        );
                     }
                 }
                 false => (),
@@ -898,7 +952,13 @@ pub fn change_family(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
 /// program will let you know
 
 #[inline]
-pub fn change_father(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
+pub fn change_father(
+    reader_base: &mut ReaderBase,
+    book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
@@ -927,7 +987,14 @@ pub fn change_father(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
                             Err(_) => return,
                         }
 
-                        change_father_simple(rind, reader_base, book_system, app);
+                        change_father_simple(
+                            rind,
+                            reader_base,
+                            book_system,
+                            genres,
+                            caretaker,
+                            app,
+                        );
                     }
                 }
                 false => (),
@@ -944,7 +1011,13 @@ pub fn change_father(reader_base: &mut ReaderBase, book_system: &mut BookSystem,
 /// program will let you know
 
 #[inline]
-pub fn change_age(reader_base: &mut ReaderBase, book_system: &mut BookSystem, app: &App) {
+pub fn change_age(
+    reader_base: &mut ReaderBase,
+    book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+) {
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
@@ -973,7 +1046,7 @@ pub fn change_age(reader_base: &mut ReaderBase, book_system: &mut BookSystem, ap
                             Err(_) => return,
                         }
 
-                        change_age_simple(rind, reader_base, book_system, app);
+                        change_age_simple(rind, reader_base, book_system, genres, caretaker, app);
                     }
                 }
                 false => (),
@@ -993,6 +1066,8 @@ pub fn change_age(reader_base: &mut ReaderBase, book_system: &mut BookSystem, ap
 pub fn reader_info(
     reader_base: Rc<RefCell<ReaderBase>>,
     book_system: Rc<RefCell<BookSystem>>,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
     app: &App,
 ) {
     let (s2, r2) = app::channel();
@@ -1029,6 +1104,8 @@ pub fn reader_info(
                                         ind,
                                         &mut *(*reader_base).borrow_mut(),
                                         &mut *(*book_system).borrow_mut(),
+                                        genres,
+                                        caretaker,
                                         app,
                                     ),
                                 }

@@ -35,7 +35,7 @@ use std::{
 /// All messages, which used to call functions
 
 #[derive(Clone, Copy)]
-pub enum Message {
+enum Message {
     AddReader,
     RemoveReader,
     ChangeName,
@@ -518,11 +518,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         if let Some(msg) = r.recv() {
             match msg {
                 Message::AddReader => {
-                    add_reader(&mut (*reader_base).borrow_mut(), &app);
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
+                    add_reader(
+                        &mut (*reader_base).borrow_mut(),
+                        &mut (*book_system).borrow_mut(),
+                        &(*genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
+                        &app,
                     );
 
                     table.set_rows(max(50, (*reader_base).borrow().len() as u32));
@@ -533,13 +534,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                     remove_reader(
                         &mut (*reader_base).borrow_mut(),
                         &mut (*book_system).borrow_mut(),
+                        &(*genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
                         &app,
-                    );
-
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
                     );
 
                     table.set_rows(max(50, (*reader_base).borrow().len() as u32));
@@ -550,13 +547,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                     change_name(
                         &mut (*reader_base).borrow_mut(),
                         &mut (*book_system).borrow_mut(),
+                        &(*genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
                         &app,
-                    );
-
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
                     );
 
                     table.redraw();
@@ -566,13 +559,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                     change_family(
                         &mut (*reader_base).borrow_mut(),
                         &mut (*book_system).borrow_mut(),
+                        &(*genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
                         &app,
-                    );
-
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
                     );
 
                     table.redraw();
@@ -582,13 +571,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                     change_father(
                         &mut (*reader_base).borrow_mut(),
                         &mut (*book_system).borrow_mut(),
+                        &(*genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
                         &app,
-                    );
-
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
                     );
 
                     table.redraw();
@@ -598,35 +583,33 @@ fn main() -> Result<(), Box<dyn Error>> {
                     change_age(
                         &mut (*reader_base).borrow_mut(),
                         &mut (*book_system).borrow_mut(),
+                        &(*genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
                         &app,
-                    );
-
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
                     );
 
                     table.redraw();
                 }
 
                 Message::InfoReader => {
-                    reader_info(reader_base.clone(), book_system.clone(), &app);
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
+                    reader_info(
+                        reader_base.clone(),
+                        book_system.clone(),
+                        &(*genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
+                        &app,
                     );
 
                     table.redraw();
                 }
 
                 Message::AddBooks => {
-                    add_books(&mut (*book_system).borrow_mut(), &app);
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
+                    add_books(
+                        &mut (*book_system).borrow_mut(),
+                        &*(reader_base).borrow(),
+                        &*(genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
+                        &app,
                     );
 
                     table.redraw();
@@ -636,24 +619,21 @@ fn main() -> Result<(), Box<dyn Error>> {
                     remove_book(
                         &mut (*book_system).borrow_mut(),
                         &mut (*reader_base).borrow_mut(),
+                        &*(genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
                         &app,
-                    );
-
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
                     );
 
                     table.redraw();
                 }
 
                 Message::AddTheBook => {
-                    add_book(&mut (*book_system).borrow_mut(), &app);
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
+                    add_book(
+                        &mut (*book_system).borrow_mut(),
+                        &(*reader_base).borrow(),
+                        &*(genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
+                        &app,
                     );
 
                     table.redraw();
@@ -663,13 +643,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                     remove_the_book(
                         &mut (*book_system).borrow_mut(),
                         &mut (*reader_base).borrow_mut(),
+                        &*(genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
                         &app,
-                    );
-
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
                     );
 
                     table.redraw();
@@ -679,13 +655,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                     change_title(
                         &mut (*book_system).borrow_mut(),
                         &mut (*reader_base).borrow_mut(),
+                        &*(genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
                         &app,
-                    );
-
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
                     );
 
                     table.redraw();
@@ -695,13 +667,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                     change_author(
                         &mut (*book_system).borrow_mut(),
                         &mut (*reader_base).borrow_mut(),
+                        &*(genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
                         &app,
-                    );
-
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
                     );
 
                     table.redraw();
@@ -711,20 +679,22 @@ fn main() -> Result<(), Box<dyn Error>> {
                     change_pages(
                         &mut (*book_system).borrow_mut(),
                         &mut (*reader_base).borrow_mut(),
+                        &*(genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
                         &app,
-                    );
-
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
                     );
 
                     table.redraw();
                 }
 
                 Message::InfoTheBook => {
-                    the_book_info(book_system.clone(), reader_base.clone(), &app);
+                    the_book_info(
+                        book_system.clone(),
+                        reader_base.clone(),
+                        &*(genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
+                        &app,
+                    );
                     table.redraw();
                 }
 
@@ -735,36 +705,29 @@ fn main() -> Result<(), Box<dyn Error>> {
 
                 Message::ShowGenres => all_genres(genres.clone(), &*(*book_system).borrow(), &app),
 
-                Message::AddGenre => {
-                    add_genre(&mut (*genres).borrow_mut(), &app);
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
-                    );
-                }
+                Message::AddGenre => add_genre(
+                    &mut (*genres).borrow_mut(),
+                    &*(reader_base).borrow(),
+                    &*(book_system).borrow(),
+                    &mut *(caretaker).borrow_mut(),
+                    &app,
+                ),
 
-                Message::RemoveGenre => {
-                    remove_genre(&mut (*genres).borrow_mut(), &app);
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
-                    );
-                }
+                Message::RemoveGenre => remove_genre(
+                    &mut (*genres).borrow_mut(),
+                    &*(reader_base).borrow(),
+                    &*(book_system).borrow(),
+                    &mut *(caretaker).borrow_mut(),
+                    &app,
+                ),
 
-                Message::CustomizeBookGenre => {
-                    customize_book_genre(
-                        &(*genres).borrow(),
-                        &mut (*book_system).borrow_mut(),
-                        &app,
-                    );
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
-                    );
-                }
+                Message::CustomizeBookGenre => customize_book_genre(
+                    &(*genres).borrow(),
+                    &mut (*book_system).borrow_mut(),
+                    &*(reader_base).borrow(),
+                    &mut *(caretaker).borrow_mut(),
+                    &app,
+                ),
 
                 Message::FindByGenre => find_by_genre(&*(*book_system).borrow(), &app),
 
@@ -774,15 +737,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                     give_book(
                         &mut (*reader_base).borrow_mut(),
                         &mut (*book_system).borrow_mut(),
+                        &(*genres).borrow(),
+                        &mut *(caretaker).borrow_mut(),
                         &app,
                     );
-
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
-                    );
-
                     table.redraw();
                 }
 
@@ -790,13 +748,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                     get_book(
                         &mut (*reader_base).borrow_mut(),
                         &mut (*book_system).borrow_mut(),
+                        &(*genres).borrow(),
+                        &mut *(caretaker).borrow_mut(),
                         &app,
-                    );
-
-                    (*caretaker).borrow_mut().add_memento(
-                        &*(reader_base).borrow_mut(),
-                        &*(book_system).borrow_mut(),
-                        &*(genres).borrow_mut(),
                     );
 
                     table.redraw();
@@ -830,6 +784,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                     i,
                     &mut (*reader_base).borrow_mut(),
                     &mut (*book_system).borrow_mut(),
+                    &(*genres).borrow(),
+                    &mut (*caretaker).borrow_mut(),
                     &app,
                 );
 
