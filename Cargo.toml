@@ -1,10 +1,10 @@
 [package]
 name = "booklibrs"
-version = "0.1.5"
+version = "0.1.6"
 authors = ["Paranid5 <dinaraparanid@gmail.com>"]
 edition = "2018"
 license = "MIT/Apache-2.0"
-description = "Book libarary project including giveaway operations and gui interface. Beta version"
+description = "Book libarary project including giveaway operations and gui interface. Beta version. Login: 'a', Password: 'a'"
 homepage = "https://github.com/dinaraparanid/Library_rs"
 documentation = "https://docs.rs/binartree/0.1.5/booklibrs/"
 
