@@ -49,10 +49,9 @@ pub fn add_genre(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let genre_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(genre) = genre_params {
+                    if let Ok(genre) = inp.set_input() {
                         if genre.first().unwrap().is_empty() {
                             alert(500, 500, "New genre is empty");
                         } else {
@@ -94,10 +93,9 @@ pub fn remove_genre(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let genre_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(genre) = genre_params {
+                    if let Ok(genre) = inp.set_input() {
                         if genre.first().unwrap().is_empty() {
                             alert(500, 500, "Genre is empty");
                         } else {
@@ -141,10 +139,9 @@ pub fn customize_book_genre(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let book_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(book) = book_params {
+                    if let Ok(book) = inp.set_input() {
                         let index;
 
                         match check_book(book_system, &book) {
@@ -163,31 +160,29 @@ pub fn customize_book_genre(
                         let mut genre_choice =
                             CheckBrowser::new(0, 0, 300, 50 * genres.genres.len() as i32, "");
 
-                        for g in &genres.genres {
-                            unsafe {
-                                genre_choice.add(
-                                    g.as_str(),
-                                    if let Some(gen) = &(**book_system.books.get_unchecked(index))
-                                        .borrow_mut()
-                                        .genres
-                                    {
-                                        if gen.contains(g) {
-                                            true
-                                        } else {
-                                            false
-                                        }
+                        genres.genres.iter().for_each(|g| unsafe {
+                            genre_choice.add(
+                                g.as_str(),
+                                if let Some(gen) = &(**book_system.books.get_unchecked(index))
+                                    .borrow_mut()
+                                    .genres
+                                {
+                                    if gen.contains(g) {
+                                        true
                                     } else {
                                         false
-                                    },
-                                );
-                            }
-                        }
+                                    }
+                                } else {
+                                    false
+                                },
+                            );
+                        });
 
                         wind.end();
                         wind.show();
 
                         while app.wait() {
-                            for i in 0..genres.genres.len() {
+                            (0..genres.genres.len()).for_each(|i| {
                                 if genre_choice.checked(i as i32 + 1) {
                                     unsafe {
                                         if (**book_system.books.get_unchecked(index))
@@ -265,7 +260,7 @@ pub fn customize_book_genre(
                                 }
                                 book_system.save();
                                 caretaker.add_memento(reader_base, book_system, genres);
-                            }
+                            });
 
                             if !wind.shown() {
                                 break;
@@ -289,7 +284,7 @@ pub(crate) fn find_by_genre_simple(genre: &String, book_system: &BookSystem) {
 
     let mut find = vec![];
 
-    for x in &book_system.books {
+    book_system.books.iter().for_each(|x| {
         if (**x).borrow().genres.is_some()
             && (**x)
                 .borrow()
@@ -304,7 +299,7 @@ pub(crate) fn find_by_genre_simple(genre: &String, book_system: &BookSystem) {
                 (**x).borrow().pages.clone(),
             ))
         }
-    }
+    });
 
     book_table.set_rows(max(20, find.len() as u32));
 
@@ -350,10 +345,9 @@ pub fn find_by_genre(book_system: &BookSystem, app: &App) {
         if let Some(message) = r.recv() {
             match message {
                 true => {
-                    let genre_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(genre) = genre_params {
+                    if let Ok(genre) = inp.set_input() {
                         find_by_genre_simple(genre.first().unwrap(), book_system);
                     }
                 }
@@ -409,15 +403,16 @@ pub fn all_genres(genres: Rc<RefCell<Genres>>, book_system: &BookSystem, app: &A
         }
 
         let len = (*genres).borrow().genres.len();
-        for ind in 0..len {
+
+        (0..len).for_each(|ind| {
             if tab.is_selected(ind as i32, 0) {
                 find_by_genre_simple(
                     (*genres).borrow().genres.iter().skip(ind).next().unwrap(),
                     book_system,
                 );
                 tab.unset_selection();
-                break;
+                return;
             }
-        }
+        });
     }
 }

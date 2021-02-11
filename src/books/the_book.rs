@@ -119,17 +119,21 @@ impl TheBook {
     /// Constructs TheBook
 
     #[inline]
-    pub fn new(new_title: String, new_author: String, new_pages: u16) -> Self {
-        let mut book = TheBook {
+    pub fn new(new_title: String, new_author: String, new_pages: u16, amount: usize) -> Self {
+        TheBook {
+            books: vec![
+                Rc::new(RefCell::new(Book::new(
+                    new_title.clone(),
+                    new_author.clone(),
+                    new_pages,
+                )));
+                amount
+            ],
             title: new_title,
             author: new_author,
             pages: new_pages,
-            books: vec![],
             genres: None,
-        };
-
-        book.add_book();
-        book
+        }
     }
 
     /// Return index of unused book.

@@ -42,7 +42,7 @@ impl Debug for BookSystem {
                     .books
                     .iter()
                     .map(|x| format!("{:?}", *(**x).borrow()))
-                    .collect::<Vec<String>>(),
+                    .collect::<Vec<_>>(),
             )
             .finish()
     }
@@ -72,12 +72,11 @@ impl BookSystem {
 
     #[inline]
     pub unsafe fn add_books_unchecked(&mut self, ind: usize, amount: usize) -> ResultSelf<Self> {
-        for _ in 0..amount {
+        (0..amount).for_each(|_| {
             (**self.books.get_unchecked_mut(ind))
                 .borrow_mut()
                 .add_book();
-        }
-
+        });
         Ok(self)
     }
 
@@ -111,9 +110,11 @@ impl BookSystem {
         title: String,
         author: String,
         pages: u16,
+        amount: usize,
     ) -> &mut Self {
-        self.books
-            .push(Rc::new(RefCell::new(TheBook::new(title, author, pages))));
+        self.books.push(Rc::new(RefCell::new(TheBook::new(
+            title, author, pages, amount,
+        ))));
         self
     }
 
@@ -121,11 +122,17 @@ impl BookSystem {
     /// (I think it's logical)
 
     #[inline]
-    pub fn add_book(&mut self, title: String, author: String, pages: u16) -> ResultSelf<Self> {
+    pub fn add_book(
+        &mut self,
+        title: String,
+        author: String,
+        pages: u16,
+        amount: usize,
+    ) -> ResultSelf<Self> {
         return if !self.books.is_empty() && self.find_book(&title, &author, pages).is_some() {
             Err(0) // already exists
         } else {
-            Ok(unsafe { self.add_book_unchecked(title, author, pages) })
+            Ok(unsafe { self.add_book_unchecked(title, author, pages, amount) })
         };
     }
 
@@ -307,7 +314,7 @@ impl BookSystem {
     pub fn save(&self) {
         let mut array = Array::new();
 
-        for book in 0..self.books.len() {
+        (0..self.books.len()).for_each(|book| {
             let mut data = Hash::new();
 
             unsafe {
@@ -343,74 +350,83 @@ impl BookSystem {
 
                 let mut book_arr = Array::new();
 
-                for simple in &(**self.books.get_unchecked(book)).borrow().books {
-                    let readers = (**simple)
-                        .borrow_mut()
-                        .readers
-                        .iter()
-                        .map(|x: &(Weak<RefCell<Reader>>, (Date, Date))| {
-                            let mut hash_reader = Hash::new();
+                (**self.books.get_unchecked(book))
+                    .borrow()
+                    .books
+                    .iter()
+                    .for_each(|simple| {
+                        let readers = (**simple)
+                            .borrow_mut()
+                            .readers
+                            .iter()
+                            .map(|x: &(Weak<RefCell<Reader>>, (Date, Date))| {
+                                let mut hash_reader = Hash::new();
 
-                            hash_reader.insert(
-                                Yaml::String("Name".to_string()),
-                                Yaml::String(
-                                    RefCell::borrow(&*((x.0).upgrade().unwrap())).name.clone(),
-                                ),
-                            );
+                                hash_reader.insert(
+                                    Yaml::String("Name".to_string()),
+                                    Yaml::String(
+                                        RefCell::borrow(&*((x.0).upgrade().unwrap())).name.clone(),
+                                    ),
+                                );
 
-                            hash_reader.insert(
-                                Yaml::String("Family".to_string()),
-                                Yaml::String(
-                                    RefCell::borrow(&*((x.0).upgrade().unwrap())).family.clone(),
-                                ),
-                            );
+                                hash_reader.insert(
+                                    Yaml::String("Family".to_string()),
+                                    Yaml::String(
+                                        RefCell::borrow(&*((x.0).upgrade().unwrap()))
+                                            .family
+                                            .clone(),
+                                    ),
+                                );
 
-                            hash_reader.insert(
-                                Yaml::String("Father".to_string()),
-                                Yaml::String(
-                                    RefCell::borrow(&*((x.0).upgrade().unwrap())).father.clone(),
-                                ),
-                            );
+                                hash_reader.insert(
+                                    Yaml::String("Father".to_string()),
+                                    Yaml::String(
+                                        RefCell::borrow(&*((x.0).upgrade().unwrap()))
+                                            .father
+                                            .clone(),
+                                    ),
+                                );
 
-                            hash_reader.insert(
-                                Yaml::String("Age".to_string()),
-                                Yaml::Integer(
-                                    RefCell::borrow(&*((x.0).upgrade().unwrap())).age as i64,
-                                ),
-                            );
+                                hash_reader.insert(
+                                    Yaml::String("Age".to_string()),
+                                    Yaml::Integer(
+                                        RefCell::borrow(&*((x.0).upgrade().unwrap())).age as i64,
+                                    ),
+                                );
 
-                            hash_reader.insert(
-                                Yaml::String("Start date".to_string()),
-                                Yaml::Array(vec![
-                                    Yaml::Integer((x.1).0.day as i64),
-                                    Yaml::Integer((x.1).0.month as i64),
-                                    Yaml::Integer((x.1).0.year as i64),
-                                ]),
-                            );
+                                hash_reader.insert(
+                                    Yaml::String("Start date".to_string()),
+                                    Yaml::Array(vec![
+                                        Yaml::Integer((x.1).0.day as i64),
+                                        Yaml::Integer((x.1).0.month as i64),
+                                        Yaml::Integer((x.1).0.year as i64),
+                                    ]),
+                                );
 
-                            hash_reader.insert(
-                                Yaml::String("Finish date".to_string()),
-                                Yaml::Array(vec![
-                                    Yaml::Integer((x.1).1.day as i64),
-                                    Yaml::Integer((x.1).1.month as i64),
-                                    Yaml::Integer((x.1).1.year as i64),
-                                ]),
-                            );
+                                hash_reader.insert(
+                                    Yaml::String("Finish date".to_string()),
+                                    Yaml::Array(vec![
+                                        Yaml::Integer((x.1).1.day as i64),
+                                        Yaml::Integer((x.1).1.month as i64),
+                                        Yaml::Integer((x.1).1.year as i64),
+                                    ]),
+                                );
 
-                            Yaml::Hash(hash_reader)
-                        })
-                        .collect::<Array>();
+                                Yaml::Hash(hash_reader)
+                            })
+                            .collect::<Array>();
 
-                    let mut hash_simple = Hash::new();
+                        let mut hash_simple = Hash::new();
 
-                    hash_simple.insert(
-                        Yaml::String("Using".to_string()),
-                        Yaml::Boolean(RefCell::borrow(&(**simple)).is_using),
-                    );
+                        hash_simple.insert(
+                            Yaml::String("Using".to_string()),
+                            Yaml::Boolean(RefCell::borrow(&(**simple)).is_using),
+                        );
 
-                    hash_simple.insert(Yaml::String("Readers".to_string()), Yaml::Array(readers));
-                    book_arr.push(Yaml::Hash(hash_simple));
-                }
+                        hash_simple
+                            .insert(Yaml::String("Readers".to_string()), Yaml::Array(readers));
+                        book_arr.push(Yaml::Hash(hash_simple));
+                    });
 
                 data.insert(
                     Yaml::String("Simple Books".to_string()),
@@ -431,23 +447,28 @@ impl BookSystem {
                 );
             }
             array.push(Yaml::Hash(data));
-        }
+        });
 
         let mut string = String::new();
         let mut emitter = YamlEmitter::new(&mut string);
         emitter.dump(&Yaml::Array(array)).unwrap();
 
-        let mut file = File::create("src/utils/books.yaml").unwrap();
-        file.write_all(string.as_bytes()).unwrap();
+        File::create("src/utils/books.yaml")
+            .unwrap()
+            .write_all(string.as_bytes())
+            .unwrap();
     }
 
     /// load from .yaml file
 
     #[inline]
     pub fn load(&mut self, reader_base: &mut ReaderBase) {
-        let mut file = File::open("src/utils/books.yaml").unwrap();
         let mut string = String::new();
-        file.read_to_string(&mut string).unwrap();
+
+        File::open("src/utils/books.yaml")
+            .unwrap()
+            .read_to_string(&mut string)
+            .unwrap();
 
         if !string.is_empty() {
             let docs = YamlLoader::load_from_str(string.as_str()).unwrap();
@@ -458,58 +479,15 @@ impl BookSystem {
                     d["Title"].as_str().unwrap().to_string(),
                     d["Author"].as_str().unwrap().to_string(),
                     d["Pages"].as_i64().unwrap() as u16,
+                    0,
                 ))));
 
-                (**self.books.last_mut().unwrap())
-                    .borrow_mut()
-                    .remove_book(0)
-                    .unwrap();
-
-                for simple in d["Simple Books"].as_vec().unwrap().iter() {
-                    (**self.books.last_mut().unwrap()).borrow_mut().add_book();
-
-                    (**(**self.books.last_mut().unwrap())
-                        .borrow_mut()
-                        .books
-                        .last_mut()
-                        .unwrap())
-                    .borrow_mut()
-                    .is_using = simple["Using"].as_bool().unwrap();
-
-                    if simple["Using"].as_bool().unwrap() {
-                        if let Some(last_reader) = simple["Readers"].as_vec().unwrap().last() {
-                            unsafe {
-                                let ind = reader_base
-                                    .find_reader(
-                                        &last_reader["Name"].as_str().unwrap().to_string(),
-                                        &last_reader["Family"].as_str().unwrap().to_string(),
-                                        &last_reader["Father"].as_str().unwrap().to_string(),
-                                        last_reader["Age"].as_i64().unwrap() as u8,
-                                    )
-                                    .unwrap();
-
-                                (**reader_base.readers.get_unchecked_mut(ind))
-                                    .borrow_mut()
-                                    .reading = Some(Rc::downgrade(
-                                    &(*(**self.books.last_mut().unwrap())
-                                        .borrow_mut()
-                                        .books
-                                        .last_mut()
-                                        .unwrap()),
-                                ));
-                            }
-                        }
-                    }
-
-                    for reader in simple["Readers"].as_vec().unwrap().iter() {
-                        let ind = reader_base
-                            .find_reader(
-                                &reader["Name"].as_str().unwrap().to_string(),
-                                &reader["Family"].as_str().unwrap().to_string(),
-                                &reader["Father"].as_str().unwrap().to_string(),
-                                reader["Age"].as_i64().unwrap() as u8,
-                            )
-                            .unwrap();
+                d["Simple Books"]
+                    .as_vec()
+                    .unwrap()
+                    .iter()
+                    .for_each(|simple| {
+                        (**self.books.last_mut().unwrap()).borrow_mut().add_book();
 
                         (**(**self.books.last_mut().unwrap())
                             .borrow_mut()
@@ -517,53 +495,102 @@ impl BookSystem {
                             .last_mut()
                             .unwrap())
                         .borrow_mut()
-                        .readers
-                        .push((
-                            Rc::downgrade(unsafe { reader_base.readers.get_unchecked(ind) }),
-                            (
-                                Date::new(
-                                    reader["Start date"][0].as_i64().unwrap() as u8,
-                                    reader["Start date"][1].as_i64().unwrap() as u8,
-                                    reader["Start date"][2].as_i64().unwrap() as u16,
-                                )
-                                .unwrap(),
-                                Date::new(
-                                    reader["Finish date"][0].as_i64().unwrap() as u8,
-                                    reader["Finish date"][1].as_i64().unwrap() as u8,
-                                    reader["Finish date"][2].as_i64().unwrap() as u16,
-                                )
-                                .unwrap(),
-                            ),
-                        ));
+                        .is_using = simple["Using"].as_bool().unwrap();
 
-                        unsafe {
-                            (**reader_base.readers.get_unchecked_mut(ind))
+                        if simple["Using"].as_bool().unwrap() {
+                            if let Some(last_reader) = simple["Readers"].as_vec().unwrap().last() {
+                                unsafe {
+                                    let ind = reader_base
+                                        .find_reader(
+                                            &last_reader["Name"].as_str().unwrap().to_string(),
+                                            &last_reader["Family"].as_str().unwrap().to_string(),
+                                            &last_reader["Father"].as_str().unwrap().to_string(),
+                                            last_reader["Age"].as_i64().unwrap() as u8,
+                                        )
+                                        .unwrap();
+
+                                    (**reader_base.readers.get_unchecked_mut(ind))
+                                        .borrow_mut()
+                                        .reading = Some(Rc::downgrade(
+                                        &(*(**self.books.last_mut().unwrap())
+                                            .borrow_mut()
+                                            .books
+                                            .last_mut()
+                                            .unwrap()),
+                                    ));
+                                }
+                            }
+                        }
+
+                        simple["Readers"]
+                            .as_vec()
+                            .unwrap()
+                            .iter()
+                            .for_each(|reader| {
+                                let ind = reader_base
+                                    .find_reader(
+                                        &reader["Name"].as_str().unwrap().to_string(),
+                                        &reader["Family"].as_str().unwrap().to_string(),
+                                        &reader["Father"].as_str().unwrap().to_string(),
+                                        reader["Age"].as_i64().unwrap() as u8,
+                                    )
+                                    .unwrap();
+
+                                (**(**self.books.last_mut().unwrap())
+                                    .borrow_mut()
+                                    .books
+                                    .last_mut()
+                                    .unwrap())
                                 .borrow_mut()
-                                .books
-                                .push(Rc::downgrade(
-                                    &(*(**self.books.last_mut().unwrap())
+                                .readers
+                                .push((
+                                    Rc::downgrade(unsafe {
+                                        reader_base.readers.get_unchecked(ind)
+                                    }),
+                                    (
+                                        Date::new(
+                                            reader["Start date"][0].as_i64().unwrap() as u8,
+                                            reader["Start date"][1].as_i64().unwrap() as u8,
+                                            reader["Start date"][2].as_i64().unwrap() as u16,
+                                        )
+                                        .unwrap(),
+                                        Date::new(
+                                            reader["Finish date"][0].as_i64().unwrap() as u8,
+                                            reader["Finish date"][1].as_i64().unwrap() as u8,
+                                            reader["Finish date"][2].as_i64().unwrap() as u16,
+                                        )
+                                        .unwrap(),
+                                    ),
+                                ));
+
+                                unsafe {
+                                    (**reader_base.readers.get_unchecked_mut(ind))
                                         .borrow_mut()
                                         .books
-                                        .last_mut()
-                                        .unwrap()),
-                                ));
-                        }
-                    }
-                }
+                                        .push(Rc::downgrade(
+                                            &(*(**self.books.last_mut().unwrap())
+                                                .borrow_mut()
+                                                .books
+                                                .last_mut()
+                                                .unwrap()),
+                                        ));
+                                }
+                            });
+                    });
 
                 if d["Genres"].is_null() {
                     (**self.books.last_mut().unwrap()).borrow_mut().genres = None;
                 } else {
                     (**self.books.last_mut().unwrap()).borrow_mut().genres = Some(HashSet::new());
 
-                    for genres in d["Genres"].as_vec().unwrap().iter() {
+                    d["Genres"].as_vec().unwrap().iter().for_each(|genres| {
                         (**self.books.last_mut().unwrap())
                             .borrow_mut()
                             .genres
                             .as_mut()
                             .unwrap()
                             .insert(genres.as_str().unwrap().to_string());
-                    }
+                    });
                 }
             }
         }

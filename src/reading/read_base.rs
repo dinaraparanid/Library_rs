@@ -36,7 +36,7 @@ impl Debug for ReaderBase {
                     .readers
                     .iter()
                     .map(|x| format!("{:?}", *(**x).borrow()))
-                    .collect::<Vec<String>>(),
+                    .collect::<Vec<_>>(),
             )
             .finish()
     }
@@ -323,7 +323,7 @@ impl ReaderBase {
     pub(crate) fn save(&self) {
         let mut array = yaml_rust::yaml::Array::new();
 
-        for guy in 0..self.readers.len() {
+        (0..self.readers.len()).for_each(|guy| {
             let mut data = Hash::new();
 
             unsafe {
@@ -403,14 +403,16 @@ impl ReaderBase {
             }
 
             array.push(Yaml::Hash(data));
-        }
+        });
 
         let mut string = String::new();
         let mut emitter = YamlEmitter::new(&mut string);
         emitter.dump(&Yaml::Array(array)).unwrap();
 
-        let mut file = File::create("src/utils/readers.yaml").unwrap();
-        file.write_all(string.as_bytes()).unwrap();
+        File::create("src/utils/readers.yaml")
+            .unwrap()
+            .write_all(string.as_bytes())
+            .unwrap();
     }
 
     /// Loads everything from .yaml file
@@ -422,10 +424,15 @@ impl ReaderBase {
         file.read_to_string(&mut string).unwrap();
 
         if !string.is_empty() {
-            let docs = YamlLoader::load_from_str(string.as_str()).unwrap();
-            let doc = docs.first().unwrap().clone().into_vec().unwrap();
+            let doc = YamlLoader::load_from_str(string.as_str())
+                .unwrap()
+                .first()
+                .unwrap()
+                .clone()
+                .into_vec()
+                .unwrap();
 
-            for d in doc {
+            doc.into_iter().for_each(|d| {
                 self.readers.push(Rc::new(RefCell::new(Reader::new(
                     d["Name"].as_str().unwrap().to_string(),
                     d["Family"].as_str().unwrap().to_string(),
@@ -443,7 +450,7 @@ impl ReaderBase {
                             0,
                         )))))
                     }
-            }
+            });
         }
     }
 }

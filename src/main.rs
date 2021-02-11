@@ -74,13 +74,13 @@ fn get_hash(str: &String, p: u128, module: u128) -> Vec<u128> {
     unsafe {
         *ans.get_unchecked_mut(0) = *bytes.get_unchecked(0) as u128;
 
-        for i in 1..str.len() {
+        (1..str.len()).for_each(|i| {
             *ans.get_unchecked_mut(i) = ((ans.get_unchecked(i - 1).overflowing_mul(p))
                 .0
                 .overflowing_add(*bytes.get_unchecked(i) as u128)
                 .0)
                 % module;
-        }
+        });
     }
 
     ans
@@ -129,15 +129,13 @@ fn main() -> Result<(), Box<dyn Error>> {
                 if let Some(msg) = r.recv() {
                     match msg {
                         true => {
-                            let input = password.set_input();
                             password.hide();
 
-                            if let Ok(data) = input {
-                                let mut new_password = File::create("src/utils/admin.bin").unwrap();
+                            if let Ok(data) = password.set_input() {
                                 let hash1 = get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7);
                                 let hash2 = get_hash(&data.last().unwrap(), 101, 1e9 as u128 + 7);
 
-                                new_password.write(
+                                File::create("src/utils/admin.bin").unwrap().write(
                                     format!(
                                         "{}",
                                         hash1.iter().map(|x| *x as u8 as char).collect::<String>()
@@ -778,7 +776,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         let len = (*reader_base).borrow().len();
 
-        for i in 0..len {
+        (0..len).for_each(|i| {
             if table.is_selected(i as i32, 0) {
                 reader_info_simple(
                     i,
@@ -790,7 +788,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 );
 
                 table.unset_selection();
-                break;
+                return;
             }
 
             if table.is_selected(i as i32, 1) {
@@ -801,9 +799,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                 );
 
                 table.unset_selection();
-                break;
+                return;
             }
-        }
+        });
     }
 
     app.run().unwrap();

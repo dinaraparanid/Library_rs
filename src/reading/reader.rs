@@ -54,7 +54,7 @@ impl Debug for Reader {
                             + " "
                             + format!("{}", (*(*x).upgrade().unwrap()).borrow().pages).as_str()
                     })
-                    .collect::<Vec<String>>(),
+                    .collect::<Vec<_>>(),
             )
             .finish()
     }

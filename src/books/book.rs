@@ -68,7 +68,7 @@ impl Debug for Book {
                             + " "
                             + format!("{}", (*((*x).0).upgrade().unwrap()).borrow().age).as_str()
                     })
-                    .collect::<Vec<String>>(),
+                    .collect::<Vec<_>>(),
             )
             .finish()
     }

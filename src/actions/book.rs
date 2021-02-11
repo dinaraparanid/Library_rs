@@ -69,33 +69,28 @@ pub(crate) fn empty_inp_book(inp: &Vec<String>) -> bool {
 
 #[inline]
 pub(crate) fn check_book(book_system: &BookSystem, books: &Vec<String>) -> Result<usize, ()> {
-    let pages;
-    let ind;
-
     unsafe {
         if empty_inp_book(books) {
             return Err(());
         }
 
-        match books.get_unchecked(2).trim().parse::<u16>() {
-            Ok(x) => pages = x,
+        return match books.get_unchecked(2).trim().parse::<u16>() {
+            Ok(x) => match book_system.find_book(books.get_unchecked(0), books.get_unchecked(1), x)
+            {
+                Some(i) => Ok(i),
+
+                None => {
+                    alert(500, 500, "Book isn't found");
+                    Err(())
+                }
+            },
+
             Err(_) => {
                 alert(500, 500, "Amount of Pages input error");
-                return Err(());
+                Err(())
             }
-        }
-
-        ind = book_system.find_book(books.get_unchecked(0), books.get_unchecked(1), pages);
+        };
     }
-
-    return match ind {
-        Some(i) => Ok(i),
-
-        None => {
-            alert(500, 500, "Book isn't found");
-            Err(())
-        }
-    };
 }
 
 /// Changing title of already known book
@@ -119,10 +114,9 @@ fn change_title_simple(
         if let Some(msg) = r3.recv() {
             match msg {
                 true => {
-                    let title_param = get_title.set_input();
                     get_title.hide();
 
-                    if let Ok(new_title) = title_param {
+                    if let Ok(new_title) = get_title.set_input() {
                         unsafe {
                             if new_title.get_unchecked(0).is_empty() {
                                 alert(500, 500, "New title is empty");
@@ -174,10 +168,9 @@ fn change_author_simple(
         if let Some(msg) = r3.recv() {
             match msg {
                 true => {
-                    let author_param = get_author.set_input();
                     get_author.hide();
 
-                    if let Ok(new_author) = author_param {
+                    if let Ok(new_author) = get_author.set_input() {
                         unsafe {
                             if new_author.get_unchecked(0).is_empty() {
                                 alert(500, 500, "New title is empty");
@@ -230,10 +223,9 @@ fn change_pages_simple(
         if let Some(msg) = r3.recv() {
             match msg {
                 true => {
-                    let pages_param = get_pages.set_input();
                     get_pages.hide();
 
-                    if let Ok(new_pages) = pages_param {
+                    if let Ok(new_pages) = get_pages.set_input() {
                         unsafe {
                             if new_pages.get_unchecked(0).is_empty() {
                                 alert(500, 500, "New amount of pages is empty");
@@ -310,10 +302,9 @@ fn add_books_simple(
         if let Some(msg) = r3.recv() {
             match msg {
                 true => {
-                    let amount_param = get_amount.set_input();
                     get_amount.hide();
 
-                    if let Ok(amount) = amount_param {
+                    if let Ok(amount) = get_amount.set_input() {
                         match amount.first().unwrap().trim().parse::<usize>() {
                             Ok(x) => match book_system.add_books(ind, x) {
                                 Ok(_) => {
@@ -354,6 +345,7 @@ fn remove_book_simple(
 ) {
     let (s3, r3) = app::channel();
     let mut get_ind = Input1::<IntInput>::new("Book's number", "Book's number");
+
     get_ind.show();
     (*get_ind.ok).borrow_mut().emit(s3, true);
 
@@ -361,10 +353,9 @@ fn remove_book_simple(
         if let Some(msg) = r3.recv() {
             match msg {
                 true => {
-                    let ind_param = get_ind.set_input();
                     get_ind.hide();
 
-                    if let Ok(ind) = ind_param {
+                    if let Ok(ind) = get_ind.set_input() {
                         match ind.first().unwrap().trim().parse::<usize>() {
                             Ok(x) => match book_system.remove_one_book(index, x) {
                                 Ok(_) => {
@@ -945,36 +936,75 @@ pub fn add_book(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let new_book_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(the_book) = new_book_params {
+                    if let Ok(the_book) = inp.set_input() {
                         if empty_inp_book(&the_book) {
                             return;
                         }
 
-                        match the_book.last().unwrap().trim().parse::<u16>() {
-                            Ok(x) => unsafe {
-                                match book_system.add_book(
-                                    the_book.get_unchecked(0).clone(),
-                                    the_book.get_unchecked(1).clone(),
-                                    x,
-                                ) {
-                                    Ok(_) => {
-                                        fltk::dialog::message(500, 500, "Successfully added");
-                                        book_system.save();
-                                        caretaker.add_memento(reader_base, book_system, genres);
-                                    }
+                        let (s, r) = app::channel();
+                        let mut am =
+                            Input1::<IntInput>::new("Amount of books", "Set amount of books");
 
-                                    Err(_) => {
-                                        alert(500, 500, "Book with same parameters already exists")
+                        am.show();
+                        (*am.ok).borrow_mut().emit(s, true);
+
+                        while app.wait() {
+                            if let Some(mes) = r.recv() {
+                                match mes {
+                                    true => {
+                                        am.hide();
+
+                                        if let Ok(amount) = am.set_input() {
+                                            match amount.first().unwrap().trim().parse::<usize>() {
+                                                Ok(amount) => {
+                                                    match the_book
+                                                        .last()
+                                                        .unwrap()
+                                                        .trim()
+                                                        .parse::<u16>()
+                                                    {
+                                                        Ok(x) => unsafe {
+                                                            match book_system.add_book(
+                                                                the_book.get_unchecked(0).clone(),
+                                                                the_book.get_unchecked(1).clone(),
+                                                                x,
+                                                                amount
+                                                            ) {
+                                                                Ok(_) => {
+                                                                    fltk::dialog::message(500, 500, "Successfully added");
+                                                                    book_system.save();
+                                                                    caretaker.add_memento(reader_base, book_system, genres);
+                                                                }
+
+                                                                Err(_) => {
+                                                                    alert(500, 500, "Book with same parameters already exists")
+                                                                }
+                                                            }
+                                                        },
+
+                                                        Err(_) => {
+                                                            alert(500, 500, "Pages input error");
+                                                            println!(
+                                                                "{:?}",
+                                                                the_book
+                                                                    .last()
+                                                                    .unwrap()
+                                                                    .trim()
+                                                                    .parse::<u16>()
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                                Err(_) => {}
+                                            }
+                                        }
                                     }
+                                    false => (),
                                 }
-                            },
-
-                            Err(_) => {
-                                alert(500, 500, "Pages input error");
-                                println!("{:?}", the_book.last().unwrap().trim().parse::<u16>())
+                            } else if !am.shown() {
+                                break;
                             }
                         }
                     }
@@ -1011,10 +1041,9 @@ pub fn remove_the_book(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let rem_book_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(the_book) = rem_book_params {
+                    if let Ok(the_book) = inp.set_input() {
                         let index;
 
                         match check_book(book_system, &the_book) {
@@ -1058,10 +1087,9 @@ pub fn change_title(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let book_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(book) = book_params {
+                    if let Ok(book) = inp.set_input() {
                         let index;
 
                         match check_book(book_system, &book) {
@@ -1116,10 +1144,9 @@ pub fn change_author(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let book_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(book) = book_params {
+                    if let Ok(book) = inp.set_input() {
                         let index;
 
                         match check_book(book_system, &book) {
@@ -1170,10 +1197,9 @@ pub fn change_pages(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let book_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(book) = book_params {
+                    if let Ok(book) = inp.set_input() {
                         let index;
 
                         match check_book(book_system, &book) {
@@ -1224,10 +1250,9 @@ pub fn the_book_info(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let book_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(the_book) = book_params {
+                    if let Ok(the_book) = inp.set_input() {
                         let index;
 
                         match check_book(&(*book_system).borrow(), &the_book) {
@@ -1272,10 +1297,9 @@ pub fn book_info(book_system: &BookSystem, app: &App) {
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let book_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(the_book) = book_params {
+                    if let Ok(the_book) = inp.set_input() {
                         let index;
 
                         match check_book(book_system, &the_book) {
@@ -1293,10 +1317,9 @@ pub fn book_info(book_system: &BookSystem, app: &App) {
                             if let Some(msg) = r.recv() {
                                 match msg {
                                     true => {
-                                        let get_bind = inp2.set_input();
                                         inp2.hide();
 
-                                        if let Ok(bind_v) = get_bind {
+                                        if let Ok(bind_v) = inp2.set_input() {
                                             let bind = bind_v
                                                 .first()
                                                 .unwrap()

@@ -166,10 +166,9 @@ fn change_name_simple(
         if let Some(mes) = r3.recv() {
             match mes {
                 true => {
-                    let new_name_param = get_name.set_input();
                     get_name.hide();
 
-                    if let Ok(new_name) = new_name_param {
+                    if let Ok(new_name) = get_name.set_input() {
                         unsafe {
                             match reader_base.change_name(ind, new_name.get_unchecked(0).clone()) {
                                 Ok(_) => {
@@ -225,10 +224,9 @@ fn change_family_simple(
         if let Some(mes) = r3.recv() {
             match mes {
                 true => {
-                    let new_family_param = get_family.set_input();
                     get_family.hide();
 
-                    if let Ok(new_family) = new_family_param {
+                    if let Ok(new_family) = get_family.set_input() {
                         unsafe {
                             match reader_base
                                 .change_family(ind, new_family.get_unchecked(0).clone())
@@ -286,10 +284,9 @@ fn change_father_simple(
         if let Some(mes) = r3.recv() {
             match mes {
                 true => {
-                    let new_father_param = get_father.set_input();
                     get_father.hide();
 
-                    if let Ok(new_father) = new_father_param {
+                    if let Ok(new_father) = get_father.set_input() {
                         unsafe {
                             match reader_base
                                 .change_father(ind, new_father.get_unchecked(0).clone())
@@ -347,10 +344,9 @@ fn change_age_simple(
         if let Some(mes) = r3.recv() {
             match mes {
                 true => {
-                    let new_age_param = get_age.set_input();
                     get_age.hide();
 
-                    if let Ok(new_age) = new_age_param {
+                    if let Ok(new_age) = get_age.set_input() {
                         if new_age.first().unwrap().is_empty() {
                             alert(500, 500, "New age is empty");
                             return;
@@ -685,7 +681,7 @@ pub fn reader_info_simple(
             return;
         }
 
-        for i in 0..reader_base.readers.len() {
+        (0..reader_base.readers.len()).for_each(|i| {
             if table2.is_selected(i as i32, 0)
                 || table2.is_selected(i as i32, 1)
                 || table2.is_selected(i as i32, 2)
@@ -705,9 +701,9 @@ pub fn reader_info_simple(
                     );
                 }
                 table2.unset_selection();
-                break;
+                return;
             }
-        }
+        });
     }
 }
 
@@ -740,10 +736,9 @@ pub fn add_reader(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let new_reader_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(reader) = new_reader_params {
+                    if let Ok(reader) = inp.set_input() {
                         if empty_inp_reader(&reader) {
                             return;
                         }
@@ -865,10 +860,9 @@ pub fn change_name(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let chng_reader_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(reader) = chng_reader_params {
+                    if let Ok(reader) = inp.set_input() {
                         let rind;
 
                         match check_reader(reader_base, &reader) {
@@ -917,10 +911,9 @@ pub fn change_family(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let chng_reader_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(reader) = chng_reader_params {
+                    if let Ok(reader) = inp.set_input() {
                         let rind;
 
                         match check_reader(reader_base, &reader) {
@@ -976,10 +969,9 @@ pub fn change_father(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let chng_reader_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(reader) = chng_reader_params {
+                    if let Ok(reader) = inp.set_input() {
                         let rind;
 
                         match check_reader(reader_base, &reader) {
@@ -1035,10 +1027,9 @@ pub fn change_age(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let chng_reader_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(reader) = chng_reader_params {
+                    if let Ok(reader) = inp.set_input() {
                         let rind;
 
                         match check_reader(reader_base, &reader) {
@@ -1086,10 +1077,9 @@ pub fn reader_info(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let reader_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(reader) = reader_params {
+                    if let Ok(reader) = inp.set_input() {
                         match reader.last().unwrap().trim().parse::<u8>() {
                             Ok(x) => unsafe {
                                 match (*reader_base).borrow().find_reader(

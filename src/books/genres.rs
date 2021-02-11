@@ -61,9 +61,9 @@ impl Genres {
         if self.genres.is_empty() {
             array.push(Yaml::String("None".to_string()));
         } else {
-            for g in &self.genres {
-                array.push(Yaml::String(g.clone()))
-            }
+            self.genres
+                .iter()
+                .for_each(|g| array.push(Yaml::String(g.clone())));
         }
 
         let mut string = String::new();
@@ -73,21 +73,31 @@ impl Genres {
         hash.insert(Yaml::String("Genres".to_string()), Yaml::Array(array));
         emitter.dump(&Yaml::Hash(hash)).unwrap();
 
-        let mut file = File::create("src/utils/genres.yaml").unwrap();
-        file.write_all(string.as_bytes()).unwrap();
+        File::create("src/utils/genres.yaml")
+            .unwrap()
+            .write_all(string.as_bytes())
+            .unwrap();
     }
 
     /// Loads from yaml file
 
     #[inline]
     pub fn load(&mut self) {
-        let mut file = File::open("src/utils/genres.yaml").unwrap();
         let mut string = String::new();
-        file.read_to_string(&mut string).unwrap();
+
+        File::open("src/utils/genres.yaml")
+            .unwrap()
+            .read_to_string(&mut string)
+            .unwrap();
 
         if !string.is_empty() {
-            let docs = YamlLoader::load_from_str(string.as_str()).unwrap();
-            let doc = docs.first().unwrap()["Genres"].as_vec().unwrap();
+            let doc = YamlLoader::load_from_str(string.as_str())
+                .unwrap()
+                .first()
+                .unwrap()["Genres"]
+                .as_vec()
+                .unwrap()
+                .clone();
 
             if doc.first().unwrap().as_str().unwrap().to_string() != "None" {
                 self.genres = doc

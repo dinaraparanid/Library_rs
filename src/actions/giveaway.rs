@@ -47,11 +47,11 @@ pub fn give_book(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let reader_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(reader) = reader_params {
+                    if let Ok(reader) = inp.set_input() {
                         let rind;
+
                         match check_reader(reader_base, &reader) {
                             Ok(x) => rind = x,
                             Err(_) => return,
@@ -72,10 +72,9 @@ pub fn give_book(
                             if let Some(msg) = r3.recv() {
                                 match msg {
                                     true => {
-                                        let book_params = inp2.set_input();
                                         inp2.hide();
 
-                                        if let Ok(book) = book_params {
+                                        if let Ok(book) = inp2.set_input() {
                                             unsafe {
                                                 let bind;
 
@@ -302,10 +301,9 @@ pub fn get_book(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let reader_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(reader) = reader_params {
+                    if let Ok(reader) = inp.set_input() {
                         let rind;
 
                         match check_reader(reader_base, &reader) {
@@ -328,10 +326,9 @@ pub fn get_book(
                             if let Some(msg) = r3.recv() {
                                 match msg {
                                     true => {
-                                        let book_params = inp2.set_input();
                                         inp2.hide();
 
-                                        if let Ok(book) = book_params {
+                                        if let Ok(book) = inp2.set_input() {
                                             let bind;
 
                                             match check_book(book_system, &book) {
