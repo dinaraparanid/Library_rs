@@ -6,9 +6,16 @@ use crate::{
 /// Collects data about
 /// reader base, book system and genres
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub(crate) struct Memento {
     pub(crate) state: (ReaderBase, BookSystem, Genres),
+}
+
+impl Clone for Memento {
+    #[inline]
+    fn clone(&self) -> Self {
+        Memento::new(&self.state.0, &self.state.1, &self.state.2)
+    }
 }
 
 impl Memento {
@@ -16,8 +23,11 @@ impl Memento {
 
     #[inline]
     pub fn new(reader_base: &ReaderBase, book_system: &BookSystem, genres: &Genres) -> Self {
+        let rb = reader_base.clone();
+        let bs = book_system.clone(&rb);
+
         Memento {
-            state: (reader_base.clone(), book_system.clone(), genres.clone()),
+            state: (rb, bs, genres.clone()),
         }
     }
 

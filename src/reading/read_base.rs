@@ -18,7 +18,6 @@ use yaml_rust::{yaml::Hash, Yaml, YamlEmitter, YamlLoader};
 /// Reader Base structure,
 /// which contains only readers
 
-#[derive(Clone)]
 pub struct ReaderBase {
     pub(crate) readers: Vec<Rc<RefCell<Reader>>>,
 }
@@ -39,6 +38,19 @@ impl Debug for ReaderBase {
                     .collect::<Vec<_>>(),
             )
             .finish()
+    }
+}
+
+impl Clone for ReaderBase {
+    #[inline]
+    fn clone(&self) -> Self {
+        ReaderBase {
+            readers: self
+                .readers
+                .iter()
+                .map(|x| Rc::new(RefCell::new((**x).borrow().clone())))
+                .collect(),
+        }
     }
 }
 

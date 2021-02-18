@@ -2,7 +2,7 @@ extern crate chrono;
 
 use crate::{
     books::{date::Date, BookInterface, ResultSelf},
-    reading::reader::Reader,
+    reading::{read_base::ReaderBase, reader::Reader},
 };
 
 use chrono::Datelike;
@@ -74,30 +74,14 @@ impl Debug for Book {
     }
 }
 
-/// Clone simple book.
-/// All pointers to readers advance reference count by 1
-
-impl Clone for Book {
+impl PartialEq for Book {
     #[inline]
-    fn clone(&self) -> Self {
-        Book {
-            title: self.title.clone(),
-            author: self.author.clone(),
-            pages: self.pages,
-            is_using: self.is_using,
-            readers: self
-                .readers
-                .iter()
-                .map(|x| (x.0.clone(), (x.1).clone()))
-                .collect(),
-        }
-    }
-
-    #[inline]
-    fn clone_from(&mut self, other: &Self) {
-        *self = other.clone()
+    fn eq(&self, other: &Self) -> bool {
+        self as *const Book == other as *const Book
     }
 }
+
+impl Eq for Book {}
 
 /// Implementation of Book Interface trait for simple book
 
@@ -243,6 +227,37 @@ impl Book {
             ((*self.readers.last_mut().unwrap()).1).1 =
                 Date::new(now.day() as u8, now.month() as u8, now.year() as u16).unwrap();
             Ok(self)
+        }
+    }
+
+    #[inline]
+    pub(crate) fn clone(&self, reader_base: &ReaderBase) -> Self {
+        Book {
+            title: self.title.clone(),
+            author: self.author.clone(),
+            pages: self.pages,
+            is_using: self.is_using,
+            readers: self
+                .readers
+                .iter()
+                .map(|x| unsafe {
+                    (
+                        Rc::downgrade({
+                            reader_base.readers.get_unchecked(
+                                reader_base
+                                    .find_reader(
+                                        &(*(x.0).upgrade().unwrap().borrow()).name,
+                                        &(*(x.0).upgrade().unwrap().borrow()).family,
+                                        &(*(x.0).upgrade().unwrap().borrow()).father,
+                                        (*(x.0).upgrade().unwrap().borrow()).age,
+                                    )
+                                    .unwrap(),
+                            )
+                        }),
+                        (x.1).clone(),
+                    )
+                })
+                .collect(),
         }
     }
 }

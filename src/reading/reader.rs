@@ -87,8 +87,8 @@ impl Clone for Reader {
             family: self.family.clone(),
             father: self.father.clone(),
             age: self.age,
-            books: self.books.iter().map(|x| x.clone()).collect(),
-            reading: self.reading.clone(),
+            books: vec![],
+            reading: None,
         }
     }
 

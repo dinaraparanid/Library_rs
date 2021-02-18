@@ -101,11 +101,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     (*genres).borrow_mut().load();
 
-    let caretaker = Rc::new(RefCell::new(Caretaker::new(
-        &*(*reader_base).borrow(),
-        &*(*book_system).borrow(),
-        &*(*genres).borrow(),
-    )));
+    let caretaker = Rc::new(RefCell::new(Caretaker::new()));
 
     let mut admin = File::open("src/utils/admin.bin")?;
     let mut adm = String::new();
@@ -132,26 +128,47 @@ fn main() -> Result<(), Box<dyn Error>> {
                             password.hide();
 
                             if let Ok(data) = password.set_input() {
-                                let hash1 = get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7);
-                                let hash2 = get_hash(&data.last().unwrap(), 101, 1e9 as u128 + 7);
+                                if !data.first().unwrap().is_ascii()
+                                    || !data.last().unwrap().is_ascii()
+                                {
+                                    alert(
+                                        500,
+                                        500,
+                                        "Incorrect Password. You must use only English letters. Try again",
+                                    );
 
-                                File::create("src/utils/admin.bin").unwrap().write(
-                                    format!(
-                                        "{}",
-                                        hash1.iter().map(|x| *x as u8 as char).collect::<String>()
-                                            + "\0"
-                                            + hash2
+                                    success = 2;
+                                } else {
+                                    let hash1 =
+                                        get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7);
+                                    let hash2 =
+                                        get_hash(&data.last().unwrap(), 101, 1e9 as u128 + 7);
+
+                                    File::create("src/utils/admin.bin").unwrap().write(
+                                        format!(
+                                            "{}",
+                                            hash1
                                                 .iter()
                                                 .map(|x| *x as u8 as char)
                                                 .collect::<String>()
-                                                .as_str()
-                                    )
-                                    .as_bytes(),
-                                )?;
+                                                + "\0"
+                                                + hash2
+                                                    .iter()
+                                                    .map(|x| *x as u8 as char)
+                                                    .collect::<String>()
+                                                    .as_str()
+                                        )
+                                        .as_bytes(),
+                                    )?;
 
-                                fltk::dialog::message(500, 500, "New login and password are saved");
-                                success = 1;
-                                break;
+                                    fltk::dialog::message(
+                                        500,
+                                        500,
+                                        "New login and password are saved",
+                                    );
+                                    success = 1;
+                                    break;
+                                }
                             }
                         }
                         false => (),
@@ -165,7 +182,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             }
         }
     } else {
-        let admin_data = adm.split('\0').collect::<Vec<&str>>();
+        let admin_data = adm.split('\0').collect::<Vec<_>>();
         let (s, r) = app::channel();
 
         loop {
@@ -604,8 +621,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                 Message::AddBooks => {
                     add_books(
                         &mut (*book_system).borrow_mut(),
-                        &*(reader_base).borrow(),
-                        &*(genres).borrow(),
+                        &(*reader_base).borrow(),
+                        &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
                     );
@@ -617,7 +634,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     remove_book(
                         &mut (*book_system).borrow_mut(),
                         &mut (*reader_base).borrow_mut(),
-                        &*(genres).borrow(),
+                        &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
                     );
@@ -629,7 +646,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     add_book(
                         &mut (*book_system).borrow_mut(),
                         &(*reader_base).borrow(),
-                        &*(genres).borrow(),
+                        &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
                     );
@@ -641,7 +658,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     remove_the_book(
                         &mut (*book_system).borrow_mut(),
                         &mut (*reader_base).borrow_mut(),
-                        &*(genres).borrow(),
+                        &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
                     );
@@ -653,7 +670,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     change_title(
                         &mut (*book_system).borrow_mut(),
                         &mut (*reader_base).borrow_mut(),
-                        &*(genres).borrow(),
+                        &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
                     );
@@ -665,7 +682,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     change_author(
                         &mut (*book_system).borrow_mut(),
                         &mut (*reader_base).borrow_mut(),
-                        &*(genres).borrow(),
+                        &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
                     );
@@ -677,7 +694,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     change_pages(
                         &mut (*book_system).borrow_mut(),
                         &mut (*reader_base).borrow_mut(),
-                        &*(genres).borrow(),
+                        &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
                     );
@@ -689,7 +706,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     the_book_info(
                         book_system.clone(),
                         reader_base.clone(),
-                        &*(genres).borrow(),
+                        &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
                     );
@@ -705,16 +722,16 @@ fn main() -> Result<(), Box<dyn Error>> {
 
                 Message::AddGenre => add_genre(
                     &mut (*genres).borrow_mut(),
-                    &*(reader_base).borrow(),
-                    &*(book_system).borrow(),
+                    &(*reader_base).borrow(),
+                    &(*book_system).borrow(),
                     &mut *(caretaker).borrow_mut(),
                     &app,
                 ),
 
                 Message::RemoveGenre => remove_genre(
                     &mut (*genres).borrow_mut(),
-                    &*(reader_base).borrow(),
-                    &*(book_system).borrow(),
+                    &(*reader_base).borrow(),
+                    &(*book_system).borrow(),
                     &mut *(caretaker).borrow_mut(),
                     &app,
                 ),
@@ -722,7 +739,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 Message::CustomizeBookGenre => customize_book_genre(
                     &(*genres).borrow(),
                     &mut (*book_system).borrow_mut(),
-                    &*(reader_base).borrow(),
+                    &(*reader_base).borrow(),
                     &mut *(caretaker).borrow_mut(),
                     &app,
                 ),
@@ -755,6 +772,14 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
 
                 Message::PrevData => {
+                    (*caretaker).borrow_mut().add_memento(
+                        &(*reader_base).borrow(),
+                        &(*book_system).borrow(),
+                        &(*genres).borrow(),
+                    );
+
+                    (*caretaker).borrow_mut().__ind_minus();
+
                     (*caretaker).borrow_mut().get_memento_back(
                         &mut *(reader_base).borrow_mut(),
                         &mut *(book_system).borrow_mut(),

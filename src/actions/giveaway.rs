@@ -40,6 +40,8 @@ pub fn give_book(
         "Age",
     );
 
+    caretaker.add_memento(reader_base, book_system, genres);
+
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
 
@@ -123,11 +125,14 @@ pub fn give_book(
 													                                            day,
 													                                            month,
 													                                            year) {
-													                                            Err(_) => alert(
-														                                            500,
-														                                            500,
-														                                            "Incorrect Date"
-													                                            ),
+													                                            Err(_) => {
+														                                            alert(
+															                                            500,
+															                                            500,
+															                                            "Incorrect Date"
+														                                            );
+														                                            caretaker.pop();
+													                                            },
 
 													                                            Ok(date) => {
 														                                            let simple_book = (*book_system
@@ -137,7 +142,14 @@ pub fn give_book(
 															                                            .get_unused();
 
 														                                            match simple_book {
-															                                            None => alert(500, 500, "There are no free books"),
+															                                            None => {
+																                                            alert(
+																	                                            500,
+																	                                            500,
+																	                                            "There are no free books"
+																                                            );
+																                                            caretaker.pop();
+															                                            },
 
 															                                            Some(sim) => {
 																                                            if (**reader_base
@@ -151,6 +163,7 @@ pub fn give_book(
 																		                                            500,
 																		                                            "This reader is already reading another book"
 																	                                            );
+																	                                            caretaker.pop();
 																	                                            return;
 																                                            }
 
@@ -188,7 +201,6 @@ pub fn give_book(
 
 																                                            book_system.save();
 																                                            reader_base.save();
-																                                            caretaker.add_memento(reader_base, book_system, genres);
 															                                            }
 														                                            }
 													                                            }
@@ -202,6 +214,8 @@ pub fn give_book(
 													                                            "Year input error"
 												                                            );
 
+												                                            caretaker.pop();
+
 												                                            println!("{:?}",
 												                                                     dat.get_unchecked(2)
 												                                                        .trim()
@@ -214,9 +228,11 @@ pub fn give_book(
 									                                            Err(_) => {
 										                                            alert(
 											                                            500,
-											                                            500, "\
-									                                                                    Month input error"
+											                                            500,
+											                                            "Month input error"
 										                                            );
+
+										                                            caretaker.pop();
 
 										                                            println!("{:?}",
 										                                                     dat.get_unchecked(1)
@@ -234,6 +250,8 @@ pub fn give_book(
                                                                                 "Day input error",
                                                                             );
 
+                                                                            caretaker.pop();
+
                                                                             println!(
                                                                                 "{:?}",
                                                                                 dat.get_unchecked(
@@ -249,6 +267,7 @@ pub fn give_book(
                                                             false => (),
                                                         }
                                                     } else if !inp3.shown() {
+                                                        caretaker.pop();
                                                         break;
                                                     }
                                                 }
@@ -258,6 +277,7 @@ pub fn give_book(
                                     false => (),
                                 }
                             } else if !inp2.shown() {
+                                caretaker.pop();
                                 break;
                             }
                         }
@@ -267,6 +287,7 @@ pub fn give_book(
             }
             break;
         } else if !inp.shown() {
+            caretaker.pop();
             break;
         }
     }
@@ -293,6 +314,8 @@ pub fn get_book(
         "Middle Name",
         "Age",
     );
+
+    caretaker.add_memento(reader_base, book_system, genres);
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -345,11 +368,14 @@ pub fn get_book(
                                                         );
 
                                                 match simple {
-                                                    None => alert(
-                                                        500,
-                                                        500,
-                                                        "This reader wasn't reading this book",
-                                                    ),
+                                                    None => {
+                                                        alert(
+                                                            500,
+                                                            500,
+                                                            "This reader wasn't reading this book",
+                                                        );
+                                                        caretaker.pop();
+                                                    }
 
                                                     Some(sim) => {
                                                         (*reader_base
@@ -382,11 +408,6 @@ pub fn get_book(
 
                                                         book_system.save();
                                                         reader_base.save();
-                                                        caretaker.add_memento(
-                                                            reader_base,
-                                                            book_system,
-                                                            genres,
-                                                        );
                                                     }
                                                 }
                                             }
@@ -395,6 +416,7 @@ pub fn get_book(
                                     false => (),
                                 }
                             } else if !inp2.shown() {
+                                caretaker.pop();
                                 break;
                             }
                         }
@@ -404,6 +426,7 @@ pub fn get_book(
             }
             break;
         } else if !inp.shown() {
+            caretaker.pop();
             break;
         }
     }

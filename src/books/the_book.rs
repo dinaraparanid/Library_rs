@@ -1,6 +1,6 @@
 use crate::{
     books::{book::Book, BookInterface, ResultSelf},
-    reading::reader::Reader,
+    reading::{read_base::ReaderBase, reader::Reader},
 };
 
 use std::{
@@ -13,7 +13,6 @@ use std::{
 /// Interface Book structure, which contains
 /// title, author, amount of pages, simple books and genres.yaml
 
-#[derive(Clone)]
 pub(crate) struct TheBook {
     pub(crate) title: String,
     pub(crate) author: String,
@@ -63,7 +62,7 @@ impl Debug for TheBook {
                     .map(|x| format!("{:?}", *(**x).borrow()))
                     .collect::<Vec<String>>(),
             )
-            .field("genres.yaml", &self.genres)
+            .field("genres", &self.genres)
             .finish()
     }
 }
@@ -240,5 +239,45 @@ impl TheBook {
                 .unwrap()
                 .remove(genre.to_lowercase().as_str())
         };
+    }
+
+    #[inline]
+    pub fn clone(&self, reader_base: &ReaderBase) -> Self {
+        TheBook {
+            title: self.title.clone(),
+            author: self.author.clone(),
+            genres: self.genres.clone(),
+            pages: self.pages,
+            books: self
+                .books
+                .iter()
+                .map(|x| {
+                    let b = Rc::new(RefCell::new((**x).borrow().clone(reader_base)));
+
+                    unsafe {
+                        (*b.as_ptr()).readers.iter().for_each(|r| {
+                            (*(*r).0.upgrade().unwrap())
+                                .borrow_mut()
+                                .books
+                                .push(Rc::downgrade(&b));
+
+                            if (*b.as_ptr()).is_using
+                                && *(*(*(*b.as_ptr()).readers.last().unwrap())
+                                    .0
+                                    .upgrade()
+                                    .unwrap())
+                                .borrow()
+                                    == *(*r.0.upgrade().unwrap()).borrow()
+                            {
+                                (*r.0.upgrade().unwrap()).borrow_mut().reading =
+                                    Some(Rc::downgrade(&b));
+                            }
+                        });
+                    }
+
+                    b
+                })
+                .collect(),
+        }
     }
 }

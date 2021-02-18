@@ -107,6 +107,8 @@ fn change_title_simple(
     let (s3, r3) = app::channel();
     let mut get_title = Input1::<Input>::new("New Title", "New Title");
 
+    caretaker.add_memento(reader_base, book_system, genres);
+
     get_title.show();
     (*get_title.ok).borrow_mut().emit(s3, true);
 
@@ -120,19 +122,21 @@ fn change_title_simple(
                         unsafe {
                             if new_title.get_unchecked(0).is_empty() {
                                 alert(500, 500, "New title is empty");
-                            }
+                                caretaker.pop();
+                            } else {
+                                match book_system
+                                    .change_title(ind, new_title.get_unchecked(0).clone())
+                                {
+                                    Ok(_) => {
+                                        fltk::dialog::message(500, 500, "Successfully changed");
+                                        book_system.save();
+                                        reader_base.save();
+                                    }
 
-                            match book_system.change_title(ind, new_title.get_unchecked(0).clone())
-                            {
-                                Ok(_) => {
-                                    fltk::dialog::message(500, 500, "Successfully changed");
-                                    book_system.save();
-                                    reader_base.save();
-                                    caretaker.add_memento(reader_base, book_system, genres);
-                                }
-
-                                Err(_) => {
-                                    alert(500, 500, "Book with same parameters already exists")
+                                    Err(_) => {
+                                        alert(500, 500, "Book with same parameters already exists");
+                                        caretaker.pop();
+                                    }
                                 }
                             }
                         }
@@ -142,6 +146,7 @@ fn change_title_simple(
                 false => (),
             }
         } else if !get_title.shown() {
+            caretaker.pop();
             return;
         }
     }
@@ -161,6 +166,8 @@ fn change_author_simple(
     let (s3, r3) = app::channel();
     let mut get_author = Input1::<Input>::new("New Author", "New Author");
 
+    caretaker.add_memento(reader_base, book_system, genres);
+
     get_author.show();
     (*get_author.ok).borrow_mut().emit(s3, true);
 
@@ -174,20 +181,21 @@ fn change_author_simple(
                         unsafe {
                             if new_author.get_unchecked(0).is_empty() {
                                 alert(500, 500, "New title is empty");
-                            }
+                                caretaker.pop();
+                            } else {
+                                match book_system
+                                    .change_author(ind, new_author.get_unchecked(0).clone())
+                                {
+                                    Ok(_) => {
+                                        fltk::dialog::message(500, 500, "Successfully changed");
+                                        book_system.save();
+                                        reader_base.save();
+                                    }
 
-                            match book_system
-                                .change_author(ind, new_author.get_unchecked(0).clone())
-                            {
-                                Ok(_) => {
-                                    fltk::dialog::message(500, 500, "Successfully changed");
-                                    book_system.save();
-                                    reader_base.save();
-                                    caretaker.add_memento(reader_base, book_system, genres);
-                                }
-
-                                Err(_) => {
-                                    alert(500, 500, "Book with same parameters already exists")
+                                    Err(_) => {
+                                        alert(500, 500, "Book with same parameters already exists");
+                                        caretaker.pop();
+                                    }
                                 }
                             }
                         }
@@ -197,6 +205,7 @@ fn change_author_simple(
                 false => (),
             }
         } else if !get_author.shown() {
+            caretaker.pop();
             return;
         }
     }
@@ -216,6 +225,8 @@ fn change_pages_simple(
     let (s3, r3) = app::channel();
     let mut get_pages = Input1::<IntInput>::new("New Amount of Pages", "New Amount of Pages");
 
+    caretaker.add_memento(reader_base, book_system, genres);
+
     get_pages.show();
     (*get_pages.ok).borrow_mut().emit(s3, true);
 
@@ -229,22 +240,26 @@ fn change_pages_simple(
                         unsafe {
                             if new_pages.get_unchecked(0).is_empty() {
                                 alert(500, 500, "New amount of pages is empty");
-                                return;
-                            }
+                                caretaker.pop();
+                            } else {
+                                match book_system
+                                    .change_pages(ind, new_pages.get_unchecked(0).clone())
+                                {
+                                    Ok(_) => {
+                                        fltk::dialog::message(500, 500, "Successfully changed");
+                                        book_system.save();
+                                        reader_base.save();
+                                    }
 
-                            match book_system.change_pages(ind, new_pages.get_unchecked(0).clone())
-                            {
-                                Ok(_) => {
-                                    fltk::dialog::message(500, 500, "Successfully changed");
-                                    book_system.save();
-                                    reader_base.save();
-                                    caretaker.add_memento(reader_base, book_system, genres);
-                                }
+                                    Err(0) => {
+                                        alert(500, 500, "New amount of pages input error");
+                                        caretaker.pop();
+                                    }
 
-                                Err(0) => alert(500, 500, "New amount of pages input error"),
-
-                                Err(_) => {
-                                    alert(500, 500, "Book with same parameters already exists")
+                                    Err(_) => {
+                                        alert(500, 500, "Book with same parameters already exists");
+                                        caretaker.pop();
+                                    }
                                 }
                             }
                         }
@@ -254,6 +269,7 @@ fn change_pages_simple(
                 false => (),
             }
         } else if !get_pages.shown() {
+            caretaker.pop();
             return;
         }
     }
@@ -269,15 +285,19 @@ fn remove_the_book_simple(
     genres: &Genres,
     caretaker: &mut Caretaker,
 ) {
+    caretaker.add_memento(reader_base, book_system, genres);
+
     match book_system.remove_book(ind) {
         Ok(_) => {
             fltk::dialog::message(500, 500, "Successfully removed");
             book_system.save();
             reader_base.save();
-            caretaker.add_memento(reader_base, book_system, genres);
         }
 
-        Err(_) => alert(500, 500, "Wrong book's number"),
+        Err(_) => {
+            alert(500, 500, "Wrong book's number");
+            caretaker.pop();
+        }
     }
 }
 
@@ -295,6 +315,8 @@ fn add_books_simple(
     let (s3, r3) = app::channel();
     let mut get_amount = Input1::<IntInput>::new("Books amount", "Amount of books to add");
 
+    caretaker.add_memento(reader_base, book_system, genres);
+
     get_amount.show();
     (*get_amount.ok).borrow_mut().emit(s3, true);
 
@@ -310,15 +332,18 @@ fn add_books_simple(
                                 Ok(_) => {
                                     fltk::dialog::message(500, 500, "Successfully added");
                                     book_system.save();
-                                    caretaker.add_memento(reader_base, book_system, genres);
                                 }
 
-                                Err(_) => alert(500, 500, "Too much books"),
+                                Err(_) => {
+                                    alert(500, 500, "Too much books");
+                                    caretaker.pop();
+                                }
                             },
 
                             Err(_) => {
                                 alert(500, 500, "Amount of books input error");
-                                println!("{:?}", amount.last().unwrap().trim().parse::<usize>())
+                                println!("{:?}", amount.last().unwrap().trim().parse::<usize>());
+                                caretaker.pop();
                             }
                         }
                     }
@@ -346,6 +371,8 @@ fn remove_book_simple(
     let (s3, r3) = app::channel();
     let mut get_ind = Input1::<IntInput>::new("Book's number", "Book's number");
 
+    caretaker.add_memento(reader_base, book_system, genres);
+
     get_ind.show();
     (*get_ind.ok).borrow_mut().emit(s3, true);
 
@@ -362,15 +389,18 @@ fn remove_book_simple(
                                     fltk::dialog::message(500, 500, "Successfully removed");
                                     book_system.save();
                                     reader_base.save();
-                                    caretaker.add_memento(reader_base, book_system, genres);
                                 }
 
-                                Err(_) => alert(500, 500, "Incorrect number of book"),
+                                Err(_) => {
+                                    alert(500, 500, "Incorrect number of book");
+                                    caretaker.pop();
+                                }
                             },
 
                             Err(_) => {
                                 alert(500, 500, "Book's number input error");
-                                println!("{:?}", ind.last().unwrap().trim().parse::<usize>())
+                                println!("{:?}", ind.last().unwrap().trim().parse::<usize>());
+                                caretaker.pop();
                             }
                         }
                     }
@@ -395,13 +425,14 @@ fn remove_book_simple2(
     genres: &Genres,
     caretaker: &mut Caretaker,
 ) {
+    caretaker.add_memento(reader_base, book_system, genres);
+
     unsafe {
         book_system.remove_one_book_unchecked(index, s_index);
     }
     fltk::dialog::message(500, 500, "Successfully removed");
     book_system.save();
     reader_base.save();
-    caretaker.add_memento(reader_base, book_system, genres);
 }
 
 /// Function that gives information
@@ -929,6 +960,8 @@ pub fn add_book(
     let mut inp =
         Input3::<Input, Input, IntInput>::new("Add New Book", "Title", "Author", "Amount of Pages");
 
+    caretaker.add_memento(reader_base, book_system, genres);
+
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
 
@@ -975,7 +1008,6 @@ pub fn add_book(
                                                                 Ok(_) => {
                                                                     fltk::dialog::message(500, 500, "Successfully added");
                                                                     book_system.save();
-                                                                    caretaker.add_memento(reader_base, book_system, genres);
                                                                 }
 
                                                                 Err(_) => {

@@ -131,16 +131,18 @@ fn remove_reader_simple(
     genres: &Genres,
     caretaker: &mut Caretaker,
 ) {
+    caretaker.add_memento(reader_base, book_system, genres);
+
     match reader_base.remove_reader(ind) {
         Ok(_) => {
             fltk::dialog::message(500, 500, "Successfully removed");
             reader_base.save();
             book_system.save();
-            caretaker.add_memento(reader_base, book_system, genres);
         }
 
         Err(_) => {
             alert(500, 500, "Reader not found");
+            caretaker.pop();
         }
     }
 }
@@ -159,6 +161,8 @@ fn change_name_simple(
     let (s3, r3) = app::channel();
     let mut get_name = Input1::<Input>::new("New Name", "New Name");
 
+    caretaker.add_memento(reader_base, book_system, genres);
+
     get_name.show();
     (*get_name.ok).borrow_mut().emit(s3, true);
 
@@ -176,19 +180,21 @@ fn change_name_simple(
 
                                     reader_base.save();
                                     book_system.save();
-                                    caretaker.add_memento(reader_base, book_system, genres);
                                 }
 
                                 Err(0) => {
                                     alert(500, 500, "Reader not found");
+                                    caretaker.pop();
                                 }
 
                                 Err(1) => {
                                     alert(500, 500, "Reader already exists");
+                                    caretaker.pop();
                                 }
 
                                 Err(_) => {
                                     alert(500, 500, "New name is empty");
+                                    caretaker.pop();
                                 }
                             }
                         }
@@ -198,6 +204,7 @@ fn change_name_simple(
             }
             break;
         } else if !get_name.shown() {
+            caretaker.pop();
             return;
         }
     }
@@ -216,6 +223,8 @@ fn change_family_simple(
 ) {
     let (s3, r3) = app::channel();
     let mut get_family = Input1::<Input>::new("New 2-nd Name", "New 2-nd Name");
+
+    caretaker.add_memento(reader_base, book_system, genres);
 
     get_family.show();
     (*get_family.ok).borrow_mut().emit(s3, true);
@@ -236,19 +245,21 @@ fn change_family_simple(
 
                                     reader_base.save();
                                     book_system.save();
-                                    caretaker.add_memento(reader_base, book_system, genres);
                                 }
 
                                 Err(0) => {
                                     alert(500, 500, "Reader not found");
+                                    caretaker.pop();
                                 }
 
                                 Err(1) => {
                                     alert(500, 500, "Reader already exists");
+                                    caretaker.pop();
                                 }
 
                                 Err(_) => {
                                     alert(500, 500, "New 2-nd name is empty");
+                                    caretaker.pop();
                                 }
                             }
                         }
@@ -258,6 +269,7 @@ fn change_family_simple(
             }
             break;
         } else if !get_family.shown() {
+            caretaker.pop();
             return;
         }
     }
@@ -276,6 +288,8 @@ fn change_father_simple(
 ) {
     let (s3, r3) = app::channel();
     let mut get_father = Input1::<Input>::new("New Middle Name", "New Middle Name");
+
+    caretaker.add_memento(reader_base, book_system, genres);
 
     get_father.show();
     (*get_father.ok).borrow_mut().emit(s3, true);
@@ -296,19 +310,21 @@ fn change_father_simple(
 
                                     reader_base.save();
                                     book_system.save();
-                                    caretaker.add_memento(reader_base, book_system, genres);
                                 }
 
                                 Err(0) => {
                                     alert(500, 500, "Reader not found");
+                                    caretaker.pop();
                                 }
 
                                 Err(1) => {
                                     alert(500, 500, "Reader already exists");
+                                    caretaker.pop();
                                 }
 
                                 Err(_) => {
                                     alert(500, 500, "New mid. name is empty");
+                                    caretaker.pop();
                                 }
                             }
                         }
@@ -318,6 +334,7 @@ fn change_father_simple(
             }
             break;
         } else if !get_father.shown() {
+            caretaker.pop();
             return;
         }
     }
@@ -335,8 +352,10 @@ fn change_age_simple(
     app: &App,
 ) {
     let (s3, r3) = app::channel();
-
     let mut get_age = Input1::<IntInput>::new("New Age", "New Age");
+
+    caretaker.add_memento(reader_base, book_system, genres);
+
     get_age.show();
     (*get_age.ok).borrow_mut().emit(s3, true);
 
@@ -349,6 +368,7 @@ fn change_age_simple(
                     if let Ok(new_age) = get_age.set_input() {
                         if new_age.first().unwrap().is_empty() {
                             alert(500, 500, "New age is empty");
+                            caretaker.pop();
                             return;
                         }
 
@@ -359,12 +379,17 @@ fn change_age_simple(
 
                                     reader_base.save();
                                     book_system.save();
-                                    caretaker.add_memento(reader_base, book_system, genres);
                                 }
 
-                                Err(0) => alert(500, 500, "Age input error"),
+                                Err(0) => {
+                                    alert(500, 500, "Age input error");
+                                    caretaker.pop();
+                                }
 
-                                Err(_) => alert(500, 500, "Reader already exists"),
+                                Err(_) => {
+                                    alert(500, 500, "Reader already exists");
+                                    caretaker.pop();
+                                }
                             }
                         }
                     }
@@ -373,6 +398,7 @@ fn change_age_simple(
             }
             break;
         } else if !get_age.shown() {
+            caretaker.pop();
             return;
         }
     }
@@ -729,6 +755,8 @@ pub fn add_reader(
         "Age",
     );
 
+    caretaker.add_memento(reader_base, book_system, genres);
+
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
 
@@ -754,7 +782,6 @@ pub fn add_reader(
                                     Ok(_) => {
                                         fltk::dialog::message(500, 500, "Successfully added");
                                         reader_base.save();
-                                        caretaker.add_memento(reader_base, book_system, genres);
                                     }
 
                                     Err(_) => {
@@ -1082,12 +1109,14 @@ pub fn reader_info(
                     if let Ok(reader) = inp.set_input() {
                         match reader.last().unwrap().trim().parse::<u8>() {
                             Ok(x) => unsafe {
-                                match (*reader_base).borrow().find_reader(
+                                let find = (*reader_base).borrow().find_reader(
                                     reader.get_unchecked(0),
                                     reader.get_unchecked(1),
                                     reader.get_unchecked(2),
                                     x,
-                                ) {
+                                );
+
+                                match find {
                                     None => alert(500, 500, "Reader isn't found"),
 
                                     Some(ind) => reader_info_simple(

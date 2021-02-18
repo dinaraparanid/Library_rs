@@ -42,6 +42,8 @@ pub fn add_genre(
     let (s2, r2) = app::channel();
     let mut inp = Input1::<Input>::new("Add Genre", "New Genre");
 
+    caretaker.add_memento(reader_base, book_system, genres);
+
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
 
@@ -54,11 +56,11 @@ pub fn add_genre(
                     if let Ok(genre) = inp.set_input() {
                         if genre.first().unwrap().is_empty() {
                             alert(500, 500, "New genre is empty");
+                            caretaker.pop();
                         } else {
                             genres.add(genre.first().unwrap().clone());
                             fltk::dialog::message(500, 500, "Successfully added");
                             genres.save();
-                            caretaker.add_memento(reader_base, book_system, genres);
                         }
                     }
                 }
@@ -86,6 +88,8 @@ pub fn remove_genre(
     let (s2, r2) = app::channel();
     let mut inp = Input1::<Input>::new("Remove Genre", "Genre");
 
+    caretaker.add_memento(reader_base, book_system, genres);
+
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
 
@@ -98,11 +102,11 @@ pub fn remove_genre(
                     if let Ok(genre) = inp.set_input() {
                         if genre.first().unwrap().is_empty() {
                             alert(500, 500, "Genre is empty");
+                            caretaker.pop();
                         } else {
                             genres.remove(genre.first().unwrap());
                             fltk::dialog::message(500, 500, "Successfully removed");
                             genres.save();
-                            caretaker.add_memento(reader_base, book_system, genres);
                         }
                     }
                 }
@@ -131,6 +135,8 @@ pub fn customize_book_genre(
     let (s2, r2) = app::channel();
     let mut inp =
         Input3::<Input, Input, IntInput>::new("Add Genre", "Title", "Author", "Amount of Pages");
+
+    caretaker.add_memento(reader_base, book_system, genres);
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -259,7 +265,6 @@ pub fn customize_book_genre(
                                     }
                                 }
                                 book_system.save();
-                                caretaker.add_memento(reader_base, book_system, genres);
                             });
 
                             if !wind.shown() {

@@ -24,7 +24,6 @@ use yaml_rust::{
 /// Reader Base structure,
 /// which contains only Book interfaces
 
-#[derive(Clone)]
 pub struct BookSystem {
     pub(crate) books: Vec<Rc<RefCell<TheBook>>>,
 }
@@ -307,6 +306,17 @@ impl BookSystem {
     pub(crate) fn clear(&mut self) -> &mut Self {
         self.books.clear();
         self
+    }
+
+    #[inline]
+    pub fn clone(&self, reader_base: &ReaderBase) -> Self {
+        BookSystem {
+            books: self
+                .books
+                .iter()
+                .map(|x| Rc::new(RefCell::new((**x).borrow().clone(reader_base))))
+                .collect(),
+        }
     }
 
     /// Save to .yaml file

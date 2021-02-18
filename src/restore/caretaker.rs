@@ -21,9 +21,9 @@ impl Caretaker {
     /// Creates new caretaker
 
     #[inline]
-    pub fn new(reader_base: &ReaderBase, book_system: &BookSystem, genres: &Genres) -> Self {
+    pub fn new() -> Self {
         Caretaker {
-            mementos: vec![Memento::new(reader_base, book_system, genres)],
+            mementos: vec![],
             ind: 0,
         }
     }
@@ -44,14 +44,15 @@ impl Caretaker {
             let mem = unsafe { self.mementos.get_unchecked(self.ind) }.get_state();
 
             *reader_base = mem.0.clone();
-            *book_system = mem.1.clone();
+            *book_system = mem.1.clone(reader_base);
             *genres = mem.2.clone();
 
             reader_base.save();
             book_system.save();
             genres.save();
 
-            message(500, 500, "Successfully restored")
+            message(500, 500, "Successfully restored");
+            println!("CARE {:?} {:?}", self.ind, self.mementos);
         }
     }
 
@@ -71,7 +72,7 @@ impl Caretaker {
             let mem = unsafe { self.mementos.get_unchecked(self.ind) }.get_state();
 
             *reader_base = mem.0.clone();
-            *book_system = mem.1.clone();
+            *book_system = mem.1.clone(reader_base);
             *genres = mem.2.clone();
 
             reader_base.save();
@@ -93,9 +94,18 @@ impl Caretaker {
     ) -> &mut Self {
         self.mementos
             .resize(self.ind + 1, Memento::new(reader_base, book_system, genres));
-        self.mementos
-            .push(Memento::new(reader_base, book_system, genres));
         self.ind += 1;
         self
+    }
+
+    #[inline]
+    pub(crate) fn pop(&mut self) {
+        self.mementos.pop().unwrap();
+        self.ind -= 1;
+    }
+
+    #[inline]
+    pub fn __ind_minus(&mut self) {
+        self.ind -= 1;
     }
 }
