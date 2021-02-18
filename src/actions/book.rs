@@ -384,18 +384,25 @@ fn remove_book_simple(
 
                     if let Ok(ind) = get_ind.set_input() {
                         match ind.first().unwrap().trim().parse::<usize>() {
-                            Ok(x) => match book_system.remove_one_book(index, x) {
-                                Ok(_) => {
-                                    fltk::dialog::message(500, 500, "Successfully removed");
-                                    book_system.save();
-                                    reader_base.save();
-                                }
-
-                                Err(_) => {
+                            Ok(x) => {
+                                if x == 0 {
                                     alert(500, 500, "Incorrect number of book");
                                     caretaker.pop();
+                                } else {
+                                    match book_system.remove_one_book(index, x - 1) {
+                                        Ok(_) => {
+                                            fltk::dialog::message(500, 500, "Successfully removed");
+                                            book_system.save();
+                                            reader_base.save();
+                                        }
+
+                                        Err(_) => {
+                                            alert(500, 500, "Incorrect number of book");
+                                            caretaker.pop();
+                                        }
+                                    }
                                 }
-                            },
+                            }
 
                             Err(_) => {
                                 alert(500, 500, "Book's number input error");
@@ -1365,6 +1372,7 @@ pub fn book_info(book_system: &BookSystem, app: &App) {
                                                         .borrow()
                                                         .books
                                                         .len()
+                                                    || bind == 0
                                                 {
                                                     alert(500, 500, "Incorrect number of book");
                                                     return;

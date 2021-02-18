@@ -700,7 +700,6 @@ pub fn reader_info_simple(
                     table2.redraw();
                 }
             }
-            return;
         }
 
         if !wind.shown() {
