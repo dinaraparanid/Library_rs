@@ -142,7 +142,7 @@ mod the_book_tests {
 
     #[test]
     fn the_book_new_add_remove_test() {
-        let mut the_book = TheBook::new("Title".to_string(), "Author".to_string(), 200);
+        let mut the_book = TheBook::new("Title".to_string(), "Author".to_string(), 200, 1);
         assert_eq!(
             "The Book { title: \"Title\", author: \"Author\", pages: 200, books.yaml: [\"Book { title: \\\"Title\\\", author: \\\"Author\\\", pages: 200, is using: false, readers.yaml: [] }\"] }",
             format!("{:?}", the_book)
@@ -198,7 +198,7 @@ mod the_book_tests {
 
     #[test]
     fn the_book_changing_test() {
-        let mut the_book = TheBook::new("Title".to_string(), "Author".to_string(), 200);
+        let mut the_book = TheBook::new("Title".to_string(), "Author".to_string(), 200, 1);
         let reader = Rc::new(RefCell::new(Reader::new(
             "Michael".to_string(),
             "Jackson".to_string(),
