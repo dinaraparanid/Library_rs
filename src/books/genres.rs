@@ -16,6 +16,83 @@ pub struct Genres {
     pub(crate) genres: HashSet<String>,
 }
 
+impl FromIterator<String> for Genres {
+    /// Constructs set of genres from iterator of strings
+
+    #[inline]
+    fn from_iter<T: IntoIterator<Item = String>>(iter: T) -> Self {
+        Genres {
+            genres: HashSet::from_iter(iter.into_iter().map(|x| x.to_lowercase())),
+        }
+    }
+}
+
+impl IntoIterator for Genres {
+    type Item = String;
+    type IntoIter = std::collections::hash_set::IntoIter<Self::Item>;
+
+    /// Convert genres to iterator
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        self.genres.into_iter()
+    }
+}
+
+impl From<Vec<String>> for Genres {
+    /// Constructs genres from vector
+
+    #[inline]
+    fn from(vec: Vec<String>) -> Self {
+        Genres::from_iter(vec.into_iter())
+    }
+}
+
+impl From<Genres> for Vec<String> {
+    /// Constructs vector from genres
+
+    #[inline]
+    fn from(g: Genres) -> Self {
+        g.into_iter().collect()
+    }
+}
+
+impl From<HashSet<String>> for Genres {
+    /// Constructs genres from hash set
+
+    #[inline]
+    fn from(set: HashSet<String>) -> Self {
+        Genres::from_iter(set.into_iter())
+    }
+}
+
+impl From<Genres> for HashSet<String> {
+    /// Constructs hash set from genres
+
+    #[inline]
+    fn from(g: Genres) -> Self {
+        g.genres
+    }
+}
+
+impl From<BTreeSet<String>> for Genres {
+    /// Constructs genres from btree set
+
+    #[inline]
+    fn from(set: BTreeSet<String>) -> Self {
+        Genres::from_iter(set.into_iter())
+    }
+}
+
+impl From<Genres> for BTreeSet<String> {
+    /// Constructs btree set from genres
+
+    #[inline]
+    fn from(g: Genres) -> Self {
+        g.into_iter().collect()
+    }
+}
+
 impl Genres {
     /// Creates empty set of genres.yaml
 
@@ -30,7 +107,7 @@ impl Genres {
     /// else true
 
     #[inline]
-    pub fn add(&mut self, new_genre: String) -> bool {
+    pub(crate) fn add(&mut self, new_genre: String) -> bool {
         self.genres.insert(new_genre.to_lowercase())
     }
 
@@ -40,7 +117,7 @@ impl Genres {
     /// else false
 
     #[inline]
-    pub fn remove(&mut self, genre: &String) -> bool {
+    pub(crate) fn remove(&mut self, genre: &String) -> bool {
         self.genres.remove(genre.to_lowercase().as_str())
     }
 
@@ -55,7 +132,7 @@ impl Genres {
     /// Saves all genres to yaml file
 
     #[inline]
-    pub fn save(&self) {
+    pub(crate) fn save(&self) {
         let mut array = Array::new();
 
         if self.genres.is_empty() {
@@ -106,43 +183,5 @@ impl Genres {
                     .collect();
             }
         }
-    }
-}
-
-impl FromIterator<String> for Genres {
-    /// Constructs set of genres from iterator of strings
-
-    #[inline]
-    fn from_iter<T: IntoIterator<Item = String>>(iter: T) -> Self {
-        Genres {
-            genres: HashSet::from_iter(iter.into_iter().map(|x| x.to_lowercase())),
-        }
-    }
-}
-
-impl From<Vec<String>> for Genres {
-    /// Constructs set of genres from vector of strings
-
-    #[inline]
-    fn from(vec: Vec<String>) -> Self {
-        Genres::from_iter(vec.into_iter())
-    }
-}
-
-impl From<HashSet<String>> for Genres {
-    /// Constructs set of genres from vector of strings
-
-    #[inline]
-    fn from(set: HashSet<String>) -> Self {
-        Genres::from_iter(set.into_iter())
-    }
-}
-
-impl From<BTreeSet<String>> for Genres {
-    /// Constructs set of genres from vector of strings
-
-    #[inline]
-    fn from(set: BTreeSet<String>) -> Self {
-        Genres::from_iter(set.into_iter())
     }
 }

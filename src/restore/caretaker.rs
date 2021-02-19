@@ -52,7 +52,6 @@ impl Caretaker {
             genres.save();
 
             message(500, 500, "Successfully restored");
-            println!("CARE {:?} {:?}", self.ind, self.mementos);
         }
     }
 
@@ -98,14 +97,18 @@ impl Caretaker {
         self
     }
 
+    /// Removes last memento
+
     #[inline]
     pub(crate) fn pop(&mut self) {
         self.mementos.pop().unwrap();
         self.ind -= 1;
     }
 
+    /// **DON'T USE IT**
+
     #[inline]
-    pub fn __ind_minus(&mut self) {
+    pub unsafe fn __ind_minus(&mut self) {
         self.ind -= 1;
     }
 }

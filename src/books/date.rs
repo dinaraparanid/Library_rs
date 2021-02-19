@@ -14,10 +14,10 @@ pub(crate) struct Date {
     pub(crate) year: u16,
 }
 
-/// Dates can be compared as >, <, >=, <=
-/// (as it works in real world)
-
 impl PartialOrd for Date {
+    /// Dates can be compared as >, <, >=, <=
+    /// (as it works in real world)
+
     #[inline]
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         return if self.year < other.year {
@@ -36,22 +36,31 @@ impl PartialOrd for Date {
     }
 }
 
-/// Dates can be compared as >, <, >=, <=
-/// (as it works in real world)
-
 impl Ord for Date {
+    /// Dates can be compared as >, <, >=, <=
+    /// (as it works in real world)
+
     #[inline]
     fn cmp(&self, other: &Self) -> Ordering {
         self.partial_cmp(other).unwrap()
     }
 }
 
-/// Constructor from chrono's library dates
-
 impl From<DateTime<Local>> for Date {
+    /// Constructor from chrono's library dates
+
     #[inline]
     fn from(date: DateTime<Local>) -> Self {
         Date::new(date.day() as u8, date.month() as u8, date.year() as u16).unwrap()
+    }
+}
+
+impl From<Date> for String {
+    /// Converts date to string
+
+    #[inline]
+    fn from(d: Date) -> Self {
+        d.to_string()
     }
 }
 
@@ -60,7 +69,7 @@ impl Date {
     /// It will return Err.
 
     #[inline]
-    pub fn new(new_day: u8, new_month: u8, new_year: u16) -> std::result::Result<Self, ()> {
+    pub(crate) fn new(new_day: u8, new_month: u8, new_year: u16) -> std::result::Result<Self, ()> {
         let date = Date {
             day: new_day,
             month: new_month,
@@ -74,7 +83,7 @@ impl Date {
     /// according to real world
 
     #[inline]
-    pub fn correct(&self) -> bool {
+    pub(crate) fn correct(&self) -> bool {
         return if self.month > 12 || self.month == 0 || self.day == 0 {
             false
         } else {
@@ -93,7 +102,7 @@ impl Date {
     /// Converts date to string
 
     #[inline]
-    pub fn to_string(&self) -> String {
+    pub(crate) fn to_string(&self) -> String {
         format!("{}/{}/{}", self.day, self.month, self.year)
     }
 }

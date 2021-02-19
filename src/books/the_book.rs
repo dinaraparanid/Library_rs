@@ -21,19 +21,19 @@ pub(crate) struct TheBook {
     pub(crate) genres: Option<HashSet<String>>,
 }
 
-/// Destructor for TheBook.
-/// It is used to debug code
-
 impl Drop for TheBook {
+    /// Destructor for TheBook.
+    /// It is used to debug code
+
     #[inline]
     fn drop(&mut self) {
         println!("The Book {} {} is deleted", self.title, self.author)
     }
 }
 
-/// Compare TheBooks by title, author and pages.
-
 impl PartialEq for TheBook {
+    /// Compare TheBooks by title, author and pages.
+
     #[inline]
     fn eq(&self, other: &Self) -> bool {
         self.title == other.title && self.author == other.author && self.pages == other.pages
@@ -44,10 +44,10 @@ impl PartialEq for TheBook {
 
 impl Eq for TheBook {}
 
-/// Print for TheBook.
-/// It is used to debug code
-
 impl Debug for TheBook {
+    /// Print for TheBook.
+    /// It is used to debug code
+
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("The Book")
@@ -73,43 +73,28 @@ impl Debug for TheBook {
 impl BookInterface for TheBook {
     #[inline]
     fn change_title(&mut self, new_title: String) -> &mut Self {
-        self.books = self
-            .books
+        self.books
             .iter_mut()
-            .map(|x| {
-                (**x).borrow_mut().title = new_title.clone();
-                x.clone()
-            })
-            .collect();
+            .for_each(|x| (**x).borrow_mut().title = new_title.clone());
         self.title = new_title;
         self
     }
 
     #[inline]
     fn change_author(&mut self, new_author: String) -> &mut Self {
-        self.books = self
-            .books
+        self.books
             .iter_mut()
-            .map(|x| {
-                (**x).borrow_mut().author = new_author.clone();
-                x.clone()
-            })
-            .collect();
+            .for_each(|x| (**x).borrow_mut().author = new_author.clone());
         self.author = new_author;
         self
     }
 
     #[inline]
     fn change_pages(&mut self, new_pages: u16) -> &mut Self {
-        self.pages = new_pages;
-        self.books = self
-            .books
+        self.books
             .iter_mut()
-            .map(|x| {
-                (**x).borrow_mut().pages = new_pages;
-                x.clone()
-            })
-            .collect();
+            .for_each(|x| (**x).borrow_mut().pages = new_pages);
+        self.pages = new_pages;
         self
     }
 }
@@ -118,7 +103,12 @@ impl TheBook {
     /// Constructs TheBook
 
     #[inline]
-    pub fn new(new_title: String, new_author: String, new_pages: u16, amount: usize) -> Self {
+    pub(crate) fn new(
+        new_title: String,
+        new_author: String,
+        new_pages: u16,
+        amount: usize,
+    ) -> Self {
         TheBook {
             books: vec![
                 Rc::new(RefCell::new(Book::new(
@@ -139,14 +129,14 @@ impl TheBook {
     /// If all are used, it will return amount of books
 
     #[inline]
-    pub fn get_unused(&self) -> Option<usize> {
+    pub(crate) fn get_unused(&self) -> Option<usize> {
         self.books.iter().position(|x| !(**x).borrow().is_using)
     }
 
     /// Finds using book by reader
 
     #[inline]
-    pub fn find_by_reader(&self, reader: &Rc<RefCell<Reader>>) -> Option<usize> {
+    pub(crate) fn find_by_reader(&self, reader: &Rc<RefCell<Reader>>) -> Option<usize> {
         self.books.iter().position(|x| {
             (**x).borrow().is_using
                 && ((**x).borrow().readers.last().unwrap())
@@ -158,7 +148,7 @@ impl TheBook {
     /// add one simple book
 
     #[inline]
-    pub fn add_book(&mut self) -> &mut Self {
+    pub(crate) fn add_book(&mut self) -> &mut Self {
         self.books.push(Rc::new(RefCell::new(Book::new(
             self.title.clone(),
             self.author.clone(),
@@ -171,7 +161,7 @@ impl TheBook {
     /// If index is incorrect, it will return Err
 
     #[inline]
-    pub fn remove_book(&mut self, ind: usize) -> ResultSelf<Self> {
+    pub(crate) fn remove_book(&mut self, ind: usize) -> ResultSelf<Self> {
         return if ind == self.books.len() {
             Err(0)
         } else {
@@ -189,7 +179,7 @@ impl TheBook {
     /// Removes all simple books
 
     #[inline]
-    pub fn remove_all_books(&mut self) -> &mut Self {
+    pub(crate) fn remove_all_books(&mut self) -> &mut Self {
         while !self.books.is_empty() {
             unsafe {
                 (**self.books.get_unchecked(self.books.len() - 1))
@@ -207,7 +197,7 @@ impl TheBook {
     /// else true
 
     #[inline]
-    pub fn add_genre(&mut self, genre: String) -> bool {
+    pub(crate) fn add_genre(&mut self, genre: String) -> bool {
         if let None = self.genres {
             self.genres = Some(HashSet::new());
         }
@@ -221,7 +211,7 @@ impl TheBook {
     /// else false
 
     #[inline]
-    pub fn remove_genre(&mut self, genre: &String) -> bool {
+    pub(crate) fn remove_genre(&mut self, genre: &String) -> bool {
         return if let None = self.genres {
             false
         } else if self.genres.as_ref().unwrap().len() == 1
@@ -241,8 +231,11 @@ impl TheBook {
         };
     }
 
+    /// Clones The Book
+    /// with new simple books' smart pointers
+
     #[inline]
-    pub fn clone(&self, reader_base: &ReaderBase) -> Self {
+    pub(crate) fn clone(&self, reader_base: &ReaderBase) -> Self {
         TheBook {
             title: self.title.clone(),
             author: self.author.clone(),

@@ -28,10 +28,10 @@ pub struct BookSystem {
     pub(crate) books: Vec<Rc<RefCell<TheBook>>>,
 }
 
-/// Print for BookSystem.
-/// It is used for debug code
-
 impl Debug for BookSystem {
+    /// Print for BookSystem.
+    /// It is used for debug code
+
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Book System")
@@ -59,7 +59,7 @@ impl BookSystem {
     /// If book is not found, it' ll return TheBooks amount
 
     #[inline]
-    pub fn find_book(&self, title: &String, author: &String, pages: u16) -> Option<usize> {
+    pub(crate) fn find_book(&self, title: &String, author: &String, pages: u16) -> Option<usize> {
         self.books.iter().position(|x| {
             (**x).borrow().title == *title
                 && (**x).borrow().author == *author
@@ -70,7 +70,11 @@ impl BookSystem {
     /// Adds simple books without any checks
 
     #[inline]
-    pub unsafe fn add_books_unchecked(&mut self, ind: usize, amount: usize) -> ResultSelf<Self> {
+    pub(crate) unsafe fn add_books_unchecked(
+        &mut self,
+        ind: usize,
+        amount: usize,
+    ) -> ResultSelf<Self> {
         (0..amount).for_each(|_| {
             (**self.books.get_unchecked_mut(ind))
                 .borrow_mut()
@@ -82,7 +86,7 @@ impl BookSystem {
     /// Adds simple books with strong guarantee
 
     #[inline]
-    pub fn add_books(&mut self, ind: usize, amount: usize) -> ResultSelf<Self> {
+    pub(crate) fn add_books(&mut self, ind: usize, amount: usize) -> ResultSelf<Self> {
         return if ind >= self.books.len() {
             Err(1) // out of range
         } else {
@@ -104,7 +108,7 @@ impl BookSystem {
     /// No checks provided
 
     #[inline]
-    pub unsafe fn add_book_unchecked(
+    pub(crate) unsafe fn add_book_unchecked(
         &mut self,
         title: String,
         author: String,
@@ -121,7 +125,7 @@ impl BookSystem {
     /// (I think it's logical)
 
     #[inline]
-    pub fn add_book(
+    pub(crate) fn add_book(
         &mut self,
         title: String,
         author: String,
@@ -138,7 +142,7 @@ impl BookSystem {
     /// Remove one simple book by index without any checks
 
     #[inline]
-    pub unsafe fn remove_one_book_unchecked(&mut self, ind: usize, rind: usize) {
+    pub(crate) unsafe fn remove_one_book_unchecked(&mut self, ind: usize, rind: usize) {
         (**self.books.get_unchecked_mut(ind))
             .borrow_mut()
             .remove_book(rind)
@@ -148,7 +152,7 @@ impl BookSystem {
     /// Remove one simple book by index
 
     #[inline]
-    pub fn remove_one_book(&mut self, ind: usize, rind: usize) -> ResultSelf<Self> {
+    pub(crate) fn remove_one_book(&mut self, ind: usize, rind: usize) -> ResultSelf<Self> {
         return if ind >= self.books.len() {
             Err(0) // search ind (TheBook) out of range
         } else {
@@ -170,7 +174,7 @@ impl BookSystem {
     /// Removes TheBook and all simple books without any checks
 
     #[inline]
-    pub unsafe fn remove_book_unchecked(&mut self, ind: usize) -> &mut Self {
+    pub(crate) unsafe fn remove_book_unchecked(&mut self, ind: usize) -> &mut Self {
         (**self.books.get_unchecked(ind))
             .borrow_mut()
             .remove_all_books();
@@ -182,7 +186,7 @@ impl BookSystem {
     /// Removes TheBook and all simple books
 
     #[inline]
-    pub fn remove_book(&mut self, ind: usize) -> ResultSelf<Self> {
+    pub(crate) fn remove_book(&mut self, ind: usize) -> ResultSelf<Self> {
         return if ind >= self.books.len() {
             Err(0) // out of range
         } else {
@@ -193,7 +197,11 @@ impl BookSystem {
     /// Changes TheBook's and all simple books' title without any checks
 
     #[inline]
-    pub unsafe fn change_title_unchecked(&mut self, ind: usize, new_title: String) -> &mut Self {
+    pub(crate) unsafe fn change_title_unchecked(
+        &mut self,
+        ind: usize,
+        new_title: String,
+    ) -> &mut Self {
         (**self.books.get_unchecked_mut(ind))
             .borrow_mut()
             .change_title(new_title);
@@ -203,7 +211,7 @@ impl BookSystem {
     /// Changes TheBook's and all simple books' title
 
     #[inline]
-    pub fn change_title(&mut self, ind: usize, new_title: String) -> ResultSelf<Self> {
+    pub(crate) fn change_title(&mut self, ind: usize, new_title: String) -> ResultSelf<Self> {
         return if ind >= self.books.len() {
             Err(0) // out of range
         } else {
@@ -227,7 +235,11 @@ impl BookSystem {
     /// Changes TheBook's and all simple books' title without any checks
 
     #[inline]
-    pub unsafe fn change_author_unchecked(&mut self, ind: usize, new_author: String) -> &mut Self {
+    pub(crate) unsafe fn change_author_unchecked(
+        &mut self,
+        ind: usize,
+        new_author: String,
+    ) -> &mut Self {
         (**self.books.get_unchecked_mut(ind))
             .borrow_mut()
             .change_author(new_author);
@@ -237,7 +249,7 @@ impl BookSystem {
     /// Changes TheBook's and all simple books' title
 
     #[inline]
-    pub fn change_author(&mut self, ind: usize, new_author: String) -> ResultSelf<Self> {
+    pub(crate) fn change_author(&mut self, ind: usize, new_author: String) -> ResultSelf<Self> {
         return if ind >= self.books.len() {
             Err(0) // out of range
         } else {
@@ -261,7 +273,11 @@ impl BookSystem {
     /// Changes TheBook's and all simple books' title without any checks
 
     #[inline]
-    pub unsafe fn change_pages_unchecked(&mut self, ind: usize, new_pages: u16) -> &mut Self {
+    pub(crate) unsafe fn change_pages_unchecked(
+        &mut self,
+        ind: usize,
+        new_pages: u16,
+    ) -> &mut Self {
         (**self.books.get_unchecked_mut(ind))
             .borrow_mut()
             .change_pages(new_pages);
@@ -271,7 +287,7 @@ impl BookSystem {
     /// Changes TheBook's and all simple books' title
 
     #[inline]
-    pub fn change_pages(&mut self, ind: usize, new_pages: String) -> ResultSelf<Self> {
+    pub(crate) fn change_pages(&mut self, ind: usize, new_pages: String) -> ResultSelf<Self> {
         let new_pages_num;
 
         match new_pages.trim().parse::<u16>() {
@@ -308,8 +324,11 @@ impl BookSystem {
         self
     }
 
+    /// Clones Book System
+    /// with new smart pointers for The Book
+
     #[inline]
-    pub fn clone(&self, reader_base: &ReaderBase) -> Self {
+    pub(crate) fn clone(&self, reader_base: &ReaderBase) -> Self {
         BookSystem {
             books: self
                 .books
@@ -321,7 +340,7 @@ impl BookSystem {
 
     /// Save to .yaml file
 
-    pub fn save(&self) {
+    pub(crate) fn save(&self) {
         let mut array = Array::new();
 
         (0..self.books.len()).for_each(|book| {

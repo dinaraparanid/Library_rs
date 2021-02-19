@@ -8,4 +8,4 @@ Project requires git and cmake to be installed
 
 crates.io: https://crates.io/crates/booklibrs
 
-documentation: https://docs.rs/booklibrs/1.0.3/booklibrs/
+documentation: https://docs.rs/booklibrs/1.0.4/booklibrs/

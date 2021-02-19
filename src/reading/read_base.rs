@@ -22,10 +22,10 @@ pub struct ReaderBase {
     pub(crate) readers: Vec<Rc<RefCell<Reader>>>,
 }
 
-/// Print for Reader Base.
-/// It used to debug code
-
 impl Debug for ReaderBase {
+    /// Print for Reader Base.
+    /// It used to debug code
+
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Reader Base")
@@ -42,6 +42,9 @@ impl Debug for ReaderBase {
 }
 
 impl Clone for ReaderBase {
+    /// Clones Reader Base
+    /// with new readers' smart pointers
+
     #[inline]
     fn clone(&self) -> Self {
         ReaderBase {
@@ -67,7 +70,7 @@ impl ReaderBase {
     /// else returns amount of readers
 
     #[inline]
-    pub fn find_reader(
+    pub(crate) fn find_reader(
         &self,
         name: &String,
         family: &String,
@@ -86,7 +89,7 @@ impl ReaderBase {
     /// No checks provided
 
     #[inline]
-    pub unsafe fn add_reader_unchecked(
+    pub(crate) unsafe fn add_reader_unchecked(
         &mut self,
         name: String,
         family: String,
@@ -104,7 +107,7 @@ impl ReaderBase {
     /// it will report error
 
     #[inline]
-    pub fn add_reader(
+    pub(crate) fn add_reader(
         &mut self,
         name: String,
         family: String,
@@ -124,7 +127,7 @@ impl ReaderBase {
     /// No checks provided
 
     #[inline]
-    pub unsafe fn remove_reader_unchecked(&mut self, ind: usize) -> &mut Self {
+    pub(crate) unsafe fn remove_reader_unchecked(&mut self, ind: usize) -> &mut Self {
         (**self.readers.get_unchecked_mut(ind))
             .borrow_mut()
             .remove_all_books();
@@ -137,7 +140,7 @@ impl ReaderBase {
     /// it will report error
 
     #[inline]
-    pub fn remove_reader(&mut self, ind: usize) -> ResultSelf<Self> {
+    pub(crate) fn remove_reader(&mut self, ind: usize) -> ResultSelf<Self> {
         return if ind >= self.readers.len() {
             Err(0) // out of range
         } else {
@@ -149,7 +152,11 @@ impl ReaderBase {
     /// No checks provided
 
     #[inline]
-    pub unsafe fn change_name_unchecked(&mut self, ind: usize, new_name: String) -> &mut Self {
+    pub(crate) unsafe fn change_name_unchecked(
+        &mut self,
+        ind: usize,
+        new_name: String,
+    ) -> &mut Self {
         (**self.readers.get_unchecked_mut(ind))
             .borrow_mut()
             .change_name(new_name)
@@ -162,7 +169,7 @@ impl ReaderBase {
     /// it will report error
 
     #[inline]
-    pub fn change_name(&mut self, ind: usize, new_name: String) -> ResultSelf<Self> {
+    pub(crate) fn change_name(&mut self, ind: usize, new_name: String) -> ResultSelf<Self> {
         return if ind >= self.readers.len() {
             Err(0) // out of range
         } else {
@@ -188,7 +195,11 @@ impl ReaderBase {
     /// No checks provided
 
     #[inline]
-    pub unsafe fn change_family_unchecked(&mut self, ind: usize, new_family: String) -> &mut Self {
+    pub(crate) unsafe fn change_family_unchecked(
+        &mut self,
+        ind: usize,
+        new_family: String,
+    ) -> &mut Self {
         (**self.readers.get_unchecked_mut(ind))
             .borrow_mut()
             .change_family(new_family)
@@ -201,7 +212,7 @@ impl ReaderBase {
     /// it will report error
 
     #[inline]
-    pub fn change_family(&mut self, ind: usize, new_family: String) -> ResultSelf<Self> {
+    pub(crate) fn change_family(&mut self, ind: usize, new_family: String) -> ResultSelf<Self> {
         return if ind >= self.readers.len() {
             Err(0) // out of range
         } else {
@@ -227,7 +238,11 @@ impl ReaderBase {
     /// No checks provided
 
     #[inline]
-    pub unsafe fn change_father_unchecked(&mut self, ind: usize, new_father: String) -> &mut Self {
+    pub(crate) unsafe fn change_father_unchecked(
+        &mut self,
+        ind: usize,
+        new_father: String,
+    ) -> &mut Self {
         (**self.readers.get_unchecked_mut(ind))
             .borrow_mut()
             .change_father(new_father)
@@ -240,7 +255,7 @@ impl ReaderBase {
     /// it will report error
 
     #[inline]
-    pub fn change_father(&mut self, ind: usize, new_father: String) -> ResultSelf<Self> {
+    pub(crate) fn change_father(&mut self, ind: usize, new_father: String) -> ResultSelf<Self> {
         return if ind >= self.readers.len() {
             Err(0) // out of range
         } else {
@@ -266,7 +281,7 @@ impl ReaderBase {
     /// No checks provided
 
     #[inline]
-    pub unsafe fn change_age_unchecked(&mut self, ind: usize, new_age: u8) -> &mut Self {
+    pub(crate) unsafe fn change_age_unchecked(&mut self, ind: usize, new_age: u8) -> &mut Self {
         (**self.readers.get_unchecked_mut(ind))
             .borrow_mut()
             .change_age(new_age);
@@ -278,7 +293,7 @@ impl ReaderBase {
     /// it will report error
 
     #[inline]
-    pub fn change_age(&mut self, ind: usize, new_age: String) -> ResultSelf<Self> {
+    pub(crate) fn change_age(&mut self, ind: usize, new_age: String) -> ResultSelf<Self> {
         let new_age_num;
 
         match new_age.trim().parse::<u8>() {

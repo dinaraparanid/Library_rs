@@ -25,20 +25,20 @@ pub struct Book {
     pub(crate) readers: Vec<(Weak<RefCell<Reader>>, (Date, Date))>,
 }
 
-/// Destructor for simple book.
-/// It is used to debug code.
-
 impl Drop for Book {
+    /// Destructor for simple book.
+    /// It is used to debug code.
+
     #[inline]
     fn drop(&mut self) {
         println!("Book {} {} is deleted", self.title, self.author)
     }
 }
 
-/// Print for simple book.
-/// It is used to debug code.
-
 impl Debug for Book {
+    /// Print for simple book.
+    /// It is used to debug code.
+
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         f.debug_struct("Book")
@@ -75,11 +75,15 @@ impl Debug for Book {
 }
 
 impl PartialEq for Book {
+    /// Compares simple books on equality with pointers' address
+
     #[inline]
     fn eq(&self, other: &Self) -> bool {
         self as *const Book == other as *const Book
     }
 }
+
+/// Compares simple books on equality with pointers' address
 
 impl Eq for Book {}
 
@@ -116,7 +120,7 @@ impl Book {
     /// By default it has no readers and it isn't used
 
     #[inline]
-    pub(crate) fn new(new_title: String, new_author: String, new_pages: u16) -> Self {
+    pub(crate) const fn new(new_title: String, new_author: String, new_pages: u16) -> Self {
         Book {
             title: new_title,
             author: new_author,
@@ -229,6 +233,9 @@ impl Book {
             Ok(self)
         }
     }
+
+    /// Clones simple book
+    /// with new readers' pointers
 
     #[inline]
     pub(crate) fn clone(&self, reader_base: &ReaderBase) -> Self {

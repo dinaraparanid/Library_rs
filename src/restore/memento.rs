@@ -12,6 +12,10 @@ pub(crate) struct Memento {
 }
 
 impl Clone for Memento {
+    /// Clones Memento with new
+    /// Reader Base, Book System and Genres
+    /// (with new smart pointers)
+
     #[inline]
     fn clone(&self) -> Self {
         Memento::new(&self.state.0, &self.state.1, &self.state.2)

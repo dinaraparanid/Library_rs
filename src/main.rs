@@ -778,7 +778,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*genres).borrow(),
                     );
 
-                    (*caretaker).borrow_mut().__ind_minus();
+                    unsafe { (*caretaker).borrow_mut().__ind_minus() }
 
                     (*caretaker).borrow_mut().get_memento_back(
                         &mut *(reader_base).borrow_mut(),
