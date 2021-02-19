@@ -157,7 +157,7 @@ fn change_name_simple(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
-) {
+) -> Option<String> {
     let (s3, r3) = app::channel();
     let mut get_name = Input1::<Input>::new("New Name", "New Name");
 
@@ -165,6 +165,8 @@ fn change_name_simple(
 
     get_name.show();
     (*get_name.ok).borrow_mut().emit(s3, true);
+
+    let mut ans = None;
 
     while app.wait() {
         if let Some(mes) = r3.recv() {
@@ -180,6 +182,7 @@ fn change_name_simple(
 
                                     reader_base.save();
                                     book_system.save();
+                                    ans = Some(new_name.get_unchecked(0).clone())
                                 }
 
                                 Err(0) => {
@@ -205,9 +208,11 @@ fn change_name_simple(
             break;
         } else if !get_name.shown() {
             caretaker.pop();
-            return;
+            break;
         }
     }
+
+    ans
 }
 
 /// Change 2-nd name of already known reader
@@ -220,7 +225,7 @@ fn change_family_simple(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
-) {
+) -> Option<String> {
     let (s3, r3) = app::channel();
     let mut get_family = Input1::<Input>::new("New 2-nd Name", "New 2-nd Name");
 
@@ -228,6 +233,8 @@ fn change_family_simple(
 
     get_family.show();
     (*get_family.ok).borrow_mut().emit(s3, true);
+
+    let mut ans = None;
 
     while app.wait() {
         if let Some(mes) = r3.recv() {
@@ -245,6 +252,8 @@ fn change_family_simple(
 
                                     reader_base.save();
                                     book_system.save();
+
+                                    ans = Some(new_family.get_unchecked(0).clone());
                                 }
 
                                 Err(0) => {
@@ -270,9 +279,11 @@ fn change_family_simple(
             break;
         } else if !get_family.shown() {
             caretaker.pop();
-            return;
+            break;
         }
     }
+
+    ans
 }
 
 /// Change middle name of already known reader
@@ -285,7 +296,7 @@ fn change_father_simple(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
-) {
+) -> Option<String> {
     let (s3, r3) = app::channel();
     let mut get_father = Input1::<Input>::new("New Middle Name", "New Middle Name");
 
@@ -293,6 +304,8 @@ fn change_father_simple(
 
     get_father.show();
     (*get_father.ok).borrow_mut().emit(s3, true);
+
+    let mut ans = None;
 
     while app.wait() {
         if let Some(mes) = r3.recv() {
@@ -310,6 +323,8 @@ fn change_father_simple(
 
                                     reader_base.save();
                                     book_system.save();
+
+                                    ans = Some(new_father.get_unchecked(0).clone());
                                 }
 
                                 Err(0) => {
@@ -335,9 +350,11 @@ fn change_father_simple(
             break;
         } else if !get_father.shown() {
             caretaker.pop();
-            return;
+            break;
         }
     }
+
+    ans
 }
 
 /// Changes age of already known reader
@@ -350,7 +367,7 @@ fn change_age_simple(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
-) {
+) -> Option<String> {
     let (s3, r3) = app::channel();
     let mut get_age = Input1::<IntInput>::new("New Age", "New Age");
 
@@ -358,6 +375,8 @@ fn change_age_simple(
 
     get_age.show();
     (*get_age.ok).borrow_mut().emit(s3, true);
+
+    let mut ans = None;
 
     while app.wait() {
         if let Some(mes) = r3.recv() {
@@ -369,7 +388,7 @@ fn change_age_simple(
                         if new_age.first().unwrap().is_empty() {
                             alert(500, 500, "New age is empty");
                             caretaker.pop();
-                            return;
+                            break;
                         }
 
                         unsafe {
@@ -379,6 +398,8 @@ fn change_age_simple(
 
                                     reader_base.save();
                                     book_system.save();
+
+                                    ans = Some(new_age.get_unchecked(0).clone());
                                 }
 
                                 Err(0) => {
@@ -399,9 +420,11 @@ fn change_age_simple(
             break;
         } else if !get_age.shown() {
             caretaker.pop();
-            return;
+            break;
         }
     }
+
+    ans
 }
 
 /// Function that gives information
@@ -416,7 +439,12 @@ pub fn reader_info_simple(
     app: &App,
 ) {
     let mut wind;
+    let mut table1;
     let mut table2;
+    let mut name_frame;
+    let mut family_frame;
+    let mut father_frame;
+    let mut age_frame;
 
     unsafe {
         wind = SingleWindow::new(
@@ -434,10 +462,10 @@ pub fn reader_info_simple(
         )
         .center_screen();
 
-        let mut table1 = VGrid::new(0, 0, 570, 100, "");
+        table1 = VGrid::new(0, 0, 570, 100, "");
         table1.set_params(6, 1, 1);
 
-        table1.add(&Frame::new(
+        name_frame = Frame::new(
             10,
             50,
             100,
@@ -447,9 +475,9 @@ pub fn reader_info_simple(
                 (*reader_base.readers.get_unchecked(ind)).borrow().name
             )
             .as_str(),
-        ));
+        );
 
-        table1.add(&Frame::new(
+        family_frame = Frame::new(
             30,
             50,
             100,
@@ -459,9 +487,9 @@ pub fn reader_info_simple(
                 (*reader_base.readers.get_unchecked(ind)).borrow().family
             )
             .as_str(),
-        ));
+        );
 
-        table1.add(&Frame::new(
+        father_frame = Frame::new(
             50,
             50,
             100,
@@ -471,9 +499,9 @@ pub fn reader_info_simple(
                 (*reader_base.readers.get_unchecked(ind)).borrow().father
             )
             .as_str(),
-        ));
+        );
 
-        table1.add(&Frame::new(
+        age_frame = Frame::new(
             70,
             50,
             100,
@@ -483,7 +511,12 @@ pub fn reader_info_simple(
                 (*reader_base.readers.get_unchecked(ind)).borrow().age
             )
             .as_str(),
-        ));
+        );
+
+        table1.add(&name_frame);
+        table1.add(&family_frame);
+        table1.add(&father_frame);
+        table1.add(&age_frame);
 
         table1.add(&Frame::new(
             70,
@@ -676,28 +709,44 @@ pub fn reader_info_simple(
         if let Some(msg) = r.recv() {
             match msg {
                 MessageReader::ChangeName => {
-                    change_name_simple(ind, reader_base, book_system, genres, caretaker, app);
-                    table2.redraw();
+                    if let Some(new_name) =
+                        change_name_simple(ind, reader_base, book_system, genres, caretaker, app)
+                    {
+                        name_frame.set_label(format!("First Name: {}", new_name).as_str());
+                        name_frame.redraw();
+                    }
                 }
 
                 MessageReader::ChangeFamily => {
-                    change_family_simple(ind, reader_base, book_system, genres, caretaker, app);
-                    table2.redraw();
+                    if let Some(new_family) =
+                        change_family_simple(ind, reader_base, book_system, genres, caretaker, app)
+                    {
+                        family_frame.set_label(format!("Second Name: {}", new_family).as_str());
+                        family_frame.redraw();
+                    }
                 }
 
                 MessageReader::ChangeFather => {
-                    change_father_simple(ind, reader_base, book_system, genres, caretaker, app);
-                    table2.redraw();
+                    if let Some(new_father) =
+                        change_father_simple(ind, reader_base, book_system, genres, caretaker, app)
+                    {
+                        father_frame.set_label(format!("Middle Name: {}", new_father).as_str());
+                        father_frame.redraw();
+                    }
                 }
 
                 MessageReader::ChangeAge => {
-                    change_age_simple(ind, reader_base, book_system, genres, caretaker, app);
-                    table2.redraw();
+                    if let Some(new_age) =
+                        change_age_simple(ind, reader_base, book_system, genres, caretaker, app)
+                    {
+                        age_frame.set_label(format!("Age: {}", new_age).as_str());
+                        age_frame.redraw();
+                    }
                 }
 
                 MessageReader::RemoveThis => {
                     remove_reader_simple(ind, reader_base, book_system, genres, caretaker);
-                    table2.redraw();
+                    return;
                 }
             }
         }
