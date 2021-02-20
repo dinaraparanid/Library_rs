@@ -6,6 +6,7 @@ use crate::{
     change::{input1::Input1, input3::Input3, input4::Input4, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
+    Lang,
 };
 
 use fltk::{
@@ -38,19 +39,47 @@ enum MessageReader {
 /// Function that checks if input was empty
 
 #[inline]
-pub(crate) fn empty_inp_reader(inp: &Vec<String>) -> bool {
+pub(crate) fn empty_inp_reader(inp: &Vec<String>, lang: Lang) -> bool {
     unsafe {
         return if inp.get_unchecked(0).is_empty() {
-            alert(500, 500, "Name is empty");
+            alert(
+                500,
+                500,
+                match lang {
+                    Lang::English => "'Name' is empty",
+                    Lang::Russian => "'Имя' пусто",
+                },
+            );
             true
         } else if inp.get_unchecked(1).is_empty() {
-            alert(500, 500, "Family is empty");
+            alert(
+                500,
+                500,
+                match lang {
+                    Lang::English => "'2-nd Name' is empty",
+                    Lang::Russian => "'Фамилия' пусто",
+                },
+            );
             true
         } else if inp.get_unchecked(2).is_empty() {
-            alert(500, 500, "Father is empty");
+            alert(
+                500,
+                500,
+                match lang {
+                    Lang::English => "'Mid. Name' is empty",
+                    Lang::Russian => "'Фамилия' пусто",
+                },
+            );
             true
         } else if inp.get_unchecked(2).is_empty() {
-            alert(500, 500, "Age is empty");
+            alert(
+                500,
+                500,
+                match lang {
+                    Lang::English => "'Age' is empty",
+                    Lang::Russian => "'Возраст' пусто",
+                },
+            );
             true
         } else {
             false
@@ -63,19 +92,30 @@ pub(crate) fn empty_inp_reader(inp: &Vec<String>) -> bool {
 /// or calls alert and returns error
 
 #[inline]
-pub(crate) fn check_reader(reader_base: &ReaderBase, reader: &Vec<String>) -> Result<usize, ()> {
+pub(crate) fn check_reader(
+    reader_base: &ReaderBase,
+    reader: &Vec<String>,
+    lang: Lang,
+) -> Result<usize, ()> {
     let age;
     let ind;
 
     unsafe {
-        if empty_inp_reader(reader) {
+        if empty_inp_reader(reader, lang) {
             return Err(());
         }
 
         match reader.get_unchecked(3).trim().parse::<u8>() {
             Ok(x) => age = x,
             Err(_) => {
-                alert(500, 500, "Age input error");
+                alert(
+                    500,
+                    500,
+                    match lang {
+                        Lang::English => "'Age' input error",
+                        Lang::Russian => "Ошибка ввода 'Возраста'",
+                    },
+                );
                 return Err(());
             }
         }
@@ -90,7 +130,14 @@ pub(crate) fn check_reader(reader_base: &ReaderBase, reader: &Vec<String>) -> Re
 
     return match ind {
         None => {
-            alert(500, 500, "Reader isn't found");
+            alert(
+                500,
+                500,
+                match lang {
+                    Lang::English => "Reader isn't found",
+                    Lang::Russian => "Читатель не найден",
+                },
+            );
             Err(())
         }
 
@@ -130,18 +177,34 @@ fn remove_reader_simple(
     book_system: &mut BookSystem,
     genres: &Genres,
     caretaker: &mut Caretaker,
+    lang: Lang,
 ) {
     caretaker.add_memento(reader_base, book_system, genres);
 
     match reader_base.remove_reader(ind) {
         Ok(_) => {
-            fltk::dialog::message(500, 500, "Successfully removed");
+            fltk::dialog::message(
+                500,
+                500,
+                match lang {
+                    Lang::English => "Successfully removed",
+                    Lang::Russian => "Успешно удалён",
+                },
+            );
+
             reader_base.save();
             book_system.save();
         }
 
         Err(_) => {
-            alert(500, 500, "Reader not found");
+            alert(
+                500,
+                500,
+                match lang {
+                    Lang::English => "Reader is not found",
+                    Lang::Russian => "Читатель не найден",
+                },
+            );
             caretaker.pop();
         }
     }
@@ -157,9 +220,19 @@ fn change_name_simple(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) -> Option<String> {
     let (s3, r3) = app::channel();
-    let mut get_name = Input1::<Input>::new("New Name", "New Name");
+    let mut get_name = Input1::<Input>::new(
+        match lang {
+            Lang::English => "New Name",
+            Lang::Russian => "Новое Имя",
+        },
+        match lang {
+            Lang::English => "New Name",
+            Lang::Russian => "Новое Имя",
+        },
+    );
 
     caretaker.add_memento(reader_base, book_system, genres);
 
@@ -178,25 +251,50 @@ fn change_name_simple(
                         unsafe {
                             match reader_base.change_name(ind, new_name.get_unchecked(0).clone()) {
                                 Ok(_) => {
-                                    fltk::dialog::message(500, 500, "Successfully changed");
+                                    fltk::dialog::message(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "Successfully changed",
+                                            Lang::Russian => "Успешно изменено",
+                                        },
+                                    );
 
                                     reader_base.save();
                                     book_system.save();
+
                                     ans = Some(new_name.get_unchecked(0).clone())
                                 }
 
                                 Err(0) => {
-                                    alert(500, 500, "Reader not found");
+                                    alert(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "Reader is not found",
+                                            Lang::Russian => "Читатель не найден",
+                                        },
+                                    );
                                     caretaker.pop();
                                 }
 
                                 Err(1) => {
-                                    alert(500, 500, "Reader already exists");
+                                    alert(500, 500, match lang {
+                                        Lang::English => "Reader with same parameters already exists",
+                                        Lang::Russian => "Читатель с предложенными параметрами уже сузествует",
+                                    });
                                     caretaker.pop();
                                 }
 
                                 Err(_) => {
-                                    alert(500, 500, "New name is empty");
+                                    alert(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "'New name' is empty",
+                                            Lang::Russian => "'Новое имя' пусто",
+                                        },
+                                    );
                                     caretaker.pop();
                                 }
                             }
@@ -225,9 +323,19 @@ fn change_family_simple(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) -> Option<String> {
     let (s3, r3) = app::channel();
-    let mut get_family = Input1::<Input>::new("New 2-nd Name", "New 2-nd Name");
+    let mut get_family = Input1::<Input>::new(
+        match lang {
+            Lang::English => "'New 2-nd Name",
+            Lang::Russian => "Новая Фамилия",
+        },
+        match lang {
+            Lang::English => "'New 2-nd Name",
+            Lang::Russian => "Новая Фамилия",
+        },
+    );
 
     caretaker.add_memento(reader_base, book_system, genres);
 
@@ -248,7 +356,14 @@ fn change_family_simple(
                                 .change_family(ind, new_family.get_unchecked(0).clone())
                             {
                                 Ok(_) => {
-                                    fltk::dialog::message(500, 500, "Successfully changed");
+                                    fltk::dialog::message(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "Successfully changed",
+                                            Lang::Russian => "Успешно изменено",
+                                        },
+                                    );
 
                                     reader_base.save();
                                     book_system.save();
@@ -257,17 +372,38 @@ fn change_family_simple(
                                 }
 
                                 Err(0) => {
-                                    alert(500, 500, "Reader not found");
+                                    alert(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "Reader is not found",
+                                            Lang::Russian => "Читатель не найден",
+                                        },
+                                    );
                                     caretaker.pop();
                                 }
 
                                 Err(1) => {
-                                    alert(500, 500, "Reader already exists");
+                                    alert(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "Reader with same parameters already exists",
+                                            Lang::Russian => "Читатель с предложенными параметрами уже существует",
+                                        },
+                                    );
                                     caretaker.pop();
                                 }
 
                                 Err(_) => {
-                                    alert(500, 500, "New 2-nd name is empty");
+                                    alert(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "'New 2-nd Name' is empty",
+                                            Lang::Russian => "'Новая Фамилия' пусто",
+                                        },
+                                    );
                                     caretaker.pop();
                                 }
                             }
@@ -296,9 +432,19 @@ fn change_father_simple(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) -> Option<String> {
     let (s3, r3) = app::channel();
-    let mut get_father = Input1::<Input>::new("New Middle Name", "New Middle Name");
+    let mut get_father = Input1::<Input>::new(
+        match lang {
+            Lang::English => "New Middle Name",
+            Lang::Russian => "Новое Отчество",
+        },
+        match lang {
+            Lang::English => "New Middle Name",
+            Lang::Russian => "Новое Отчество",
+        },
+    );
 
     caretaker.add_memento(reader_base, book_system, genres);
 
@@ -319,7 +465,14 @@ fn change_father_simple(
                                 .change_father(ind, new_father.get_unchecked(0).clone())
                             {
                                 Ok(_) => {
-                                    fltk::dialog::message(500, 500, "Successfully changed");
+                                    fltk::dialog::message(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "Successfully changed",
+                                            Lang::Russian => "Успешно изменено",
+                                        },
+                                    );
 
                                     reader_base.save();
                                     book_system.save();
@@ -328,17 +481,38 @@ fn change_father_simple(
                                 }
 
                                 Err(0) => {
-                                    alert(500, 500, "Reader not found");
+                                    alert(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "Reader is not found",
+                                            Lang::Russian => "Читатель не найден",
+                                        },
+                                    );
                                     caretaker.pop();
                                 }
 
                                 Err(1) => {
-                                    alert(500, 500, "Reader already exists");
+                                    alert(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "Reader with same parameters already exists",
+                                            Lang::Russian => "Читатель с предложенными параметрами уже существует",
+                                        },
+                                    );
                                     caretaker.pop();
                                 }
 
                                 Err(_) => {
-                                    alert(500, 500, "New mid. name is empty");
+                                    alert(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "'New Mid. Name' is empty",
+                                            Lang::Russian => "'Новое Отчество' пусто",
+                                        },
+                                    );
                                     caretaker.pop();
                                 }
                             }
@@ -367,9 +541,19 @@ fn change_age_simple(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) -> Option<String> {
     let (s3, r3) = app::channel();
-    let mut get_age = Input1::<IntInput>::new("New Age", "New Age");
+    let mut get_age = Input1::<IntInput>::new(
+        match lang {
+            Lang::English => "New Age",
+            Lang::Russian => "Новый возраст",
+        },
+        match lang {
+            Lang::English => "New Age",
+            Lang::Russian => "Новый возраст",
+        },
+    );
 
     caretaker.add_memento(reader_base, book_system, genres);
 
@@ -386,7 +570,14 @@ fn change_age_simple(
 
                     if let Ok(new_age) = get_age.set_input() {
                         if new_age.first().unwrap().is_empty() {
-                            alert(500, 500, "New age is empty");
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "'New Age' is empty",
+                                    Lang::Russian => "'Новый возраст' пусто",
+                                },
+                            );
                             caretaker.pop();
                             break;
                         }
@@ -394,7 +585,14 @@ fn change_age_simple(
                         unsafe {
                             match reader_base.change_age(ind, new_age.get_unchecked(0).clone()) {
                                 Ok(_) => {
-                                    fltk::dialog::message(500, 500, "Successfully changed");
+                                    fltk::dialog::message(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "Successfully changed",
+                                            Lang::Russian => "Успешно изменено",
+                                        },
+                                    );
 
                                     reader_base.save();
                                     book_system.save();
@@ -403,12 +601,26 @@ fn change_age_simple(
                                 }
 
                                 Err(0) => {
-                                    alert(500, 500, "Age input error");
+                                    alert(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "'New Age' input error",
+                                            Lang::Russian => "Ошибка ввода 'Нового возраста'",
+                                        },
+                                    );
                                     caretaker.pop();
                                 }
 
                                 Err(_) => {
-                                    alert(500, 500, "Reader already exists");
+                                    alert(
+                                        500, 
+                                        500,
+                                        match lang {
+                                            Lang::English => "Reader with same parameters already exists",
+                                            Lang::Russian => "Читатель с предложенными параметрами уже существует",
+                                        }
+                                    );
                                     caretaker.pop();
                                 }
                             }
@@ -437,6 +649,7 @@ pub fn reader_info_simple(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang
 ) {
     let mut wind;
     let mut table1;
@@ -471,7 +684,11 @@ pub fn reader_info_simple(
             100,
             30,
             format!(
-                "First Name: {}",
+                "{}: {}",
+                match lang {
+                    Lang::English => "First Name",
+                    Lang::Russian => "Имя",
+                },
                 (*reader_base.readers.get_unchecked(ind)).borrow().name
             )
             .as_str(),
@@ -483,7 +700,11 @@ pub fn reader_info_simple(
             100,
             30,
             format!(
-                "Second Name: {}",
+                "{}: {}",
+                match lang {
+                    Lang::English => "Second Name",
+                    Lang::Russian => "Фамилия",
+                },
                 (*reader_base.readers.get_unchecked(ind)).borrow().family
             )
             .as_str(),
@@ -495,7 +716,11 @@ pub fn reader_info_simple(
             100,
             30,
             format!(
-                "Middle Name: {}",
+                "{}: {}",
+                match lang {
+                    Lang::English => "Middle Name",
+                    Lang::Russian => "Отчество",
+                },
                 (*reader_base.readers.get_unchecked(ind)).borrow().father
             )
             .as_str(),
@@ -507,7 +732,11 @@ pub fn reader_info_simple(
             100,
             30,
             format!(
-                "Age: {}",
+                "{}: {}",
+                match lang {
+                    Lang::English => "Age",
+                    Lang::Russian => "Возраст",
+                },
                 (*reader_base.readers.get_unchecked(ind)).borrow().age
             )
             .as_str(),
@@ -524,7 +753,11 @@ pub fn reader_info_simple(
             100,
             30,
             format!(
-                "Reading now: {}",
+                "{}: {}",
+                match lang {
+                    Lang::English => "Reading now",
+                    Lang::Russian => "Читается сейчас",
+                },
                 if (**reader_base.readers.get_unchecked(ind))
                     .borrow()
                     .reading
@@ -579,7 +812,10 @@ pub fn reader_info_simple(
                         .as_str()
                         + ")"
                 } else {
-                    "None".to_string()
+                    match lang {
+                        Lang::English => "None",
+                        Lang::Russian => "Ничего",
+                    }.to_string()
                 }
             )
             .as_str(),
@@ -590,7 +826,10 @@ pub fn reader_info_simple(
             50,
             100,
             30,
-            format!("Books read by reader:").as_str(),
+            format!("{}:", match lang {
+                Lang::English => "Books read by reader",
+                Lang::Russian => "Прочитанные книги",
+            }).as_str(),
         ));
 
         table1.auto_layout();
@@ -612,13 +851,25 @@ pub fn reader_info_simple(
 
     wind.end();
 
-    let mut menu = MenuBar::new(0, 0, 190, 30, "");
+    let mut menu = MenuBar::new(
+        0,
+        0,
+        190 + match lang {
+            Lang::English => 0,
+            Lang::Russian => 40,
+        },
+        30,
+        ""
+    );
     wind.add(&menu);
 
     let (s, r) = app::channel();
 
     menu.add_emit(
-        "&Change/Change name\t",
+        match lang {
+            Lang::English => "&Change/Change name\t",
+            Lang::Russian => "&Изменить/Изменить имя\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -626,7 +877,10 @@ pub fn reader_info_simple(
     );
 
     menu.add_emit(
-        "&Change/Change family\t",
+        match lang {
+            Lang::English => "&Change/Change 2-nd name\t",
+            Lang::Russian => "&Изменить/Изменить фамилию\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -634,7 +888,10 @@ pub fn reader_info_simple(
     );
 
     menu.add_emit(
-        "&Change/Change father\t",
+        match lang {
+            Lang::English => "&Change/Change mid name\t",
+            Lang::Russian => "&Изменить/Изменить отчество\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -642,7 +899,10 @@ pub fn reader_info_simple(
     );
 
     menu.add_emit(
-        "&Change/Change age\t",
+        match lang {
+            Lang::English => "&Change/Change age\t",
+            Lang::Russian => "&Изменить/Изменить возраст\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -650,7 +910,10 @@ pub fn reader_info_simple(
     );
 
     menu.add_emit(
-        "Remove reader\t",
+        match lang {
+            Lang::English => "&Remove reader\t",
+            Lang::Russian => "&Удалить читателя\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -669,10 +932,25 @@ pub fn reader_info_simple(
             &format!(
                 "{}",
                 match col {
-                    0 => "Title",
-                    1 => "Author",
-                    2 => "Pages",
-                    _ => "Number of book",
+                    0 => match lang {
+                        Lang::English => "Title",
+                        Lang::Russian => "Название",
+                    },
+
+                    1 => match lang {
+                        Lang::English => "Author",
+                        Lang::Russian => "Автор",
+                    },
+
+                    2 => match lang {
+                        Lang::English => "Amount of Pages",
+                        Lang::Russian => "Количество страниц",
+                    },
+
+                    _ => match lang {
+                        Lang::English => "Number of book",
+                        Lang::Russian => "Номер книги",
+                    },
                 }
             ),
             x,
@@ -710,42 +988,70 @@ pub fn reader_info_simple(
             match msg {
                 MessageReader::ChangeName => {
                     if let Some(new_name) =
-                        change_name_simple(ind, reader_base, book_system, genres, caretaker, app)
+                        change_name_simple(ind, reader_base, book_system, genres, caretaker, app, lang)
                     {
-                        name_frame.set_label(format!("First Name: {}", new_name).as_str());
+                        name_frame.set_label(
+                            format!("{}: {}",
+                                    match lang {
+                                        Lang::English => "First Name",
+                                        Lang::Russian => "Имя",
+                                    },
+                                    new_name
+                            ).as_str());
                         name_frame.redraw();
                     }
                 }
 
                 MessageReader::ChangeFamily => {
                     if let Some(new_family) =
-                        change_family_simple(ind, reader_base, book_system, genres, caretaker, app)
+                        change_family_simple(ind, reader_base, book_system, genres, caretaker, app, lang)
                     {
-                        family_frame.set_label(format!("Second Name: {}", new_family).as_str());
+                        family_frame.set_label(
+                            format!("{}: {}",
+                                    match lang {
+                                        Lang::English => "Second Name",
+                                        Lang::Russian => "Фамилия",
+                                    },
+                                    new_family
+                            ).as_str());
                         family_frame.redraw();
                     }
                 }
 
                 MessageReader::ChangeFather => {
                     if let Some(new_father) =
-                        change_father_simple(ind, reader_base, book_system, genres, caretaker, app)
+                        change_father_simple(ind, reader_base, book_system, genres, caretaker, app, lang)
                     {
-                        father_frame.set_label(format!("Middle Name: {}", new_father).as_str());
+                        father_frame.set_label(
+                            format!("{}: {}",
+                                    match lang {
+                                        Lang::English => "Middle Name",
+                                        Lang::Russian => "Отчество",
+                                    },
+                                    new_father
+                            ).as_str());
                         father_frame.redraw();
                     }
                 }
 
                 MessageReader::ChangeAge => {
                     if let Some(new_age) =
-                        change_age_simple(ind, reader_base, book_system, genres, caretaker, app)
+                        change_age_simple(ind, reader_base, book_system, genres, caretaker, app, lang)
                     {
-                        age_frame.set_label(format!("Age: {}", new_age).as_str());
+                        age_frame.set_label(
+                            format!("{}: {}",
+                                    match lang {
+                                        Lang::English => "Age",
+                                        Lang::Russian => "Возраст",
+                                    },
+                                    new_age
+                            ).as_str());
                         age_frame.redraw();
                     }
                 }
 
                 MessageReader::RemoveThis => {
-                    remove_reader_simple(ind, reader_base, book_system, genres, caretaker);
+                    remove_reader_simple(ind, reader_base, book_system, genres, caretaker, lang);
                     return;
                 }
             }
@@ -772,6 +1078,7 @@ pub fn reader_info_simple(
                         ),
                         book_system,
                         app,
+                        lang
                     );
                 }
                 table2.unset_selection();
@@ -792,15 +1099,31 @@ pub fn add_reader(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
-        "Add Reader",
-        "First Name",
-        "Second Names",
-        "Middle Name",
-        "Age",
+        match lang {
+            Lang::English => "Add Reader",
+            Lang::Russian => "Добавить читателя",
+        },
+        match lang {
+            Lang::English => "First Name",
+            Lang::Russian => "Имя",
+        },
+        match lang {
+            Lang::English => "Second Names",
+            Lang::Russian => "Фамилия",
+        },
+        match lang {
+            Lang::English => "Middle Name",
+            Lang::Russian => "Отчество",
+        },
+        match lang {
+            Lang::English => "Age",
+            Lang::Russian => "Возраст",
+        },
     );
 
     caretaker.add_memento(reader_base, book_system, genres);
@@ -815,7 +1138,7 @@ pub fn add_reader(
                     inp.hide();
 
                     if let Ok(reader) = inp.set_input() {
-                        if empty_inp_reader(&reader) {
+                        if empty_inp_reader(&reader, lang) {
                             return;
                         }
 
@@ -828,19 +1151,39 @@ pub fn add_reader(
                                     a,
                                 ) {
                                     Ok(_) => {
-                                        fltk::dialog::message(500, 500, "Successfully added");
+                                        fltk::dialog::message(
+                                            500,
+                                            500,
+                                            match lang {
+                                                Lang::English => "Successfully added",
+                                                Lang::Russian => "Успешно добавлено",
+                                            }
+                                        );
                                         reader_base.save();
                                     }
 
                                     Err(_) => {
-                                        alert(500, 500, "Reader already exists");
+                                        alert(
+                                            500,
+                                            500,
+                                            match lang {
+                                                Lang::English => "Reader with same parameters already exists",
+                                                Lang::Russian => "Читатель с предложенными парамтрами уже сузествует",
+                                            }
+                                        );
                                     }
                                 }
                             },
 
                             Err(_) => {
-                                alert(500, 500, "Age input error");
-                                println!("{:?}", reader.last().unwrap().trim().parse::<u8>())
+                                alert(
+                                    500,
+                                    500,
+                                    match lang {
+                                        Lang::English => "'Age' input error",
+                                        Lang::Russian => "Ошибка ввода 'Возраста'",
+                                    }
+                                );
                             }
                         }
                     }
@@ -865,15 +1208,31 @@ pub fn remove_reader(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang
 ) {
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
-        "Remove Reader",
-        "First Name",
-        "Second Names",
-        "Middle Name",
-        "Age",
+        match lang {
+            Lang::English => "Remove Reader",
+            Lang::Russian => "Удалить читателя",
+        },
+        match lang {
+            Lang::English => "First Name",
+            Lang::Russian => "Имя",
+        },
+        match lang {
+            Lang::English => "Second Names",
+            Lang::Russian => "Фамилия",
+        },
+        match lang {
+            Lang::English => "Middle Name",
+            Lang::Russian => "Отчество",
+        },
+        match lang {
+            Lang::English => "Age",
+            Lang::Russian => "Возраст",
+        },
     );
 
     inp.show();
@@ -889,12 +1248,19 @@ pub fn remove_reader(
                     if let Ok(reader) = rem_reader_params {
                         let rind;
 
-                        match check_reader(reader_base, &reader) {
+                        match check_reader(reader_base, &reader, lang) {
                             Ok(x) => rind = x,
                             Err(_) => return,
                         }
 
-                        remove_reader_simple(rind, reader_base, book_system, genres, caretaker);
+                        remove_reader_simple(
+                            rind,
+                            reader_base,
+                            book_system,
+                            genres,
+                            caretaker,
+                            lang
+                        );
                     }
                 }
                 false => (),
@@ -917,15 +1283,31 @@ pub fn change_name(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang
 ) {
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
-        "Change Name",
-        "First Name",
-        "Second Names",
-        "Middle Name",
-        "Age",
+        match lang {
+            Lang::English => "Change Name",
+            Lang::Russian => "Изменить имя",
+        },
+        match lang {
+            Lang::English => "First Name",
+            Lang::Russian => "Имя",
+        },
+        match lang {
+            Lang::English => "Second Names",
+            Lang::Russian => "Фамилия",
+        },
+        match lang {
+            Lang::English => "Middle Name",
+            Lang::Russian => "Отчество",
+        },
+        match lang {
+            Lang::English => "Age",
+            Lang::Russian => "Возраст",
+        },
     );
 
     inp.show();
@@ -940,12 +1322,20 @@ pub fn change_name(
                     if let Ok(reader) = inp.set_input() {
                         let rind;
 
-                        match check_reader(reader_base, &reader) {
+                        match check_reader(reader_base, &reader, lang) {
                             Ok(x) => rind = x,
                             Err(_) => return,
                         }
 
-                        change_name_simple(rind, reader_base, book_system, genres, caretaker, app);
+                        change_name_simple(
+                            rind,
+                            reader_base,
+                            book_system,
+                            genres,
+                            caretaker,
+                            app,
+                            lang
+                        );
                     }
                 }
                 false => (),
@@ -968,15 +1358,31 @@ pub fn change_family(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang
 ) {
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
-        "Change 2-nd Name",
-        "First Name",
-        "Second Names",
-        "Middle Name",
-        "Age",
+        match lang {
+            Lang::English => "Change 2-nd Name",
+            Lang::Russian => "Изменить фамилию",
+        },
+        match lang {
+            Lang::English => "First Name",
+            Lang::Russian => "Имя",
+        },
+        match lang {
+            Lang::English => "Second Names",
+            Lang::Russian => "Фамилия",
+        },
+        match lang {
+            Lang::English => "Middle Name",
+            Lang::Russian => "Отчество",
+        },
+        match lang {
+            Lang::English => "Age",
+            Lang::Russian => "Возраст",
+        },
     );
 
     inp.show();
@@ -991,7 +1397,7 @@ pub fn change_family(
                     if let Ok(reader) = inp.set_input() {
                         let rind;
 
-                        match check_reader(reader_base, &reader) {
+                        match check_reader(reader_base, &reader, lang) {
                             Ok(x) => rind = x,
                             Err(_) => return,
                         }
@@ -1003,6 +1409,7 @@ pub fn change_family(
                             genres,
                             caretaker,
                             app,
+                            lang
                         );
                     }
                 }
@@ -1026,15 +1433,31 @@ pub fn change_father(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang
 ) {
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
-        "Change Middle Name",
-        "First Name",
-        "Second Names",
-        "Middle Name",
-        "Age",
+        match lang {
+            Lang::English => "Change Middle Name",
+            Lang::Russian => "Изменить Отчество",
+        },
+        match lang {
+            Lang::English => "First Name",
+            Lang::Russian => "Имя",
+        },
+        match lang {
+            Lang::English => "Second Names",
+            Lang::Russian => "Фамилия",
+        },
+        match lang {
+            Lang::English => "Middle Name",
+            Lang::Russian => "Отчество",
+        },
+        match lang {
+            Lang::English => "Age",
+            Lang::Russian => "Возраст",
+        },
     );
 
     inp.show();
@@ -1049,7 +1472,7 @@ pub fn change_father(
                     if let Ok(reader) = inp.set_input() {
                         let rind;
 
-                        match check_reader(reader_base, &reader) {
+                        match check_reader(reader_base, &reader, lang) {
                             Ok(x) => rind = x,
                             Err(_) => return,
                         }
@@ -1061,6 +1484,7 @@ pub fn change_father(
                             genres,
                             caretaker,
                             app,
+                            lang
                         );
                     }
                 }
@@ -1084,15 +1508,31 @@ pub fn change_age(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s2, r2) = app::channel();
 
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
-        "Change Age",
-        "First Name",
-        "Second Names",
-        "Middle Name",
-        "Age",
+        match lang {
+            Lang::English => "Change Age",
+            Lang::Russian => "Изменить Возраст",
+        },
+        match lang {
+            Lang::English => "First Name",
+            Lang::Russian => "Имя",
+        },
+        match lang {
+            Lang::English => "Second Names",
+            Lang::Russian => "Фамилия",
+        },
+        match lang {
+            Lang::English => "Middle Name",
+            Lang::Russian => "Отчество",
+        },
+        match lang {
+            Lang::English => "Age",
+            Lang::Russian => "Возраст",
+        },
     );
 
     inp.show();
@@ -1107,12 +1547,20 @@ pub fn change_age(
                     if let Ok(reader) = inp.set_input() {
                         let rind;
 
-                        match check_reader(reader_base, &reader) {
+                        match check_reader(reader_base, &reader, lang) {
                             Ok(x) => rind = x,
                             Err(_) => return,
                         }
 
-                        change_age_simple(rind, reader_base, book_system, genres, caretaker, app);
+                        change_age_simple(
+                            rind,
+                            reader_base,
+                            book_system,
+                            genres,
+                            caretaker,
+                            app,
+                            lang
+                        );
                     }
                 }
                 false => (),
@@ -1135,14 +1583,30 @@ pub fn reader_info(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang
 ) {
     let (s2, r2) = app::channel();
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
-        "Find Reader",
-        "First Name",
-        "Second Name",
-        "Middle Name",
-        "Age",
+        match lang {
+            Lang::English => "Find Reader",
+            Lang::Russian => "Поиск Читателя",
+        },
+        match lang {
+            Lang::English => "First Name",
+            Lang::Russian => "Имя",
+        },
+        match lang {
+            Lang::English => "Second Names",
+            Lang::Russian => "Фамилия",
+        },
+        match lang {
+            Lang::English => "Middle Name",
+            Lang::Russian => "Отчество",
+        },
+        match lang {
+            Lang::English => "Age",
+            Lang::Russian => "Возраст",
+        },
     );
 
     inp.show();
@@ -1165,7 +1629,10 @@ pub fn reader_info(
                                 );
 
                                 match find {
-                                    None => alert(500, 500, "Reader isn't found"),
+                                    None => alert(500, 500, match lang {
+                                        Lang::English => "Reader isn't found",
+                                        Lang::Russian => "Читатель не найден",
+                                    }),
 
                                     Some(ind) => reader_info_simple(
                                         ind,
@@ -1174,13 +1641,16 @@ pub fn reader_info(
                                         genres,
                                         caretaker,
                                         app,
+                                        lang
                                     ),
                                 }
                             },
 
                             Err(_) => {
-                                alert(500, 500, "Age input error");
-                                println!("{:?}", reader.last().unwrap().trim().parse::<u8>())
+                                alert(500, 500, match lang {
+                                    Lang::English => "'Age' input error",
+                                    Lang::Russian => "Ошибка ввода 'Возраста'",
+                                });
                             }
                         }
                     }

@@ -6,6 +6,7 @@ use crate::{
     change::{input3::Input3, input4::Input4, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
+    Lang,
 };
 
 use fltk::{
@@ -30,14 +31,30 @@ pub fn give_book(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s2, r2) = fltk::app::channel();
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
-        "Find Reader",
-        "First Name",
-        "Second Name",
-        "Middle Name",
-        "Age",
+        match lang {
+            Lang::English => "Find Reader",
+            Lang::Russian => "Поиск Читателя",
+        },
+        match lang {
+            Lang::English => "First Name",
+            Lang::Russian => "Имя",
+        },
+        match lang {
+            Lang::English => "Second Name",
+            Lang::Russian => "Фамилия",
+        },
+        match lang {
+            Lang::English => "Middle Name",
+            Lang::Russian => "Отчество",
+        },
+        match lang {
+            Lang::English => "Age",
+            Lang::Russian => "Возраст",
+        },
     );
 
     caretaker.add_memento(reader_base, book_system, genres);
@@ -54,17 +71,29 @@ pub fn give_book(
                     if let Ok(reader) = inp.set_input() {
                         let rind;
 
-                        match check_reader(reader_base, &reader) {
+                        match check_reader(reader_base, &reader, lang) {
                             Ok(x) => rind = x,
                             Err(_) => return,
                         }
 
                         let (s3, r3) = fltk::app::channel();
                         let mut inp2 = Input3::<Input, Input, IntInput>::new(
-                            "Find Book",
-                            "Title",
-                            "Author",
-                            "Pages",
+                            match lang {
+                                Lang::English => "Find Book",
+                                Lang::Russian => "Поиск Книги",
+                            },
+                            match lang {
+                                Lang::English => "Title",
+                                Lang::Russian => "Название",
+                            },
+                            match lang {
+                                Lang::English => "Author",
+                                Lang::Russian => "Автор",
+                            },
+                            match lang {
+                                Lang::English => "Amount of Pages",
+                                Lang::Russian => "Количество страниц",
+                            },
                         );
 
                         inp2.show();
@@ -80,7 +109,7 @@ pub fn give_book(
                                             unsafe {
                                                 let bind;
 
-                                                match check_book(book_system, &book) {
+                                                match check_book(book_system, &book, lang) {
                                                     Ok(x) => bind = x,
                                                     Err(_) => return,
                                                 }
@@ -88,10 +117,22 @@ pub fn give_book(
                                                 let (s4, r4) = fltk::app::channel();
                                                 let mut inp3 =
                                                     Input3::<IntInput, IntInput, IntInput>::new(
-                                                        "Set Return Date",
-                                                        "Day",
-                                                        "Month (number)",
-                                                        "Year",
+                                                        match lang {
+                                                            Lang::English => "Set Return Date",
+                                                            Lang::Russian => "Дедлайн",
+                                                        },
+                                                        match lang {
+                                                            Lang::English => "Day (number)",
+                                                            Lang::Russian => "День (номер)",
+                                                        },
+                                                        match lang {
+                                                            Lang::English => "Month (number)",
+                                                            Lang::Russian => "Месяц (номер)",
+                                                        },
+                                                        match lang {
+                                                            Lang::English => "Year",
+                                                            Lang::Russian => "Год",
+                                                        },
                                                     );
 
                                                 inp3.show();
@@ -129,7 +170,10 @@ pub fn give_book(
 														                                            alert(
 															                                            500,
 															                                            500,
-															                                            "Incorrect Date"
+															                                            match lang {
+																                                            Lang::English => "Incorrect return date",
+																                                            Lang::Russian => "Некорректная дата возврата",
+															                                            },
 														                                            );
 														                                            caretaker.pop();
 													                                            },
@@ -146,7 +190,12 @@ pub fn give_book(
 																                                            alert(
 																	                                            500,
 																	                                            500,
-																	                                            "There are no free books"
+																	                                            match lang {
+																		                                            Lang::English =>
+																			                                            "There are no free books",
+																		                                            Lang::Russian =>
+																			                                            "Свободных книг не осталось",
+																	                                            },
 																                                            );
 																                                            caretaker.pop();
 															                                            },
@@ -161,7 +210,12 @@ pub fn give_book(
 																	                                            alert(
 																		                                            500,
 																		                                            500,
-																		                                            "This reader is already reading another book"
+																		                                            match lang {
+																			                                            Lang::English =>
+																				                                            "This reader is already reading another book",
+																			                                            Lang::Russian =>
+																				                                            "Этот читатель уже читает книгу",
+																		                                            },
 																	                                            );
 																	                                            caretaker.pop();
 																	                                            return;
@@ -196,7 +250,12 @@ pub fn give_book(
 																                                            fltk::dialog::message(
 																	                                            500,
 																	                                            500,
-																	                                            "Book successfully given to reader"
+																	                                            match lang {
+																		                                            Lang::English =>
+																			                                            "Book successfully given to reader",
+																		                                            Lang::Russian =>
+																			                                            "Книга успешно выдана читателю",
+																	                                            },
 																                                            );
 
 																                                            book_system.save();
@@ -211,16 +270,14 @@ pub fn give_book(
 												                                            alert(
 													                                            500,
 													                                            500,
-													                                            "Year input error"
+													                                            match lang {
+														                                            Lang::English =>
+															                                            "'Year' input error",
+														                                            Lang::Russian =>
+															                                            "Ошибка ввода 'Года'",
+													                                            },
 												                                            );
-
 												                                            caretaker.pop();
-
-												                                            println!("{:?}",
-												                                                     dat.get_unchecked(2)
-												                                                        .trim()
-												                                                        .parse::<u16>()
-												                                            );
 											                                            }
 										                                            }
 									                                            }
@@ -229,16 +286,14 @@ pub fn give_book(
 										                                            alert(
 											                                            500,
 											                                            500,
-											                                            "Month input error"
+											                                            match lang {
+												                                            Lang::English =>
+													                                            "'Month' input error",
+												                                            Lang::Russian =>
+													                                            "Ошибка ввода 'Месяца'",
+											                                            },
 										                                            );
-
 										                                            caretaker.pop();
-
-										                                            println!("{:?}",
-										                                                     dat.get_unchecked(1)
-										                                                        .trim()
-										                                                        .parse::<u8>()
-										                                            );
 									                                            }
 								                                            }
                                                                         }
@@ -247,19 +302,14 @@ pub fn give_book(
                                                                             alert(
                                                                                 500,
                                                                                 500,
-                                                                                "Day input error",
+                                                                                match lang {
+	                                                                                Lang::English =>
+		                                                                                "'Day' input error",
+	                                                                                Lang::Russian =>
+		                                                                                "Ошибка ввода 'Дня'",
+                                                                                },
                                                                             );
-
                                                                             caretaker.pop();
-
-                                                                            println!(
-                                                                                "{:?}",
-                                                                                dat.get_unchecked(
-                                                                                    0
-                                                                                )
-                                                                                .trim()
-                                                                                .parse::<u8>()
-                                                                            );
                                                                         }
                                                                     }
                                                                 }
@@ -305,14 +355,30 @@ pub fn get_book(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s2, r2) = fltk::app::channel();
     let mut inp = Input4::<Input, Input, Input, IntInput>::new(
-        "Find Reader",
-        "First Name",
-        "Second Name",
-        "Middle Name",
-        "Age",
+        match lang {
+            Lang::English => "Find Reader",
+            Lang::Russian => "Поиск Читателя",
+        },
+        match lang {
+            Lang::English => "First Name",
+            Lang::Russian => "Имя",
+        },
+        match lang {
+            Lang::English => "Second Name",
+            Lang::Russian => "Фамилия",
+        },
+        match lang {
+            Lang::English => "Middle Name",
+            Lang::Russian => "Отчество",
+        },
+        match lang {
+            Lang::English => "Age",
+            Lang::Russian => "Возраст",
+        },
     );
 
     caretaker.add_memento(reader_base, book_system, genres);
@@ -329,17 +395,29 @@ pub fn get_book(
                     if let Ok(reader) = inp.set_input() {
                         let rind;
 
-                        match check_reader(reader_base, &reader) {
+                        match check_reader(reader_base, &reader, lang) {
                             Ok(x) => rind = x,
                             Err(_) => return,
                         }
 
                         let (s3, r3) = fltk::app::channel();
                         let mut inp2 = Input3::<Input, Input, IntInput>::new(
-                            "Find Book",
-                            "Title",
-                            "Author",
-                            "Pages",
+                            match lang {
+                                Lang::English => "Find Book",
+                                Lang::Russian => "Поиск Читателя",
+                            },
+                            match lang {
+                                Lang::English => "Title",
+                                Lang::Russian => "Название книги",
+                            },
+                            match lang {
+                                Lang::English => "Author",
+                                Lang::Russian => "Автор",
+                            },
+                            match lang {
+                                Lang::English => "Amount of Pages",
+                                Lang::Russian => "Количество страниц",
+                            },
                         );
 
                         inp2.show();
@@ -354,7 +432,7 @@ pub fn get_book(
                                         if let Ok(book) = inp2.set_input() {
                                             let bind;
 
-                                            match check_book(book_system, &book) {
+                                            match check_book(book_system, &book, lang) {
                                                 Ok(x) => bind = x,
                                                 Err(_) => return,
                                             }
@@ -372,7 +450,10 @@ pub fn get_book(
                                                         alert(
                                                             500,
                                                             500,
-                                                            "This reader wasn't reading this book",
+                                                            match lang {
+	                                                            Lang::English => "This reader wasn't reading searching book",
+	                                                            Lang::Russian => "Этот читатель не читает искомую книгу",
+                                                            },
                                                         );
                                                         caretaker.pop();
                                                     }
@@ -396,13 +477,19 @@ pub fn get_book(
 		                                                    Ok(_) => fltk::dialog::message(
 			                                                    500,
 			                                                    500,
-			                                                    "Book is returned",
+			                                                    match lang {
+				                                                    Lang::English => "Book is returned",
+				                                                    Lang::Russian => "Книга возвращена",
+			                                                    },
 		                                                    ),
 
 		                                                    Err(_) => fltk::dialog::message(
 			                                                    500,
 			                                                    500,
-			                                                    "Book is returned, but reader is late",
+			                                                    match lang {
+				                                                    Lang::English => "Book is returned after deadline",
+				                                                    Lang::Russian => "Книга возвращена после дедлайна",
+			                                                    },
 		                                                    ),
 	                                                    }
 

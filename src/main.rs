@@ -6,6 +6,7 @@ use booklibrs::{
     change::{input2::Input2, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
+    Lang,
 };
 
 use fltk::{
@@ -45,7 +46,6 @@ enum Message {
     InfoReader,
     AddBooks,
     RemoveBook,
-    AddTheBook,
     RemoveTheBook,
     ChangeTitle,
     ChangeAuthor,
@@ -62,6 +62,8 @@ enum Message {
     FindByGenre,
     PrevData,
     NextData,
+    English,
+    Russian,
 }
 
 /// Hashing login and password
@@ -90,6 +92,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let reader_base = Rc::new(RefCell::new(ReaderBase::new()));
     let book_system = Rc::new(RefCell::new(BookSystem::new()));
     let genres = Rc::new(RefCell::new(Genres::new()));
+    let lang = Lang::new();
 
     let app = app::App::default().with_scheme(fltk::app::AppScheme::Plastic);
     let (s, r) = app::channel();
@@ -187,8 +190,20 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         loop {
             success = 0;
-            let mut password =
-                Input2::<Input, SecretInput>::new("Authorization", "Login", "Password");
+            let mut password = Input2::<Input, SecretInput>::new(
+                match lang {
+                    Lang::English => "Authorization",
+                    Lang::Russian => "Авторизация",
+                },
+                match lang {
+                    Lang::English => "Login",
+                    Lang::Russian => "Логин",
+                },
+                match lang {
+                    Lang::English => "Password",
+                    Lang::Russian => "Пароль",
+                },
+            );
             password.show();
 
             (*password.ok).borrow_mut().emit(s, true);
@@ -214,18 +229,25 @@ fn main() -> Result<(), Box<dyn Error>> {
                                     && format!("{}", rehash2)
                                         == format!("{}", *admin_data.last().unwrap())
                                 {
-                                    fltk::dialog::message(500, 500, "Everything is Ok");
+                                    fltk::dialog::message(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "Authorization is complete",
+                                            Lang::Russian => "Авторизация пройдена",
+                                        },
+                                    );
                                     success = 1;
                                     break;
                                 } else {
                                     success = 2;
-                                    alert(500, 500, "Wrong login or password. Try again");
-                                    println!(
-                                        "{} != {} or {} != {}",
-                                        rehash1,
-                                        admin_data.first().unwrap(),
-                                        rehash2,
-                                        admin_data.last().unwrap(),
+                                    alert(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "Wrong login or password. Try again",
+                                            Lang::Russian => "Неправильный логин или пароль",
+                                        },
                                     );
                                 }
                             }
@@ -246,7 +268,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
 
     let mut main_window = MenuWindow::default()
-        .with_label("Library System")
+        .with_label(match lang {
+            Lang::English => "Library System",
+            Lang::Russian => "Система Учёта Библиотеки",
+        })
         .with_size(1800, 900)
         .center_screen();
 
@@ -267,9 +292,19 @@ fn main() -> Result<(), Box<dyn Error>> {
     table.set_col_width_all(460);
     table.end();
 
-    let mut hello = Frame::new(0, 15, 1800, 80, "BOOK LIBRARY INTERFACE");
-    hello.set_label_font(Font::Symbol);
-    hello.set_label_color(Color::DarkBlue);
+    let mut hello = Frame::new(
+        0,
+        15,
+        1800,
+        80,
+        match lang {
+            Lang::English => "BOOK LIBRARY INTERFACE",
+            Lang::Russian => "СИСТЕМА УЧЁТА КНИГ",
+        },
+    );
+
+    hello.set_label_font(Font::HelveticaBoldItalic);
+    hello.set_label_color(Color::from_u32(0x1DE7D8));
     hello.set_label_size(50);
 
     main_window.end();
@@ -285,10 +320,25 @@ fn main() -> Result<(), Box<dyn Error>> {
             &format!(
                 "{}",
                 match col {
-                    0 => "Reader",
-                    1 => "Book",
-                    2 => "Start Date",
-                    _ => "Finish Date",
+                    0 => match lang {
+                        Lang::English => "Reader",
+                        Lang::Russian => "Читатель",
+                    },
+
+                    1 => match lang {
+                        Lang::English => "Book",
+                        Lang::Russian => "Книга",
+                    },
+
+                    2 => match lang {
+                        Lang::English => "Start Date",
+                        Lang::Russian => "Дата начала",
+                    },
+
+                    _ => match lang {
+                        Lang::English => "Finish Date",
+                        Lang::Russian => "Дедлайн",
+                    },
                 }
             ),
             x,
@@ -300,7 +350,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         table::TableContext::RowHeader => draw_header(&format!("{}", row + 1), x, y, w, h),
 
         table::TableContext::Cell => {
-            let pair = unsafe { cell_reader(col, row, &*(*rb).as_ptr(), &*(*bs).as_ptr()) };
+            let pair = unsafe { cell_reader(col, row, &*(*rb).as_ptr(), &*(*bs).as_ptr(), lang) };
 
             draw_data(
                 &format!("{}", pair.0),
@@ -316,11 +366,23 @@ fn main() -> Result<(), Box<dyn Error>> {
         _ => (),
     });
 
-    let mut menu = MenuBar::new(0, 0, 270, 30, "");
+    let mut menu = MenuBar::new(
+        0,
+        0,
+        350 - match lang {
+            Lang::English => 0,
+            Lang::Russian => 40,
+        },
+        30,
+        "",
+    );
     main_window.add(&menu);
 
     menu.add_emit(
-        "&Readers/Add reader\t",
+        match lang {
+            Lang::English => "&Readers/Add reader\t",
+            Lang::Russian => "&Читатели/Добавить читателя\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -328,7 +390,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Readers/Remove reader\t",
+        match lang {
+            Lang::English => "&Readers/Remove reader\t",
+            Lang::Russian => "&Читатели/Удалить читателя\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -336,7 +401,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Readers/Change reader's name\t",
+        match lang {
+            Lang::English => "&Readers/Change name\t",
+            Lang::Russian => "&Читатели/Изменить имя\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -344,7 +412,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Readers/Change reader's second name\t",
+        match lang {
+            Lang::English => "&Readers/Change second name\t",
+            Lang::Russian => "&Читатели/Изменить фамилию\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -352,7 +423,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Readers/Change reader's middle name\t",
+        match lang {
+            Lang::English => "&Readers/Change middle name\t",
+            Lang::Russian => "&Читатели/Изменить отчество\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -360,7 +434,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Readers/Change reader's age\t",
+        match lang {
+            Lang::English => "&Readers/Change age\t",
+            Lang::Russian => "&Читатели/Изменить возраст\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -368,7 +445,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Readers/Get reader's information\t",
+        match lang {
+            Lang::English => "&Readers/Get reader's information\t",
+            Lang::Russian => "&Читатели/Получить информацию о читателе\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -376,7 +456,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Books/Add existing books\t",
+        match lang {
+            Lang::English => "&Books/Add books\t",
+            Lang::Russian => "&Книги/Добавить книги\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -384,7 +467,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Books/Remove book\t",
+        match lang {
+            Lang::English => "&Books/Remove book\t",
+            Lang::Russian => "&Книги/Удалить книгу\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -392,15 +478,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Books/Add new book\t",
-        Shortcut::empty(),
-        MenuFlag::Normal,
-        s,
-        Message::AddTheBook,
-    );
-
-    menu.add_emit(
-        "&Books/Remove all specific books\t",
+        match lang {
+            Lang::English => "&Books/Remove all specific books\t",
+            Lang::Russian => "&Книги/Убрать все схожие книги\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -408,7 +489,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Books/Change book's title\t",
+        match lang {
+            Lang::English => "&Books/Change book's title\t",
+            Lang::Russian => "&Книги/Изменить название\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -416,7 +500,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Books/Change book's author\t",
+        match lang {
+            Lang::English => "&Books/Change book's author\t",
+            Lang::Russian => "&Книги/Изменить автора\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -424,7 +511,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Books/Change book's pages\t",
+        match lang {
+            Lang::English => "&Books/Change book's amount of pages\t",
+            Lang::Russian => "&Книги/Изменить количество страниц\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -432,7 +522,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Books/Get type book's information\t",
+        match lang {
+            Lang::English => "&Books/Get type book's information\t",
+            Lang::Russian => "&Книги/Получить информацию о всех схожих книгах\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -440,7 +533,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Books/Get current book's information\t",
+        match lang {
+            Lang::English => "&Books/Get current book's information\t",
+            Lang::Russian => "&Книги/Получить информацию о конкретной книгах\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -448,7 +544,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Books/Show all existing genres\t",
+        match lang {
+            Lang::English => "&Books/All genres\t",
+            Lang::Russian => "&Книги/Все жанры\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -456,7 +555,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Books/Add genre\t",
+        match lang {
+            Lang::English => "&Books/Add genre\t",
+            Lang::Russian => "&Книги/Добавить жанр\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -464,7 +566,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Books/Remove genre\t",
+        match lang {
+            Lang::English => "&Books/Remove genre\t",
+            Lang::Russian => "&Книги/Удалить жанр\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -472,7 +577,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Books/Customize book genres\t",
+        match lang {
+            Lang::English => "&Books/Customize book genres\t",
+            Lang::Russian => "&Книги/Изменить жанры книги\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -480,7 +588,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Books/Find books by genre\t",
+        match lang {
+            Lang::English => "&Books/Find books by genre\t",
+            Lang::Russian => "&Книги/Найти книгу по жанру\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -488,7 +599,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Books/Show list of all books\t",
+        match lang {
+            Lang::English => "&Books/List of all books\t",
+            Lang::Russian => "&Книги/Все книги\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -496,7 +610,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Giveaway/Give book to reader\t",
+        match lang {
+            Lang::English => "&Giveaway/Give book\t",
+            Lang::Russian => "&Выдача/Выдать книгу\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -504,7 +621,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Giveaway/Get book from reader\t",
+        match lang {
+            Lang::English => "&Giveaway/Get book\t",
+            Lang::Russian => "&Выдача/Вернуть книгу\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -512,7 +632,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Restore/Restore previous data\t",
+        match lang {
+            Lang::English => "&Restore/Restore previous data\t",
+            Lang::Russian => "&Откат/Откатить изменения назад\t",
+        },
         fltk::enums::Shortcut::Ctrl | 'z',
         MenuFlag::Normal,
         s,
@@ -520,11 +643,36 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     menu.add_emit(
-        "&Restore/Restore next data\t",
+        match lang {
+            Lang::English => "&Restore/Restore next data\t",
+            Lang::Russian => "&Откат/Откатить изменения вперед\t",
+        },
         fltk::enums::Shortcut::Ctrl | fltk::enums::Shortcut::Shift | 'z',
         MenuFlag::Normal,
         s,
         Message::NextData,
+    );
+
+    menu.add_emit(
+        match lang {
+            Lang::English => "&Language/English\t",
+            Lang::Russian => "&Язык/Английский\t",
+        },
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        Message::English,
+    );
+
+    menu.add_emit(
+        match lang {
+            Lang::English => "&Language/Russian\t",
+            Lang::Russian => "&Язык/Русский\t",
+        },
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        Message::Russian,
     );
 
     main_window.show();
@@ -539,6 +687,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
+                        lang,
                     );
 
                     table.set_rows(max(50, (*reader_base).borrow().len() as u32));
@@ -552,6 +701,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
+                        lang,
                     );
 
                     table.set_rows(max(50, (*reader_base).borrow().len() as u32));
@@ -565,6 +715,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
+                        lang,
                     );
 
                     table.redraw();
@@ -577,6 +728,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
+                        lang,
                     );
 
                     table.redraw();
@@ -589,6 +741,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
+                        lang,
                     );
 
                     table.redraw();
@@ -601,6 +754,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
+                        lang,
                     );
 
                     table.redraw();
@@ -613,6 +767,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
+                        lang,
                     );
 
                     table.redraw();
@@ -625,6 +780,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
+                        lang,
                     );
 
                     table.redraw();
@@ -637,18 +793,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
-                    );
-
-                    table.redraw();
-                }
-
-                Message::AddTheBook => {
-                    add_book(
-                        &mut (*book_system).borrow_mut(),
-                        &(*reader_base).borrow(),
-                        &(*genres).borrow(),
-                        &mut (*caretaker).borrow_mut(),
-                        &app,
+                        lang,
                     );
 
                     table.redraw();
@@ -661,6 +806,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
+                        lang,
                     );
 
                     table.redraw();
@@ -673,6 +819,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
+                        lang,
                     );
 
                     table.redraw();
@@ -685,6 +832,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
+                        lang,
                     );
 
                     table.redraw();
@@ -697,6 +845,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
+                        lang,
                     );
 
                     table.redraw();
@@ -709,16 +858,19 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
+                        lang,
                     );
                     table.redraw();
                 }
 
                 Message::InfoBook => {
-                    book_info(&(*book_system).borrow(), &app);
+                    book_info(&(*book_system).borrow(), &app, lang);
                     table.redraw();
                 }
 
-                Message::ShowGenres => all_genres(genres.clone(), &*(*book_system).borrow(), &app),
+                Message::ShowGenres => {
+                    all_genres(genres.clone(), &*(*book_system).borrow(), &app, lang)
+                }
 
                 Message::AddGenre => add_genre(
                     &mut (*genres).borrow_mut(),
@@ -726,6 +878,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     &(*book_system).borrow(),
                     &mut *(caretaker).borrow_mut(),
                     &app,
+                    lang,
                 ),
 
                 Message::RemoveGenre => remove_genre(
@@ -734,6 +887,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     &(*book_system).borrow(),
                     &mut *(caretaker).borrow_mut(),
                     &app,
+                    lang,
                 ),
 
                 Message::CustomizeBookGenre => customize_book_genre(
@@ -742,11 +896,12 @@ fn main() -> Result<(), Box<dyn Error>> {
                     &(*reader_base).borrow(),
                     &mut *(caretaker).borrow_mut(),
                     &app,
+                    lang,
                 ),
 
-                Message::FindByGenre => find_by_genre(&*(*book_system).borrow(), &app),
+                Message::FindByGenre => find_by_genre(&*(*book_system).borrow(), &app, lang),
 
-                Message::ShowAllBooks => show_all_books(book_system.clone()),
+                Message::ShowAllBooks => show_all_books(book_system.clone(), lang),
 
                 Message::GiveBook => {
                     give_book(
@@ -755,6 +910,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*genres).borrow(),
                         &mut *(caretaker).borrow_mut(),
                         &app,
+                        lang,
                     );
                     table.redraw();
                 }
@@ -766,6 +922,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*genres).borrow(),
                         &mut *(caretaker).borrow_mut(),
                         &app,
+                        lang,
                     );
 
                     table.redraw();
@@ -796,6 +953,52 @@ fn main() -> Result<(), Box<dyn Error>> {
                     );
                     table.redraw();
                 }
+
+                Message::English => {
+                    if fltk::dialog::choice(
+                        500,
+                        500,
+                        match lang {
+                            Lang::English => "Are you sure you want to change your language? To do this, you will have to restart the program",
+                            Lang::Russian => "Вы уверены, что хотите сменить язык? Для этого придётся перезапустить программу"
+                        },
+                        match lang {
+                            Lang::English => "Ok",
+                            Lang::Russian => "Ок"
+                        },
+                        match lang {
+                            Lang::English => "Cancel",
+                            Lang::Russian => "Отмена"
+                        },
+                        ""
+                    ) == 0 {
+                        Lang::change(Lang::English);
+                        app.quit()
+                    }
+                }
+
+                Message::Russian => {
+                    if fltk::dialog::choice(
+                        500,
+                        500,
+                        match lang {
+                            Lang::English => "Are you sure you want to change your language? To do this, you will have to restart the program",
+                            Lang::Russian => "Вы уверены, что хотите сменить язык? Для этого придётся перезапустить программу"
+                        },
+                        match lang {
+                            Lang::English => "Ok",
+                            Lang::Russian => "Ок"
+                        },
+                        match lang {
+                            Lang::English => "Cancel",
+                            Lang::Russian => "Отмена"
+                        },
+                        ""
+                    ) == 0 {
+                        Lang::change(Lang::Russian);
+                        app.quit()
+                    }
+                }
             }
         }
 
@@ -810,6 +1013,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     &(*genres).borrow(),
                     &mut (*caretaker).borrow_mut(),
                     &app,
+                    lang,
                 );
 
                 table.unset_selection();
@@ -821,6 +1025,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     (*reader_base).borrow().get_book(i),
                     &mut (*book_system).borrow_mut(),
                     &app,
+                    lang,
                 );
 
                 table.unset_selection();

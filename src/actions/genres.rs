@@ -9,6 +9,7 @@ use crate::{
     change::{input1::Input1, input3::Input3, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
+    Lang,
 };
 
 use fltk::{
@@ -38,9 +39,19 @@ pub fn add_genre(
     book_system: &BookSystem,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s2, r2) = app::channel();
-    let mut inp = Input1::<Input>::new("Add Genre", "New Genre");
+    let mut inp = Input1::<Input>::new(
+        match lang {
+            Lang::English => "Add Genre",
+            Lang::Russian => "Добавить жанр",
+        },
+        match lang {
+            Lang::English => "New Genre",
+            Lang::Russian => "Новый жанр",
+        },
+    );
 
     caretaker.add_memento(reader_base, book_system, genres);
 
@@ -55,11 +66,25 @@ pub fn add_genre(
 
                     if let Ok(genre) = inp.set_input() {
                         if genre.first().unwrap().is_empty() {
-                            alert(500, 500, "New genre is empty");
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "'New genre' is empty",
+                                    Lang::Russian => "'Новый жанр' пусто",
+                                },
+                            );
                             caretaker.pop();
                         } else {
                             genres.add(genre.first().unwrap().clone());
-                            fltk::dialog::message(500, 500, "Successfully added");
+                            fltk::dialog::message(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "Successfully added",
+                                    Lang::Russian => "Успешно добавлено",
+                                },
+                            );
                             genres.save();
                         }
                     }
@@ -84,9 +109,19 @@ pub fn remove_genre(
     book_system: &BookSystem,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s2, r2) = app::channel();
-    let mut inp = Input1::<Input>::new("Remove Genre", "Genre");
+    let mut inp = Input1::<Input>::new(
+        match lang {
+            Lang::English => "Remove Genre",
+            Lang::Russian => "Удалить жанр",
+        },
+        match lang {
+            Lang::English => "Genre's title",
+            Lang::Russian => "Название жанра",
+        },
+    );
 
     caretaker.add_memento(reader_base, book_system, genres);
 
@@ -101,11 +136,25 @@ pub fn remove_genre(
 
                     if let Ok(genre) = inp.set_input() {
                         if genre.first().unwrap().is_empty() {
-                            alert(500, 500, "Genre is empty");
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "'Genre's title' is empty",
+                                    Lang::Russian => "'Название жанра' пусто",
+                                },
+                            );
                             caretaker.pop();
                         } else {
                             genres.remove(genre.first().unwrap());
-                            fltk::dialog::message(500, 500, "Successfully removed");
+                            fltk::dialog::message(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "Successfully removed",
+                                    Lang::Russian => "Успешно удалено",
+                                },
+                            );
                             genres.save();
                         }
                     }
@@ -131,10 +180,27 @@ pub fn customize_book_genre(
     reader_base: &ReaderBase,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s2, r2) = app::channel();
-    let mut inp =
-        Input3::<Input, Input, IntInput>::new("Add Genre", "Title", "Author", "Amount of Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new(
+        match lang {
+            Lang::English => "Customize book's genres",
+            Lang::Russian => "Изменить жанры книги",
+        },
+        match lang {
+            Lang::English => "Title",
+            Lang::Russian => "Название",
+        },
+        match lang {
+            Lang::English => "Author",
+            Lang::Russian => "Автор",
+        },
+        match lang {
+            Lang::English => "Amount of Pages",
+            Lang::Russian => "Количество страниц",
+        },
+    );
 
     caretaker.add_memento(reader_base, book_system, genres);
 
@@ -150,7 +216,7 @@ pub fn customize_book_genre(
                     if let Ok(book) = inp.set_input() {
                         let index;
 
-                        match check_book(book_system, &book) {
+                        match check_book(book_system, &book, lang) {
                             Ok(x) => index = x,
                             Err(_) => return,
                         }
@@ -160,7 +226,10 @@ pub fn customize_book_genre(
                             100,
                             300,
                             50 * genres.genres.len() as i32,
-                            "Select Genres",
+                            match lang {
+                                Lang::English => "Select Genres",
+                                Lang::Russian => "Выбрать жанры",
+                            },
                         );
 
                         let mut genre_choice =
@@ -283,8 +352,17 @@ pub fn customize_book_genre(
 }
 
 #[inline]
-pub(crate) fn find_by_genre_simple(genre: &String, book_system: &BookSystem) {
-    let mut wind = SingleWindow::new(500, 500, 300, 400, "Books with spec genre");
+pub(crate) fn find_by_genre_simple(genre: &String, book_system: &BookSystem, lang: Lang) {
+    let mut wind = SingleWindow::new(
+        500,
+        500,
+        300,
+        400,
+        match lang {
+            Lang::English => "Books with spec genre",
+            Lang::Russian => "Книги с искомым жанром",
+        },
+    );
     let mut book_table = Table::new(0, 0, 300, 400, "");
 
     let mut find = vec![];
@@ -316,7 +394,7 @@ pub(crate) fn find_by_genre_simple(genre: &String, book_system: &BookSystem) {
         table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
 
         table::TableContext::Cell => {
-            let gen = cell_book3(row, &find);
+            let gen = cell_book3(row, &find, lang);
             draw_data(
                 &format!("{}", gen),
                 x,
@@ -339,9 +417,18 @@ pub(crate) fn find_by_genre_simple(genre: &String, book_system: &BookSystem) {
 /// all books with specific genre
 
 #[inline]
-pub fn find_by_genre(book_system: &BookSystem, app: &App) {
+pub fn find_by_genre(book_system: &BookSystem, app: &App, lang: Lang) {
     let (s, r) = app::channel();
-    let mut inp = Input1::<Input>::new("Input Genre", "Genre");
+    let mut inp = Input1::<Input>::new(
+        match lang {
+            Lang::English => "Input Genre",
+            Lang::Russian => "Ввод Жанра",
+        },
+        match lang {
+            Lang::English => "Input Genre",
+            Lang::Russian => "Введите Жанр",
+        },
+    );
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s, true);
@@ -353,7 +440,7 @@ pub fn find_by_genre(book_system: &BookSystem, app: &App) {
                     inp.hide();
 
                     if let Ok(genre) = inp.set_input() {
-                        find_by_genre_simple(genre.first().unwrap(), book_system);
+                        find_by_genre_simple(genre.first().unwrap(), book_system, lang);
                     }
                 }
                 false => (),
@@ -369,8 +456,17 @@ pub fn find_by_genre(book_system: &BookSystem, app: &App) {
 /// all books with specific genre
 
 #[inline]
-pub fn all_genres(genres: Rc<RefCell<Genres>>, book_system: &BookSystem, app: &App) {
-    let mut wind = SingleWindow::new(500, 500, 300, 400, "All Genres");
+pub fn all_genres(genres: Rc<RefCell<Genres>>, book_system: &BookSystem, app: &App, lang: Lang) {
+    let mut wind = SingleWindow::new(
+        500,
+        500,
+        300,
+        400,
+        match lang {
+            Lang::English => "All Genres",
+            Lang::Russian => "Все Жанры",
+        },
+    );
 
     let mut tab = Table::new(0, 0, 300, 400, "");
     tab.set_rows(max(20, (*genres).borrow().genres.len() as u32));
@@ -414,6 +510,7 @@ pub fn all_genres(genres: Rc<RefCell<Genres>>, book_system: &BookSystem, app: &A
                 find_by_genre_simple(
                     (*genres).borrow().genres.iter().skip(ind).next().unwrap(),
                     book_system,
+                    lang,
                 );
                 tab.unset_selection();
                 return;

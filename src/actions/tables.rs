@@ -5,6 +5,7 @@ use crate::{
     actions::read::get_book_ind,
     books::{book::Book, book_sys::BookSystem, date::Date, genres::Genres, the_book::TheBook},
     reading::read_base::ReaderBase,
+    Lang,
 };
 
 use chrono::{Datelike, Timelike};
@@ -75,6 +76,7 @@ pub fn cell_reader(
     y: i32,
     reader_base: &ReaderBase,
     book_system: &BookSystem,
+    lang: Lang,
 ) -> (String, Option<fltk::enums::Color>) {
     unsafe {
         return if y < reader_base.readers.len() as i32 {
@@ -141,11 +143,15 @@ pub fn cell_reader(
             if x == 0 {
                 (
                     format!(
-                        "{} {} {}, {} years old",
+                        "{} {} {}, {} {}",
                         RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).name,
                         RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).family,
                         RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).father,
-                        RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).age
+                        RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).age,
+                        match lang {
+                            Lang::English => "years old",
+                            Lang::Russian => "лет",
+                        }
                     ),
                     color,
                 )
@@ -156,7 +162,7 @@ pub fn cell_reader(
                 match x {
                     1 => (
                         format!(
-                            "'{}' {}, {} pages ({})",
+                            "'{}' {}, {} {} ({})",
                             (*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
                                 .reading
                                 .as_ref()
@@ -181,6 +187,10 @@ pub fn cell_reader(
                                 .unwrap())
                             .borrow()
                             .pages,
+                            match lang {
+                                Lang::English => "pages",
+                                Lang::Russian => "страниц",
+                            },
                             get_book_ind(
                                 book_system,
                                 (*RefCell::borrow(
@@ -258,7 +268,14 @@ pub fn cell_reader(
                     ),
                 }
             } else {
-                ("None".to_string(), None)
+                (
+                    match lang {
+                        Lang::English => "None",
+                        Lang::Russian => "Ничего",
+                    }
+                    .to_string(),
+                    None,
+                )
             }
         } else {
             ("".to_string(), None)
@@ -446,13 +463,16 @@ pub fn cell_book2(
 /// Function that returns String book's with spec genre.
 
 #[inline]
-pub fn cell_book3(y: i32, books: &Vec<(String, String, u16)>) -> String {
+pub fn cell_book3(y: i32, books: &Vec<(String, String, u16)>, lang: Lang) -> String {
     return format!(
         "{}",
         {
             if books.is_empty() {
                 if y == 0 {
-                    "None"
+                    match lang {
+                        Lang::English => "None",
+                        Lang::Russian => "Ничего",
+                    }
                 } else {
                     ""
                 }
@@ -492,7 +512,7 @@ pub fn cell_date_time(x: i32) -> String {
 /// Function that returns book's genre as string.
 
 #[inline]
-pub(crate) fn cell_genre(x: i32, book: &Rc<RefCell<TheBook>>) -> String {
+pub(crate) fn cell_genre(x: i32, book: &Rc<RefCell<TheBook>>, lang: Lang) -> String {
     return unsafe {
         format!(
             "{}",
@@ -500,7 +520,10 @@ pub(crate) fn cell_genre(x: i32, book: &Rc<RefCell<TheBook>>) -> String {
                 if let Some(g) = &(*(*book).as_ptr()).genres {
                     g.iter().next().unwrap().as_str()
                 } else {
-                    "None"
+                    match lang {
+                        Lang::English => "None",
+                        Lang::Russian => "Ничего",
+                    }
                 }
             } else {
                 if let Some(g) = &(*(*book).as_ptr()).genres {

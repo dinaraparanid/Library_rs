@@ -6,6 +6,7 @@ use crate::{
     change::{input1::Input1, input3::Input3, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
+    Lang,
 };
 
 use fltk::{
@@ -46,16 +47,37 @@ enum MessageTheBook {
 /// Function that checks if input was empty
 
 #[inline]
-pub(crate) fn empty_inp_book(inp: &Vec<String>) -> bool {
+pub(crate) fn empty_inp_book(inp: &Vec<String>, lang: Lang) -> bool {
     unsafe {
         return if inp.get_unchecked(0).is_empty() {
-            alert(500, 500, "Title is empty");
+            alert(
+                500,
+                500,
+                match lang {
+                    Lang::English => "'Title' is empty",
+                    Lang::Russian => "'Название' пусто",
+                },
+            );
             true
         } else if inp.get_unchecked(1).is_empty() {
-            alert(500, 500, "Author is empty");
+            alert(
+                500,
+                500,
+                match lang {
+                    Lang::English => "'Author' is empty",
+                    Lang::Russian => "'Автор' пусто",
+                },
+            );
             true
         } else if inp.get_unchecked(2).is_empty() {
-            alert(500, 500, "Amount of Pages are empty");
+            alert(
+                500,
+                500,
+                match lang {
+                    Lang::English => "'Amount of pages' is empty",
+                    Lang::Russian => "'Количество страниц' пусто",
+                },
+            );
             true
         } else {
             false
@@ -68,9 +90,13 @@ pub(crate) fn empty_inp_book(inp: &Vec<String>) -> bool {
 /// or calls alert and returns error
 
 #[inline]
-pub(crate) fn check_book(book_system: &BookSystem, books: &Vec<String>) -> Result<usize, ()> {
+pub(crate) fn check_book(
+    book_system: &BookSystem,
+    books: &Vec<String>,
+    lang: Lang,
+) -> Result<usize, ()> {
     unsafe {
-        if empty_inp_book(books) {
+        if empty_inp_book(books, lang) {
             return Err(());
         }
 
@@ -80,13 +106,27 @@ pub(crate) fn check_book(book_system: &BookSystem, books: &Vec<String>) -> Resul
                 Some(i) => Ok(i),
 
                 None => {
-                    alert(500, 500, "Book isn't found");
+                    alert(
+                        500,
+                        500,
+                        match lang {
+                            Lang::English => "Book isn't found",
+                            Lang::Russian => "Книга не найдена",
+                        },
+                    );
                     Err(())
                 }
             },
 
             Err(_) => {
-                alert(500, 500, "Amount of Pages input error");
+                alert(
+                    500,
+                    500,
+                    match lang {
+                        Lang::English => "Amount of Pages input error",
+                        Lang::Russian => "Ошибка ввода количества страниц",
+                    },
+                );
                 Err(())
             }
         };
@@ -103,9 +143,19 @@ fn change_title_simple(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s3, r3) = app::channel();
-    let mut get_title = Input1::<Input>::new("New Title", "New Title");
+    let mut get_title = Input1::<Input>::new(
+        match lang {
+            Lang::English => "New Title",
+            Lang::Russian => "Новое название",
+        },
+        match lang {
+            Lang::English => "New Title",
+            Lang::Russian => "Новое название",
+        },
+    );
 
     caretaker.add_memento(reader_base, book_system, genres);
 
@@ -121,20 +171,38 @@ fn change_title_simple(
                     if let Ok(new_title) = get_title.set_input() {
                         unsafe {
                             if new_title.get_unchecked(0).is_empty() {
-                                alert(500, 500, "New title is empty");
+                                alert(
+                                    500,
+                                    500,
+                                    match lang {
+                                        Lang::English => "'New title' is empty",
+                                        Lang::Russian => "'Новое название' пусто",
+                                    },
+                                );
                                 caretaker.pop();
                             } else {
                                 match book_system
                                     .change_title(ind, new_title.get_unchecked(0).clone())
                                 {
                                     Ok(_) => {
-                                        fltk::dialog::message(500, 500, "Successfully changed");
+                                        fltk::dialog::message(
+                                            500,
+                                            500,
+                                            match lang {
+                                                Lang::English => "Successfully changed",
+                                                Lang::Russian => "Успешно изменено",
+                                            },
+                                        );
+
                                         book_system.save();
                                         reader_base.save();
                                     }
 
                                     Err(_) => {
-                                        alert(500, 500, "Book with same parameters already exists");
+                                        alert(500, 500, match lang {
+                                            Lang::English => "Book with same parameters already exists",
+                                            Lang::Russian => "Книга с предложенными параметрами уже сущетвует",
+                                        });
                                         caretaker.pop();
                                     }
                                 }
@@ -162,9 +230,19 @@ fn change_author_simple(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s3, r3) = app::channel();
-    let mut get_author = Input1::<Input>::new("New Author", "New Author");
+    let mut get_author = Input1::<Input>::new(
+        match lang {
+            Lang::English => "New Author",
+            Lang::Russian => "Новый автор",
+        },
+        match lang {
+            Lang::English => "New Author",
+            Lang::Russian => "Новый автор",
+        },
+    );
 
     caretaker.add_memento(reader_base, book_system, genres);
 
@@ -180,20 +258,38 @@ fn change_author_simple(
                     if let Ok(new_author) = get_author.set_input() {
                         unsafe {
                             if new_author.get_unchecked(0).is_empty() {
-                                alert(500, 500, "New title is empty");
+                                alert(
+                                    500,
+                                    500,
+                                    match lang {
+                                        Lang::English => "'New author' is empty",
+                                        Lang::Russian => "'Новый автор' пусто",
+                                    },
+                                );
                                 caretaker.pop();
                             } else {
                                 match book_system
                                     .change_author(ind, new_author.get_unchecked(0).clone())
                                 {
                                     Ok(_) => {
-                                        fltk::dialog::message(500, 500, "Successfully changed");
+                                        fltk::dialog::message(
+                                            500,
+                                            500,
+                                            match lang {
+                                                Lang::English => "Successfully changed",
+                                                Lang::Russian => "Успешно изменено",
+                                            },
+                                        );
+
                                         book_system.save();
                                         reader_base.save();
                                     }
 
                                     Err(_) => {
-                                        alert(500, 500, "Book with same parameters already exists");
+                                        alert(500, 500, match lang {
+                                            Lang::English => "Book with same parameters already exists",
+                                            Lang::Russian => "Книга с предложенными параметрами уже существует",
+                                        });
                                         caretaker.pop();
                                     }
                                 }
@@ -221,9 +317,19 @@ fn change_pages_simple(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s3, r3) = app::channel();
-    let mut get_pages = Input1::<IntInput>::new("New Amount of Pages", "New Amount of Pages");
+    let mut get_pages = Input1::<IntInput>::new(
+        match lang {
+            Lang::English => "New Amount of Pages",
+            Lang::Russian => "Новое Количество страниц",
+        },
+        match lang {
+            Lang::English => "New Amount of Pages",
+            Lang::Russian => "Новое Количество Страниц",
+        },
+    );
 
     caretaker.add_memento(reader_base, book_system, genres);
 
@@ -239,25 +345,46 @@ fn change_pages_simple(
                     if let Ok(new_pages) = get_pages.set_input() {
                         unsafe {
                             if new_pages.get_unchecked(0).is_empty() {
-                                alert(500, 500, "New amount of pages is empty");
+                                alert(
+                                    500,
+                                    500,
+                                    match lang {
+                                        Lang::English => "'New amount of pages' is empty",
+                                        Lang::Russian => "'Новое количество страниц' пусто",
+                                    },
+                                );
                                 caretaker.pop();
                             } else {
                                 match book_system
                                     .change_pages(ind, new_pages.get_unchecked(0).clone())
                                 {
                                     Ok(_) => {
-                                        fltk::dialog::message(500, 500, "Successfully changed");
+                                        fltk::dialog::message(
+                                            500,
+                                            500,
+                                            match lang {
+                                                Lang::English => "Successfully changed",
+                                                Lang::Russian => "Успешно изменено",
+                                            },
+                                        );
+
                                         book_system.save();
                                         reader_base.save();
                                     }
 
                                     Err(0) => {
-                                        alert(500, 500, "New amount of pages input error");
+                                        alert(500, 500, match lang {
+                                            Lang::English => "'New amount of pages' input error",
+                                            Lang::Russian => "Некорректный ввод для 'Нового количества странциц'",
+                                        });
                                         caretaker.pop();
                                     }
 
                                     Err(_) => {
-                                        alert(500, 500, "Book with same parameters already exists");
+                                        alert(500, 500, match lang {
+                                            Lang::English => "Book with same parameters already exists",
+                                            Lang::Russian => "Книга с предложенными параметрами уже существует",
+                                        });
                                         caretaker.pop();
                                     }
                                 }
@@ -284,18 +411,34 @@ fn remove_the_book_simple(
     reader_base: &mut ReaderBase,
     genres: &Genres,
     caretaker: &mut Caretaker,
+    lang: Lang,
 ) {
     caretaker.add_memento(reader_base, book_system, genres);
 
     match book_system.remove_book(ind) {
         Ok(_) => {
-            fltk::dialog::message(500, 500, "Successfully removed");
+            fltk::dialog::message(
+                500,
+                500,
+                match lang {
+                    Lang::English => "Successfully removed",
+                    Lang::Russian => "Успешно удалено",
+                },
+            );
+
             book_system.save();
             reader_base.save();
         }
 
         Err(_) => {
-            alert(500, 500, "Wrong book's number");
+            alert(
+                500,
+                500,
+                match lang {
+                    Lang::English => "Book's number is incorrect",
+                    Lang::Russian => "Номер книги некорректен",
+                },
+            );
             caretaker.pop();
         }
     }
@@ -311,9 +454,19 @@ fn add_books_simple(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s3, r3) = app::channel();
-    let mut get_amount = Input1::<IntInput>::new("Books amount", "Amount of books to add");
+    let mut get_amount = Input1::<IntInput>::new(
+        match lang {
+            Lang::English => "Books amount",
+            Lang::Russian => "Количество книг",
+        },
+        match lang {
+            Lang::English => "Amount of books to add",
+            Lang::Russian => "Количество добавляемых книг",
+        },
+    );
 
     caretaker.add_memento(reader_base, book_system, genres);
 
@@ -330,19 +483,39 @@ fn add_books_simple(
                         match amount.first().unwrap().trim().parse::<usize>() {
                             Ok(x) => match book_system.add_books(ind, x) {
                                 Ok(_) => {
-                                    fltk::dialog::message(500, 500, "Successfully added");
+                                    fltk::dialog::message(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "Successfully added",
+                                            Lang::Russian => "Успешно добавлено",
+                                        },
+                                    );
                                     book_system.save();
                                 }
 
                                 Err(_) => {
-                                    alert(500, 500, "Too much books");
+                                    alert(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "Too much books",
+                                            Lang::Russian => "Слишком много книг",
+                                        },
+                                    );
                                     caretaker.pop();
                                 }
                             },
 
                             Err(_) => {
-                                alert(500, 500, "Amount of books input error");
-                                println!("{:?}", amount.last().unwrap().trim().parse::<usize>());
+                                alert(
+                                    500,
+                                    500,
+                                    match lang {
+                                        Lang::English => "'Amount of books' input error",
+                                        Lang::Russian => "Ошибка ввода количества книг",
+                                    },
+                                );
                                 caretaker.pop();
                             }
                         }
@@ -367,9 +540,19 @@ fn remove_book_simple(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s3, r3) = app::channel();
-    let mut get_ind = Input1::<IntInput>::new("Book's number", "Book's number");
+    let mut get_ind = Input1::<IntInput>::new(
+        match lang {
+            Lang::English => "Book's number",
+            Lang::Russian => "Номер книги",
+        },
+        match lang {
+            Lang::English => "Book's number",
+            Lang::Russian => "Номер книги",
+        },
+    );
 
     caretaker.add_memento(reader_base, book_system, genres);
 
@@ -386,18 +569,39 @@ fn remove_book_simple(
                         match ind.first().unwrap().trim().parse::<usize>() {
                             Ok(x) => {
                                 if x == 0 {
-                                    alert(500, 500, "Incorrect number of book");
+                                    alert(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "Incorrect number of book",
+                                            Lang::Russian => "Некорректный номер книги",
+                                        },
+                                    );
                                     caretaker.pop();
                                 } else {
                                     match book_system.remove_one_book(index, x - 1) {
                                         Ok(_) => {
-                                            fltk::dialog::message(500, 500, "Successfully removed");
+                                            fltk::dialog::message(
+                                                500,
+                                                500,
+                                                match lang {
+                                                    Lang::English => "Successfully removed",
+                                                    Lang::Russian => "Успешно удалено",
+                                                },
+                                            );
                                             book_system.save();
                                             reader_base.save();
                                         }
 
                                         Err(_) => {
-                                            alert(500, 500, "Incorrect number of book");
+                                            alert(
+                                                500,
+                                                500,
+                                                match lang {
+                                                    Lang::English => "Incorrect number of book",
+                                                    Lang::Russian => "Некорректный номер книги",
+                                                },
+                                            );
                                             caretaker.pop();
                                         }
                                     }
@@ -405,8 +609,14 @@ fn remove_book_simple(
                             }
 
                             Err(_) => {
-                                alert(500, 500, "Book's number input error");
-                                println!("{:?}", ind.last().unwrap().trim().parse::<usize>());
+                                alert(
+                                    500,
+                                    500,
+                                    match lang {
+                                        Lang::English => "Book's number input error",
+                                        Lang::Russian => "Ошибка ввода номера книги",
+                                    },
+                                );
                                 caretaker.pop();
                             }
                         }
@@ -431,21 +641,124 @@ fn remove_book_simple2(
     reader_base: &mut ReaderBase,
     genres: &Genres,
     caretaker: &mut Caretaker,
+    lang: Lang,
 ) {
     caretaker.add_memento(reader_base, book_system, genres);
 
     unsafe {
         book_system.remove_one_book_unchecked(index, s_index);
     }
-    fltk::dialog::message(500, 500, "Successfully removed");
+
+    fltk::dialog::message(
+        500,
+        500,
+        match lang {
+            Lang::English => "Successfully removed",
+            Lang::Russian => "Успешно удалено",
+        },
+    );
+
     book_system.save();
     reader_base.save();
+}
+
+/// Adds known The Book
+
+#[inline]
+fn add_book_simple(book_system: &mut BookSystem, the_book: &Vec<String>, app: &App, lang: Lang) {
+    let (s, r) = app::channel();
+    let mut am = Input1::<IntInput>::new(
+        match lang {
+            Lang::English => "Amount of Books",
+            Lang::Russian => "Количество Книг",
+        },
+        match lang {
+            Lang::English => "Set amount of books",
+            Lang::Russian => "Укажите количество книг",
+        },
+    );
+
+    am.show();
+    (*am.ok).borrow_mut().emit(s, true);
+
+    while app.wait() {
+        if let Some(mes) = r.recv() {
+            match mes {
+                true => {
+                    am.hide();
+
+                    if let Ok(amount) = am.set_input() {
+                        match amount.first().unwrap().trim().parse::<usize>() {
+                            Ok(amount) => match the_book.last().unwrap().trim().parse::<u16>() {
+                                Ok(x) => unsafe {
+                                    match book_system.add_book(
+                                            the_book.get_unchecked(0).clone(),
+                                            the_book.get_unchecked(1).clone(),
+                                            x,
+                                            amount
+                                        ) {
+                                            Ok(_) => {
+                                                fltk::dialog::message(500, 500, match lang {
+                                                    Lang::English => "Successfully added",
+                                                    Lang::Russian => "Успешно добавлено",
+                                                });
+                                                book_system.save();
+                                            }
+
+                                            Err(_) => {
+                                                alert(500,
+                                                      500,
+                                                      match lang {
+                                                          Lang::English => "Book with same parameters already exists",
+                                                          Lang::Russian => "Книга с предложенными параметрами уже сузествует",
+                                                      }
+                                                )
+                                            }
+                                        }
+                                },
+
+                                Err(_) => {
+                                    alert(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "Incorrect 'Amount of Pages' input",
+                                            Lang::Russian => "Некорретный ввод количества страниц",
+                                        },
+                                    );
+                                }
+                            },
+
+                            Err(_) => {
+                                alert(
+                                    500,
+                                    500,
+                                    match lang {
+                                        Lang::English => "'Amount of Pages' input error",
+                                        Lang::Russian => "Ошибка ввода количества страниц",
+                                    },
+                                );
+                            }
+                        }
+                    }
+                }
+                false => (),
+            }
+        } else if !am.shown() {
+            break;
+        }
+    }
 }
 
 /// Function that gives information
 /// about already known simple book
 
-pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSystem, app: &App) {
+pub fn book_info_simple(
+    book: Option<Weak<RefCell<Book>>>,
+    book_system: &BookSystem,
+    app: &App,
+    lang: Lang,
+) {
     match book {
         None => return,
         Some(b) => {
@@ -472,7 +785,15 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                 50,
                 100,
                 30,
-                format!("Title: {}", (*b.upgrade().unwrap()).borrow().title).as_str(),
+                format!(
+                    "{}: {}",
+                    match lang {
+                        Lang::English => "Title",
+                        Lang::Russian => "Название",
+                    },
+                    (*b.upgrade().unwrap()).borrow().title
+                )
+                .as_str(),
             ));
 
             table1.add(&Frame::new(
@@ -480,7 +801,15 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                 50,
                 100,
                 30,
-                format!("Author: {}", (*b.upgrade().unwrap()).borrow().author).as_str(),
+                format!(
+                    "{}: {}",
+                    match lang {
+                        Lang::English => "Author",
+                        Lang::Russian => "Автор",
+                    },
+                    (*b.upgrade().unwrap()).borrow().author
+                )
+                .as_str(),
             ));
 
             table1.add(&Frame::new(
@@ -489,7 +818,11 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                 100,
                 30,
                 format!(
-                    "Amount of Pages: {}",
+                    "{}: {}",
+                    match lang {
+                        Lang::English => "Amount of Pages",
+                        Lang::Russian => "Количество страниц",
+                    },
                     (*b.upgrade().unwrap()).borrow().pages,
                 )
                 .as_str(),
@@ -501,7 +834,11 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                 100,
                 30,
                 format!(
-                    "Order Number: {}",
+                    "{}: {}",
+                    match lang {
+                        Lang::English => "Order Number",
+                        Lang::Russian => "Порядковый номер",
+                    },
                     get_book_ind(book_system, b.upgrade().unwrap().as_ptr()),
                 )
                 .as_str(),
@@ -513,7 +850,11 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                 100,
                 30,
                 format!(
-                    "Now is Read By : {}",
+                    "{}: {}",
+                    match lang {
+                        Lang::English => "Now is Read By",
+                        Lang::Russian => "В данный момент читается",
+                    },
                     if (*b.upgrade().unwrap()).borrow().is_using {
                         (*(*b.upgrade().unwrap())
                             .borrow()
@@ -564,7 +905,11 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                             .to_string()
                             .as_str()
                     } else {
-                        "None".to_string()
+                        match lang {
+                            Lang::English => "None",
+                            Lang::Russian => "Никем",
+                        }
+                        .to_string()
                     }
                 )
                 .as_str(),
@@ -575,7 +920,14 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                 50,
                 100,
                 30,
-                format!("All Readers:").as_str(),
+                format!(
+                    "{}:",
+                    match lang {
+                        Lang::English => "All Readers",
+                        Lang::Russian => "Все читатели",
+                    }
+                )
+                .as_str(),
             ));
 
             table1.auto_layout();
@@ -603,12 +955,35 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                     &format!(
                         "{}",
                         match col {
-                            0 => "Name",
-                            1 => "2-nd Name",
-                            2 => "Middle Name",
-                            3 => "Age",
-                            4 => "Start",
-                            _ => "Finish",
+                            0 => match lang {
+                                Lang::English => "1-st Name",
+                                Lang::Russian => "Имя",
+                            },
+
+                            1 => match lang {
+                                Lang::English => "2-nd Name",
+                                Lang::Russian => "Фамилия",
+                            },
+
+                            2 => match lang {
+                                Lang::English => "Middle Name",
+                                Lang::Russian => "Отчество",
+                            },
+
+                            3 => match lang {
+                                Lang::English => "Age",
+                                Lang::Russian => "Возраст",
+                            },
+
+                            4 => match lang {
+                                Lang::English => "Start Date",
+                                Lang::Russian => "Дата начала",
+                            },
+
+                            _ => match lang {
+                                Lang::English => "Finish Date",
+                                Lang::Russian => "Дедлайн",
+                            },
                         }
                     ),
                     x,
@@ -653,6 +1028,7 @@ pub fn the_book_info_simple(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let mut wind;
 
@@ -679,7 +1055,11 @@ pub fn the_book_info_simple(
             200,
             30,
             format!(
-                "Title: {}",
+                "{}: {}",
+                match lang {
+                    Lang::English => "Title",
+                    Lang::Russian => "Название",
+                },
                 (**book_system.books.get_unchecked(ind)).borrow().title,
             )
             .as_str(),
@@ -691,7 +1071,11 @@ pub fn the_book_info_simple(
             200,
             30,
             format!(
-                "Author: {}",
+                "{}: {}",
+                match lang {
+                    Lang::English => "Author",
+                    Lang::Russian => "Автор",
+                },
                 (**book_system.books.get_unchecked(ind)).borrow().author
             )
             .as_str(),
@@ -703,7 +1087,11 @@ pub fn the_book_info_simple(
             200,
             30,
             format!(
-                "Amount of Pages: {}",
+                "{}: {}",
+                match lang {
+                    Lang::English => "Amount of Pages",
+                    Lang::Russian => "Количество страниц",
+                },
                 (**book_system.books.get_unchecked(ind)).borrow().pages
             )
             .as_str(),
@@ -715,7 +1103,11 @@ pub fn the_book_info_simple(
             100,
             30,
             format!(
-                "Amount of books: {}",
+                "{}: {}",
+                match lang {
+                    Lang::English => "Amount of books",
+                    Lang::Russian => "Количество книг",
+                },
                 (**book_system.books.get_unchecked(ind))
                     .borrow()
                     .books
@@ -724,7 +1116,20 @@ pub fn the_book_info_simple(
             .as_str(),
         ));
 
-        table.add(&Frame::new(90, 50, 100, 30, format!("Genres:").as_str()));
+        table.add(&Frame::new(
+            90,
+            50,
+            100,
+            30,
+            format!(
+                "{}:",
+                match lang {
+                    Lang::English => "Genres",
+                    Lang::Russian => "Жанры",
+                },
+            )
+            .as_str(),
+        ));
 
         table.auto_layout();
 
@@ -748,7 +1153,7 @@ pub fn the_book_info_simple(
             table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
 
             table::TableContext::Cell => {
-                let gen = cell_genre(row, &b);
+                let gen = cell_genre(row, &b, lang);
                 draw_data(
                     &format!("{}", gen),
                     x,
@@ -772,7 +1177,10 @@ pub fn the_book_info_simple(
     let (s, r) = app::channel();
 
     menu.add_emit(
-        "&Change/Change title\t",
+        match lang {
+            Lang::English => "&Change/Change title\t",
+            Lang::Russian => "&Изменить/Изменить название\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -780,7 +1188,10 @@ pub fn the_book_info_simple(
     );
 
     menu.add_emit(
-        "&Change/Change author\t",
+        match lang {
+            Lang::English => "&Change/Change author\t",
+            Lang::Russian => "&Изменить/Изменить автора\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -788,7 +1199,10 @@ pub fn the_book_info_simple(
     );
 
     menu.add_emit(
-        "&Change/Change amount of pages\t",
+        match lang {
+            Lang::English => "&Change/Change amount of pages\t",
+            Lang::Russian => "&Изменить/Изменить количество страниц\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -796,7 +1210,10 @@ pub fn the_book_info_simple(
     );
 
     menu.add_emit(
-        "&Remove/Remove all books\t",
+        match lang {
+            Lang::English => "&Remove/Remove all books\t",
+            Lang::Russian => "&Удалить/Удалить все книги\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -804,7 +1221,10 @@ pub fn the_book_info_simple(
     );
 
     menu.add_emit(
-        "&Remove/Remove one book\t",
+        match lang {
+            Lang::English => "&Remove/Remove one book\t",
+            Lang::Russian => "&Удалить/Удалить одну книгу\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -812,7 +1232,10 @@ pub fn the_book_info_simple(
     );
 
     menu.add_emit(
-        "&Add book\t",
+        match lang {
+            Lang::English => "&Add books\t",
+            Lang::Russian => "&Добавить книги\t",
+        },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
@@ -824,28 +1247,34 @@ pub fn the_book_info_simple(
     while app.wait() {
         if let Some(msg) = r.recv() {
             match msg {
-                MessageTheBook::ChangeAuthor => {
-                    change_author_simple(ind, book_system, reader_base, genres, caretaker, app)
-                }
+                MessageTheBook::ChangeAuthor => change_author_simple(
+                    ind,
+                    book_system,
+                    reader_base,
+                    genres,
+                    caretaker,
+                    app,
+                    lang,
+                ),
 
                 MessageTheBook::ChangeTitle => {
-                    change_title_simple(ind, book_system, reader_base, genres, caretaker, app)
+                    change_title_simple(ind, book_system, reader_base, genres, caretaker, app, lang)
                 }
 
                 MessageTheBook::ChangePages => {
-                    change_pages_simple(ind, book_system, reader_base, genres, caretaker, app)
+                    change_pages_simple(ind, book_system, reader_base, genres, caretaker, app, lang)
                 }
 
                 MessageTheBook::RemoveSimple => {
-                    remove_book_simple(ind, book_system, reader_base, genres, caretaker, app)
+                    remove_book_simple(ind, book_system, reader_base, genres, caretaker, app, lang)
                 }
 
                 MessageTheBook::AddSimple => {
-                    add_books_simple(ind, book_system, reader_base, genres, caretaker, app)
+                    add_books_simple(ind, book_system, reader_base, genres, caretaker, app, lang)
                 }
 
                 MessageTheBook::RemoveThis => {
-                    remove_the_book_simple(ind, book_system, reader_base, genres, caretaker)
+                    remove_the_book_simple(ind, book_system, reader_base, genres, caretaker, lang)
                 }
             }
             return;
@@ -870,10 +1299,27 @@ pub fn add_books(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s2, r2) = app::channel();
-    let mut inp =
-        Input3::<Input, Input, IntInput>::new("Add Books", "Title", "Author", "Amount of Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new(
+        match lang {
+            Lang::English => "Add Books",
+            Lang::Russian => "Добавить книги",
+        },
+        match lang {
+            Lang::English => "Title",
+            Lang::Russian => "Название",
+        },
+        match lang {
+            Lang::English => "Author",
+            Lang::Russian => "Автор",
+        },
+        match lang {
+            Lang::English => "Amount of Pages",
+            Lang::Russian => "Количество страниц",
+        },
+    );
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
 
@@ -885,14 +1331,41 @@ pub fn add_books(
                     inp.hide();
 
                     if let Ok(books) = new_books_params {
-                        let ind;
+                        unsafe {
+                            if empty_inp_book(&books, lang) {
+                                return;
+                            }
 
-                        match check_book(book_system, &books) {
-                            Ok(x) => ind = x,
-                            Err(_) => return,
+                            return match books.get_unchecked(2).trim().parse::<u16>() {
+                                Ok(x) => match book_system.find_book(
+                                    books.get_unchecked(0),
+                                    books.get_unchecked(1),
+                                    x,
+                                ) {
+                                    Some(i) => add_books_simple(
+                                        i,
+                                        book_system,
+                                        reader_base,
+                                        genres,
+                                        caretaker,
+                                        app,
+                                        lang,
+                                    ),
+                                    None => add_book_simple(book_system, &books, app, lang),
+                                },
+
+                                Err(_) => {
+                                    alert(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "Amount of Pages input error",
+                                            Lang::Russian => "Ошибка ввода количества страниц",
+                                        },
+                                    );
+                                }
+                            };
                         }
-
-                        add_books_simple(ind, book_system, reader_base, genres, caretaker, app);
                     }
                 }
                 false => (),
@@ -916,10 +1389,27 @@ pub fn remove_book(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s2, r2) = app::channel();
-    let mut inp =
-        Input3::<Input, Input, IntInput>::new("Remove Book", "Title", "Author", "Amount of Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new(
+        match lang {
+            Lang::English => "Remove Book",
+            Lang::Russian => "Удалить книгу",
+        },
+        match lang {
+            Lang::English => "Title",
+            Lang::Russian => "Название",
+        },
+        match lang {
+            Lang::English => "Author",
+            Lang::Russian => "Автор",
+        },
+        match lang {
+            Lang::English => "Amount of Pages",
+            Lang::Russian => "Количество страниц",
+        },
+    );
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -934,12 +1424,20 @@ pub fn remove_book(
                     if let Ok(book) = rem_book_params {
                         let index;
 
-                        match check_book(book_system, &book) {
+                        match check_book(book_system, &book, lang) {
                             Ok(x) => index = x,
                             Err(_) => return,
                         }
 
-                        remove_book_simple(index, book_system, reader_base, genres, caretaker, app);
+                        remove_book_simple(
+                            index,
+                            book_system,
+                            reader_base,
+                            genres,
+                            caretaker,
+                            app,
+                            lang,
+                        );
                     }
                 }
                 false => (),
@@ -951,21 +1449,41 @@ pub fn remove_book(
     }
 }
 
-/// Function that add new book and **ONE** simple book.
+/// **DEPRECATED**
+///
+/// Function that add new book and with some simple books.
 /// If you have mistakes in input,
 /// program will let you know
 
 #[inline]
-pub fn add_book(
+#[deprecated]
+fn add_book(
     book_system: &mut BookSystem,
     reader_base: &ReaderBase,
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s2, r2) = app::channel();
-    let mut inp =
-        Input3::<Input, Input, IntInput>::new("Add New Book", "Title", "Author", "Amount of Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new(
+        match lang {
+            Lang::English => "Add New Book",
+            Lang::Russian => "Добавить новую книгу",
+        },
+        match lang {
+            Lang::English => "Title",
+            Lang::Russian => "Название",
+        },
+        match lang {
+            Lang::English => "Author",
+            Lang::Russian => "Автор",
+        },
+        match lang {
+            Lang::English => "Amount of Pages",
+            Lang::Russian => "Количество страниц",
+        },
+    );
 
     caretaker.add_memento(reader_base, book_system, genres);
 
@@ -979,13 +1497,21 @@ pub fn add_book(
                     inp.hide();
 
                     if let Ok(the_book) = inp.set_input() {
-                        if empty_inp_book(&the_book) {
+                        if empty_inp_book(&the_book, lang) {
                             return;
                         }
 
                         let (s, r) = app::channel();
-                        let mut am =
-                            Input1::<IntInput>::new("Amount of books", "Set amount of books");
+                        let mut am = Input1::<IntInput>::new(
+                            match lang {
+                                Lang::English => "Amount of Books",
+                                Lang::Russian => "Количество Книг",
+                            },
+                            match lang {
+                                Lang::English => "Set amount of books",
+                                Lang::Russian => "Укажите количество книг",
+                            },
+                        );
 
                         am.show();
                         (*am.ok).borrow_mut().emit(s, true);
@@ -1013,30 +1539,52 @@ pub fn add_book(
                                                                 amount
                                                             ) {
                                                                 Ok(_) => {
-                                                                    fltk::dialog::message(500, 500, "Successfully added");
+                                                                    fltk::dialog::message(500, 500, match lang {
+                                                                        Lang::English => "Successfully added",
+                                                                        Lang::Russian => "Успешно добавлено",
+                                                                    });
                                                                     book_system.save();
                                                                 }
 
                                                                 Err(_) => {
-                                                                    alert(500, 500, "Book with same parameters already exists")
+                                                                    alert(500,
+                                                                          500,
+                                                                          match lang {
+                                                                              Lang::English => "Book with same parameters already exists",
+                                                                              Lang::Russian => "Книга с предложенными параметрами уже сузествует",
+                                                                          }
+                                                                    )
                                                                 }
                                                             }
                                                         },
 
                                                         Err(_) => {
-                                                            alert(500, 500, "Pages input error");
-                                                            println!(
-                                                                "{:?}",
-                                                                the_book
-                                                                    .last()
-                                                                    .unwrap()
-                                                                    .trim()
-                                                                    .parse::<u16>()
-                                                            )
+                                                            alert(
+                                                                500,
+                                                                500,
+                                                                match lang {
+                                                                      Lang::English => "Incorrect 'Amount of Pages' input",
+                                                                      Lang::Russian => "Некорретный ввод количества страниц",
+                                                                  }
+                                                            );
                                                         }
                                                     }
                                                 }
-                                                Err(_) => {}
+
+                                                Err(_) => {
+                                                    alert(
+                                                        500,
+                                                        500,
+                                                        match lang {
+                                                            Lang::English => {
+                                                                "'Amount of Pages' input error"
+                                                            }
+                                                            Lang::Russian => {
+                                                                "Ошибка ввода количества страниц"
+                                                            }
+                                                        },
+                                                    );
+                                                }
                                             }
                                         }
                                     }
@@ -1068,10 +1616,27 @@ pub fn remove_the_book(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s2, r2) = app::channel();
-    let mut inp =
-        Input3::<Input, Input, IntInput>::new("Remove Books", "Title", "Author", "Amount of Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new(
+        match lang {
+            Lang::English => "Remove Books",
+            Lang::Russian => "Удалить книги",
+        },
+        match lang {
+            Lang::English => "Title",
+            Lang::Russian => "Название",
+        },
+        match lang {
+            Lang::English => "Author",
+            Lang::Russian => "Автор",
+        },
+        match lang {
+            Lang::English => "Amount of Pages",
+            Lang::Russian => "Количество страниц",
+        },
+    );
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -1085,12 +1650,19 @@ pub fn remove_the_book(
                     if let Ok(the_book) = inp.set_input() {
                         let index;
 
-                        match check_book(book_system, &the_book) {
+                        match check_book(book_system, &the_book, lang) {
                             Ok(x) => index = x,
                             Err(_) => return,
                         }
 
-                        remove_the_book_simple(index, book_system, reader_base, genres, caretaker);
+                        remove_the_book_simple(
+                            index,
+                            book_system,
+                            reader_base,
+                            genres,
+                            caretaker,
+                            lang,
+                        );
                     }
                 }
                 false => (),
@@ -1114,10 +1686,27 @@ pub fn change_title(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s2, r2) = app::channel();
-    let mut inp =
-        Input3::<Input, Input, IntInput>::new("Change Title", "Title", "Author", "Amount of Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new(
+        match lang {
+            Lang::English => "Change title",
+            Lang::Russian => "Изменить название",
+        },
+        match lang {
+            Lang::English => "Title",
+            Lang::Russian => "Название",
+        },
+        match lang {
+            Lang::English => "Author",
+            Lang::Russian => "Автор",
+        },
+        match lang {
+            Lang::English => "Amount of Pages",
+            Lang::Russian => "Количество страниц",
+        },
+    );
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -1131,7 +1720,7 @@ pub fn change_title(
                     if let Ok(book) = inp.set_input() {
                         let index;
 
-                        match check_book(book_system, &book) {
+                        match check_book(book_system, &book, lang) {
                             Ok(x) => index = x,
                             Err(_) => return,
                         }
@@ -1143,6 +1732,7 @@ pub fn change_title(
                             genres,
                             caretaker,
                             app,
+                            lang,
                         );
                     }
                 }
@@ -1167,13 +1757,26 @@ pub fn change_author(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::<Input, Input, IntInput>::new(
-        "Change Author",
-        "Title",
-        "Author",
-        "Amount of Pages",
+        match lang {
+            Lang::English => "Change author",
+            Lang::Russian => "Изменить автора",
+        },
+        match lang {
+            Lang::English => "Title",
+            Lang::Russian => "Название",
+        },
+        match lang {
+            Lang::English => "Author",
+            Lang::Russian => "Автор",
+        },
+        match lang {
+            Lang::English => "Amount of Pages",
+            Lang::Russian => "Количество страниц",
+        },
     );
 
     inp.show();
@@ -1188,7 +1791,7 @@ pub fn change_author(
                     if let Ok(book) = inp.set_input() {
                         let index;
 
-                        match check_book(book_system, &book) {
+                        match check_book(book_system, &book, lang) {
                             Ok(x) => index = x,
                             Err(_) => return,
                         }
@@ -1200,6 +1803,7 @@ pub fn change_author(
                             genres,
                             caretaker,
                             app,
+                            lang,
                         );
                     }
                 }
@@ -1224,10 +1828,27 @@ pub fn change_pages(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s2, r2) = app::channel();
-    let mut inp =
-        Input3::<Input, Input, IntInput>::new("Change Pages", "Title", "Author", "Amount of Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new(
+        match lang {
+            Lang::English => "Change amount of pages",
+            Lang::Russian => "Изменить количество страниц",
+        },
+        match lang {
+            Lang::English => "Title",
+            Lang::Russian => "Название",
+        },
+        match lang {
+            Lang::English => "Author",
+            Lang::Russian => "Автор",
+        },
+        match lang {
+            Lang::English => "Amount of Pages",
+            Lang::Russian => "Количество страниц",
+        },
+    );
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -1241,7 +1862,7 @@ pub fn change_pages(
                     if let Ok(book) = inp.set_input() {
                         let index;
 
-                        match check_book(book_system, &book) {
+                        match check_book(book_system, &book, lang) {
                             Ok(x) => index = x,
                             Err(_) => return,
                         }
@@ -1253,6 +1874,7 @@ pub fn change_pages(
                             genres,
                             caretaker,
                             app,
+                            lang,
                         );
                     }
                 }
@@ -1277,10 +1899,27 @@ pub fn the_book_info(
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
+    lang: Lang,
 ) {
     let (s2, r2) = app::channel();
-    let mut inp =
-        Input3::<Input, Input, IntInput>::new("Find Book", "Title", "Author", "Amount of Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new(
+        match lang {
+            Lang::English => "Find book",
+            Lang::Russian => "Найти книгу",
+        },
+        match lang {
+            Lang::English => "Title",
+            Lang::Russian => "Название",
+        },
+        match lang {
+            Lang::English => "Author",
+            Lang::Russian => "Автор",
+        },
+        match lang {
+            Lang::English => "Amount of Pages",
+            Lang::Russian => "Количество страниц",
+        },
+    );
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -1294,7 +1933,7 @@ pub fn the_book_info(
                     if let Ok(the_book) = inp.set_input() {
                         let index;
 
-                        match check_book(&(*book_system).borrow(), &the_book) {
+                        match check_book(&(*book_system).borrow(), &the_book, lang) {
                             Ok(x) => index = x,
                             Err(_) => return,
                         }
@@ -1306,6 +1945,7 @@ pub fn the_book_info(
                             genres,
                             caretaker,
                             app,
+                            lang,
                         )
                     }
                 }
@@ -1324,10 +1964,26 @@ pub fn the_book_info(
 /// program will let you know
 
 #[inline]
-pub fn book_info(book_system: &BookSystem, app: &App) {
+pub fn book_info(book_system: &BookSystem, app: &App, lang: Lang) {
     let (s2, r2) = app::channel();
-    let mut inp =
-        Input3::<Input, Input, IntInput>::new("Find Book", "Title", "Author", "Amount of Pages");
+    let mut inp = Input3::<Input, Input, IntInput>::new(
+        match lang {
+            Lang::English => "Find book",
+            Lang::Russian => "Найти книгу",
+        },
+        match lang {
+            Lang::English => "Title",
+            Lang::Russian => "Название",
+        },
+        match lang {
+            Lang::English => "Author",
+            Lang::Russian => "Автор",
+        },
+        match lang {
+            Lang::English => "Amount of Pages",
+            Lang::Russian => "Количество страниц",
+        },
+    );
 
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
@@ -1341,13 +1997,22 @@ pub fn book_info(book_system: &BookSystem, app: &App) {
                     if let Ok(the_book) = inp.set_input() {
                         let index;
 
-                        match check_book(book_system, &the_book) {
+                        match check_book(book_system, &the_book, lang) {
                             Ok(x) => index = x,
                             Err(_) => return,
                         }
 
                         let (s, r) = app::channel();
-                        let mut inp2 = Input1::<IntInput>::new("Number", "Number of Book");
+                        let mut inp2 = Input1::<IntInput>::new(
+                            match lang {
+                                Lang::English => "Number of Book",
+                                Lang::Russian => "Номер книги",
+                            },
+                            match lang {
+                                Lang::English => "Number of Book",
+                                Lang::Russian => "Номер книги",
+                            },
+                        );
 
                         inp2.show();
                         (*inp2.ok).borrow_mut().emit(s, true);
@@ -1374,7 +2039,18 @@ pub fn book_info(book_system: &BookSystem, app: &App) {
                                                         .len()
                                                     || bind == 0
                                                 {
-                                                    alert(500, 500, "Incorrect number of book");
+                                                    alert(
+                                                        500,
+                                                        500,
+                                                        match lang {
+                                                            Lang::English => {
+                                                                "Incorrect number of book"
+                                                            }
+                                                            Lang::Russian => {
+                                                                "Некорректный номер книги"
+                                                            }
+                                                        },
+                                                    );
                                                     return;
                                                 }
 
@@ -1387,6 +2063,7 @@ pub fn book_info(book_system: &BookSystem, app: &App) {
                                                     )),
                                                     book_system,
                                                     app,
+                                                    lang,
                                                 );
                                             }
                                         }
@@ -1413,9 +2090,12 @@ pub fn book_info(book_system: &BookSystem, app: &App) {
 /// title, author, num of pages and num of available simple books
 
 #[inline]
-pub fn show_all_books(book_system: Rc<RefCell<BookSystem>>) {
+pub fn show_all_books(book_system: Rc<RefCell<BookSystem>>, lang: Lang) {
     let mut wind = SingleWindow::default()
-        .with_label("All Books")
+        .with_label(match lang {
+            Lang::English => "All Books",
+            Lang::Russian => "Все книги",
+        })
         .with_size(820, 550)
         .center_screen();
 
@@ -1434,10 +2114,25 @@ pub fn show_all_books(book_system: Rc<RefCell<BookSystem>>) {
             &format!(
                 "{}",
                 match col {
-                    0 => "Title",
-                    1 => "Author",
-                    2 => "Pages",
-                    _ => "Amount of available books",
+                    0 => match lang {
+                        Lang::English => "Title",
+                        Lang::Russian => "Название",
+                    },
+
+                    1 => match lang {
+                        Lang::English => "Author",
+                        Lang::Russian => "Автор",
+                    },
+
+                    2 => match lang {
+                        Lang::English => "Amount of Pages",
+                        Lang::Russian => "Количество страниц",
+                    },
+
+                    _ => match lang {
+                        Lang::English => "Amount of available books",
+                        Lang::Russian => "Количество доступных книг",
+                    },
                 }
             ),
             x,
