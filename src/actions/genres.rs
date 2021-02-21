@@ -75,6 +75,7 @@ pub fn add_genre(
                                 },
                             );
                             caretaker.pop();
+                            return;
                         } else {
                             genres.add(genre.first().unwrap().clone());
                             fltk::dialog::message(
@@ -145,6 +146,7 @@ pub fn remove_genre(
                                 },
                             );
                             caretaker.pop();
+                            return;
                         } else {
                             genres.remove(genre.first().unwrap());
                             fltk::dialog::message(

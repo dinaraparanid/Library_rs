@@ -535,7 +535,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     menu.add_emit(
         match lang {
             Lang::English => "&Books/Get current book's information\t",
-            Lang::Russian => "&Книги/Получить информацию о конкретной книгах\t",
+            Lang::Russian => "&Книги/Получить информацию о конкретной книгe\t",
         },
         Shortcut::empty(),
         MenuFlag::Normal,
@@ -959,7 +959,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         500,
                         500,
                         match lang {
-                            Lang::English => "Are you sure you want to change your language? To do this, you will have to restart the program",
+                            Lang::English => "Are you sure you want to change your language? You'll have to restart the program",
                             Lang::Russian => "Вы уверены, что хотите сменить язык? Для этого придётся перезапустить программу"
                         },
                         match lang {
@@ -982,7 +982,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         500,
                         500,
                         match lang {
-                            Lang::English => "Are you sure you want to change your language? To do this, you will have to restart the program",
+                            Lang::English => "Are you sure you want to change your language? You'll have to restart the program",
                             Lang::Russian => "Вы уверены, что хотите сменить язык? Для этого придётся перезапустить программу"
                         },
                         match lang {

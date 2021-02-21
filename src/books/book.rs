@@ -7,6 +7,8 @@ use crate::{
 
 use chrono::Datelike;
 
+use crate::actions::read::get_book_ind;
+use crate::books::book_sys::BookSystem;
 use std::{
     cell::RefCell,
     fmt::{Debug, Formatter, Result},
@@ -266,5 +268,20 @@ impl Book {
                 })
                 .collect(),
         }
+    }
+
+    /// Represent Book as String with next format:
+    ///
+    /// {title} {author} {amount of pages} ({order number})
+
+    #[inline]
+    pub(crate) fn to_string(&self, book_system: &BookSystem) -> String {
+        format!(
+            "{} {} {} ({})",
+            self.title,
+            self.author,
+            self.pages,
+            get_book_ind(book_system, self as *const Book)
+        )
     }
 }

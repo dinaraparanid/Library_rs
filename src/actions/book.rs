@@ -180,6 +180,7 @@ fn change_title_simple(
                                     },
                                 );
                                 caretaker.pop();
+                                return;
                             } else {
                                 match book_system
                                     .change_title(ind, new_title.get_unchecked(0).clone())
@@ -204,6 +205,7 @@ fn change_title_simple(
                                             Lang::Russian => "Книга с предложенными параметрами уже сущетвует",
                                         });
                                         caretaker.pop();
+                                        return;
                                     }
                                 }
                             }
@@ -267,6 +269,7 @@ fn change_author_simple(
                                     },
                                 );
                                 caretaker.pop();
+                                return;
                             } else {
                                 match book_system
                                     .change_author(ind, new_author.get_unchecked(0).clone())
@@ -291,6 +294,7 @@ fn change_author_simple(
                                             Lang::Russian => "Книга с предложенными параметрами уже существует",
                                         });
                                         caretaker.pop();
+                                        return;
                                     }
                                 }
                             }
@@ -354,6 +358,7 @@ fn change_pages_simple(
                                     },
                                 );
                                 caretaker.pop();
+                                return;
                             } else {
                                 match book_system
                                     .change_pages(ind, new_pages.get_unchecked(0).clone())
@@ -378,6 +383,7 @@ fn change_pages_simple(
                                             Lang::Russian => "Некорректный ввод для 'Нового количества странциц'",
                                         });
                                         caretaker.pop();
+                                        return;
                                     }
 
                                     Err(_) => {
@@ -386,6 +392,7 @@ fn change_pages_simple(
                                             Lang::Russian => "Книга с предложенными параметрами уже существует",
                                         });
                                         caretaker.pop();
+                                        return;
                                     }
                                 }
                             }
@@ -504,6 +511,7 @@ fn add_books_simple(
                                         },
                                     );
                                     caretaker.pop();
+                                    return;
                                 }
                             },
 
@@ -517,6 +525,7 @@ fn add_books_simple(
                                     },
                                 );
                                 caretaker.pop();
+                                return;
                             }
                         }
                     }
@@ -578,6 +587,7 @@ fn remove_book_simple(
                                         },
                                     );
                                     caretaker.pop();
+                                    return;
                                 } else {
                                     match book_system.remove_one_book(index, x - 1) {
                                         Ok(_) => {
@@ -603,6 +613,7 @@ fn remove_book_simple(
                                                 },
                                             );
                                             caretaker.pop();
+                                            return;
                                         }
                                     }
                                 }
@@ -618,6 +629,7 @@ fn remove_book_simple(
                                     },
                                 );
                                 caretaker.pop();
+                                return;
                             }
                         }
                     }
@@ -1551,7 +1563,8 @@ fn add_book(
                                                                           500,
                                                                           match lang {
                                                                               Lang::English => "Book with same parameters already exists",
-                                                                              Lang::Russian => "Книга с предложенными параметрами уже сузествует",
+                                                                              Lang::Russian => concat!("Книга с предложенными", 
+                                                                              " параметрами уже существует"),
                                                                           }
                                                                     )
                                                                 }
