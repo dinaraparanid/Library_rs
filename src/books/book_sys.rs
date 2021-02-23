@@ -1,8 +1,10 @@
+extern crate fltk;
 extern crate yaml_rust;
 
 use crate::{
-    books::{date::Date, the_book::TheBook, BookInterface, ResultSelf},
+    books::{book::Book, date::Date, the_book::TheBook, BookInterface, ResultSelf},
     reading::{read_base::ReaderBase, reader::Reader},
+    Lang,
 };
 
 use std::{
@@ -15,6 +17,8 @@ use std::{
     iter::FromIterator,
     rc::{Rc, Weak},
 };
+
+use fltk::app::App;
 
 use yaml_rust::{
     yaml::{Array, Hash},
@@ -74,11 +78,13 @@ impl BookSystem {
         &mut self,
         ind: usize,
         amount: usize,
+        app: &App,
+        lang: Lang,
     ) -> ResultSelf<Self> {
         (0..amount).for_each(|_| {
             (**self.books.get_unchecked_mut(ind))
                 .borrow_mut()
-                .add_book();
+                .add_book(app, lang);
         });
         Ok(self)
     }
@@ -86,7 +92,13 @@ impl BookSystem {
     /// Adds simple books with strong guarantee
 
     #[inline]
-    pub(crate) fn add_books(&mut self, ind: usize, amount: usize) -> ResultSelf<Self> {
+    pub(crate) fn add_books(
+        &mut self,
+        ind: usize,
+        amount: usize,
+        app: &App,
+        lang: Lang,
+    ) -> ResultSelf<Self> {
         return if ind >= self.books.len() {
             Err(1) // out of range
         } else {
@@ -98,7 +110,7 @@ impl BookSystem {
                 if size + amount as u128 > usize::MAX as u128 {
                     return Err(0); // too much books
                 }
-                self.add_books_unchecked(ind, amount)
+                self.add_books_unchecked(ind, amount, app, lang)
             }
         };
     }
@@ -110,13 +122,15 @@ impl BookSystem {
     #[inline]
     pub(crate) unsafe fn add_book_unchecked(
         &mut self,
-        title: String,
-        author: String,
-        pages: u16,
+        new_title: String,
+        new_author: String,
+        new_pages: u16,
         amount: usize,
+        app: &App,
+        lang: Lang,
     ) -> &mut Self {
         self.books.push(Rc::new(RefCell::new(TheBook::new(
-            title, author, pages, amount,
+            new_title, new_author, new_pages, amount, app, lang,
         ))));
         self
     }
@@ -127,15 +141,21 @@ impl BookSystem {
     #[inline]
     pub(crate) fn add_book(
         &mut self,
-        title: String,
-        author: String,
-        pages: u16,
+        new_title: String,
+        new_author: String,
+        new_pages: u16,
         amount: usize,
+        app: &App,
+        lang: Lang,
     ) -> ResultSelf<Self> {
-        return if !self.books.is_empty() && self.find_book(&title, &author, pages).is_some() {
+        return if !self.books.is_empty()
+            && self.find_book(&new_title, &new_author, new_pages).is_some()
+        {
             Err(0) // already exists
         } else {
-            Ok(unsafe { self.add_book_unchecked(title, author, pages, amount) })
+            Ok(unsafe {
+                self.add_book_unchecked(new_title, new_author, new_pages, amount, app, lang)
+            })
         };
     }
 
@@ -315,6 +335,66 @@ impl BookSystem {
         };
     }
 
+    /// Changes simple Book's location without any checks
+
+    #[inline]
+    pub(crate) unsafe fn change_location_unchecked(
+        &mut self,
+        t_ind: usize,
+        s_ind: usize,
+        new_cabinet: u16,
+        new_shelf: u8,
+    ) -> &mut Self {
+        (**(**self.books.get_unchecked_mut(t_ind))
+            .borrow_mut()
+            .books
+            .get_unchecked_mut(s_ind))
+        .borrow_mut()
+        .change_location(new_cabinet, new_shelf);
+        self
+    }
+
+    /// Changes simple Book's location
+
+    #[inline]
+    pub(crate) fn change_location(
+        &mut self,
+        t_ind: usize,
+        s_ind: usize,
+        new_cabinet: String,
+        new_shelf: String,
+    ) -> ResultSelf<Self> {
+        match new_cabinet.trim().parse::<u16>() {
+            Err(_) => {
+                return Err(0); // new cabinet err
+            }
+
+            Ok(cab) => {
+                match new_shelf.trim().parse::<u8>() {
+                    Err(_) => {
+                        return Err(1); // new shelf err
+                    }
+
+                    Ok(shelf) => {
+                        if t_ind > self.books.len() || t_ind == 0 {
+                            return Err(2); // index out of range (the book)
+                        } else if s_ind
+                            > unsafe {
+                                (**self.books.get_unchecked(t_ind - 1)).borrow().books.len()
+                            }
+                        {
+                            return Err(3); // index out of range (book)
+                        } else {
+                            Ok(unsafe {
+                                self.change_location_unchecked(t_ind - 1, s_ind - 1, cab, shelf)
+                            })
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     /// Deletes all books from current Book System
     /// (But not Books themselves)
 
@@ -448,6 +528,16 @@ impl BookSystem {
                         let mut hash_simple = Hash::new();
 
                         hash_simple.insert(
+                            Yaml::String("Cabinet".to_string()),
+                            Yaml::Integer(RefCell::borrow(&(**simple)).cabinet as i64),
+                        );
+
+                        hash_simple.insert(
+                            Yaml::String("Shelf".to_string()),
+                            Yaml::Integer(RefCell::borrow(&(**simple)).shelf as i64),
+                        );
+
+                        hash_simple.insert(
                             Yaml::String("Using".to_string()),
                             Yaml::Boolean(RefCell::borrow(&(**simple)).is_using),
                         );
@@ -504,29 +594,37 @@ impl BookSystem {
             let doc = docs.first().unwrap().clone().into_vec().unwrap();
 
             for d in doc {
-                self.books.push(Rc::new(RefCell::new(TheBook::new(
-                    d["Title"].as_str().unwrap().to_string(),
-                    d["Author"].as_str().unwrap().to_string(),
-                    d["Pages"].as_i64().unwrap() as u16,
-                    0,
-                ))));
+                self.books.push(Rc::new(RefCell::new(TheBook {
+                    title: d["Title"].as_str().unwrap().to_string(),
+                    author: d["Author"].as_str().unwrap().to_string(),
+                    pages: d["Pages"].as_i64().unwrap() as u16,
+                    books: vec![],
+                    genres: None,
+                })));
 
                 d["Simple Books"]
                     .as_vec()
                     .unwrap()
                     .iter()
                     .for_each(|simple| {
-                        (**self.books.last_mut().unwrap()).borrow_mut().add_book();
+                        let new_title = (**self.books.last().unwrap()).borrow().title.clone();
+                        let new_author = (**self.books.last().unwrap()).borrow().author.clone();
+                        let new_pages = (**self.books.last().unwrap()).borrow().pages;
+                        let new_is_using = simple["Using"].as_bool().unwrap();
 
-                        (**(**self.books.last_mut().unwrap())
-                            .borrow_mut()
+                        (*(**self.books.last_mut().unwrap()).borrow_mut())
                             .books
-                            .last_mut()
-                            .unwrap())
-                        .borrow_mut()
-                        .is_using = simple["Using"].as_bool().unwrap();
+                            .push(Rc::new(RefCell::new(Book {
+                                title: new_title,
+                                author: new_author,
+                                pages: new_pages,
+                                is_using: new_is_using,
+                                cabinet: simple["Cabinet"].as_i64().unwrap() as u16,
+                                shelf: simple["Shelf"].as_i64().unwrap() as u8,
+                                readers: vec![],
+                            })));
 
-                        if simple["Using"].as_bool().unwrap() {
+                        if new_is_using {
                             if let Some(last_reader) = simple["Readers"].as_vec().unwrap().last() {
                                 unsafe {
                                     let ind = reader_base

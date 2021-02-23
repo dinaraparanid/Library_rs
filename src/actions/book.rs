@@ -3,7 +3,7 @@ extern crate fltk;
 use crate::{
     actions::{read::get_book_ind, tables::*},
     books::{book::Book, book_sys::BookSystem, genres::Genres},
-    change::{input1::Input1, input3::Input3, Inputable},
+    change::{input1::Input1, input2::Input2, input3::Input3, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
     Lang,
@@ -168,7 +168,7 @@ fn change_title_simple(
                 true => {
                     get_title.hide();
 
-                    if let Ok(new_title) = get_title.set_input() {
+                    if let Ok(mut new_title) = get_title.set_input() {
                         unsafe {
                             if new_title.get_unchecked(0).is_empty() {
                                 alert(
@@ -182,9 +182,7 @@ fn change_title_simple(
                                 caretaker.pop();
                                 return;
                             } else {
-                                match book_system
-                                    .change_title(ind, new_title.get_unchecked(0).clone())
-                                {
+                                match book_system.change_title(ind, new_title.pop().unwrap()) {
                                     Ok(_) => {
                                         fltk::dialog::message(
                                             500,
@@ -197,6 +195,7 @@ fn change_title_simple(
 
                                         book_system.save();
                                         reader_base.save();
+                                        return;
                                     }
 
                                     Err(_) => {
@@ -257,7 +256,7 @@ fn change_author_simple(
                 true => {
                     get_author.hide();
 
-                    if let Ok(new_author) = get_author.set_input() {
+                    if let Ok(mut new_author) = get_author.set_input() {
                         unsafe {
                             if new_author.get_unchecked(0).is_empty() {
                                 alert(
@@ -271,9 +270,7 @@ fn change_author_simple(
                                 caretaker.pop();
                                 return;
                             } else {
-                                match book_system
-                                    .change_author(ind, new_author.get_unchecked(0).clone())
-                                {
+                                match book_system.change_author(ind, new_author.pop().unwrap()) {
                                     Ok(_) => {
                                         fltk::dialog::message(
                                             500,
@@ -286,6 +283,7 @@ fn change_author_simple(
 
                                         book_system.save();
                                         reader_base.save();
+                                        return;
                                     }
 
                                     Err(_) => {
@@ -346,7 +344,7 @@ fn change_pages_simple(
                 true => {
                     get_pages.hide();
 
-                    if let Ok(new_pages) = get_pages.set_input() {
+                    if let Ok(mut new_pages) = get_pages.set_input() {
                         unsafe {
                             if new_pages.get_unchecked(0).is_empty() {
                                 alert(
@@ -360,9 +358,7 @@ fn change_pages_simple(
                                 caretaker.pop();
                                 return;
                             } else {
-                                match book_system
-                                    .change_pages(ind, new_pages.get_unchecked(0).clone())
-                                {
+                                match book_system.change_pages(ind, new_pages.pop().unwrap()) {
                                     Ok(_) => {
                                         fltk::dialog::message(
                                             500,
@@ -375,6 +371,7 @@ fn change_pages_simple(
 
                                         book_system.save();
                                         reader_base.save();
+                                        return;
                                     }
 
                                     Err(0) => {
@@ -403,6 +400,156 @@ fn change_pages_simple(
                 false => (),
             }
         } else if !get_pages.shown() {
+            caretaker.pop();
+            return;
+        }
+    }
+}
+
+#[inline]
+fn change_location_simple(
+    t_ind: usize,
+    s_ind: usize,
+    book_system: &mut BookSystem,
+    reader_base: &mut ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+    lang: Lang,
+) {
+    let (s3, r3) = app::channel();
+    let mut get_loc = Input2::<IntInput, IntInput>::new(
+        match lang {
+            Lang::English => "New Location",
+            Lang::Russian => "Перемещение Книги",
+        },
+        match lang {
+            Lang::English => "New Cabinet",
+            Lang::Russian => "Новый Шкаф",
+        },
+        match lang {
+            Lang::English => "New Shelf",
+            Lang::Russian => "Новая Полка",
+        },
+    );
+
+    caretaker.add_memento(reader_base, book_system, genres);
+
+    get_loc.show();
+    (*get_loc.ok).borrow_mut().emit(s3, true);
+
+    while app.wait() {
+        if let Some(msg) = r3.recv() {
+            match msg {
+                true => {
+                    get_loc.hide();
+
+                    if let Ok(mut new_loc) = get_loc.set_input() {
+                        unsafe {
+                            if new_loc.get_unchecked(0).is_empty() {
+                                alert(
+                                    500,
+                                    500,
+                                    match lang {
+                                        Lang::English => "'New cabinet' is empty",
+                                        Lang::Russian => "'Новый шкаф' пусто",
+                                    },
+                                );
+                                caretaker.pop();
+                                return;
+                            } else if new_loc.get_unchecked(1).is_empty() {
+                                alert(
+                                    500,
+                                    500,
+                                    match lang {
+                                        Lang::English => "'New shelf' is empty",
+                                        Lang::Russian => "'Новая полка' пусто",
+                                    },
+                                );
+                                caretaker.pop();
+                                return;
+                            } else {
+                                match book_system.change_location(
+                                    t_ind,
+                                    s_ind,
+                                    new_loc.swap_remove(0),
+                                    new_loc.pop().unwrap(),
+                                ) {
+                                    Ok(_) => {
+                                        fltk::dialog::message(
+                                            500,
+                                            500,
+                                            match lang {
+                                                Lang::English => "Successfully changed",
+                                                Lang::Russian => "Успешно изменено",
+                                            },
+                                        );
+
+                                        book_system.save();
+                                        reader_base.save();
+                                        return;
+                                    }
+
+                                    Err(0) => {
+                                        alert(
+                                            500,
+                                            500,
+                                            match lang {
+                                                Lang::English => "'New cabinet' input error",
+                                                Lang::Russian => "Ошибка ввода 'Нового шкафа'",
+                                            },
+                                        );
+                                        caretaker.pop();
+                                        return;
+                                    }
+
+                                    Err(1) => {
+                                        alert(
+                                            500,
+                                            500,
+                                            match lang {
+                                                Lang::English => "'New shelf' input error",
+                                                Lang::Russian => "Ошибка ввода 'Новой полки'",
+                                            },
+                                        );
+                                        caretaker.pop();
+                                        return;
+                                    }
+
+                                    Err(2) => {
+                                        alert(
+                                            500,
+                                            500,
+                                            match lang {
+                                                Lang::English => "Book is not found",
+                                                Lang::Russian => "Книга не найдена",
+                                            },
+                                        );
+                                        caretaker.pop();
+                                        return;
+                                    }
+
+                                    Err(_) => {
+                                        alert(
+                                            500,
+                                            500,
+                                            match lang {
+                                                Lang::English => "Book's number is incorrect",
+                                                Lang::Russian => "Номер книги некорректен",
+                                            },
+                                        );
+                                        caretaker.pop();
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                false => (),
+            }
+        } else if !get_loc.shown() {
             caretaker.pop();
             return;
         }
@@ -488,7 +635,7 @@ fn add_books_simple(
 
                     if let Ok(amount) = get_amount.set_input() {
                         match amount.first().unwrap().trim().parse::<usize>() {
-                            Ok(x) => match book_system.add_books(ind, x) {
+                            Ok(x) => match book_system.add_books(ind, x, app, lang) {
                                 Ok(_) => {
                                     fltk::dialog::message(
                                         500,
@@ -707,7 +854,9 @@ fn add_book_simple(book_system: &mut BookSystem, the_book: &Vec<String>, app: &A
                                             the_book.get_unchecked(0).clone(),
                                             the_book.get_unchecked(1).clone(),
                                             x,
-                                            amount
+                                            amount,
+                                            app,
+                                            lang
                                         ) {
                                             Ok(_) => {
                                                 fltk::dialog::message(500, 500, match lang {
@@ -789,7 +938,7 @@ pub fn book_info_simple(
             )
             .center_screen();
 
-            let mut table1 = VGrid::new(0, 0, 848, 100, "");
+            let mut table1 = VGrid::new(0, 0, 908, 170, "");
             table1.set_params(6, 1, 1);
 
             table1.add(&Frame::new(
@@ -841,7 +990,7 @@ pub fn book_info_simple(
             ));
 
             table1.add(&Frame::new(
-                50,
+                70,
                 50,
                 100,
                 30,
@@ -857,7 +1006,7 @@ pub fn book_info_simple(
             ));
 
             table1.add(&Frame::new(
-                70,
+                90,
                 50,
                 100,
                 30,
@@ -928,7 +1077,39 @@ pub fn book_info_simple(
             ));
 
             table1.add(&Frame::new(
-                90,
+                110,
+                50,
+                100,
+                30,
+                format!(
+                    "{}: {}",
+                    match lang {
+                        Lang::English => "Cabinet",
+                        Lang::Russian => "Шкаф",
+                    },
+                    (*b.upgrade().unwrap()).borrow().cabinet,
+                )
+                .as_str(),
+            ));
+
+            table1.add(&Frame::new(
+                130,
+                50,
+                100,
+                30,
+                format!(
+                    "{}: {}",
+                    match lang {
+                        Lang::English => "Shelf",
+                        Lang::Russian => "Полка",
+                    },
+                    (*b.upgrade().unwrap()).borrow().shelf,
+                )
+                .as_str(),
+            ));
+
+            table1.add(&Frame::new(
+                150,
                 50,
                 100,
                 30,
@@ -1339,10 +1520,9 @@ pub fn add_books(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let new_books_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(books) = new_books_params {
+                    if let Ok(books) = inp.set_input() {
                         unsafe {
                             if empty_inp_book(&books, lang) {
                                 return;
@@ -1430,26 +1610,20 @@ pub fn remove_book(
         if let Some(message) = r2.recv() {
             match message {
                 true => {
-                    let rem_book_params = inp.set_input();
                     inp.hide();
 
-                    if let Ok(book) = rem_book_params {
-                        let index;
-
-                        match check_book(book_system, &book, lang) {
-                            Ok(x) => index = x,
-                            Err(_) => return,
+                    if let Ok(book) = inp.set_input() {
+                        if let Ok(index) = check_book(book_system, &book, lang) {
+                            remove_book_simple(
+                                index,
+                                book_system,
+                                reader_base,
+                                genres,
+                                caretaker,
+                                app,
+                                lang,
+                            );
                         }
-
-                        remove_book_simple(
-                            index,
-                            book_system,
-                            reader_base,
-                            genres,
-                            caretaker,
-                            app,
-                            lang,
-                        );
                     }
                 }
                 false => (),
@@ -1548,7 +1722,9 @@ fn add_book(
                                                                 the_book.get_unchecked(0).clone(),
                                                                 the_book.get_unchecked(1).clone(),
                                                                 x,
-                                                                amount
+                                                                amount,
+                                                                app,
+                                                                lang,
                                                             ) {
                                                                 Ok(_) => {
                                                                     fltk::dialog::message(500, 500, match lang {
@@ -1661,21 +1837,16 @@ pub fn remove_the_book(
                     inp.hide();
 
                     if let Ok(the_book) = inp.set_input() {
-                        let index;
-
-                        match check_book(book_system, &the_book, lang) {
-                            Ok(x) => index = x,
-                            Err(_) => return,
+                        if let Ok(index) = check_book(book_system, &the_book, lang) {
+                            remove_the_book_simple(
+                                index,
+                                book_system,
+                                reader_base,
+                                genres,
+                                caretaker,
+                                lang,
+                            );
                         }
-
-                        remove_the_book_simple(
-                            index,
-                            book_system,
-                            reader_base,
-                            genres,
-                            caretaker,
-                            lang,
-                        );
                     }
                 }
                 false => (),
@@ -1731,22 +1902,17 @@ pub fn change_title(
                     inp.hide();
 
                     if let Ok(book) = inp.set_input() {
-                        let index;
-
-                        match check_book(book_system, &book, lang) {
-                            Ok(x) => index = x,
-                            Err(_) => return,
+                        if let Ok(index) = check_book(book_system, &book, lang) {
+                            change_title_simple(
+                                index,
+                                book_system,
+                                reader_base,
+                                genres,
+                                caretaker,
+                                app,
+                                lang,
+                            );
                         }
-
-                        change_title_simple(
-                            index,
-                            book_system,
-                            reader_base,
-                            genres,
-                            caretaker,
-                            app,
-                            lang,
-                        );
                     }
                 }
                 false => (),
@@ -1802,22 +1968,17 @@ pub fn change_author(
                     inp.hide();
 
                     if let Ok(book) = inp.set_input() {
-                        let index;
-
-                        match check_book(book_system, &book, lang) {
-                            Ok(x) => index = x,
-                            Err(_) => return,
+                        if let Ok(index) = check_book(book_system, &book, lang) {
+                            change_author_simple(
+                                index,
+                                book_system,
+                                reader_base,
+                                genres,
+                                caretaker,
+                                app,
+                                lang,
+                            );
                         }
-
-                        change_author_simple(
-                            index,
-                            book_system,
-                            reader_base,
-                            genres,
-                            caretaker,
-                            app,
-                            lang,
-                        );
                     }
                 }
                 false => (),
@@ -1873,22 +2034,127 @@ pub fn change_pages(
                     inp.hide();
 
                     if let Ok(book) = inp.set_input() {
-                        let index;
-
-                        match check_book(book_system, &book, lang) {
-                            Ok(x) => index = x,
-                            Err(_) => return,
+                        if let Ok(index) = check_book(book_system, &book, lang) {
+                            change_pages_simple(
+                                index,
+                                book_system,
+                                reader_base,
+                                genres,
+                                caretaker,
+                                app,
+                                lang,
+                            );
                         }
+                    }
+                }
+                false => (),
+            }
+            break;
+        } else if !inp.shown() {
+            break;
+        }
+    }
+}
 
-                        change_pages_simple(
-                            index,
-                            book_system,
-                            reader_base,
-                            genres,
-                            caretaker,
-                            app,
-                            lang,
-                        );
+/// Function that changes location
+/// of simple book.
+/// If you have mistakes in input,
+/// program will let you know
+
+#[inline]
+pub fn change_location(
+    book_system: &mut BookSystem,
+    reader_base: &mut ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+    lang: Lang,
+) {
+    let (s2, r2) = app::channel();
+    let mut inp = Input3::<Input, Input, IntInput>::new(
+        match lang {
+            Lang::English => "Change book's location",
+            Lang::Russian => "Переместить книгу",
+        },
+        match lang {
+            Lang::English => "Title",
+            Lang::Russian => "Название",
+        },
+        match lang {
+            Lang::English => "Author",
+            Lang::Russian => "Автор",
+        },
+        match lang {
+            Lang::English => "Amount of Pages",
+            Lang::Russian => "Количество страниц",
+        },
+    );
+
+    inp.show();
+    (*inp.ok).borrow_mut().emit(s2, true);
+
+    while app.wait() {
+        if let Some(message) = r2.recv() {
+            match message {
+                true => {
+                    inp.hide();
+
+                    if let Ok(book) = inp.set_input() {
+                        if let Ok(t_ind) = check_book(book_system, &book, lang) {
+                            let (s, r) = app::channel();
+                            let mut inp2 = Input1::<IntInput>::new(
+                                match lang {
+                                    Lang::English => "Book's number",
+                                    Lang::Russian => "Номер книги",
+                                },
+                                match lang {
+                                    Lang::English => "Book's number",
+                                    Lang::Russian => "Номер книги",
+                                },
+                            );
+
+                            inp2.show();
+                            (*inp2.ok).borrow_mut().emit(s, true);
+
+                            while app.wait() {
+                                if let Some(mes) = r.recv() {
+                                    match mes {
+                                        true => {
+                                            inp2.hide();
+
+                                            if let Ok(ind) = inp2.set_input() {
+                                                match ind.first().unwrap().trim().parse::<usize>() {
+                                                    Err(_) => alert(
+                                                        500,
+                                                        500,
+                                                        match lang {
+                                                            Lang::English => {
+                                                                "Incorrect book's number"
+                                                            }
+                                                            Lang::Russian => {
+                                                                "Некорректный номер книги"
+                                                            }
+                                                        },
+                                                    ),
+
+                                                    Ok(s_ind) => change_location_simple(
+                                                        t_ind,
+                                                        s_ind,
+                                                        book_system,
+                                                        reader_base,
+                                                        genres,
+                                                        caretaker,
+                                                        app,
+                                                        lang,
+                                                    ),
+                                                }
+                                            }
+                                        }
+                                        false => (),
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 false => (),

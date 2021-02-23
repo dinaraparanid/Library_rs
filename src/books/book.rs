@@ -1,14 +1,20 @@
 extern crate chrono;
+extern crate fltk;
 
 use crate::{
-    books::{date::Date, BookInterface, ResultSelf},
+    actions::read::get_book_ind,
+    books::{book_sys::BookSystem, date::Date, BookInterface, ResultSelf},
+    change::{input2::Input2, Inputable},
     reading::{read_base::ReaderBase, reader::Reader},
+    Lang,
 };
 
 use chrono::Datelike;
 
-use crate::actions::read::get_book_ind;
-use crate::books::book_sys::BookSystem;
+use fltk::{app, app::App, input::IntInput, prelude::*};
+
+use self::fltk::dialog::alert;
+use std::num::ParseIntError;
 use std::{
     cell::RefCell,
     fmt::{Debug, Formatter, Result},
@@ -16,7 +22,8 @@ use std::{
 };
 
 /// Simple Book structure, which contains
-/// title, author, amount of pages, using status
+/// title, author, amount of pages, using status,
+/// location (number of cabinet and it's shelf)
 /// and readers with start and finish dates
 
 pub struct Book {
@@ -24,6 +31,8 @@ pub struct Book {
     pub(crate) author: String,
     pub(crate) pages: u16,
     pub(crate) is_using: bool,
+    pub(crate) cabinet: u16,
+    pub(crate) shelf: u8,
     pub(crate) readers: Vec<(Weak<RefCell<Reader>>, (Date, Date))>,
 }
 
@@ -33,7 +42,10 @@ impl Drop for Book {
 
     #[inline]
     fn drop(&mut self) {
-        println!("Book {} {} is deleted", self.title, self.author)
+        println!(
+            "Book {} {} ({} pages) ({} cab, {} shelf) is deleted",
+            self.title, self.author, self.pages, self.cabinet, self.shelf
+        )
     }
 }
 
@@ -48,6 +60,8 @@ impl Debug for Book {
             .field("author", &self.author)
             .field("pages", &self.pages)
             .field("is using", &self.is_using)
+            .field("cabinet", &self.cabinet)
+            .field("shelf", &self.shelf)
             .field(
                 "readers",
                 &self
@@ -119,15 +133,86 @@ impl BookInterface for Book {
 
 impl Book {
     /// Constructs new simple book.
-    /// By default it has no readers and it isn't used
+    /// By default it has no readers and it isn't used.
+    /// If there are some input errors,
+    /// it'll return None
 
     #[inline]
-    pub(crate) const fn new(new_title: String, new_author: String, new_pages: u16) -> Self {
+    pub(crate) fn new(
+        new_title: String,
+        new_author: String,
+        new_pages: u16,
+        app: &App,
+        lang: Lang,
+    ) -> Option<Self> {
+        let (s2, r2) = app::channel();
+        let mut inp = Input2::<IntInput, IntInput>::new(
+            match lang {
+                Lang::English => "Location",
+                Lang::Russian => "Местонахождения",
+            },
+            match lang {
+                Lang::English => "Cabinet's number",
+                Lang::Russian => "Номер шкафа",
+            },
+            match lang {
+                Lang::English => "Shelf's number",
+                Lang::Russian => "Номер полки",
+            },
+        );
+
+        inp.show();
+        (*inp.ok).borrow_mut().emit(s2, true);
+
+        while app.wait() {
+            if let Some(message) = r2.recv() {
+                match message {
+                    true => {
+                        inp.hide();
+
+                        if let Ok(location) = inp.set_input() {
+                            return Some(Book {
+                                title: new_title,
+                                author: new_author,
+                                pages: new_pages,
+                                is_using: false,
+                                cabinet: location.first().unwrap().trim().parse().unwrap(),
+                                shelf: location.last().unwrap().trim().parse().unwrap(),
+                                readers: vec![],
+                            });
+                        }
+                    }
+                    false => (),
+                }
+
+                return None;
+            } else if !inp.shown() {
+                return None;
+            }
+        }
+
+        None
+    }
+
+    /// Constructs book with known params.
+    /// It uses for load and restore
+
+    #[inline]
+    pub(crate) const fn restore(
+        _title: String,
+        _author: String,
+        _pages: u16,
+        _is_using: bool,
+        _cabinet: u16,
+        _shelf: u8,
+    ) -> Self {
         Book {
-            title: new_title,
-            author: new_author,
-            pages: new_pages,
-            is_using: false,
+            title: _title,
+            author: _author,
+            pages: _pages,
+            is_using: _is_using,
+            cabinet: _cabinet,
+            shelf: _shelf,
             readers: vec![],
         }
     }
@@ -236,6 +321,16 @@ impl Book {
         }
     }
 
+    /// Changes cabinet's and shelf's number
+    /// where book is located.
+
+    #[inline]
+    pub(crate) fn change_location(&mut self, new_cabinet: u16, new_shelf: u8) -> &mut Self {
+        self.cabinet = new_cabinet;
+        self.shelf = new_shelf;
+        self
+    }
+
     /// Clones simple book
     /// with new readers' pointers
 
@@ -246,6 +341,8 @@ impl Book {
             author: self.author.clone(),
             pages: self.pages,
             is_using: self.is_using,
+            cabinet: self.cabinet,
+            shelf: self.shelf,
             readers: self
                 .readers
                 .iter()

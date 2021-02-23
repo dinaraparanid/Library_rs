@@ -50,6 +50,7 @@ enum Message {
     ChangeTitle,
     ChangeAuthor,
     ChangePages,
+    ChangeLocation,
     InfoTheBook,
     InfoBook,
     GiveBook,
@@ -523,6 +524,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     menu.add_emit(
         match lang {
+            Lang::English => "&Books/Change book's location\t",
+            Lang::Russian => "&Книги/Изменить номер полки книги\t",
+        },
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        Message::ChangeLocation,
+    );
+
+    menu.add_emit(
+        match lang {
             Lang::English => "&Books/Get type book's information\t",
             Lang::Russian => "&Книги/Получить информацию о всех схожих книгах\t",
         },
@@ -851,6 +863,15 @@ fn main() -> Result<(), Box<dyn Error>> {
                     table.redraw();
                 }
 
+                Message::ChangeLocation => change_location(
+                    &mut (*book_system).borrow_mut(),
+                    &mut (*reader_base).borrow_mut(),
+                    &(*genres).borrow(),
+                    &mut (*caretaker).borrow_mut(),
+                    &app,
+                    lang
+                ),
+
                 Message::InfoTheBook => {
                     the_book_info(
                         book_system.clone(),
@@ -860,6 +881,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &app,
                         lang,
                     );
+
                     table.redraw();
                 }
 
@@ -912,6 +934,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &app,
                         lang,
                     );
+
                     table.redraw();
                 }
 
@@ -942,6 +965,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &mut *(book_system).borrow_mut(),
                         &mut *(genres).borrow_mut(),
                     );
+
                     table.redraw();
                 }
 
@@ -951,6 +975,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &mut *(book_system).borrow_mut(),
                         &mut *(genres).borrow_mut(),
                     );
+                    
                     table.redraw();
                 }
 

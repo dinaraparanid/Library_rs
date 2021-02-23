@@ -471,11 +471,15 @@ impl ReaderBase {
                     if d["Reading"].as_str().unwrap() == "None" {
                         None
                     } else {
-                        Some(Rc::downgrade(&Rc::new(RefCell::new(Book::new(
-                            "".to_string(),
-                            "".to_string(),
-                            0,
-                        )))))
+                        Some(Rc::downgrade(&Rc::new(RefCell::new(Book {
+                            title: "".to_string(),
+                            author: "".to_string(),
+                            pages: 0,
+                            is_using: false,
+                            cabinet: 0,
+                            shelf: 0,
+                            readers: vec![],
+                        }))))
                     }
             });
         }

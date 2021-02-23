@@ -1,8 +1,12 @@
+extern crate fltk;
+
 use crate::{
     books::{book::Book, BookInterface, ResultSelf},
     reading::{read_base::ReaderBase, reader::Reader},
+    Lang,
 };
 
+use fltk::app::App;
 use std::{
     cell::RefCell,
     collections::HashSet,
@@ -27,7 +31,10 @@ impl Drop for TheBook {
 
     #[inline]
     fn drop(&mut self) {
-        println!("The Book {} {} is deleted", self.title, self.author)
+        println!(
+            "The Book {} {} {} is deleted",
+            self.title, self.author, self.pages
+        )
     }
 }
 
@@ -108,16 +115,28 @@ impl TheBook {
         new_author: String,
         new_pages: u16,
         amount: usize,
+        app: &App,
+        lang: Lang,
     ) -> Self {
         TheBook {
-            books: vec![
-                Rc::new(RefCell::new(Book::new(
-                    new_title.clone(),
-                    new_author.clone(),
-                    new_pages,
-                )));
-                amount
-            ],
+            books: {
+                let mut vec = vec![];
+
+                (0..amount).for_each(|_| {
+                    if let Some(book) = Book::new(
+                        new_title.clone(),
+                        new_author.clone(),
+                        new_pages.clone(),
+                        app,
+                        lang,
+                    ) {
+                        vec.push(Rc::new(RefCell::new(book)));
+                    }
+                });
+
+                vec
+            },
+
             title: new_title,
             author: new_author,
             pages: new_pages,
@@ -148,12 +167,17 @@ impl TheBook {
     /// add one simple book
 
     #[inline]
-    pub(crate) fn add_book(&mut self) -> &mut Self {
-        self.books.push(Rc::new(RefCell::new(Book::new(
-            self.title.clone(),
+    pub(crate) fn add_book(&mut self, app: &App, lang: Lang) -> &mut Self {
+        if let Some(book) = Book::new(
+            self.title.clone().clone(),
             self.author.clone(),
-            self.pages,
-        ))));
+            self.pages.clone(),
+            app,
+            lang,
+        ) {
+            self.books.push(Rc::new(RefCell::new(book)));
+        }
+
         self
     }
 
