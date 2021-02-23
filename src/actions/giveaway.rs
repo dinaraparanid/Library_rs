@@ -426,6 +426,27 @@ pub(crate) fn get_book_known_reader(
                                         ),
                                     }
 
+                                    let cab = (*(*book_system.books.get_unchecked(bind))
+                                        .borrow()
+                                        .books
+                                        .get_unchecked(sim))
+                                        .borrow()
+                                        .cabinet;
+
+                                    let shelf = (*(*book_system.books.get_unchecked(bind))
+                                        .borrow()
+                                        .books
+                                        .get_unchecked(sim))
+                                        .borrow()
+                                        .shelf;
+
+                                    fltk::dialog::message(500, 500,
+                                        match lang {
+                                            Lang::English => format!("Book location: cabinet {}, shelf {}", cab, shelf),
+                                            Lang::Russian => format!("Расположение книги: шкаф {}, полка {}", cab, shelf),
+                                        }.as_str()
+                                    );
+
                                     book_system.save();
                                     reader_base.save();
                                     Some(())
