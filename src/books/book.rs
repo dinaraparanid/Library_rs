@@ -13,8 +13,6 @@ use chrono::Datelike;
 
 use fltk::{app, app::App, input::IntInput, prelude::*};
 
-use self::fltk::dialog::alert;
-use std::num::ParseIntError;
 use std::{
     cell::RefCell,
     fmt::{Debug, Formatter, Result},
@@ -306,17 +304,14 @@ impl Book {
     #[inline]
     pub(crate) fn finish_reading(&mut self) -> ResultSelf<Self> {
         self.is_using = false;
-        let now = chrono::Local::now();
+
+        let now = Date::from(chrono::Local::now());
         let was = ((*self.readers.last().unwrap()).1).1;
 
-        if now.day() as u8 > was.day
-            || now.month() as u8 > was.month
-            || now.year() as u16 > was.year
-        {
+        if now < was {
             Err(1) // Reader is late
         } else {
-            ((*self.readers.last_mut().unwrap()).1).1 =
-                Date::new(now.day() as u8, now.month() as u8, now.year() as u16).unwrap();
+            ((*self.readers.last_mut().unwrap()).1).1 = now;
             Ok(self)
         }
     }
