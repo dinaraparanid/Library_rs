@@ -3,7 +3,7 @@ extern crate fltk;
 
 use crate::{
     actions::read::get_book_ind,
-    books::{book_sys::BookSystem, date::Date, BookInterface, ResultSelf},
+    books::{book_sys::BookSystem, date::Date, the_book::TheBook, ResultSelf},
     change::{input2::Input2, Inputable},
     reading::{read_base::ReaderBase, reader::Reader},
     Lang,
@@ -24,10 +24,9 @@ use std::{
 /// location (number of cabinet and it's shelf)
 /// and readers with start and finish dates
 
+#[derive(Default)]
 pub struct Book {
-    pub(crate) title: String,
-    pub(crate) author: String,
-    pub(crate) pages: u16,
+    pub(crate) the_book: Option<Weak<RefCell<TheBook>>>,
     pub(crate) is_using: bool,
     pub(crate) cabinet: u16,
     pub(crate) shelf: u8,
@@ -41,8 +40,8 @@ impl Drop for Book {
     #[inline]
     fn drop(&mut self) {
         println!(
-            "Book {} {} ({} pages) ({} cab, {} shelf) is deleted",
-            self.title, self.author, self.pages, self.cabinet, self.shelf
+            "Book ({} cab, {} shelf) is deleted",
+            self.cabinet, self.shelf
         )
     }
 }
@@ -54,9 +53,9 @@ impl Debug for Book {
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         f.debug_struct("Book")
-            .field("title", &self.title)
-            .field("author", &self.author)
-            .field("pages", &self.pages)
+            .field("title", &self.title())
+            .field("author", &self.author())
+            .field("pages", &self.pages())
             .field("is using", &self.is_using)
             .field("cabinet", &self.cabinet)
             .field("shelf", &self.shelf)
@@ -101,34 +100,6 @@ impl PartialEq for Book {
 
 impl Eq for Book {}
 
-/// Implementation of Book Interface trait for simple book
-
-impl BookInterface for Book {
-    /// Title changing
-
-    #[inline]
-    fn change_title(&mut self, new_title: String) -> &mut Self {
-        self.title = new_title;
-        self
-    }
-
-    /// Author changing
-
-    #[inline]
-    fn change_author(&mut self, new_author: String) -> &mut Self {
-        self.author = new_author;
-        self
-    }
-
-    /// Pages changing
-
-    #[inline]
-    fn change_pages(&mut self, new_pages: u16) -> &mut Self {
-        self.pages = new_pages;
-        self
-    }
-}
-
 impl Book {
     /// Constructs new simple book.
     /// By default it has no readers and it isn't used.
@@ -136,13 +107,7 @@ impl Book {
     /// it'll return None
 
     #[inline]
-    pub(crate) fn new(
-        new_title: String,
-        new_author: String,
-        new_pages: u16,
-        app: &App,
-        lang: Lang,
-    ) -> Option<Self> {
+    pub(crate) fn new(the_book: Rc<RefCell<TheBook>>, app: &App, lang: Lang) -> Option<Self> {
         let (s2, r2) = app::channel();
         let mut inp = Input2::<IntInput, IntInput>::new(
             match lang {
@@ -170,9 +135,7 @@ impl Book {
 
                         if let Ok(location) = inp.set_input() {
                             return Some(Book {
-                                title: new_title,
-                                author: new_author,
-                                pages: new_pages,
+                                the_book: Some(Rc::downgrade(&the_book)),
                                 is_using: false,
                                 cabinet: location.first().unwrap().trim().parse().unwrap(),
                                 shelf: location.last().unwrap().trim().parse().unwrap(),
@@ -196,23 +159,42 @@ impl Book {
     /// It uses for load and restore
 
     #[inline]
-    pub(crate) const fn restore(
-        _title: String,
-        _author: String,
-        _pages: u16,
+    pub(crate) fn restore(
+        _the_book: Rc<RefCell<TheBook>>,
         _is_using: bool,
         _cabinet: u16,
         _shelf: u8,
     ) -> Self {
         Book {
-            title: _title,
-            author: _author,
-            pages: _pages,
+            the_book: Some(Rc::downgrade(&_the_book)),
             is_using: _is_using,
             cabinet: _cabinet,
             shelf: _shelf,
             readers: vec![],
         }
+    }
+
+    #[inline]
+    pub(crate) fn title(&self) -> String {
+        (*self.the_book.as_ref().unwrap().upgrade().unwrap())
+            .borrow()
+            .title
+            .clone()
+    }
+
+    #[inline]
+    pub(crate) fn author(&self) -> String {
+        (*self.the_book.as_ref().unwrap().upgrade().unwrap())
+            .borrow()
+            .author
+            .clone()
+    }
+
+    #[inline]
+    pub(crate) fn pages(&self) -> u16 {
+        (*self.the_book.as_ref().unwrap().upgrade().unwrap())
+            .borrow()
+            .pages
     }
 
     /// Searches reader.
@@ -330,35 +312,13 @@ impl Book {
     /// with new readers' pointers
 
     #[inline]
-    pub(crate) fn clone(&self, reader_base: &ReaderBase) -> Self {
+    pub(crate) fn clone(&self, the_book: Rc<RefCell<TheBook>>) -> Self {
         Book {
-            title: self.title.clone(),
-            author: self.author.clone(),
-            pages: self.pages,
+            the_book: Some(Rc::downgrade(&the_book)),
             is_using: self.is_using,
             cabinet: self.cabinet,
             shelf: self.shelf,
-            readers: self
-                .readers
-                .iter()
-                .map(|x| unsafe {
-                    (
-                        Rc::downgrade({
-                            reader_base.readers.get_unchecked(
-                                reader_base
-                                    .find_reader(
-                                        &(*(x.0).upgrade().unwrap().borrow()).name,
-                                        &(*(x.0).upgrade().unwrap().borrow()).family,
-                                        &(*(x.0).upgrade().unwrap().borrow()).father,
-                                        (*(x.0).upgrade().unwrap().borrow()).age,
-                                    )
-                                    .unwrap(),
-                            )
-                        }),
-                        (x.1).clone(),
-                    )
-                })
-                .collect(),
+            readers: vec![],
         }
     }
 
@@ -370,9 +330,9 @@ impl Book {
     pub(crate) fn to_string(&self, book_system: &BookSystem) -> String {
         format!(
             "{} {} {} ({})",
-            self.title,
-            self.author,
-            self.pages,
+            self.title(),
+            self.author(),
+            self.pages(),
             get_book_ind(book_system, self as *const Book)
         )
     }

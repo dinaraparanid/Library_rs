@@ -27,7 +27,6 @@ mod date_tests {
 mod book_tests {
     use crate::books::book::Book;
     use crate::books::date::Date;
-    use crate::books::BookInterface;
     use crate::reading::reader::Reader;
     use std::cell::RefCell;
     use std::rc::Rc;
@@ -135,7 +134,6 @@ mod book_tests {
 mod the_book_tests {
     use crate::books::date::Date;
     use crate::books::the_book::TheBook;
-    use crate::books::BookInterface;
     use crate::reading::reader::Reader;
     use std::cell::RefCell;
     use std::rc::Rc;

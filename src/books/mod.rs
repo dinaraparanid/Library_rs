@@ -11,9 +11,12 @@ pub(crate) mod the_book;
 
 pub(crate) type ResultSelf<'a, T> = std::result::Result<&'a mut T, u8>;
 
+/// **DEPRECATED**
+///
 /// Trait, which used to params of books
 /// like title, author and amount of pages
 
+#[deprecated]
 pub(crate) trait BookInterface {
     /// Changes title of the book
     fn change_title(&mut self, new_title: String) -> &mut Self;

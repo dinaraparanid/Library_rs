@@ -170,7 +170,7 @@ pub fn cell_reader(
                                 .upgrade()
                                 .unwrap())
                             .borrow()
-                            .title,
+                            .title(),
                             (*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
                                 .reading
                                 .as_ref()
@@ -178,7 +178,7 @@ pub fn cell_reader(
                                 .upgrade()
                                 .unwrap())
                             .borrow()
-                            .author,
+                            .author(),
                             (*RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize)))
                                 .reading
                                 .as_ref()
@@ -186,7 +186,7 @@ pub fn cell_reader(
                                 .upgrade()
                                 .unwrap())
                             .borrow()
-                            .pages,
+                            .pages(),
                             match lang {
                                 Lang::English => "pages",
                                 Lang::Russian => "страниц",
@@ -424,23 +424,23 @@ pub fn cell_book2(
                         .upgrade()
                         .unwrap())
                     .borrow()
-                    .title
-                    .clone(),
+                    .title()
+                    .to_string(),
                     1 => (*RefCell::borrow(&(**reader_base.readers.get_unchecked(ind)))
                         .books
                         .get_unchecked(y as usize)
                         .upgrade()
                         .unwrap())
                     .borrow()
-                    .author
-                    .clone(),
+                    .author()
+                    .to_string(),
                     2 => (*RefCell::borrow(&(**reader_base.readers.get_unchecked(ind)))
                         .books
                         .get_unchecked(y as usize)
                         .upgrade()
                         .unwrap())
                     .borrow()
-                    .pages
+                    .pages()
                     .to_string(),
                     _ => get_book_ind(
                         book_system,

@@ -158,7 +158,11 @@ pub(crate) fn get_book_ind(book_system: &BookSystem, book: *const Book) -> usize
     }
 
     unsafe {
-        match book_system.find_book(&(*book).title, &(*book).author, (*book).pages) {
+        match book_system.find_book(
+            &(*book).title().to_string(),
+            &(*book).author().to_string(),
+            (*book).pages(),
+        ) {
             None => panic!("Index out of range"),
             Some(ind) => {
                 (*(**book_system.books.get_unchecked(ind)).borrow().books)
@@ -209,6 +213,7 @@ fn remove_reader_simple(
                 },
             );
             caretaker.pop();
+            return;
         }
     }
 }
@@ -1269,6 +1274,7 @@ pub fn add_reader(
                                             }
                                         );
                                         caretaker.pop();
+                                        return;
                                     }
                                 }
                             },
@@ -1282,7 +1288,8 @@ pub fn add_reader(
                                         Lang::Russian => "Ошибка ввода 'Возраста'",
                                     },
                                 );
-                                caretaker.pop()
+                                caretaker.pop();
+                                return;
                             }
                         }
                     }

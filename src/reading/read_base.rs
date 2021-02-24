@@ -404,7 +404,7 @@ impl ReaderBase {
                                 .upgrade()
                                 .unwrap())
                                 .borrow()
-                                .title,
+                                .title(),
                                 (*(RefCell::borrow(&(**self.readers.get_unchecked(guy)))
                                     .reading
                                     .as_ref()
@@ -412,7 +412,7 @@ impl ReaderBase {
                                 .upgrade()
                                 .unwrap())
                                 .borrow()
-                                .author,
+                                .author(),
                                 (*(RefCell::borrow(&(**self.readers.get_unchecked(guy)))
                                     .reading
                                     .as_ref()
@@ -420,7 +420,7 @@ impl ReaderBase {
                                 .upgrade()
                                 .unwrap())
                                 .borrow()
-                                .pages
+                                .pages()
                             )
                         } else {
                             "None".to_string()
@@ -472,9 +472,7 @@ impl ReaderBase {
                         None
                     } else {
                         Some(Rc::downgrade(&Rc::new(RefCell::new(Book {
-                            title: "".to_string(),
-                            author: "".to_string(),
-                            pages: 0,
+                            the_book: None,
                             is_using: false,
                             cabinet: 0,
                             shelf: 0,

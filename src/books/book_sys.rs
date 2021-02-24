@@ -2,7 +2,7 @@ extern crate fltk;
 extern crate yaml_rust;
 
 use crate::{
-    books::{book::Book, date::Date, the_book::TheBook, BookInterface, ResultSelf},
+    books::{book::Book, date::Date, the_book::TheBook, ResultSelf},
     reading::{read_base::ReaderBase, reader::Reader},
     Lang,
 };
@@ -80,13 +80,16 @@ impl BookSystem {
         amount: usize,
         app: &App,
         lang: Lang,
-    ) -> ResultSelf<Self> {
+    ) -> &mut Self {
         (0..amount).for_each(|_| {
-            (**self.books.get_unchecked_mut(ind))
-                .borrow_mut()
-                .add_book(app, lang);
+            if let Some(simple) = Book::new(self.books.get_unchecked(ind).clone(), app, lang) {
+                (**self.books.get_unchecked_mut(ind))
+                    .borrow_mut()
+                    .books
+                    .push(Rc::new(RefCell::new(simple)));
+            }
         });
-        Ok(self)
+        self
     }
 
     /// Adds simple books with strong guarantee
@@ -110,7 +113,7 @@ impl BookSystem {
                 if size + amount as u128 > usize::MAX as u128 {
                     return Err(0); // too much books
                 }
-                self.add_books_unchecked(ind, amount, app, lang)
+                Ok(self.add_books_unchecked(ind, amount, app, lang))
             }
         };
     }
@@ -130,8 +133,9 @@ impl BookSystem {
         lang: Lang,
     ) -> &mut Self {
         self.books.push(Rc::new(RefCell::new(TheBook::new(
-            new_title, new_author, new_pages, amount, app, lang,
+            new_title, new_author, new_pages,
         ))));
+        self.add_books_unchecked(self.books.len() - 1, amount, app, lang);
         self
     }
 
@@ -413,7 +417,66 @@ impl BookSystem {
             books: self
                 .books
                 .iter()
-                .map(|x| Rc::new(RefCell::new((**x).borrow().clone(reader_base))))
+                .map(|x| {
+                    let book = Rc::new(RefCell::new(TheBook {
+                        title: (**x).borrow().title.clone(),
+                        author: (**x).borrow().author.clone(),
+                        genres: (**x).borrow().genres.clone(),
+                        pages: (**x).borrow().pages,
+                        books: vec![],
+                    }));
+
+                    (*book).borrow_mut().books = (**x)
+                        .borrow()
+                        .books
+                        .iter()
+                        .map(|s| {
+                            let sim_book =
+                                Rc::new(RefCell::new((**s).borrow().clone(book.clone())));
+
+                            (*sim_book).borrow_mut().readers = (**s)
+                                .borrow()
+                                .readers
+                                .iter()
+                                .map(|x| {
+                                    let rind = reader_base
+                                        .find_reader(
+                                            &(*(x.0).upgrade().unwrap()).borrow().name,
+                                            &(*(x.0).upgrade().unwrap()).borrow().family,
+                                            &(*(x.0).upgrade().unwrap()).borrow().father,
+                                            (*(x.0).upgrade().unwrap()).borrow().age,
+                                        )
+                                        .unwrap();
+
+                                    if (**s).borrow().is_using
+                                        && *(*(*(**s).borrow().readers.last().unwrap())
+                                            .borrow()
+                                            .0
+                                            .upgrade()
+                                            .unwrap())
+                                        .borrow()
+                                            == *(*(x.0).upgrade().unwrap()).borrow()
+                                    {
+                                        unsafe {
+                                            (**reader_base.readers.get_unchecked(rind))
+                                                .borrow_mut()
+                                                .reading = Some(Rc::downgrade(&sim_book));
+                                        }
+                                    }
+
+                                    (
+                                        unsafe {
+                                            Rc::downgrade(reader_base.readers.get_unchecked(rind))
+                                        },
+                                        (x.1).clone(),
+                                    )
+                                })
+                                .collect();
+                            sim_book
+                        })
+                        .collect();
+                    book
+                })
                 .collect(),
         }
     }
@@ -593,7 +656,7 @@ impl BookSystem {
             let docs = YamlLoader::load_from_str(string.as_str()).unwrap();
             let doc = docs.first().unwrap().clone().into_vec().unwrap();
 
-            for d in doc {
+            doc.into_iter().for_each(|d| {
                 self.books.push(Rc::new(RefCell::new(TheBook {
                     title: d["Title"].as_str().unwrap().to_string(),
                     author: d["Author"].as_str().unwrap().to_string(),
@@ -607,22 +670,24 @@ impl BookSystem {
                     .unwrap()
                     .iter()
                     .for_each(|simple| {
-                        let new_title = (**self.books.last().unwrap()).borrow().title.clone();
-                        let new_author = (**self.books.last().unwrap()).borrow().author.clone();
-                        let new_pages = (**self.books.last().unwrap()).borrow().pages;
+                        let the_book = unsafe {
+                            let last = self.books.len() - 1;
+                            self.books.get_unchecked(last)
+                        };
+
                         let new_is_using = simple["Using"].as_bool().unwrap();
+
+                        let book = Rc::new(RefCell::new(Book {
+                            the_book: Some(Rc::downgrade(&the_book)),
+                            is_using: new_is_using,
+                            cabinet: simple["Cabinet"].as_i64().unwrap() as u16,
+                            shelf: simple["Shelf"].as_i64().unwrap() as u8,
+                            readers: vec![],
+                        }));
 
                         (*(**self.books.last_mut().unwrap()).borrow_mut())
                             .books
-                            .push(Rc::new(RefCell::new(Book {
-                                title: new_title,
-                                author: new_author,
-                                pages: new_pages,
-                                is_using: new_is_using,
-                                cabinet: simple["Cabinet"].as_i64().unwrap() as u16,
-                                shelf: simple["Shelf"].as_i64().unwrap() as u8,
-                                readers: vec![],
-                            })));
+                            .push(book);
 
                         if new_is_using {
                             if let Some(last_reader) = simple["Readers"].as_vec().unwrap().last() {
@@ -719,7 +784,7 @@ impl BookSystem {
                             .insert(genres.as_str().unwrap().to_string());
                     });
                 }
-            }
+            });
         }
     }
 }

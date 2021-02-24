@@ -6,7 +6,6 @@
 mod reader_tests {
     use crate::books::book::Book;
     use crate::books::date::Date;
-    use crate::books::BookInterface;
     use crate::reading::reader::Reader;
     use std::cell::RefCell;
     use std::rc::{Rc, Weak};

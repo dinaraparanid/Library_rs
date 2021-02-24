@@ -49,11 +49,11 @@ impl Debug for Reader {
                     .books
                     .iter()
                     .map(|x| {
-                        (*(*x).upgrade().unwrap()).borrow().title.clone()
+                        (*(*x).upgrade().unwrap()).borrow().title().to_string()
                             + " "
-                            + (*(*x).upgrade().unwrap()).borrow().author.clone().as_str()
+                            + (*(*x).upgrade().unwrap()).borrow().author().as_str()
                             + " "
-                            + format!("{}", (*(*x).upgrade().unwrap()).borrow().pages).as_str()
+                            + format!("{}", (*(*x).upgrade().unwrap()).borrow().pages()).as_str()
                     })
                     .collect::<Vec<_>>(),
             )

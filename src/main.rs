@@ -99,6 +99,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let (s, r) = app::channel();
 
     (*reader_base).borrow_mut().load();
+
     (*book_system)
         .borrow_mut()
         .load(&mut (*reader_base).borrow_mut());

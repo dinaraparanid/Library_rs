@@ -594,6 +594,7 @@ fn remove_the_book_simple(
                 },
             );
             caretaker.pop();
+            return;
         }
     }
 }
@@ -930,9 +931,9 @@ pub fn book_info_simple(
                 600,
                 format!(
                     "{} {} {}",
-                    (*b.upgrade().unwrap()).borrow().title,
-                    (*b.upgrade().unwrap()).borrow().author,
-                    (*b.upgrade().unwrap()).borrow().pages,
+                    (*b.upgrade().unwrap()).borrow().title(),
+                    (*b.upgrade().unwrap()).borrow().author(),
+                    (*b.upgrade().unwrap()).borrow().pages(),
                 )
                 .as_str(),
             )
@@ -952,7 +953,7 @@ pub fn book_info_simple(
                         Lang::English => "Title",
                         Lang::Russian => "Название",
                     },
-                    (*b.upgrade().unwrap()).borrow().title
+                    (*b.upgrade().unwrap()).borrow().title()
                 )
                 .as_str(),
             ));
@@ -968,7 +969,7 @@ pub fn book_info_simple(
                         Lang::English => "Author",
                         Lang::Russian => "Автор",
                     },
-                    (*b.upgrade().unwrap()).borrow().author
+                    (*b.upgrade().unwrap()).borrow().author()
                 )
                 .as_str(),
             ));
@@ -984,7 +985,7 @@ pub fn book_info_simple(
                         Lang::English => "Amount of Pages",
                         Lang::Russian => "Количество страниц",
                     },
-                    (*b.upgrade().unwrap()).borrow().pages,
+                    (*b.upgrade().unwrap()).borrow().pages(),
                 )
                 .as_str(),
             ));

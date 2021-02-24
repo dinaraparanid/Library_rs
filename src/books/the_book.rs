@@ -1,12 +1,13 @@
 extern crate fltk;
 
 use crate::{
-    books::{book::Book, BookInterface, ResultSelf},
+    books::{book::Book, ResultSelf},
     reading::{read_base::ReaderBase, reader::Reader},
     Lang,
 };
 
 use fltk::app::App;
+
 use std::{
     cell::RefCell,
     collections::HashSet,
@@ -31,6 +32,8 @@ impl Drop for TheBook {
 
     #[inline]
     fn drop(&mut self) {
+        self.books.clear();
+
         println!(
             "The Book {} {} {} is deleted",
             self.title, self.author, self.pages
@@ -74,74 +77,36 @@ impl Debug for TheBook {
     }
 }
 
-/// Book Interface trait implementation for TheBook.
-/// Changing title, author, amount of pages
+impl TheBook {
+    /// Constructs TheBook
 
-impl BookInterface for TheBook {
     #[inline]
-    fn change_title(&mut self, new_title: String) -> &mut Self {
-        self.books
-            .iter_mut()
-            .for_each(|x| (**x).borrow_mut().title = new_title.clone());
+    pub(crate) const fn new(new_title: String, new_author: String, new_pages: u16) -> Self {
+        TheBook {
+            title: new_title,
+            author: new_author,
+            pages: new_pages,
+            genres: None,
+            books: vec![],
+        }
+    }
+
+    #[inline]
+    pub(crate) fn change_title(&mut self, new_title: String) -> &mut Self {
         self.title = new_title;
         self
     }
 
     #[inline]
-    fn change_author(&mut self, new_author: String) -> &mut Self {
-        self.books
-            .iter_mut()
-            .for_each(|x| (**x).borrow_mut().author = new_author.clone());
+    pub(crate) fn change_author(&mut self, new_author: String) -> &mut Self {
         self.author = new_author;
         self
     }
 
     #[inline]
-    fn change_pages(&mut self, new_pages: u16) -> &mut Self {
-        self.books
-            .iter_mut()
-            .for_each(|x| (**x).borrow_mut().pages = new_pages);
+    pub(crate) fn change_pages(&mut self, new_pages: u16) -> &mut Self {
         self.pages = new_pages;
         self
-    }
-}
-
-impl TheBook {
-    /// Constructs TheBook
-
-    #[inline]
-    pub(crate) fn new(
-        new_title: String,
-        new_author: String,
-        new_pages: u16,
-        amount: usize,
-        app: &App,
-        lang: Lang,
-    ) -> Self {
-        TheBook {
-            books: {
-                let mut vec = vec![];
-
-                (0..amount).for_each(|_| {
-                    if let Some(book) = Book::new(
-                        new_title.clone(),
-                        new_author.clone(),
-                        new_pages.clone(),
-                        app,
-                        lang,
-                    ) {
-                        vec.push(Rc::new(RefCell::new(book)));
-                    }
-                });
-
-                vec
-            },
-
-            title: new_title,
-            author: new_author,
-            pages: new_pages,
-            genres: None,
-        }
     }
 
     /// Return index of unused book.
@@ -162,23 +127,6 @@ impl TheBook {
                     .0
                     .ptr_eq(&Rc::downgrade(reader))
         })
-    }
-
-    /// add one simple book
-
-    #[inline]
-    pub(crate) fn add_book(&mut self, app: &App, lang: Lang) -> &mut Self {
-        if let Some(book) = Book::new(
-            self.title.clone().clone(),
-            self.author.clone(),
-            self.pages.clone(),
-            app,
-            lang,
-        ) {
-            self.books.push(Rc::new(RefCell::new(book)));
-        }
-
-        self
     }
 
     /// Remove simple book by index.
@@ -253,48 +201,5 @@ impl TheBook {
                 .unwrap()
                 .remove(genre.to_lowercase().as_str())
         };
-    }
-
-    /// Clones The Book
-    /// with new simple books' smart pointers
-
-    #[inline]
-    pub(crate) fn clone(&self, reader_base: &ReaderBase) -> Self {
-        TheBook {
-            title: self.title.clone(),
-            author: self.author.clone(),
-            genres: self.genres.clone(),
-            pages: self.pages,
-            books: self
-                .books
-                .iter()
-                .map(|x| {
-                    let b = Rc::new(RefCell::new((**x).borrow().clone(reader_base)));
-
-                    unsafe {
-                        (*b.as_ptr()).readers.iter().for_each(|r| {
-                            (*(*r).0.upgrade().unwrap())
-                                .borrow_mut()
-                                .books
-                                .push(Rc::downgrade(&b));
-
-                            if (*b.as_ptr()).is_using
-                                && *(*(*(*b.as_ptr()).readers.last().unwrap())
-                                    .0
-                                    .upgrade()
-                                    .unwrap())
-                                .borrow()
-                                    == *(*r.0.upgrade().unwrap()).borrow()
-                            {
-                                (*r.0.upgrade().unwrap()).borrow_mut().reading =
-                                    Some(Rc::downgrade(&b));
-                            }
-                        });
-                    }
-
-                    b
-                })
-                .collect(),
-        }
     }
 }
