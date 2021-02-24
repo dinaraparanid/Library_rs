@@ -91,17 +91,23 @@ impl TheBook {
         }
     }
 
+    /// Changes title
+
     #[inline]
     pub(crate) fn change_title(&mut self, new_title: String) -> &mut Self {
         self.title = new_title;
         self
     }
 
+    /// Changes author
+
     #[inline]
     pub(crate) fn change_author(&mut self, new_author: String) -> &mut Self {
         self.author = new_author;
         self
     }
+
+    /// Changes amount of pages
 
     #[inline]
     pub(crate) fn change_pages(&mut self, new_pages: u16) -> &mut Self {

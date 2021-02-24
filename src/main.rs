@@ -55,6 +55,7 @@ enum Message {
     InfoBook,
     GiveBook,
     GetBook,
+    ChangeReturnDate,
     ShowAllBooks,
     ShowGenres,
     AddGenre,
@@ -646,6 +647,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     menu.add_emit(
         match lang {
+            Lang::English => "&Giveaway/Change return date\t",
+            Lang::Russian => "&Выдача/Изменить дедлайн\t",
+        },
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        Message::ChangeReturnDate,
+    );
+
+    menu.add_emit(
+        match lang {
             Lang::English => "&Restore/Restore previous data\t",
             Lang::Russian => "&Откат/Откатить изменения назад\t",
         },
@@ -952,6 +964,19 @@ fn main() -> Result<(), Box<dyn Error>> {
                     table.redraw();
                 }
 
+                Message::ChangeReturnDate => {
+                    change_return_date(
+                        &mut (*book_system).borrow_mut(),
+                        &(*reader_base).borrow_mut(),
+                        &(*genres).borrow(),
+                        &mut *(caretaker).borrow_mut(),
+                        &app,
+                        lang,
+                    );
+
+                    table.redraw();
+                }
+
                 Message::PrevData => {
                     (*caretaker).borrow_mut().add_memento(
                         &(*reader_base).borrow(),
@@ -1044,14 +1069,25 @@ fn main() -> Result<(), Box<dyn Error>> {
 
                 table.unset_selection();
                 return;
-            }
-
-            if table.is_selected(i as i32, 1) {
+            } else if table.is_selected(i as i32, 1) {
                 book_info_simple(
                     (*reader_base).borrow().get_book(i),
                     &mut (*book_system).borrow_mut(),
                     &app,
                     lang,
+                );
+
+                table.unset_selection();
+                return;
+            } else if table.is_selected(i as i32, 3) {
+                change_return_date_simple(
+                    &(*reader_base).borrow().get_book(i),
+                    &mut (*book_system).borrow_mut(),
+                    &(*reader_base).borrow(),
+                    &(*genres).borrow(),
+                    &mut (*caretaker).borrow_mut(),
+                    &app,
+                    lang
                 );
 
                 table.unset_selection();

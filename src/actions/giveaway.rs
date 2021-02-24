@@ -1,8 +1,9 @@
 extern crate fltk;
+extern crate chrono;
 
 use crate::{
     actions::{book::*, read::*},
-    books::{book_sys::BookSystem, date::Date, genres::Genres},
+    books::{book_sys::BookSystem, date::Date, genres::Genres, book::Book},
     change::{input3::Input3, input4::Input4, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
@@ -17,7 +18,8 @@ use fltk::{
     WidgetExt,
 };
 
-use std::num::ParseIntError;
+use std::{cell::RefCell, rc::Weak};
+use chrono::Local;
 
 /// Gives book to known reader
 
@@ -466,6 +468,270 @@ pub(crate) fn get_book_known_reader(
     None
 }
 
+/// Changes return date of already known book
+
+#[inline]
+pub fn change_return_date_simple(
+    book_op: &Option<Weak<RefCell<Book>>>,
+    book_system: &mut BookSystem,
+    reader_base: &ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+    lang: Lang
+) -> Option<()> {
+    caretaker.add_memento(reader_base, book_system, genres);
+
+    return match book_op {
+        None => {
+            alert(500, 500, match lang {
+                Lang::English => "This reader isn't reading anything",
+                Lang::Russian => "Этот читатель ни читает книгу",
+            });
+
+            caretaker.pop();
+            None
+        }
+
+        Some(book) => {
+            let (s2, r2) = fltk::app::channel();
+            let mut inp = Input3::<IntInput, IntInput, IntInput>::new(
+                match lang {
+                    Lang::English => "Set New Date",
+                    Lang::Russian => "Изменить дату",
+                },
+                match lang {
+                    Lang::English => "Day (number)",
+                    Lang::Russian => "День (номер)",
+                },
+                match lang {
+                    Lang::English => "Month (number)",
+                    Lang::Russian => "Месяц (номер)",
+                },
+                match lang {
+                    Lang::English => "Year",
+                    Lang::Russian => "Год",
+                },
+            );
+
+            inp.show();
+            (*inp.ok).borrow_mut().emit(s2, true);
+
+            while app.wait() {
+                if let Some(message) = r2.recv() {
+                    match message {
+                        true => {
+                            inp.hide();
+
+                            if let Ok(date) = inp.set_input() {
+                                unsafe {
+                                    return match date.get_unchecked(0).trim().parse::<u8>() {
+                                        Ok(day) => {
+                                            match date.get_unchecked(1).trim().parse::<u8>() {
+                                                Ok(month) => {
+                                                    match date.get_unchecked(2).trim().parse::<u16>() {
+                                                        Ok(year) => {
+                                                            match Date::new(day, month, year) {
+                                                                Ok(new_date) => {
+                                                                    let start = ((*(*book.upgrade().unwrap())
+                                                                        .borrow_mut()
+                                                                        .readers
+                                                                        .last_mut()
+                                                                        .unwrap())
+                                                                        .1)
+                                                                        .0;
+                                                                    
+                                                                    if new_date >= start && new_date >= Date::from(Local::now()) {
+                                                                        ((*(*book.upgrade().unwrap())
+                                                                            .borrow_mut()
+                                                                            .readers
+                                                                            .last_mut()
+                                                                            .unwrap())
+                                                                            .1)
+                                                                            .1 = new_date;
+
+                                                                        fltk::dialog::message(
+                                                                            500,
+                                                                            500,
+                                                                            match lang {
+                                                                                Lang::English => "Date is successfully changed",
+                                                                                Lang::Russian => "Дата успешно изменена",
+                                                                            });
+
+                                                                        book_system.save();
+                                                                        Some(())
+                                                                    } else {
+                                                                        alert(500, 500, match lang {
+                                                                            Lang::English => concat!(
+                                                                            "Date can only be not earlier than deadline",
+                                                                            " and not earlier than today"
+                                                                            ),
+
+                                                                            Lang::Russian => concat!(
+                                                                            "Дата обязана быть не позже дедлайна",
+                                                                            " и не позже сегоднешней даты"
+                                                                            ),
+                                                                        });
+
+                                                                        caretaker.pop();
+                                                                        None
+                                                                    }
+                                                                }
+
+                                                                Err(_) => {
+                                                                    alert(500, 500, match lang {
+                                                                        Lang::English => "Incorrect date",
+                                                                        Lang::Russian => "Некорректная дата",
+                                                                    });
+
+                                                                    caretaker.pop();
+                                                                    None
+                                                                }
+                                                            }
+                                                        }
+
+                                                        Err(_) => {
+                                                            alert(500, 500, match lang {
+                                                                Lang::English => "Incorrect 'Year' input",
+                                                                Lang::Russian => "Некорректный ввод 'Года'",
+                                                            });
+
+                                                            caretaker.pop();
+                                                            None
+                                                        }
+                                                    }
+                                                }
+
+                                                Err(_) => {
+                                                    alert(500, 500, match lang {
+                                                        Lang::English => "Incorrect 'Month' input",
+                                                        Lang::Russian => "Некорректный ввод 'Месяца'",
+                                                    });
+
+                                                    caretaker.pop();
+                                                    None
+                                                }
+                                            }
+                                        }
+
+                                        Err(_) => {
+                                            alert(500, 500, match lang {
+                                                Lang::English => "Incorrect 'Day' input",
+                                                Lang::Russian => "Некорректный ввод 'Дня'",
+                                            });
+
+                                            caretaker.pop();
+                                            None
+                                        }
+                                    }
+                                }
+                            }
+                        },
+
+                        false => (),
+                    }
+                } else if !inp.shown() {
+                    caretaker.pop();
+                    return None;
+                }
+            }
+
+            None
+        }
+    }
+}
+
+/// Changes return date
+
+#[inline]
+pub fn change_return_date(
+    book_system: &mut BookSystem,
+    reader_base: &ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+    lang: Lang
+) {
+    let (s, r) = fltk::app::channel();
+    let mut inp2 = Input4::<Input, Input, Input, IntInput>::new(
+        match lang {
+            Lang::English => "Find Reader",
+            Lang::Russian => "Поиск Читателя",
+        },
+        match lang {
+            Lang::English => "First Name",
+            Lang::Russian => "Имя",
+        },
+        match lang {
+            Lang::English => "Second Name",
+            Lang::Russian => "Фамилия",
+        },
+        match lang {
+            Lang::English => "Middle Name",
+            Lang::Russian => "Отчество",
+        },
+        match lang {
+            Lang::English => "Age",
+            Lang::Russian => "Возраст",
+        },
+    );
+
+    inp2.show();
+    (*inp2.ok).borrow_mut().emit(s, true);
+
+    while app.wait() {
+        if let Some(mes) = r.recv() {
+            match mes {
+                true => {
+                    inp2.hide();
+
+                    if let Ok(reader) = inp2.set_input() {
+                        match check_reader(reader_base, &reader, lang) {
+                            Ok(rind) => {
+                                unsafe {
+                                    match &(**reader_base.readers.get_unchecked(rind)).borrow().reading {
+                                        Some(book) => {
+                                            change_return_date_simple(
+                                                &Some(book.clone()),
+                                                book_system,
+                                                reader_base,
+                                                genres,
+                                                caretaker, 
+                                                app,
+                                                lang
+                                            );
+                                        }
+
+                                        None => {
+                                            alert(500, 500, match lang {
+                                                Lang::English => "This reader isn't reading anything",
+                                                Lang::Russian => "Этот читатель ничего не читает",
+                                            });
+
+                                            caretaker.pop();
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+
+                            Err(_) => {
+                                caretaker.pop();
+                                return;
+                            },
+                        }
+                    }
+                }
+
+                false => (),
+            }
+        } else if !inp2.shown() {
+            caretaker.pop();
+            return;
+        }
+    }
+}
+
 /// Function that gives book to reader.
 /// It requires you to input
 /// info about reader, book and return date.
@@ -530,7 +796,10 @@ pub fn give_book(
                                 );
                             }
 
-                            Err(_) => return,
+                            Err(_) => {
+                                caretaker.pop();
+                                return;
+                            },
                         }
                     }
                 }
@@ -608,7 +877,10 @@ pub fn get_book(
                                 );
                             }
 
-                            Err(_) => return,
+                            Err(_) => {
+                                caretaker.pop();
+                                return;
+                            },
                         }
                     }
                 }

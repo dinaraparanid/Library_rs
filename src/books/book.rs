@@ -174,6 +174,8 @@ impl Book {
         }
     }
 
+    /// Gets title
+
     #[inline]
     pub(crate) fn title(&self) -> String {
         (*self.the_book.as_ref().unwrap().upgrade().unwrap())
@@ -182,6 +184,8 @@ impl Book {
             .clone()
     }
 
+    /// Gets author
+
     #[inline]
     pub(crate) fn author(&self) -> String {
         (*self.the_book.as_ref().unwrap().upgrade().unwrap())
@@ -189,6 +193,8 @@ impl Book {
             .author
             .clone()
     }
+
+    /// Gets amount of pages
 
     #[inline]
     pub(crate) fn pages(&self) -> u16 {
