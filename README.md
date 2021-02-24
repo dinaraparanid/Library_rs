@@ -7,5 +7,3 @@ The entire project is written in the Rust programming language using the fltk, c
 Project requires git and cmake to be installed
 
 crates.io: https://crates.io/crates/booklibrs
-
-documentation: https://docs.rs/booklibrs/1.0.7/booklibrs/
