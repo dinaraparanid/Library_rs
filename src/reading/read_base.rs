@@ -1,7 +1,7 @@
 extern crate yaml_rust;
 
 use crate::{
-    books::{book::Book, ResultSelf},
+    books::{book::Book, date::Date, ResultSelf},
     reading::reader::Reader,
 };
 
@@ -13,6 +13,7 @@ use std::{
     rc::{Rc, Weak},
 };
 
+use std::num::ParseIntError;
 use yaml_rust::{yaml::Hash, Yaml, YamlEmitter, YamlLoader};
 
 /// Reader Base structure,
@@ -75,13 +76,13 @@ impl ReaderBase {
         name: &String,
         family: &String,
         father: &String,
-        age: u8,
+        birth: Date,
     ) -> Option<usize> {
         self.readers.iter().position(|x| {
             (**x).borrow().name == *name
                 && (**x).borrow().family == *family
                 && (**x).borrow().father == *father
-                && (**x).borrow().age == age
+                && (**x).borrow().birth == birth
         })
     }
 
@@ -94,10 +95,10 @@ impl ReaderBase {
         name: String,
         family: String,
         father: String,
-        age: u8,
+        birth: Date,
     ) -> &mut Self {
         self.readers.push(Rc::new(RefCell::new(Reader::new(
-            name, family, father, age,
+            name, family, father, birth,
         ))));
         self
     }
@@ -112,14 +113,14 @@ impl ReaderBase {
         name: String,
         family: String,
         father: String,
-        age: u8,
+        birth: Date,
     ) -> ResultSelf<Self> {
         return if !self.readers.is_empty()
-            && self.find_reader(&name, &family, &father, age).is_some()
+            && self.find_reader(&name, &family, &father, birth).is_some()
         {
             Err(0) // already exists
         } else {
-            Ok(unsafe { self.add_reader_unchecked(name, family, father, age) })
+            Ok(unsafe { self.add_reader_unchecked(name, family, father, birth) })
         };
     }
 
@@ -179,7 +180,7 @@ impl ReaderBase {
                         &new_name,
                         &RefCell::borrow(&(**self.readers.get_unchecked(ind))).family,
                         &RefCell::borrow(&(**self.readers.get_unchecked(ind))).father,
-                        RefCell::borrow(&(**self.readers.get_unchecked(ind))).age,
+                        RefCell::borrow(&(**self.readers.get_unchecked(ind))).birth,
                     )
                     .is_some()
                 {
@@ -222,7 +223,7 @@ impl ReaderBase {
                         &RefCell::borrow(&(**self.readers.get_unchecked(ind))).name,
                         &new_family,
                         &RefCell::borrow(&(**self.readers.get_unchecked(ind))).father,
-                        RefCell::borrow(&(**self.readers.get_unchecked(ind))).age,
+                        RefCell::borrow(&(**self.readers.get_unchecked(ind))).birth,
                     )
                     .is_some()
                 {
@@ -265,7 +266,7 @@ impl ReaderBase {
                         &RefCell::borrow(&(**self.readers.get_unchecked(ind))).name,
                         &RefCell::borrow(&(**self.readers.get_unchecked(ind))).family,
                         &new_father,
-                        RefCell::borrow(&(**self.readers.get_unchecked(ind))).age,
+                        RefCell::borrow(&(**self.readers.get_unchecked(ind))).birth,
                     )
                     .is_some()
                 {
@@ -281,10 +282,10 @@ impl ReaderBase {
     /// No checks provided
 
     #[inline]
-    pub(crate) unsafe fn change_age_unchecked(&mut self, ind: usize, new_age: u8) -> &mut Self {
+    pub(crate) unsafe fn change_age_unchecked(&mut self, ind: usize, new_birth: Date) -> &mut Self {
         (**self.readers.get_unchecked_mut(ind))
             .borrow_mut()
-            .change_age(new_age);
+            .change_age(new_birth);
         self
     }
 
@@ -293,12 +294,29 @@ impl ReaderBase {
     /// it will report error
 
     #[inline]
-    pub(crate) fn change_age(&mut self, ind: usize, new_age: String) -> ResultSelf<Self> {
-        let new_age_num;
+    pub(crate) fn change_age(&mut self, ind: usize, new_birth: Vec<String>) -> ResultSelf<Self> {
+        let new_birth_num;
 
-        match new_age.trim().parse::<u8>() {
-            Ok(x) => new_age_num = x,
-            Err(_) => return Err(0), // parse error
+        unsafe {
+            match new_birth.get_unchecked(0).trim().parse::<u8>() {
+                Err(_) => return Err(0), // day parse error
+                Ok(day) => {
+                    match new_birth.get_unchecked(1).trim().parse::<u8>() {
+                        Err(_) => return Err(1), // month parse error
+                        Ok(month) => {
+                            match new_birth.get_unchecked(2).trim().parse::<u16>() {
+                                Err(_) => return Err(2), // year parse error
+                                Ok(year) => {
+                                    match Date::new(day, month, year) {
+                                        Err(_) => return Err(3), // incorrect date
+                                        Ok(date) => new_birth_num = date,
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         return if ind >= self.readers.len() {
@@ -310,13 +328,13 @@ impl ReaderBase {
                         &RefCell::borrow(&(**self.readers.get_unchecked(ind))).name,
                         &RefCell::borrow(&(**self.readers.get_unchecked(ind))).family,
                         &RefCell::borrow(&(**self.readers.get_unchecked(ind))).father,
-                        new_age_num,
+                        new_birth_num,
                     )
                     .is_some()
                 {
                     Err(2) // already exists
                 } else {
-                    Ok(self.change_age_unchecked(ind, new_age_num))
+                    Ok(self.change_age_unchecked(ind, new_birth_num))
                 }
             }
         };
@@ -384,8 +402,30 @@ impl ReaderBase {
                 );
 
                 data.insert(
-                    Yaml::String("Age".to_string()),
-                    Yaml::Integer(RefCell::borrow(&(**self.readers.get_unchecked(guy))).age as i64),
+                    Yaml::String("Day".to_string()),
+                    Yaml::Integer(
+                        RefCell::borrow(&(**self.readers.get_unchecked(guy)))
+                            .birth
+                            .day as i64,
+                    ),
+                );
+
+                data.insert(
+                    Yaml::String("Month".to_string()),
+                    Yaml::Integer(
+                        RefCell::borrow(&(**self.readers.get_unchecked(guy)))
+                            .birth
+                            .month as i64,
+                    ),
+                );
+
+                data.insert(
+                    Yaml::String("Year".to_string()),
+                    Yaml::Integer(
+                        RefCell::borrow(&(**self.readers.get_unchecked(guy)))
+                            .birth
+                            .year as i64,
+                    ),
                 );
 
                 data.insert(
@@ -464,7 +504,12 @@ impl ReaderBase {
                     d["Name"].as_str().unwrap().to_string(),
                     d["Family"].as_str().unwrap().to_string(),
                     d["Father"].as_str().unwrap().to_string(),
-                    d["Age"].as_i64().unwrap() as u8,
+                    Date::new(
+                        d["Day"].as_i64().unwrap() as u8,
+                        d["Month"].as_i64().unwrap() as u8,
+                        d["Year"].as_i64().unwrap() as u16,
+                    )
+                    .unwrap(),
                 ))));
 
                 (*self.readers.last_mut().unwrap()).borrow_mut().reading =

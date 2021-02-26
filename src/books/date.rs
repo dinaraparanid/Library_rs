@@ -1,7 +1,8 @@
 extern crate chrono;
 
 use chrono::{DateTime, Datelike, Local};
-use std::cmp::Ordering;
+use std::fmt::{Display, Formatter};
+use std::{cmp::*, ops::Sub};
 
 /// Date structure, which contains day, month and year.
 /// It's a copyable type like i32 (no move).
@@ -46,6 +47,31 @@ impl Ord for Date {
     }
 }
 
+impl Sub for Date {
+    /// years
+    type Output = u16;
+
+    /// Difference between two dates in years (>= 0)
+
+    #[inline]
+    fn sub(self, rhs: Self) -> Self::Output {
+        let max = max(self, rhs);
+        let min = min(self, rhs);
+
+        return max.year
+            - min.year
+            - if max.month > min.month {
+                0
+            } else if max.month < min.month {
+                1
+            } else if max.day < min.day {
+                1
+            } else {
+                0
+            };
+    }
+}
+
 impl From<DateTime<Local>> for Date {
     /// Constructor from chrono's library dates
 
@@ -61,6 +87,17 @@ impl From<Date> for String {
     #[inline]
     fn from(d: Date) -> Self {
         d.to_string()
+    }
+}
+
+impl Display for Date {
+    /// Displays date as string.
+    ///
+    /// D/M/Y
+
+    #[inline]
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.to_string())
     }
 }
 

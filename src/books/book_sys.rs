@@ -444,7 +444,7 @@ impl BookSystem {
                                             &(*(x.0).upgrade().unwrap()).borrow().name,
                                             &(*(x.0).upgrade().unwrap()).borrow().family,
                                             &(*(x.0).upgrade().unwrap()).borrow().father,
-                                            (*(x.0).upgrade().unwrap()).borrow().age,
+                                            (*(x.0).upgrade().unwrap()).borrow().birth,
                                         )
                                         .unwrap();
 
@@ -560,9 +560,26 @@ impl BookSystem {
                                 );
 
                                 hash_reader.insert(
-                                    Yaml::String("Age".to_string()),
+                                    Yaml::String("Day".to_string()),
                                     Yaml::Integer(
-                                        RefCell::borrow(&*((x.0).upgrade().unwrap())).age as i64,
+                                        RefCell::borrow(&*((x.0).upgrade().unwrap())).birth.day
+                                            as i64,
+                                    ),
+                                );
+
+                                hash_reader.insert(
+                                    Yaml::String("Month".to_string()),
+                                    Yaml::Integer(
+                                        RefCell::borrow(&*((x.0).upgrade().unwrap())).birth.month
+                                            as i64,
+                                    ),
+                                );
+
+                                hash_reader.insert(
+                                    Yaml::String("Year".to_string()),
+                                    Yaml::Integer(
+                                        RefCell::borrow(&*((x.0).upgrade().unwrap())).birth.year
+                                            as i64,
                                     ),
                                 );
 
@@ -697,7 +714,12 @@ impl BookSystem {
                                             &last_reader["Name"].as_str().unwrap().to_string(),
                                             &last_reader["Family"].as_str().unwrap().to_string(),
                                             &last_reader["Father"].as_str().unwrap().to_string(),
-                                            last_reader["Age"].as_i64().unwrap() as u8,
+                                            Date::new(
+                                                last_reader["Day"].as_i64().unwrap() as u8,
+                                                last_reader["Month"].as_i64().unwrap() as u8,
+                                                last_reader["Year"].as_i64().unwrap() as u16,
+                                            )
+                                            .unwrap(),
                                         )
                                         .unwrap();
 
@@ -724,7 +746,12 @@ impl BookSystem {
                                         &reader["Name"].as_str().unwrap().to_string(),
                                         &reader["Family"].as_str().unwrap().to_string(),
                                         &reader["Father"].as_str().unwrap().to_string(),
-                                        reader["Age"].as_i64().unwrap() as u8,
+                                        Date::new(
+                                            reader["Day"].as_i64().unwrap() as u8,
+                                            reader["Month"].as_i64().unwrap() as u8,
+                                            reader["Year"].as_i64().unwrap() as u16,
+                                        )
+                                        .unwrap(),
                                     )
                                     .unwrap();
 

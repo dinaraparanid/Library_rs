@@ -2,7 +2,7 @@ extern crate chrono;
 extern crate fltk;
 
 use crate::{
-    actions::read::get_book_ind,
+    actions::read::utils::get_book_ind,
     books::{book::Book, book_sys::BookSystem, date::Date, genres::Genres, the_book::TheBook},
     reading::read_base::ReaderBase,
     Lang,
@@ -143,15 +143,11 @@ pub fn cell_reader(
             if x == 0 {
                 (
                     format!(
-                        "{} {} {}, {} {}",
+                        "{} {} {}, ({})",
                         RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).name,
                         RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).family,
                         RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).father,
-                        RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).age,
-                        match lang {
-                            Lang::English => "years old",
-                            Lang::Russian => "лет",
-                        }
+                        RefCell::borrow(&(**reader_base.readers.get_unchecked(y as usize))).birth
                     ),
                     color,
                 )
@@ -337,7 +333,7 @@ pub fn cell_reader2(x: i32, y: i32, book: Weak<RefCell<Book>>) -> String {
                     .upgrade()
                     .unwrap())
                 .borrow()
-                .age
+                .age()
                 .to_string(),
 
                 4 => ((*book.upgrade().unwrap())

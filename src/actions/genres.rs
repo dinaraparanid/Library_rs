@@ -2,7 +2,7 @@ extern crate fltk;
 
 use crate::{
     actions::{
-        book::check_book,
+        book::utils::check_book,
         tables::{cell_book3, cell_genre2, draw_data},
     },
     books::{book_sys::BookSystem, genres::Genres},
@@ -26,7 +26,7 @@ use fltk::{
     window::SingleWindow,
 };
 
-use std::{borrow::Borrow, cell::RefCell, cmp::max, collections::HashSet, rc::Rc};
+use std::{cell::RefCell, cmp::max, collections::HashSet, rc::Rc};
 
 /// Function that adds new genre.
 /// If you have mistakes in input,

@@ -1,7 +1,13 @@
 extern crate fltk;
 
 use booklibrs::{
-    actions::{book::*, genres::*, giveaway::*, read::*, tables::*},
+    actions::{
+        book::{add_rem::*, change::*, info::*},
+        genres::*,
+        giveaway::*,
+        read::{add_rem::*, change::*, info::*},
+        tables::*
+    },
     books::{book_sys::BookSystem, genres::Genres},
     change::{input2::Input2, Inputable},
     reading::read_base::ReaderBase,
@@ -983,8 +989,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &(*book_system).borrow(),
                         &(*genres).borrow(),
                     );
-
-                    unsafe { (*caretaker).borrow_mut().__ind_minus() }
 
                     (*caretaker).borrow_mut().get_memento_back(
                         &mut *(reader_base).borrow_mut(),

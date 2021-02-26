@@ -1,4 +1,6 @@
-use crate::books::{book::Book, ResultSelf};
+extern crate chrono;
+
+use crate::books::{book::Book, date::Date, ResultSelf};
 
 use std::{
     cell::RefCell,
@@ -14,7 +16,7 @@ pub(crate) struct Reader {
     pub(crate) name: String,
     pub(crate) family: String,
     pub(crate) father: String,
-    pub(crate) age: u8,
+    pub(crate) birth: Date,
     pub(crate) books: Vec<Weak<RefCell<Book>>>,
     pub(crate) reading: Option<Weak<RefCell<Book>>>,
 }
@@ -42,7 +44,7 @@ impl Debug for Reader {
             .field("name", &self.name)
             .field("family", &self.family)
             .field("father", &self.father)
-            .field("age", &self.age)
+            .field("date of birth", &self.birth.to_string())
             .field(
                 "books",
                 &self
@@ -70,7 +72,7 @@ impl PartialEq for Reader {
         self.name == other.name
             && self.family == other.family
             && self.father == other.father
-            && self.age == other.age
+            && self.birth == other.birth
     }
 }
 
@@ -90,7 +92,7 @@ impl Clone for Reader {
             name: self.name.clone(),
             family: self.family.clone(),
             father: self.father.clone(),
-            age: self.age,
+            birth: self.birth.clone(),
             books: vec![],
             reading: None,
         }
@@ -114,16 +116,21 @@ impl Reader {
         new_name: String,
         new_family: String,
         new_father: String,
-        new_age: u8,
+        new_birth: Date,
     ) -> Self {
         Reader {
             name: new_name,
             family: new_family,
             father: new_father,
-            age: new_age,
+            birth: new_birth,
             books: vec![],
             reading: None,
         }
+    }
+
+    #[inline]
+    pub(crate) fn age(&self) -> u16 {
+        Date::from(chrono::Local::now()) - self.birth
     }
 
     /// Find book by smart pointer.
@@ -258,11 +265,11 @@ impl Reader {
         };
     }
 
-    /// Changes reader's age
+    /// Changes reader's birthday
 
     #[inline]
-    pub(crate) fn change_age(&mut self, new_age: u8) -> &mut Self {
-        self.age = new_age;
+    pub(crate) fn change_age(&mut self, new_birth: Date) -> &mut Self {
+        self.birth = new_birth;
         self
     }
 }

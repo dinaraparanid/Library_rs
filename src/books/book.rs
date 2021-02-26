@@ -2,7 +2,7 @@ extern crate chrono;
 extern crate fltk;
 
 use crate::{
-    actions::read::get_book_ind,
+    actions::read::utils::get_book_ind,
     books::{book_sys::BookSystem, date::Date, the_book::TheBook, ResultSelf},
     change::{input2::Input2, Inputable},
     reading::{read_base::ReaderBase, reader::Reader},
@@ -79,7 +79,11 @@ impl Debug for Book {
                                 .clone()
                                 .as_str()
                             + " "
-                            + format!("{}", (*((*x).0).upgrade().unwrap()).borrow().age).as_str()
+                            + format!(
+                                "{}",
+                                (*((*x).0).upgrade().unwrap()).borrow().birth.to_string()
+                            )
+                            .as_str()
                     })
                     .collect::<Vec<_>>(),
             )

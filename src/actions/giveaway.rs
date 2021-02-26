@@ -2,7 +2,7 @@ extern crate fltk;
 extern crate chrono;
 
 use crate::{
-    actions::{book::*, read::*},
+    actions::{book::utils::check_book, book::*, read::*},
     books::{book_sys::BookSystem, date::Date, genres::Genres, book::Book},
     change::{input3::Input3, input4::Input4, Inputable},
     reading::read_base::ReaderBase,
@@ -20,6 +20,7 @@ use fltk::{
 
 use std::{cell::RefCell, rc::Weak};
 use chrono::Local;
+use crate::actions::read::utils::check_reader;
 
 /// Gives book to known reader
 
@@ -653,7 +654,7 @@ pub fn change_return_date(
     lang: Lang
 ) {
     let (s, r) = fltk::app::channel();
-    let mut inp2 = Input4::<Input, Input, Input, IntInput>::new(
+    let mut inp2 = Input4::<Input, Input, Input, Input>::new(
         match lang {
             Lang::English => "Find Reader",
             Lang::Russian => "Поиск Читателя",
@@ -671,8 +672,8 @@ pub fn change_return_date(
             Lang::Russian => "Отчество",
         },
         match lang {
-            Lang::English => "Age",
-            Lang::Russian => "Возраст",
+            Lang::English => "Birth Date (D/M/Y)",
+            Lang::Russian => "Дата Рождения (Д/М/Г)",
         },
     );
 
@@ -748,7 +749,7 @@ pub fn give_book(
     lang: Lang,
 ) {
     let (s2, r2) = fltk::app::channel();
-    let mut inp = Input4::<Input, Input, Input, IntInput>::new(
+    let mut inp = Input4::<Input, Input, Input, Input>::new(
         match lang {
             Lang::English => "Find Reader",
             Lang::Russian => "Поиск Читателя",
@@ -766,8 +767,8 @@ pub fn give_book(
             Lang::Russian => "Отчество",
         },
         match lang {
-            Lang::English => "Age",
-            Lang::Russian => "Возраст",
+            Lang::English => "Birth Date (D/M/Y)",
+            Lang::Russian => "Дата Рождения (Д/М/Г)",
         },
     );
 
@@ -829,7 +830,7 @@ pub fn get_book(
     lang: Lang,
 ) {
     let (s2, r2) = fltk::app::channel();
-    let mut inp = Input4::<Input, Input, Input, IntInput>::new(
+    let mut inp = Input4::<Input, Input, Input, Input>::new(
         match lang {
             Lang::English => "Find Reader",
             Lang::Russian => "Поиск Читателя",
@@ -847,8 +848,8 @@ pub fn get_book(
             Lang::Russian => "Отчество",
         },
         match lang {
-            Lang::English => "Age",
-            Lang::Russian => "Возраст",
+            Lang::English => "Birth Date (D/M/Y)",
+            Lang::Russian => "Дата Рождения (Д/М/Г)",
         },
     );
 

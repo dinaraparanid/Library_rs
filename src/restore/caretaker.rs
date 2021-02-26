@@ -8,7 +8,7 @@ use crate::{
 
 use fltk::dialog::{alert, message};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Caretaker {
     mementos: Vec<Memento>,
     ind: usize,
@@ -21,7 +21,7 @@ impl Caretaker {
     /// Creates new caretaker
 
     #[inline]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Caretaker {
             mementos: vec![],
             ind: 0,
@@ -37,6 +37,8 @@ impl Caretaker {
         book_system: &mut BookSystem,
         genres: &mut Genres,
     ) {
+        self.ind -= 1;
+
         if self.ind == 0 {
             alert(500, 500, "Last version");
         } else {
@@ -102,13 +104,6 @@ impl Caretaker {
     #[inline]
     pub(crate) fn pop(&mut self) {
         self.mementos.pop().unwrap();
-        self.ind -= 1;
-    }
-
-    /// **DON'T USE IT**
-
-    #[inline]
-    pub unsafe fn __ind_minus(&mut self) {
         self.ind -= 1;
     }
 }
