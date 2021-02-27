@@ -9,7 +9,7 @@ The output was:
 Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
-Сборка начата 28.02.2021 3:55:01.
+Сборка начата 28.02.2021 4:12:48.
 Проект "F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\3.18.2\CompilerIdC\CompilerIdC.vcxproj" в узле 1 (целевые объекты по умолчанию).
 PrepareForBuild:
   Создание каталога "Debug\".
@@ -35,7 +35,7 @@ FinalizeBuildStatus:
     Предупреждений: 0
     Ошибок: 0
 
-Прошло времени 00:00:01.91
+Прошло времени 00:00:01.28
 
 
 Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
@@ -54,7 +54,7 @@ The output was:
 Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
-Сборка начата 28.02.2021 3:55:04.
+Сборка начата 28.02.2021 4:12:49.
 Проект "F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\3.18.2\CompilerIdCXX\CompilerIdCXX.vcxproj" в узле 1 (целевые объекты по умолчанию).
 PrepareForBuild:
   Создание каталога "Debug\".
@@ -80,7 +80,7 @@ FinalizeBuildStatus:
     Предупреждений: 0
     Ошибок: 0
 
-Прошло времени 00:00:02.24
+Прошло времени 00:00:00.94
 
 
 Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
@@ -92,77 +92,77 @@ The CXX compiler identification is MSVC, found in "F:/PROGRAMMING/_rust/librs/li
 Detecting C compiler ABI info compiled with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/release/build/fltk-sys-8a9170e323a1ff89/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_c80fd.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_462cf.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   CMakeCCompilerABI.c
-  cmTC_c80fd.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_c80fd.exe
+  cmTC_462cf.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_462cf.exe
 
 
 
 Detecting CXX compiler ABI info compiled with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/release/build/fltk-sys-8a9170e323a1ff89/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_640cb.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_bcb6f.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   CMakeCXXCompilerABI.cpp
-  cmTC_640cb.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_640cb.exe
+  cmTC_bcb6f.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_bcb6f.exe
 
 
 
 Determining if the include file sys/types.h exists passed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/release/build/fltk-sys-8a9170e323a1ff89/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_32449.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_24c15.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   CheckIncludeFile.c
-  cmTC_32449.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_32449.exe
+  cmTC_24c15.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_24c15.exe
 
 
 
 Determining if the include file stdint.h exists passed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/release/build/fltk-sys-8a9170e323a1ff89/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_523d3.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_8f406.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   CheckIncludeFile.c
-  cmTC_523d3.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_523d3.exe
+  cmTC_8f406.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_8f406.exe
 
 
 
 Determining if the include file stddef.h exists passed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/release/build/fltk-sys-8a9170e323a1ff89/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_e82e5.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_cb921.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   CheckIncludeFile.c
-  cmTC_e82e5.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_e82e5.exe
+  cmTC_cb921.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_cb921.exe
 
 
 
 Determining size of unsigned short passed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/release/build/fltk-sys-8a9170e323a1ff89/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_7efa3.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_b6743.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   CMAKE_SIZEOF_UNSIGNED_SHORT.c
-  cmTC_7efa3.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_7efa3.exe
+  cmTC_b6743.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_b6743.exe
 
 
 
 Determining if the system is big endian passed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/release/build/fltk-sys-8a9170e323a1ff89/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_19fc2.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_9028a.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   TestEndianess.c
-  cmTC_19fc2.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_19fc2.exe
+  cmTC_9028a.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_9028a.exe
 
 
 TestEndianess.c:
@@ -194,77 +194,77 @@ int main(int argc, char *argv[])
 Determining size of short passed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/release/build/fltk-sys-8a9170e323a1ff89/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_40475.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_7612d.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   SIZEOF_SHORT.c
-  cmTC_40475.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_40475.exe
+  cmTC_7612d.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_7612d.exe
 
 
 
 Determining size of int passed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/release/build/fltk-sys-8a9170e323a1ff89/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_8277c.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_426b9.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   SIZEOF_INT.c
-  cmTC_8277c.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_8277c.exe
+  cmTC_426b9.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_426b9.exe
 
 
 
 Determining size of long passed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/release/build/fltk-sys-8a9170e323a1ff89/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_dc658.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_674a6.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   SIZEOF_LONG.c
-  cmTC_dc658.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_dc658.exe
+  cmTC_674a6.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_674a6.exe
 
 
 
 Determining size of long long passed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/release/build/fltk-sys-8a9170e323a1ff89/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_b1b32.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_e279e.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_LONG_LONG.c
-  cmTC_b1b32.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_b1b32.exe
+  cmTC_e279e.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_e279e.exe
 
 
 
 Determining if files locale.h exist passed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/release/build/fltk-sys-8a9170e323a1ff89/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_27631.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_281db.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_LOCALE_H.c
-  cmTC_27631.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_27631.exe
+  cmTC_281db.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_281db.exe
 
 
 
 Determining if files stdio.h exist passed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/release/build/fltk-sys-8a9170e323a1ff89/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_9a1cf.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_15547.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_STDIO_H.c
-  cmTC_9a1cf.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_9a1cf.exe
+  cmTC_15547.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_15547.exe
 
 
 
 Determining if the function localeconv exists passed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/release/build/fltk-sys-8a9170e323a1ff89/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_a2e6b.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_ef396.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   CheckFunctionExists.c
-  cmTC_a2e6b.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_a2e6b.exe
+  cmTC_ef396.vcxproj -> F:\PROGRAMMING\_rust\librs\librs\target\release\build\fltk-sys-8a9170e323a1ff89\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_ef396.exe
 
 
 
