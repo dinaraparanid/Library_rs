@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\31351cf52a18e41cd4aa195890d3624a\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{1FEDDA67-B549-37CA-82FB-0978E150663B}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

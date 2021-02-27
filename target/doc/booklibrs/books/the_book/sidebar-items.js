@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["TheBook","Interface Book structure, which contains title, author, amount of pages, simple books and genres.yaml"]]});

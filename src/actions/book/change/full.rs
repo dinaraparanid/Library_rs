@@ -1,7 +1,7 @@
 extern crate fltk;
 
 use crate::{
-    actions::book::utils::check_book,
+    actions::book::{change::simple::*, utils::check_book},
     books::{book_sys::BookSystem, genres::Genres},
     change::{input1::Input1, input2::Input2, input3::Input3, Inputable},
     reading::read_base::ReaderBase,

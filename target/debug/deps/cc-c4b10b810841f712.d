@@ -1,0 +1,12 @@
+F:\PROGRAMMING\_rust\librs\librs\target\debug\deps\cc-c4b10b810841f712.rmeta: C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\lib.rs C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\registry.rs C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\winapi.rs C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\com.rs C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\setup_config.rs C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\windows_registry.rs
+
+F:\PROGRAMMING\_rust\librs\librs\target\debug\deps\libcc-c4b10b810841f712.rlib: C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\lib.rs C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\registry.rs C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\winapi.rs C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\com.rs C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\setup_config.rs C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\windows_registry.rs
+
+F:\PROGRAMMING\_rust\librs\librs\target\debug\deps\cc-c4b10b810841f712.d: C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\lib.rs C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\registry.rs C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\winapi.rs C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\com.rs C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\setup_config.rs C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\windows_registry.rs
+
+C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\lib.rs:
+C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\registry.rs:
+C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\winapi.rs:
+C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\com.rs:
+C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\setup_config.rs:
+C:\Users\Arseny\.cargo\registry\src\github.com-1ecc6299db9ec823\cc-1.0.66\src\windows_registry.rs:

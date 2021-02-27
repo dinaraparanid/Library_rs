@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["booklibrs"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/iter/traits/collect/trait.IntoIterator.html\" title=\"trait core::iter::traits::collect::IntoIterator\">IntoIterator</a> for <a class=\"struct\" href=\"booklibrs/books/genres/struct.Genres.html\" title=\"struct booklibrs::books::genres::Genres\">Genres</a>","synthetic":false,"types":["booklibrs::books::genres::Genres"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["book_test",""],["reader_test",""]]});

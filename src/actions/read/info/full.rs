@@ -17,7 +17,7 @@ use fltk::{
 use crate::{
     actions::{
         book::info::simple::book_info_simple,
-        giveaway::{get_book_known_reader, give_book_known_reader},
+        giveaway::simple::{get_book_known_reader, give_book_known_reader},
         read::{change::*, info::simple::reader_info_simple},
         tables::*,
     },

@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Date","Date structure, which contains day, month and year. It's a copyable type like i32 (no move). You can clone, debug and compare as == / !="]]});

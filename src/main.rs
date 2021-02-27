@@ -2,11 +2,11 @@ extern crate fltk;
 
 use booklibrs::{
     actions::{
-        book::{add_rem::*, change::*, info::*},
+        read::{add_rem::full::*, change::full::*, info::{full::*, simple::*}},
+        book::{add_rem::full::*, change::full::*, info::{full::*, simple::book_info_simple}},
+        giveaway::{full::*, simple::*},
+        tables::{draw_header, cell_reader, draw_data},
         genres::*,
-        giveaway::*,
-        read::{add_rem::*, change::*, info::*},
-        tables::*
     },
     books::{book_sys::BookSystem, genres::Genres},
     change::{input2::Input2, Inputable},

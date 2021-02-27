@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["check_reader","Function that checks if input is correct. Returns index of book, if it exists. or calls alert and returns error"],["empty_inp_reader","Function that checks if input was empty"],["get_book_ind","Function that returns index of simple book. Panics if book is not in vec of books."]]});

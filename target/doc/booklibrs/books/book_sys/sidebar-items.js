@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["BookSystem","Reader Base structure, which contains only Book interfaces"]]});

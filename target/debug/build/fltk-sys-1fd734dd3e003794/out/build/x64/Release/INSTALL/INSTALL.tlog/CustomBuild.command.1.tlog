@@ -1,0 +1,10 @@
+^F:\PROGRAMMING\_RUST\LIBRS\LIBRS\TARGET\DEBUG\BUILD\FLTK-SYS-1FD734DD3E003794\OUT\BUILD\CMAKEFILES\31351CF52A18E41CD4AA195890D3624A\INSTALL_FORCE.RULE
+setlocal
+cd .
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

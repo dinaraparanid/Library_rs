@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Input2","Changes two values"]]});

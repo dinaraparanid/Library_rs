@@ -1,15 +1,9 @@
 extern crate fltk;
 
-use fltk::{
-    app,
-    app::App,
-    dialog::alert,
-    input::{Input, IntInput},
-    prelude::*,
-};
+use fltk::{app, app::App, dialog::alert, input::Input, prelude::*};
 
 use crate::{
-    actions::read::utils::*,
+    actions::read::{add_rem::simple::*, utils::*},
     books::{book_sys::BookSystem, date::Date, genres::Genres},
     change::{input4::Input4, Inputable},
     reading::read_base::ReaderBase,

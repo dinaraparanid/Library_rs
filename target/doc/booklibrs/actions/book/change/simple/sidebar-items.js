@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["change_author_simple","Changing author of already known book"],["change_location_simple",""],["change_pages_simple","Changing amount of pages of already known book"],["change_title_simple","Changing title of already known book"]]});

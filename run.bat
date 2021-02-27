@@ -1,0 +1,1 @@
+start "" "target\release/booklibrs.exe"

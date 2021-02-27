@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["remove_reader_simple","Removes already known reader"]]});

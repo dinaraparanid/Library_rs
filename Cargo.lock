@@ -16,7 +16,7 @@ checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
 
 [[package]]
 name = "booklibrs"
-version = "1.0.10"
+version = "1.0.11"
 dependencies = [
  "chrono",
  "fltk",
@@ -53,9 +53,8 @@ dependencies = [
 
 [[package]]
 name = "fltk"
-version = "0.15.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fc7548f1993675df200d18eaf115eb246eb88fb8bc7b4ddf4f141b055ba7649"
+version = "0.15.4"
+source = "git+https://github.com/MoAlyousef/fltk-rs#656a240a1c8ceb1e9f625795f4853c59bff8c359"
 dependencies = [
  "bitflags",
  "fltk-derive",
@@ -67,9 +66,8 @@ dependencies = [
 
 [[package]]
 name = "fltk-derive"
-version = "0.15.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e0db396bab9f8e6fb751a5c79db3a468e215dc7514ce1f74575b44969d9789c8"
+version = "0.15.4"
+source = "git+https://github.com/MoAlyousef/fltk-rs#656a240a1c8ceb1e9f625795f4853c59bff8c359"
 dependencies = [
  "quote",
  "syn",
@@ -77,9 +75,8 @@ dependencies = [
 
 [[package]]
 name = "fltk-sys"
-version = "0.15.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4aff4785b10ec552474791c1d32006df4d15bea4516cab307f44d463925ba43f"
+version = "0.15.4"
+source = "git+https://github.com/MoAlyousef/fltk-rs#656a240a1c8ceb1e9f625795f4853c59bff8c359"
 dependencies = [
  "cmake",
  "libc",

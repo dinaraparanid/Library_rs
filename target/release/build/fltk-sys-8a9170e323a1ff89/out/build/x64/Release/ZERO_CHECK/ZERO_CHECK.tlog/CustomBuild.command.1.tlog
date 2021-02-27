@@ -1,0 +1,10 @@
+^F:\PROGRAMMING\_RUST\LIBRS\LIBRS\TARGET\RELEASE\BUILD\FLTK-SYS-8A9170E323A1FF89\OUT\BUILD\CMAKEFILES\29B7F79B8491227FCF4FBFCE7271B1BA\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\CommonExtensions\CMAKE\cmake-3.18.2-win64-x64\bin\cmake.exe" -SC:/Users/Arseny/.cargo/git/checkouts/fltk-rs-9372f34fe2791521/656a240/fltk-sys/cfltk -BF:/PROGRAMMING/_rust/librs/librs/target/release/build/fltk-sys-8a9170e323a1ff89/out/build --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file F:/PROGRAMMING/_rust/librs/librs/target/release/build/fltk-sys-8a9170e323a1ff89/out/build/cfltk.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\CodeEditor.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\StyleParse.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\Fl_Function_Type.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\Fl_Group_Type.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\Fl_Menu_Type.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\Fl_Type.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\Fl_Widget_Type.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\Fl_Window_Type.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\Fluid_Image.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\about_panel.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\align_widget.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\alignment_panel.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\code.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\factory.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\file.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\fluid.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\function_panel.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\template_panel.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\undo.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\widget_panel.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\ExternalCodeEditor_WIN32.cxx">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Arseny\.cargo\git\checkouts\fltk-rs-9372f34fe2791521\656a240\fltk-sys\cfltk\fltk\fluid\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{7A16C49E-E4F3-3EFB-9030-DD26A1418032}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

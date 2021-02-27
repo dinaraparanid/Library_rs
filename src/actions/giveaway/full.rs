@@ -1,10 +1,9 @@
-extern crate chrono;
 extern crate fltk;
 
 use crate::{
-    actions::{book::utils::check_book, book::*, read::utils::check_reader},
+    actions::{book::*, giveaway::simple::*, read::utils::check_reader},
     books::{book::Book, book_sys::BookSystem, date::Date, genres::Genres},
-    change::{input3::Input3, input4::Input4, Inputable},
+    change::{input4::Input4, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
     Lang,
@@ -15,11 +14,8 @@ use fltk::{
     app::{channel, App},
     dialog::alert,
     input::*,
-    WidgetExt,
+    prelude::*,
 };
-
-use chrono::Local;
-use std::{cell::RefCell, rc::Weak};
 
 /// Changes return date
 

@@ -77,7 +77,21 @@ pub(crate) fn check_reader(
             return Err(());
         }
 
-        let mut it = reader.last().unwrap().split('|');
+        let it = reader.last().unwrap().split('/').collect::<Vec<_>>();
+
+        if it.len() != 3 {
+            alert(
+                500,
+                500,
+                match lang {
+                    Lang::English => "'Age' input error",
+                    Lang::Russian => "Ошибка ввода 'Возраста'",
+                },
+            );
+            return Err(());
+        }
+
+        let mut it = it.into_iter();
 
         match it.next().unwrap().trim().parse::<u8>() {
             Ok(day) => match it.next().unwrap().trim().parse::<u8>() {
@@ -97,6 +111,7 @@ pub(crate) fn check_reader(
 
                         Ok(x) => age = x,
                     },
+
                     Err(_) => {
                         alert(
                             500,
@@ -109,6 +124,7 @@ pub(crate) fn check_reader(
                         return Err(());
                     }
                 },
+
                 Err(_) => {
                     alert(
                         500,
@@ -121,6 +137,7 @@ pub(crate) fn check_reader(
                     return Err(());
                 }
             },
+
             Err(_) => {
                 alert(
                     500,

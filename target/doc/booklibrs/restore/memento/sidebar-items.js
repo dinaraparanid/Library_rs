@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Memento","Collects data about reader base, book system and genres"]]});
