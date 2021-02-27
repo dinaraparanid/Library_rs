@@ -1,11 +1,11 @@
 Determining if files alsa/asoundlib.h exist failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_56e16.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_3210d.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_ALSA_ASOUNDLIB_H.c
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_ALSA_ASOUNDLIB_H.c(2,10): fatal error C1083: Не удается открыть файл включение: alsa/asoundlib.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_56e16.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_ALSA_ASOUNDLIB_H.c(2,10): fatal error C1083: Не удается открыть файл включение: alsa/asoundlib.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_3210d.vcxproj]
 
 
 Source:
@@ -18,11 +18,11 @@ int main(void){return 0;}
 Determining if files dlfcn.h exist failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_d10e3.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_3dd14.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_DLFCN_H.c
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_DLFCN_H.c(2,10): fatal error C1083: Не удается открыть файл включение: dlfcn.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_d10e3.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_DLFCN_H.c(2,10): fatal error C1083: Не удается открыть файл включение: dlfcn.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_3dd14.vcxproj]
 
 
 Source:
@@ -35,112 +35,112 @@ int main(void){return 0;}
 Determining if files GL/glu.h exist failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_29b2c.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_cd283.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_GL_GLU_H.c
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1157,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1157,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1157,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glAccum" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1157,33): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1157,58): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1158,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1158,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1158,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glAlphaFunc" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1158,37): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1158,63): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1159,21): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1159,30): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1159,30): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glAreTexturesResident" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1159,52): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1159,109): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1160,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1160,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1160,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glArrayElement" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1160,40): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1160,48): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1161,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1161,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1161,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glBegin" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1161,33): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1161,45): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1162,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1162,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1162,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glBindTexture" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1162,39): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1162,69): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1163,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1163,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1163,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glBitmap" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1163,34): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1163,147): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1164,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1164,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1164,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glBlendFunc" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1164,37): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1164,68): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1165,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1165,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1165,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glCallList" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1165,36): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1165,48): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1166,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1166,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1166,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glCallLists" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1166,37): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1166,81): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1167,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1167,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1167,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glClear" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1167,33): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1167,49): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1168,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1168,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1168,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glClearAccum" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1168,38): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1168,94): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1169,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1169,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1169,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glClearColor" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1169,38): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1169,98): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1170,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1170,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1170,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glClearDepth" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1170,38): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1170,53): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1171,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1171,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1171,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glClearIndex" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1171,38): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1171,48): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1172,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1172,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1172,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glClearStencil" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1172,40): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1172,48): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1173,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1173,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1173,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glClipPlane" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1173,37): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1173,76): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1174,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1174,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1174,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glColor3b" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1174,35): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1174,73): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1175,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1175,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1175,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glColor3bv" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1175,36): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1175,52): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1176,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1176,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1176,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glColor3d" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1176,35): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1176,79): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1177,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
-C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1177,16): fatal error C1003: число ошибок превышает 100; остановка компиляции [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_29b2c.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1157,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1157,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1157,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glAccum" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1157,33): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1157,58): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1158,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1158,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1158,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glAlphaFunc" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1158,37): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1158,63): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1159,21): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1159,30): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1159,30): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glAreTexturesResident" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1159,52): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1159,109): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1160,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1160,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1160,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glArrayElement" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1160,40): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1160,48): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1161,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1161,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1161,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glBegin" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1161,33): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1161,45): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1162,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1162,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1162,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glBindTexture" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1162,39): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1162,69): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1163,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1163,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1163,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glBitmap" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1163,34): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1163,147): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1164,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1164,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1164,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glBlendFunc" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1164,37): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1164,68): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1165,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1165,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1165,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glCallList" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1165,36): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1165,48): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1166,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1166,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1166,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glCallLists" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1166,37): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1166,81): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1167,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1167,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1167,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glClear" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1167,33): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1167,49): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1168,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1168,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1168,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glClearAccum" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1168,38): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1168,94): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1169,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1169,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1169,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glClearColor" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1169,38): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1169,98): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1170,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1170,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1170,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glClearDepth" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1170,38): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1170,53): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1171,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1171,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1171,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glClearIndex" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1171,38): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1171,48): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1172,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1172,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1172,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glClearStencil" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1172,40): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1172,48): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1173,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1173,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1173,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glClipPlane" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1173,37): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1173,76): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1174,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1174,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1174,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glColor3b" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1174,35): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1174,73): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1175,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1175,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1175,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glColor3bv" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1175,36): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1175,52): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1176,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1176,25): error C2085: APIENTRY: отсутствует в списке формальных параметров [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1176,25): error C2146: синтаксическая ошибка: отсутствие "," перед идентификатором "glColor3d" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1176,35): error C2143: синтаксическая ошибка: отсутствие ";" перед "(" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1176,79): error C2059: синтаксическая ошибка: ) [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1177,16): error C2054: требуется "(" после "WINGDIAPI" [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um\GL/gl.h(1177,16): fatal error C1003: число ошибок превышает 100; остановка компиляции [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_cd283.vcxproj]
 
 
 Source:
@@ -153,11 +153,11 @@ int main(void){return 0;}
 Determining if files libpng/png.h exist failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_651fc.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_70bf0.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_LIBPNG_PNG_H.c
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_LIBPNG_PNG_H.c(2,10): fatal error C1083: Не удается открыть файл включение: libpng/png.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_651fc.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_LIBPNG_PNG_H.c(2,10): fatal error C1083: Не удается открыть файл включение: libpng/png.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_70bf0.vcxproj]
 
 
 Source:
@@ -170,11 +170,11 @@ int main(void){return 0;}
 Determining if files OpenGL/glu.h exist failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_68917.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_0055c.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_OPENGL_GLU_H.c
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_OPENGL_GLU_H.c(2,10): fatal error C1083: Не удается открыть файл включение: OpenGL/glu.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_68917.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_OPENGL_GLU_H.c(2,10): fatal error C1083: Не удается открыть файл включение: OpenGL/glu.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_0055c.vcxproj]
 
 
 Source:
@@ -187,11 +187,11 @@ int main(void){return 0;}
 Determining if files png.h exist failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_90f36.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_5a512.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_PNG_H.c
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_PNG_H.c(2,10): fatal error C1083: Не удается открыть файл включение: png.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_90f36.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_PNG_H.c(2,10): fatal error C1083: Не удается открыть файл включение: png.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_5a512.vcxproj]
 
 
 Source:
@@ -204,11 +204,11 @@ int main(void){return 0;}
 Determining if files strings.h exist failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_7d9bf.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_081e2.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_STRINGS_H.c
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_STRINGS_H.c(2,10): fatal error C1083: Не удается открыть файл включение: strings.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_7d9bf.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_STRINGS_H.c(2,10): fatal error C1083: Не удается открыть файл включение: strings.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_081e2.vcxproj]
 
 
 Source:
@@ -221,11 +221,11 @@ int main(void){return 0;}
 Determining if files sys/select.h exist failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_b5f15.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_6500b.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_SYS_SELECT_H.c
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_SYS_SELECT_H.c(2,10): fatal error C1083: Не удается открыть файл включение: sys/select.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_b5f15.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_SYS_SELECT_H.c(2,10): fatal error C1083: Не удается открыть файл включение: sys/select.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_6500b.vcxproj]
 
 
 Source:
@@ -238,11 +238,11 @@ int main(void){return 0;}
 Determining if files sys/stdtypes.h exist failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_a1602.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_f6b62.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_SYS_STDTYPES_H.c
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_SYS_STDTYPES_H.c(2,10): fatal error C1083: Не удается открыть файл включение: sys/stdtypes.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_a1602.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_SYS_STDTYPES_H.c(2,10): fatal error C1083: Не удается открыть файл включение: sys/stdtypes.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_f6b62.vcxproj]
 
 
 Source:
@@ -255,11 +255,11 @@ int main(void){return 0;}
 Determining if files X11/Xlib.h;X11/Xregion.h exist failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_e069e.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_03d9b.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_X11_XREGION_H.c
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_X11_XREGION_H.c(2,10): fatal error C1083: Не удается открыть файл включение: X11/Xlib.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_e069e.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_X11_XREGION_H.c(2,10): fatal error C1083: Не удается открыть файл включение: X11/Xlib.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_03d9b.vcxproj]
 
 
 Source:
@@ -273,11 +273,11 @@ int main(void){return 0;}
 Determining if files X11/Xlib.h;X11/extensions/Xdbe.h exist failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_8f3a4.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_84c48.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_XDBE_H.c
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_XDBE_H.c(2,10): fatal error C1083: Не удается открыть файл включение: X11/Xlib.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_8f3a4.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_XDBE_H.c(2,10): fatal error C1083: Не удается открыть файл включение: X11/Xlib.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_84c48.vcxproj]
 
 
 Source:
@@ -291,11 +291,11 @@ int main(void){return 0;}
 Determining if files dirent.h exist failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_63bfa.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_e108d.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_DIRENT_H.c
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_DIRENT_H.c(2,10): fatal error C1083: Не удается открыть файл включение: dirent.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_63bfa.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_DIRENT_H.c(2,10): fatal error C1083: Не удается открыть файл включение: dirent.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_e108d.vcxproj]
 
 
 Source:
@@ -308,11 +308,11 @@ int main(void){return 0;}
 Determining if files sys/ndir.h exist failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_e19b8.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_1a086.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_SYS_NDIR_H.c
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_SYS_NDIR_H.c(2,10): fatal error C1083: Не удается открыть файл включение: sys/ndir.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_e19b8.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_SYS_NDIR_H.c(2,10): fatal error C1083: Не удается открыть файл включение: sys/ndir.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_1a086.vcxproj]
 
 
 Source:
@@ -325,11 +325,11 @@ int main(void){return 0;}
 Determining if files sys/dir.h exist failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_96da4.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_bf88d.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_SYS_DIR_H.c
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_SYS_DIR_H.c(2,10): fatal error C1083: Не удается открыть файл включение: sys/dir.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_96da4.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_SYS_DIR_H.c(2,10): fatal error C1083: Не удается открыть файл включение: sys/dir.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_bf88d.vcxproj]
 
 
 Source:
@@ -342,11 +342,11 @@ int main(void){return 0;}
 Determining if files ndir.h exist failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_fb4d2.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_b3fb0.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   HAVE_NDIR_H.c
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_NDIR_H.c(2,10): fatal error C1083: Не удается открыть файл включение: ndir.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_fb4d2.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CheckIncludeFiles\HAVE_NDIR_H.c(2,10): fatal error C1083: Не удается открыть файл включение: ndir.h: No such file or directory, [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_b3fb0.vcxproj]
 
 
 Source:
@@ -359,74 +359,74 @@ int main(void){return 0;}
 Determining if the function dlsym exists failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_780ab.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_89acd.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   CheckFunctionExists.c
-CheckFunctionExists.obj : error LNK2019: ссылка на неразрешенный внешний символ dlsym в функции main. [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_780ab.vcxproj]
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_780ab.exe : fatal error LNK1120: неразрешенных внешних элементов: 1 [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_780ab.vcxproj]
+CheckFunctionExists.obj : error LNK2019: ссылка на неразрешенный внешний символ dlsym в функции main. [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_89acd.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_89acd.exe : fatal error LNK1120: неразрешенных внешних элементов: 1 [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_89acd.vcxproj]
 
 
 
 Determining if the function scandir exists failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_828ed.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_0cdae.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   CheckFunctionExists.c
-CheckFunctionExists.obj : error LNK2019: ссылка на неразрешенный внешний символ scandir в функции main. [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_828ed.vcxproj]
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_828ed.exe : fatal error LNK1120: неразрешенных внешних элементов: 1 [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_828ed.vcxproj]
+CheckFunctionExists.obj : error LNK2019: ссылка на неразрешенный внешний символ scandir в функции main. [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_0cdae.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_0cdae.exe : fatal error LNK1120: неразрешенных внешних элементов: 1 [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_0cdae.vcxproj]
 
 
 
 Determining if the function snprintf exists failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_6dffe.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_ce3b9.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   CheckFunctionExists.c
-CheckFunctionExists.obj : error LNK2019: ссылка на неразрешенный внешний символ snprintf в функции main. [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_6dffe.vcxproj]
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_6dffe.exe : fatal error LNK1120: неразрешенных внешних элементов: 1 [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_6dffe.vcxproj]
+CheckFunctionExists.obj : error LNK2019: ссылка на неразрешенный внешний символ snprintf в функции main. [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_ce3b9.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_ce3b9.exe : fatal error LNK1120: неразрешенных внешних элементов: 1 [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_ce3b9.vcxproj]
 
 
 
 Determining if the function strlcat exists failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_43247.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_6bc01.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   CheckFunctionExists.c
-CheckFunctionExists.obj : error LNK2019: ссылка на неразрешенный внешний символ strlcat в функции main. [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_43247.vcxproj]
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_43247.exe : fatal error LNK1120: неразрешенных внешних элементов: 1 [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_43247.vcxproj]
+CheckFunctionExists.obj : error LNK2019: ссылка на неразрешенный внешний символ strlcat в функции main. [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_6bc01.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_6bc01.exe : fatal error LNK1120: неразрешенных внешних элементов: 1 [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_6bc01.vcxproj]
 
 
 
 Determining if the function strlcpy exists failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_19cd3.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_bf37c.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   CheckFunctionExists.c
-CheckFunctionExists.obj : error LNK2019: ссылка на неразрешенный внешний символ strlcpy в функции main. [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_19cd3.vcxproj]
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_19cd3.exe : fatal error LNK1120: неразрешенных внешних элементов: 1 [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_19cd3.vcxproj]
+CheckFunctionExists.obj : error LNK2019: ссылка на неразрешенный внешний символ strlcpy в функции main. [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_bf37c.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_bf37c.exe : fatal error LNK1120: неразрешенных внешних элементов: 1 [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_bf37c.vcxproj]
 
 
 
 Determining if the function vsnprintf exists failed with the following output:
 Change Dir: F:/PROGRAMMING/_rust/librs/librs/target/debug/build/fltk-sys-1fd734dd3e003794/out/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_3f681.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/MSBuild/Current/Bin/MSBuild.exe cmTC_eca77.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=16.0 /v:m && Microsoft (R) Build Engine версии 16.8.2+25e4d540b для .NET Framework
 (C) Корпорация Майкрософт (Microsoft Corporation). Все права защищены.
 
   CheckFunctionExists.c
-CheckFunctionExists.obj : error LNK2019: ссылка на неразрешенный внешний символ vsnprintf в функции main. [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_3f681.vcxproj]
-MSVCRTD.lib(vsnprintf.obj) : error LNK2001: неразрешенный внешний символ vsnprintf. [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_3f681.vcxproj]
-MSVCRTD.lib(vsnprintf.obj) : error LNK2001: неразрешенный внешний символ _vsnprintf. [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_3f681.vcxproj]
-F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_3f681.exe : fatal error LNK1120: неразрешенных внешних элементов: 2 [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_3f681.vcxproj]
+CheckFunctionExists.obj : error LNK2019: ссылка на неразрешенный внешний символ vsnprintf в функции main. [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_eca77.vcxproj]
+MSVCRTD.lib(vsnprintf.obj) : error LNK2001: неразрешенный внешний символ vsnprintf. [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_eca77.vcxproj]
+MSVCRTD.lib(vsnprintf.obj) : error LNK2001: неразрешенный внешний символ _vsnprintf. [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_eca77.vcxproj]
+F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\Debug\cmTC_eca77.exe : fatal error LNK1120: неразрешенных внешних элементов: 2 [F:\PROGRAMMING\_rust\librs\librs\target\debug\build\fltk-sys-1fd734dd3e003794\out\build\CMakeFiles\CMakeTmp\cmTC_eca77.vcxproj]
 
 
 

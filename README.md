@@ -13,4 +13,6 @@ crates.io: https://crates.io/crates/booklibrs
 If you familiar with Rust, then you can write *cargo run (--release)* in your console.
 If you aren't familiar with Rust and you can't stand using cmd, than click on run.bat and program will start. 
 
+*full version with all decompiled files: https://dropmefiles.com/Q3sl9*
+
 

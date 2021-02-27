@@ -1,3 +1,9 @@
+error: patch failed: src/CMakeLists.txt:300
+error: src/CMakeLists.txt: patch does not apply
+error: patch failed: src/Fl_win32.cxx:594
+error: src/Fl_win32.cxx: patch does not apply
+error: patch failed: src/drivers/Android/Fl_Android_System_Driver.H:25
+error: src/drivers/Android/Fl_Android_System_Driver.H: patch does not apply
 
 
 CMake Warning:
