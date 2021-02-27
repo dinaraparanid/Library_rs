@@ -1,1 +1,0 @@
-initSidebarItems({"mod":[["caretaker",""],["memento",""]]});

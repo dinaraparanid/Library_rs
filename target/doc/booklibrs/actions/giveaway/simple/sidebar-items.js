@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["change_return_date_simple","Changes return date of already known book"],["get_book_known_reader","Gets book from known reader"],["give_book_known_reader","Gives book to known reader"]]});

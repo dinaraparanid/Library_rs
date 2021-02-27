@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["add_reader","Function that adds reader. If you have mistakes in input, program will let you know"],["remove_reader","Function that removes reader. If you have mistakes in input, program will let you know"]]});

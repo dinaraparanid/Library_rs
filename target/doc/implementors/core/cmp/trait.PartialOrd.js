@@ -1,3 +1,0 @@
-(function() {var implementors = {};
-implementors["booklibrs"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/cmp/trait.PartialOrd.html\" title=\"trait core::cmp::PartialOrd\">PartialOrd</a>&lt;<a class=\"struct\" href=\"booklibrs/books/date/struct.Date.html\" title=\"struct booklibrs::books::date::Date\">Date</a>&gt; for <a class=\"struct\" href=\"booklibrs/books/date/struct.Date.html\" title=\"struct booklibrs::books::date::Date\">Date</a>","synthetic":false,"types":["booklibrs::books::date::Date"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

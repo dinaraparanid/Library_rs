@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["check_book","Function that checks if input is correct. Returns index of book, if it exists. or calls alert and returns error"],["empty_inp_book","Function that checks if input was empty"]]});

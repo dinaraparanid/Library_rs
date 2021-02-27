@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Input3","Changes three values"]]});

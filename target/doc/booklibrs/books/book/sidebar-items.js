@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Book","Simple Book structure, which contains title, author, amount of pages, using status, location (number of cabinet and it's shelf) and readers with start and finish dates"]]});

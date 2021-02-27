@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["ReaderBase","Reader Base structure, which contains only readers"]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Lang","Language. Helps to choose preferred language"]],"mod":[["actions",""],["books",""],["change",""],["reading",""],["restore",""],["tests",""]]});

@@ -1,1 +1,0 @@
-initSidebarItems({"struct":[["Reader","Reader structure, which contains name, family, father, age, simple books he' d read and book which he is reading now (or None)"]]});

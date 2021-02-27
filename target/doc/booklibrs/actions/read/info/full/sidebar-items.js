@@ -1,1 +1,0 @@
-initSidebarItems({"fn":[["reader_info","Function that gives info about reader. If you have mistakes in input, program will let you know"]]});
