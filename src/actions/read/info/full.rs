@@ -4,12 +4,23 @@ use fltk::{
     app,
     app::App,
     dialog::alert,
+    draw,
+    frame::Frame,
+    group::VGrid,
     input::{Input, IntInput},
+    menu::{MenuBar, MenuFlag},
     prelude::*,
+    table::Table,
+    window::SingleWindow,
 };
 
 use crate::{
-    actions::read::utils::*,
+    actions::{
+        book::info::simple::book_info_simple,
+        giveaway::{get_book_known_reader, give_book_known_reader},
+        read::{change::*, info::simple::reader_info_simple},
+        tables::*,
+    },
     books::{book_sys::BookSystem, date::Date, genres::Genres},
     change::{input4::Input4, Inputable},
     reading::read_base::ReaderBase,
@@ -17,68 +28,26 @@ use crate::{
     Lang,
 };
 
-/// Removes already known reader
+use std::{cell::RefCell, cmp::max, rc::Rc};
 
-#[inline]
-pub(crate) fn remove_reader_simple(
-    ind: usize,
-    reader_base: &mut ReaderBase,
-    book_system: &mut BookSystem,
-    genres: &Genres,
-    caretaker: &mut Caretaker,
-    lang: Lang,
-) {
-    caretaker.add_memento(reader_base, book_system, genres);
-
-    match reader_base.remove_reader(ind) {
-        Ok(_) => {
-            fltk::dialog::message(
-                500,
-                500,
-                match lang {
-                    Lang::English => "Successfully removed",
-                    Lang::Russian => "Успешно удалён",
-                },
-            );
-
-            reader_base.save();
-            book_system.save();
-        }
-
-        Err(_) => {
-            alert(
-                500,
-                500,
-                match lang {
-                    Lang::English => "Reader is not found",
-                    Lang::Russian => "Читатель не найден",
-                },
-            );
-            caretaker.pop();
-            return;
-        }
-    }
-}
-
-/// Function that adds reader.
+/// Function that gives info about reader.
 /// If you have mistakes in input,
 /// program will let you know
 
 #[inline]
-pub fn add_reader(
-    reader_base: &mut ReaderBase,
-    book_system: &mut BookSystem,
+pub fn reader_info(
+    reader_base: Rc<RefCell<ReaderBase>>,
+    book_system: Rc<RefCell<BookSystem>>,
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
     lang: Lang,
 ) {
     let (s2, r2) = app::channel();
-
     let mut inp = Input4::<Input, Input, Input, Input>::new(
         match lang {
-            Lang::English => "Add Reader",
-            Lang::Russian => "Добавить читателя",
+            Lang::English => "Find Reader",
+            Lang::Russian => "Поиск Читателя",
         },
         match lang {
             Lang::English => "First Name",
@@ -98,8 +67,6 @@ pub fn add_reader(
         },
     );
 
-    caretaker.add_memento(reader_base, book_system, genres);
-
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
 
@@ -110,11 +77,6 @@ pub fn add_reader(
                     inp.hide();
 
                     if let Ok(reader) = inp.set_input() {
-                        if empty_inp_reader(&reader, lang) {
-                            caretaker.pop();
-                            return;
-                        }
-
                         let it = reader.last().unwrap().trim().split('/').collect::<Vec<_>>();
 
                         if it.len() != 3 {
@@ -137,37 +99,35 @@ pub fn add_reader(
                                 Ok(day) => match it.next().unwrap().trim().parse::<u8>() {
                                     Ok(month) => match it.next().unwrap().trim().parse::<u16>() {
                                         Ok(year) => match Date::new(day, month, year) {
-                                            Ok(date) => match reader_base.add_reader(
-                                                reader.get_unchecked(0).clone(),
-                                                reader.get_unchecked(1).clone(),
-                                                reader.get_unchecked(2).clone(),
-                                                date,
-                                            ) {
-                                                Ok(_) => {
-                                                    fltk::dialog::message(
+                                            Ok(date) => {
+                                                let find = (*reader_base).borrow().find_reader(
+                                                    reader.get_unchecked(0),
+                                                    reader.get_unchecked(1),
+                                                    reader.get_unchecked(2),
+                                                    date,
+                                                );
+
+                                                match find {
+                                                    None => alert(
                                                         500,
                                                         500,
                                                         match lang {
-                                                            Lang::English => "Successfully added",
-                                                            Lang::Russian => "Успешно добавлено",
+                                                            Lang::English => "Reader isn't found",
+                                                            Lang::Russian => "Читатель не найден",
                                                         },
-                                                    );
-                                                    reader_base.save();
-                                                }
+                                                    ),
 
-                                                Err(_) => {
-                                                    alert(
-														500,
-														500,
-														match lang {
-															Lang::English => "Reader with same parameters already exists",
-															Lang::Russian => "Читатель с предложенными парамтрами уже существует",
-														}
-													);
-                                                    caretaker.pop();
-                                                    return;
+                                                    Some(ind) => reader_info_simple(
+                                                        ind,
+                                                        &mut *(*reader_base).borrow_mut(),
+                                                        &mut *(*book_system).borrow_mut(),
+                                                        genres,
+                                                        caretaker,
+                                                        app,
+                                                        lang,
+                                                    ),
                                                 }
-                                            },
+                                            }
 
                                             Err(_) => {
                                                 alert(
@@ -231,83 +191,7 @@ pub fn add_reader(
             }
             break;
         } else if !inp.shown() {
-            caretaker.pop();
             return;
-        }
-    }
-}
-
-/// Function that removes reader.
-/// If you have mistakes in input,
-/// program will let you know
-
-#[inline]
-pub fn remove_reader(
-    reader_base: &mut ReaderBase,
-    book_system: &mut BookSystem,
-    genres: &Genres,
-    caretaker: &mut Caretaker,
-    app: &App,
-    lang: Lang,
-) {
-    let (s2, r2) = app::channel();
-
-    let mut inp = Input4::<Input, Input, Input, Input>::new(
-        match lang {
-            Lang::English => "Remove Reader",
-            Lang::Russian => "Удалить читателя",
-        },
-        match lang {
-            Lang::English => "First Name",
-            Lang::Russian => "Имя",
-        },
-        match lang {
-            Lang::English => "Second Names",
-            Lang::Russian => "Фамилия",
-        },
-        match lang {
-            Lang::English => "Middle Name",
-            Lang::Russian => "Отчество",
-        },
-        match lang {
-            Lang::English => "Birth Date (D/M/Y)",
-            Lang::Russian => "Дата Рождения (Д/М/Г)",
-        },
-    );
-
-    inp.show();
-    (*inp.ok).borrow_mut().emit(s2, true);
-
-    while app.wait() {
-        if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    let rem_reader_params = inp.set_input();
-                    inp.hide();
-
-                    if let Ok(reader) = rem_reader_params {
-                        let rind;
-
-                        match check_reader(reader_base, &reader, lang) {
-                            Ok(x) => rind = x,
-                            Err(_) => return,
-                        }
-
-                        remove_reader_simple(
-                            rind,
-                            reader_base,
-                            book_system,
-                            genres,
-                            caretaker,
-                            lang,
-                        );
-                    }
-                }
-                false => (),
-            }
-            break;
-        } else if !inp.shown() {
-            break;
         }
     }
 }
