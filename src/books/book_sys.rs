@@ -51,12 +51,42 @@ impl Debug for BookSystem {
     }
 }
 
+impl IntoIterator for BookSystem {
+    type Item = Rc<RefCell<TheBook>>;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    /// Converts Book System to iterator
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        self.books.into_iter()
+    }
+}
+
+impl FromIterator<Rc<RefCell<TheBook>>> for BookSystem {
+    /// Create Book System from iterator
+
+    #[inline]
+    fn from_iter<T: IntoIterator<Item = Rc<RefCell<TheBook>>>>(iter: T) -> Self {
+        BookSystem {
+            books: iter.into_iter().collect(),
+        }
+    }
+}
+
 impl BookSystem {
     /// Constructs empty Book System
 
     #[inline]
     pub const fn new() -> Self {
         BookSystem { books: vec![] }
+    }
+
+    /// Iterate on Book System with smart pointers of The Book
+
+    #[inline]
+    pub(crate) fn iter(&self) -> std::slice::Iter<Rc<RefCell<TheBook>>> {
+        self.books.iter()
     }
 
     /// Finds The Book.

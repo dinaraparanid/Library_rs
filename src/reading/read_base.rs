@@ -13,6 +13,7 @@ use std::{
     rc::{Rc, Weak},
 };
 
+use std::iter::FromIterator;
 use std::num::ParseIntError;
 use yaml_rust::{yaml::Hash, Yaml, YamlEmitter, YamlLoader};
 
@@ -58,12 +59,42 @@ impl Clone for ReaderBase {
     }
 }
 
+impl IntoIterator for ReaderBase {
+    type Item = Rc<RefCell<Reader>>;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    /// Converts Reader Base to iterator
+
+    #[inline]
+    fn into_iter(self) -> Self::IntoIter {
+        self.readers.into_iter()
+    }
+}
+
+impl FromIterator<Rc<RefCell<Reader>>> for ReaderBase {
+    /// Create Reader Base from iterator
+
+    #[inline]
+    fn from_iter<T: IntoIterator<Item = Rc<RefCell<Reader>>>>(iter: T) -> Self {
+        ReaderBase {
+            readers: iter.into_iter().collect(),
+        }
+    }
+}
+
 impl ReaderBase {
     /// Creates empty Reader Base
 
     #[inline]
     pub const fn new() -> Self {
         ReaderBase { readers: vec![] }
+    }
+
+    /// Iterate on Book System with smart pointers of The Book
+
+    #[inline]
+    pub(crate) fn iter(&self) -> std::slice::Iter<Rc<RefCell<Reader>>> {
+        self.readers.iter()
     }
 
     /// Searches reader by his params.

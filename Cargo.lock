@@ -16,10 +16,11 @@ checksum = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
 
 [[package]]
 name = "booklibrs"
-version = "1.0.11"
+version = "1.0.12"
 dependencies = [
  "chrono",
- "fltk",
+ "fltk 0.15.4 (git+https://github.com/MoAlyousef/fltk-rs)",
+ "fltk-calendar",
  "yaml-rust",
 ]
 
@@ -57,11 +58,35 @@ version = "0.15.4"
 source = "git+https://github.com/MoAlyousef/fltk-rs#656a240a1c8ceb1e9f625795f4853c59bff8c359"
 dependencies = [
  "bitflags",
- "fltk-derive",
- "fltk-sys",
+ "fltk-derive 0.15.4 (git+https://github.com/MoAlyousef/fltk-rs)",
+ "fltk-sys 0.15.4 (git+https://github.com/MoAlyousef/fltk-rs)",
  "lazy_static",
  "objc",
  "raw-window-handle",
+]
+
+[[package]]
+name = "fltk"
+version = "0.15.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96df6c7608be4fe85022c416f20daec21b863d796a6139ae0c27a3d521cb340a"
+dependencies = [
+ "bitflags",
+ "fltk-derive 0.15.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "fltk-sys 0.15.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "lazy_static",
+ "objc",
+ "raw-window-handle",
+]
+
+[[package]]
+name = "fltk-calendar"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "884812f7dbe4e4cc50710c7f1fd3e32481929307beb49162a32073a2b0ad9b7c"
+dependencies = [
+ "chrono",
+ "fltk 0.15.4 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -74,9 +99,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "fltk-derive"
+version = "0.15.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b7cce9c18c88ac2c8fadb64b3c06343bb0f85f9ebcc8dd9dc39bde4cc396a9e6"
+dependencies = [
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "fltk-sys"
 version = "0.15.4"
 source = "git+https://github.com/MoAlyousef/fltk-rs#656a240a1c8ceb1e9f625795f4853c59bff8c359"
+dependencies = [
+ "cmake",
+ "libc",
+]
+
+[[package]]
+name = "fltk-sys"
+version = "0.15.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c32d92b7e3a55a903eed17336a0de1f9c2e162bd9f6047f4258f25b553ddac95"
 dependencies = [
  "cmake",
  "libc",

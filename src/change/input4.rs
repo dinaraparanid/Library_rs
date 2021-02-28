@@ -8,9 +8,11 @@ use fltk::{
 
 use std::{cell::RefCell, rc::Rc};
 
+/// **DEPRECATED**
+///
 /// Changes four values
 
-pub struct Input4<I, J, L, K>
+struct Input4<I, J, L, K>
 where
     I: InputExt + WidgetBase,
     J: InputExt + WidgetBase,

@@ -1,5 +1,6 @@
 extern crate chrono;
 extern crate fltk;
+extern crate fltk_calendar;
 
 use crate::{
     actions::book::utils::check_book,
@@ -11,6 +12,7 @@ use crate::{
 };
 
 use fltk::{
+    app,
     app::App,
     dialog::alert,
     input::{Input, IntInput},
@@ -18,6 +20,7 @@ use fltk::{
 };
 
 use chrono::Local;
+use fltk_calendar::calendar::Calendar;
 use std::{cell::RefCell, rc::Weak};
 
 /// Gives book to known reader
@@ -71,241 +74,185 @@ pub(crate) fn give_book_known_reader(
                                 Err(_) => return None,
                             }
 
-                            let (s4, r4) = fltk::app::channel();
-                            let mut inp3 = Input3::<IntInput, IntInput, IntInput>::new(
+                            let mut win = fltk::window::SingleWindow::new(
+                                800,
+                                500,
+                                200,
+                                100,
+                                "Choose birth date",
+                            );
+
+                            let _ = fltk::frame::Frame::new(
+                                30,
+                                10,
+                                150,
+                                50,
                                 match lang {
-                                    Lang::English => "Set Return Date",
-                                    Lang::Russian => "Дедлайн",
-                                },
-                                match lang {
-                                    Lang::English => "Day (number)",
-                                    Lang::Russian => "День (номер)",
-                                },
-                                match lang {
-                                    Lang::English => "Month (number)",
-                                    Lang::Russian => "Месяц (номер)",
-                                },
-                                match lang {
-                                    Lang::English => "Year",
-                                    Lang::Russian => "Год",
+                                    Lang::English => "Choose finish date",
+                                    Lang::Russian => "Выберите срок сдачи",
                                 },
                             );
 
-                            inp3.show();
-                            (*inp3.ok).borrow_mut().emit(s4, true);
+                            let mut but = fltk::button::Button::new(
+                                80,
+                                60,
+                                60,
+                                20,
+                                match lang {
+                                    Lang::English => "OK",
+                                    Lang::Russian => "ОК",
+                                },
+                            );
+
+                            win.end();
+                            win.show();
+
+                            let (sd, rd) = app::channel();
+                            but.emit(sd, true);
 
                             while app.wait() {
-                                if let Some(mes) = r4.recv() {
-                                    match mes {
+                                if let Some(msg) = rd.recv() {
+                                    match msg {
                                         true => {
-                                            let date_params = inp3.set_input();
-                                            inp3.hide();
+                                            win.hide();
 
-                                            if let Ok(dat) = date_params {
-                                                return match dat
-                                                    .get_unchecked(0)
-                                                    .trim()
-                                                    .parse::<u8>()
-                                                {
-                                                    Ok(day) => {
-                                                        match dat
-                                                            .get_unchecked(1)
-                                                            .trim()
-                                                            .parse::<u8>()
-                                                        {
-                                                            Ok(month) => {
-                                                                match dat
-                                                                    .get_unchecked(2)
-                                                                    .trim()
-                                                                    .parse::<u16>()
-                                                                {
-                                                                    Ok(year) => {
-                                                                        match Date::new(
-                                                                            day, month, year,
-                                                                        ) {
-                                                                            Err(_) => {
-                                                                                alert(
-																					500,
-																					500,
-																					match lang {
-																						Lang::English => "Incorrect return date",
-																						Lang::Russian => "Некорректная дата возврата",
-																					},
-																				);
-                                                                                caretaker.pop();
-                                                                                None
-                                                                            }
+                                            let cal = Calendar::default();
+                                            let date = cal.get_date();
 
-                                                                            Ok(date) => {
-                                                                                if date < Date::from(chrono::Local::now()) {
-																					alert(
-																						500,
-																						500,
-																						match lang {
-																							Lang::English =>
-																								concat!("The deadline must be no later",
-																								" than the day of issue"),
-																							Lang::Russian =>
-																								concat!("Дедлайн должен быть не",
-																								" позднее дня выдачи"),
-																						});
-																					return None;
-																				}
+                                            return match date {
+                                                Some(date) => {
+                                                    let date = Date::from(date);
 
-                                                                                let simple_book =
-																					(*book_system.books.get_unchecked(bind))
-																						.borrow_mut()
-																						.get_unused();
-
-                                                                                match simple_book {
-                                                                                    None => {
-                                                                                        alert(
-																							500,
-																							500,
-																							match lang {
-																								Lang::English => "There are no free books",
-																								Lang::Russian =>
-																									"Свободных книг не осталось",
-																							},
-																						);
-                                                                                        caretaker
-                                                                                            .pop();
-                                                                                        None
-                                                                                    }
-
-                                                                                    Some(sim) => {
-                                                                                        if (**reader_base.readers
-																						                 .get_unchecked(rind))
-																							.borrow()
-																							.reading
-																							.is_some() {
-																							alert(
-																								500,
-																								500,
-																								match lang {
-																									Lang::English => concat!(
-																									"This reader is already",
-																									" reading book"),
-																									Lang::Russian =>
-																										concat!("Этот читатель",
-																										" уже читает книгу"),
-																								},
-																							);
-
-																							caretaker.pop();
-																							return None;
-																						}
-
-                                                                                        (*reader_base.readers.get_unchecked(rind))
-																							.borrow_mut()
-																							.start_reading(
-																								(*book_system.books
-																								             .get_unchecked(bind))
-																									.borrow_mut()
-																									.books
-																									.get_unchecked(sim),
-																							);
-
-                                                                                        (*(*book_system.books.get_unchecked(bind))
-																							.borrow_mut()
-																							.books
-																							.get_unchecked(sim))
-																							.borrow_mut()
-																							.start_reading(
-																								reader_base.readers
-																								           .get_unchecked(rind),
-																								date,
-																							);
-
-                                                                                        fltk::dialog::message(
-																							500,
-																							500,
-																							match lang {
-																								Lang::English =>
-																									"Book successfully given to reader",
-																								Lang::Russian =>
-																									"Книга успешно выдана читателю",
-																							},
-																						);
-
-                                                                                        book_system
-                                                                                            .save();
-                                                                                        reader_base
-                                                                                            .save();
-
-                                                                                        Some((*reader_base
-																							.readers
-																							.get_unchecked(rind)
-																							.borrow()
-																							.reading
-																							.as_ref()
-																							.unwrap()
-																							.upgrade()
-																							.unwrap())
-																							.borrow()
-																							.to_string(book_system))
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-
-                                                                    Err(_) => {
-                                                                        alert(
-																			500,
-																			500,
-																			match lang {
-																				Lang::English => "'Year' input error",
-																				Lang::Russian => "Ошибка ввода 'Года'",
-																			},
-																		);
-                                                                        caretaker.pop();
-                                                                        None
-                                                                    }
-                                                                }
-                                                            }
-
-                                                            Err(_) => {
-                                                                alert(
-                                                                    500,
-                                                                    500,
-                                                                    match lang {
-                                                                        Lang::English => {
-                                                                            "'Month' input error"
-                                                                        }
-                                                                        Lang::Russian => {
-                                                                            "Ошибка ввода 'Месяца'"
-                                                                        }
-                                                                    },
-                                                                );
-                                                                caretaker.pop();
-                                                                None
-                                                            }
-                                                        }
-                                                    }
-
-                                                    Err(_) => {
+                                                    if date < Date::from(chrono::Local::now()) {
                                                         alert(
                                                             500,
                                                             500,
                                                             match lang {
-                                                                Lang::English => {
-                                                                    "'Day' input error"
-                                                                }
-                                                                Lang::Russian => {
-                                                                    "Ошибка ввода 'Дня'"
-                                                                }
+                                                                Lang::English => "The deadline must be no later than the day of issue",
+                                                                Lang::Russian => "Дедлайн должен быть не позднее дня выдачи",
                                                             },
                                                         );
-                                                        caretaker.pop();
-                                                        None
+                                                        return None;
                                                     }
-                                                };
-                                            }
+
+                                                    let simple_book =
+                                                        (*book_system.books.get_unchecked(bind))
+                                                            .borrow_mut()
+                                                            .get_unused();
+
+                                                    match simple_book {
+                                                        None => {
+                                                            alert(
+                                                                500,
+                                                                500,
+                                                                match lang {
+                                                                    Lang::English => {
+                                                                        "There are no free books"
+                                                                    }
+                                                                    Lang::Russian => {
+                                                                        "Свободных книг не осталось"
+                                                                    }
+                                                                },
+                                                            );
+                                                            caretaker.pop();
+                                                            None
+                                                        }
+
+                                                        Some(sim) => {
+                                                            if (**reader_base
+                                                                .readers
+                                                                .get_unchecked(rind))
+                                                            .borrow()
+                                                            .reading
+                                                            .is_some()
+                                                            {
+                                                                alert(
+                                                                    500,
+                                                                    500,
+                                                                    match lang {
+                                                                        Lang::English => "This reader is already reading book",
+                                                                        Lang::Russian => "Этот читатель уже читает книгу",
+                                                                    },
+                                                                );
+
+                                                                caretaker.pop();
+                                                                return None;
+                                                            }
+
+                                                            (*reader_base
+                                                                .readers
+                                                                .get_unchecked(rind))
+                                                            .borrow_mut()
+                                                            .start_reading(
+                                                                (*book_system
+                                                                    .books
+                                                                    .get_unchecked(bind))
+                                                                .borrow_mut()
+                                                                .books
+                                                                .get_unchecked(sim),
+                                                            );
+
+                                                            (*(*book_system
+                                                                .books
+                                                                .get_unchecked(bind))
+                                                            .borrow_mut()
+                                                            .books
+                                                            .get_unchecked(sim))
+                                                            .borrow_mut()
+                                                            .start_reading(
+                                                                reader_base
+                                                                    .readers
+                                                                    .get_unchecked(rind),
+                                                                date,
+                                                            );
+
+                                                            fltk::dialog::message(
+                                                                500,
+                                                                500,
+                                                                match lang {
+                                                                    Lang::English => "Book successfully given to reader",
+                                                                    Lang::Russian => "Книга успешно выдана читателю",
+                                                                },
+                                                            );
+
+                                                            book_system.save();
+                                                            reader_base.save();
+
+                                                            Some(
+                                                                (*reader_base
+                                                                    .readers
+                                                                    .get_unchecked(rind)
+                                                                    .borrow()
+                                                                    .reading
+                                                                    .as_ref()
+                                                                    .unwrap()
+                                                                    .upgrade()
+                                                                    .unwrap())
+                                                                .borrow()
+                                                                .to_string(book_system),
+                                                            )
+                                                        }
+                                                    }
+                                                }
+
+                                                None => {
+                                                    alert(
+                                                        500,
+                                                        500,
+                                                        match lang {
+                                                            Lang::English => "Date wasn't selected",
+                                                            Lang::Russian => "Дата не была выбрана",
+                                                        },
+                                                    );
+                                                    caretaker.pop();
+                                                    None
+                                                }
+                                            };
                                         }
+
                                         false => (),
                                     }
-                                } else if !inp3.shown() {
+                                } else if !win.shown() {
                                     caretaker.pop();
                                     return None;
                                 }

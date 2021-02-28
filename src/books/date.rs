@@ -1,5 +1,6 @@
 extern crate chrono;
 
+use self::chrono::NaiveDate;
 use chrono::{DateTime, Datelike, Local};
 use std::fmt::{Display, Formatter};
 use std::{cmp::*, ops::Sub};
@@ -77,7 +78,24 @@ impl From<DateTime<Local>> for Date {
 
     #[inline]
     fn from(date: DateTime<Local>) -> Self {
-        Date::new(date.day() as u8, date.month() as u8, date.year() as u16).unwrap()
+        Date {
+            day: date.day() as u8,
+            month: date.month() as u8,
+            year: date.year() as u16,
+        }
+    }
+}
+
+impl From<NaiveDate> for Date {
+    /// Constructor from chrono's library dates
+
+    #[inline]
+    fn from(date: NaiveDate) -> Self {
+        Date {
+            day: date.day() as u8,
+            month: date.month() as u8,
+            year: date.year() as u16,
+        }
     }
 }
 

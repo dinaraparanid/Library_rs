@@ -2,11 +2,19 @@ extern crate fltk;
 
 use booklibrs::{
     actions::{
-        read::{add_rem::full::*, change::full::*, info::{full::*, simple::*}},
-        book::{add_rem::full::*, change::full::*, info::{full::*, simple::book_info_simple}},
-        giveaway::{full::*, simple::*},
-        tables::{draw_header, cell_reader, draw_data},
+        book::{
+            add_rem::full::*,
+            change::full::*,
+            info::{full::*, simple::book_info_simple},
+        },
         genres::*,
+        giveaway::{full::*, simple::*},
+        read::{
+            add_rem::full::*,
+            change::full::*,
+            info::{full::*, simple::*},
+        },
+        tables::{cell_reader, draw_data, draw_header},
     },
     books::{book_sys::BookSystem, genres::Genres},
     change::{input2::Input2, Inputable},
@@ -1005,7 +1013,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &mut *(book_system).borrow_mut(),
                         &mut *(genres).borrow_mut(),
                     );
-                    
+
                     table.redraw();
                 }
 
@@ -1091,7 +1099,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     &(*genres).borrow(),
                     &mut (*caretaker).borrow_mut(),
                     &app,
-                    lang
+                    lang,
                 );
 
                 table.unset_selection();

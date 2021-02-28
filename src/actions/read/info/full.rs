@@ -18,11 +18,11 @@ use crate::{
     actions::{
         book::info::simple::book_info_simple,
         giveaway::simple::{get_book_known_reader, give_book_known_reader},
-        read::{change::*, info::simple::reader_info_simple},
+        read::{change::*, info::simple::reader_info_simple, utils::check_reader},
         tables::*,
     },
     books::{book_sys::BookSystem, date::Date, genres::Genres},
-    change::{input4::Input4, Inputable},
+    change::{input3::Input3, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
     Lang,
@@ -44,7 +44,7 @@ pub fn reader_info(
     lang: Lang,
 ) {
     let (s2, r2) = app::channel();
-    let mut inp = Input4::<Input, Input, Input, Input>::new(
+    let mut inp = Input3::<Input, Input, Input>::new(
         match lang {
             Lang::English => "Find Reader",
             Lang::Russian => "Поиск Читателя",
@@ -61,10 +61,6 @@ pub fn reader_info(
             Lang::English => "Middle Name",
             Lang::Russian => "Отчество",
         },
-        match lang {
-            Lang::English => "Birth Date (D/M/Y)",
-            Lang::Russian => "Дата Рождения (Д/М/Г)",
-        },
     );
 
     inp.show();
@@ -77,113 +73,18 @@ pub fn reader_info(
                     inp.hide();
 
                     if let Ok(reader) = inp.set_input() {
-                        let it = reader.last().unwrap().trim().split('/').collect::<Vec<_>>();
+                        match check_reader(&*(*reader_base).borrow(), &reader, app, lang) {
+                            Some(ind) => reader_info_simple(
+                                ind,
+                                &mut *(*reader_base).borrow_mut(),
+                                &mut *(*book_system).borrow_mut(),
+                                genres,
+                                caretaker,
+                                app,
+                                lang,
+                            ),
 
-                        if it.len() != 3 {
-                            alert(
-                                500,
-                                500,
-                                match lang {
-                                    Lang::English => "Incorrect 'Birth Date' input",
-                                    Lang::Russian => "Некорректный ввод 'Даты Рождения'",
-                                },
-                            );
-                            caretaker.pop();
-                            return;
-                        }
-
-                        let mut it = it.into_iter();
-
-                        unsafe {
-                            match it.next().unwrap().trim().parse::<u8>() {
-                                Ok(day) => match it.next().unwrap().trim().parse::<u8>() {
-                                    Ok(month) => match it.next().unwrap().trim().parse::<u16>() {
-                                        Ok(year) => match Date::new(day, month, year) {
-                                            Ok(date) => {
-                                                let find = (*reader_base).borrow().find_reader(
-                                                    reader.get_unchecked(0),
-                                                    reader.get_unchecked(1),
-                                                    reader.get_unchecked(2),
-                                                    date,
-                                                );
-
-                                                match find {
-                                                    None => alert(
-                                                        500,
-                                                        500,
-                                                        match lang {
-                                                            Lang::English => "Reader isn't found",
-                                                            Lang::Russian => "Читатель не найден",
-                                                        },
-                                                    ),
-
-                                                    Some(ind) => reader_info_simple(
-                                                        ind,
-                                                        &mut *(*reader_base).borrow_mut(),
-                                                        &mut *(*book_system).borrow_mut(),
-                                                        genres,
-                                                        caretaker,
-                                                        app,
-                                                        lang,
-                                                    ),
-                                                }
-                                            }
-
-                                            Err(_) => {
-                                                alert(
-                                                    500,
-                                                    500,
-                                                    match lang {
-                                                        Lang::English => "Incorrect date",
-                                                        Lang::Russian => "Некорректная дата",
-                                                    },
-                                                );
-                                                caretaker.pop();
-                                                return;
-                                            }
-                                        },
-
-                                        Err(_) => {
-                                            alert(
-                                                500,
-                                                500,
-                                                match lang {
-                                                    Lang::English => "'Age' input error",
-                                                    Lang::Russian => "Ошибка ввода 'Возраста'",
-                                                },
-                                            );
-                                            caretaker.pop();
-                                            return;
-                                        }
-                                    },
-
-                                    Err(_) => {
-                                        alert(
-                                            500,
-                                            500,
-                                            match lang {
-                                                Lang::English => "'Age' input error",
-                                                Lang::Russian => "Ошибка ввода 'Возраста'",
-                                            },
-                                        );
-                                        caretaker.pop();
-                                        return;
-                                    }
-                                },
-
-                                Err(_) => {
-                                    alert(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "'Age' input error",
-                                            Lang::Russian => "Ошибка ввода 'Возраста'",
-                                        },
-                                    );
-                                    caretaker.pop();
-                                    return;
-                                }
-                            }
+                            None => return,
                         }
                     }
                 }

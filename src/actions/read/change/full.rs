@@ -3,7 +3,7 @@ extern crate fltk;
 use crate::{
     actions::read::{change::simple::*, utils::check_reader},
     books::{book_sys::BookSystem, genres::Genres},
-    change::{input4::Input4, Inputable},
+    change::{input3::Input3, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
     Lang,
@@ -26,7 +26,7 @@ pub fn change_name(
 ) {
     let (s2, r2) = app::channel();
 
-    let mut inp = Input4::<Input, Input, Input, Input>::new(
+    let mut inp = Input3::<Input, Input, Input>::new(
         match lang {
             Lang::English => "Change Name",
             Lang::Russian => "Изменить имя",
@@ -43,10 +43,6 @@ pub fn change_name(
             Lang::English => "Middle Name",
             Lang::Russian => "Отчество",
         },
-        match lang {
-            Lang::English => "Birth Date (D/M/Y)",
-            Lang::Russian => "Дата Рождения (Д/М/Г)",
-        },
     );
 
     inp.show();
@@ -59,22 +55,21 @@ pub fn change_name(
                     inp.hide();
 
                     if let Ok(reader) = inp.set_input() {
-                        let rind;
+                        match check_reader(reader_base, &reader, app, lang) {
+                            Some(rind) => {
+                                change_name_simple(
+                                    rind,
+                                    reader_base,
+                                    book_system,
+                                    genres,
+                                    caretaker,
+                                    app,
+                                    lang,
+                                );
+                            }
 
-                        match check_reader(reader_base, &reader, lang) {
-                            Ok(x) => rind = x,
-                            Err(_) => return,
+                            None => return,
                         }
-
-                        change_name_simple(
-                            rind,
-                            reader_base,
-                            book_system,
-                            genres,
-                            caretaker,
-                            app,
-                            lang,
-                        );
                     }
                 }
                 false => (),
@@ -101,7 +96,7 @@ pub fn change_family(
 ) {
     let (s2, r2) = app::channel();
 
-    let mut inp = Input4::<Input, Input, Input, Input>::new(
+    let mut inp = Input3::<Input, Input, Input>::new(
         match lang {
             Lang::English => "Change 2-nd Name",
             Lang::Russian => "Изменить фамилию",
@@ -118,10 +113,6 @@ pub fn change_family(
             Lang::English => "Middle Name",
             Lang::Russian => "Отчество",
         },
-        match lang {
-            Lang::English => "Birth Date (D/M/Y)",
-            Lang::Russian => "Дата Рождения (Д/М/Г)",
-        },
     );
 
     inp.show();
@@ -134,22 +125,21 @@ pub fn change_family(
                     inp.hide();
 
                     if let Ok(reader) = inp.set_input() {
-                        let rind;
+                        match check_reader(reader_base, &reader, app, lang) {
+                            Some(rind) => {
+                                change_family_simple(
+                                    rind,
+                                    reader_base,
+                                    book_system,
+                                    genres,
+                                    caretaker,
+                                    app,
+                                    lang,
+                                );
+                            }
 
-                        match check_reader(reader_base, &reader, lang) {
-                            Ok(x) => rind = x,
-                            Err(_) => return,
+                            None => return,
                         }
-
-                        change_family_simple(
-                            rind,
-                            reader_base,
-                            book_system,
-                            genres,
-                            caretaker,
-                            app,
-                            lang,
-                        );
                     }
                 }
                 false => (),
@@ -176,7 +166,7 @@ pub fn change_father(
 ) {
     let (s2, r2) = app::channel();
 
-    let mut inp = Input4::<Input, Input, Input, Input>::new(
+    let mut inp = Input3::<Input, Input, Input>::new(
         match lang {
             Lang::English => "Change Middle Name",
             Lang::Russian => "Изменить Отчество",
@@ -193,10 +183,6 @@ pub fn change_father(
             Lang::English => "Middle Name",
             Lang::Russian => "Отчество",
         },
-        match lang {
-            Lang::English => "Birth Date (D/M/Y)",
-            Lang::Russian => "Дата Рождения (Д/М/Г)",
-        },
     );
 
     inp.show();
@@ -209,22 +195,21 @@ pub fn change_father(
                     inp.hide();
 
                     if let Ok(reader) = inp.set_input() {
-                        let rind;
+                        match check_reader(reader_base, &reader, app, lang) {
+                            Some(rind) => {
+                                change_father_simple(
+                                    rind,
+                                    reader_base,
+                                    book_system,
+                                    genres,
+                                    caretaker,
+                                    app,
+                                    lang,
+                                );
+                            }
 
-                        match check_reader(reader_base, &reader, lang) {
-                            Ok(x) => rind = x,
-                            Err(_) => return,
+                            None => return,
                         }
-
-                        change_father_simple(
-                            rind,
-                            reader_base,
-                            book_system,
-                            genres,
-                            caretaker,
-                            app,
-                            lang,
-                        );
                     }
                 }
                 false => (),
@@ -251,7 +236,7 @@ pub fn change_age(
 ) {
     let (s2, r2) = app::channel();
 
-    let mut inp = Input4::<Input, Input, Input, Input>::new(
+    let mut inp = Input3::<Input, Input, Input>::new(
         match lang {
             Lang::English => "Change Age",
             Lang::Russian => "Изменить Возраст",
@@ -268,10 +253,6 @@ pub fn change_age(
             Lang::English => "Middle Name",
             Lang::Russian => "Отчество",
         },
-        match lang {
-            Lang::English => "Birth Date (D/M/Y)",
-            Lang::Russian => "Дата Рождения (Д/М/Г)",
-        },
     );
 
     inp.show();
@@ -284,22 +265,21 @@ pub fn change_age(
                     inp.hide();
 
                     if let Ok(reader) = inp.set_input() {
-                        let rind;
+                        match check_reader(reader_base, &reader, app, lang) {
+                            Some(rind) => {
+                                change_age_simple(
+                                    rind,
+                                    reader_base,
+                                    book_system,
+                                    genres,
+                                    caretaker,
+                                    app,
+                                    lang,
+                                );
+                            }
 
-                        match check_reader(reader_base, &reader, lang) {
-                            Ok(x) => rind = x,
-                            Err(_) => return,
+                            None => return,
                         }
-
-                        change_age_simple(
-                            rind,
-                            reader_base,
-                            book_system,
-                            genres,
-                            caretaker,
-                            app,
-                            lang,
-                        );
                     }
                 }
                 false => (),

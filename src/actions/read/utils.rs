@@ -1,12 +1,19 @@
+extern crate chrono;
 extern crate fltk;
+extern crate fltk_calendar;
 
-use fltk::dialog::alert;
+use fltk::{app, app::App, dialog::alert, prelude::*};
+
+use fltk_calendar::calendar::Calendar;
 
 use crate::{
     books::{book::Book, book_sys::BookSystem, date::Date},
     reading::read_base::ReaderBase,
+    restore::caretaker::Caretaker,
     Lang,
 };
+
+use chrono::Datelike;
 
 /// Function that checks if input was empty
 
@@ -43,16 +50,6 @@ pub(crate) fn empty_inp_reader(inp: &Vec<String>, lang: Lang) -> bool {
                 },
             );
             true
-        } else if inp.get_unchecked(3).is_empty() {
-            alert(
-                500,
-                500,
-                match lang {
-                    Lang::English => "'Date of Birth' is empty",
-                    Lang::Russian => "'Дата Рождения' пусто",
-                },
-            );
-            true
         } else {
             false
         };
@@ -67,113 +64,82 @@ pub(crate) fn empty_inp_reader(inp: &Vec<String>, lang: Lang) -> bool {
 pub(crate) fn check_reader(
     reader_base: &ReaderBase,
     reader: &Vec<String>,
+    app: &App,
     lang: Lang,
-) -> Result<usize, ()> {
-    let age;
-    let ind;
+) -> Option<usize> {
+    if empty_inp_reader(reader, lang) {
+        return None;
+    }
 
-    unsafe {
-        if empty_inp_reader(reader, lang) {
-            return Err(());
-        }
+    let mut win = fltk::window::SingleWindow::new(800, 500, 200, 100, "Choose birth date");
 
-        let it = reader.last().unwrap().split('/').collect::<Vec<_>>();
+    let _ = fltk::frame::Frame::new(
+        30,
+        10,
+        150,
+        50,
+        match lang {
+            Lang::English => "Choose birth date",
+            Lang::Russian => "Выберите дату рождения",
+        },
+    );
 
-        if it.len() != 3 {
-            alert(
-                500,
-                500,
-                match lang {
-                    Lang::English => "'Age' input error",
-                    Lang::Russian => "Ошибка ввода 'Возраста'",
-                },
-            );
-            return Err(());
-        }
+    let mut but = fltk::button::Button::new(
+        80,
+        60,
+        60,
+        20,
+        match lang {
+            Lang::English => "OK",
+            Lang::Russian => "ОК",
+        },
+    );
 
-        let mut it = it.into_iter();
+    win.end();
+    win.show();
 
-        match it.next().unwrap().trim().parse::<u8>() {
-            Ok(day) => match it.next().unwrap().trim().parse::<u8>() {
-                Ok(month) => match it.next().unwrap().trim().parse::<u16>() {
-                    Ok(year) => match Date::new(day, month, year) {
-                        Err(_) => {
+    let (sd, rd) = app::channel();
+    but.emit(sd, true);
+
+    while app.wait() {
+        if let Some(msg) = rd.recv() {
+            match msg {
+                true => {
+                    win.hide();
+
+                    let cal = Calendar::default();
+                    let date = cal.get_date();
+
+                    return match date {
+                        Some(date) => reader_base.find_reader(
+                            unsafe { &reader.get_unchecked(0) },
+                            unsafe { &reader.get_unchecked(1) },
+                            unsafe { &reader.get_unchecked(2) },
+                            Date::from(date),
+                        ),
+
+                        None => {
                             alert(
                                 500,
                                 500,
                                 match lang {
-                                    Lang::English => "Incorrect date",
-                                    Lang::Russian => "Некорректная дата",
+                                    Lang::English => "Date wasn't selected",
+                                    Lang::Russian => "Дата не была выбрана",
                                 },
                             );
-                            return Err(());
+                            None
                         }
-
-                        Ok(x) => age = x,
-                    },
-
-                    Err(_) => {
-                        alert(
-                            500,
-                            500,
-                            match lang {
-                                Lang::English => "'Age' input error",
-                                Lang::Russian => "Ошибка ввода 'Возраста'",
-                            },
-                        );
-                        return Err(());
-                    }
-                },
-
-                Err(_) => {
-                    alert(
-                        500,
-                        500,
-                        match lang {
-                            Lang::English => "'Age' input error",
-                            Lang::Russian => "Ошибка ввода 'Возраста'",
-                        },
-                    );
-                    return Err(());
+                    };
                 }
-            },
 
-            Err(_) => {
-                alert(
-                    500,
-                    500,
-                    match lang {
-                        Lang::English => "'Age' input error",
-                        Lang::Russian => "Ошибка ввода 'Возраста'",
-                    },
-                );
-                return Err(());
+                false => (),
             }
+        } else if !win.shown() {
+            return None;
         }
-
-        ind = reader_base.find_reader(
-            reader.get_unchecked(0),
-            reader.get_unchecked(1),
-            reader.get_unchecked(2),
-            age,
-        );
     }
 
-    return match ind {
-        None => {
-            alert(
-                500,
-                500,
-                match lang {
-                    Lang::English => "Reader isn't found",
-                    Lang::Russian => "Читатель не найден",
-                },
-            );
-            Err(())
-        }
-
-        Some(i) => Ok(i),
-    };
+    None
 }
 
 /// Function that returns index of simple book.

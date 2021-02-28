@@ -1,11 +1,13 @@
-pub mod input1;
-pub mod input2;
-pub mod input3;
-pub mod input4;
-
 extern crate fltk;
 use fltk::{prelude::*, window::SingleWindow};
 use std::{cell::RefCell, rc::Rc};
+
+pub mod input1;
+pub mod input2;
+pub mod input3;
+
+#[deprecated]
+mod input4;
 
 /// Trait for change messages.
 

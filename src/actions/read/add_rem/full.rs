@@ -1,15 +1,20 @@
+extern crate chrono;
 extern crate fltk;
+extern crate fltk_calendar;
 
 use fltk::{app, app::App, dialog::alert, input::Input, prelude::*};
+use fltk_calendar::calendar::Calendar;
 
 use crate::{
     actions::read::{add_rem::simple::*, utils::*},
     books::{book_sys::BookSystem, date::Date, genres::Genres},
-    change::{input4::Input4, Inputable},
+    change::{input3::Input3, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
     Lang,
 };
+
+use chrono::Datelike;
 
 /// Function that adds reader.
 /// If you have mistakes in input,
@@ -26,7 +31,7 @@ pub fn add_reader(
 ) {
     let (s2, r2) = app::channel();
 
-    let mut inp = Input4::<Input, Input, Input, Input>::new(
+    let mut inp = Input3::<Input, Input, Input>::new(
         match lang {
             Lang::English => "Add Reader",
             Lang::Russian => "Добавить читателя",
@@ -42,10 +47,6 @@ pub fn add_reader(
         match lang {
             Lang::English => "Middle Name",
             Lang::Russian => "Отчество",
-        },
-        match lang {
-            Lang::English => "Birth Date (D/M/Y)",
-            Lang::Russian => "Дата Рождения (Д/М/Г)",
         },
     );
 
@@ -66,114 +67,110 @@ pub fn add_reader(
                             return;
                         }
 
-                        let it = reader.last().unwrap().trim().split('/').collect::<Vec<_>>();
+                        let mut win = fltk::window::SingleWindow::new(
+                            800,
+                            500,
+                            200,
+                            100,
+                            "Choose birth date",
+                        );
 
-                        if it.len() != 3 {
-                            alert(
-                                500,
-                                500,
-                                match lang {
-                                    Lang::English => "Incorrect 'Birth Date' input",
-                                    Lang::Russian => "Некорректный ввод 'Даты Рождения'",
-                                },
-                            );
-                            caretaker.pop();
-                            return;
-                        }
+                        let _ = fltk::frame::Frame::new(
+                            30,
+                            10,
+                            150,
+                            50,
+                            match lang {
+                                Lang::English => "Choose birth date",
+                                Lang::Russian => "Выберите дату рождения",
+                            },
+                        );
 
-                        let mut it = it.into_iter();
+                        let mut but = fltk::button::Button::new(
+                            80,
+                            60,
+                            60,
+                            20,
+                            match lang {
+                                Lang::English => "OK",
+                                Lang::Russian => "ОК",
+                            },
+                        );
 
-                        unsafe {
-                            match it.next().unwrap().trim().parse::<u8>() {
-                                Ok(day) => match it.next().unwrap().trim().parse::<u8>() {
-                                    Ok(month) => match it.next().unwrap().trim().parse::<u16>() {
-                                        Ok(year) => match Date::new(day, month, year) {
-                                            Ok(date) => match reader_base.add_reader(
-                                                reader.get_unchecked(0).clone(),
-                                                reader.get_unchecked(1).clone(),
-                                                reader.get_unchecked(2).clone(),
-                                                date,
-                                            ) {
-                                                Ok(_) => {
-                                                    fltk::dialog::message(
-                                                        500,
-                                                        500,
-                                                        match lang {
-                                                            Lang::English => "Successfully added",
-                                                            Lang::Russian => "Успешно добавлено",
-                                                        },
-                                                    );
-                                                    reader_base.save();
+                        win.end();
+                        win.show();
+
+                        let (sd, rd) = app::channel();
+                        but.emit(sd, true);
+
+                        while app.wait() {
+                            if let Some(msg) = rd.recv() {
+                                match msg {
+                                    true => {
+                                        win.hide();
+
+                                        let cal = Calendar::default();
+                                        let date = cal.get_date();
+
+                                        match date {
+                                            Some(date) => {
+                                                match reader_base.add_reader(
+                                                    unsafe { reader.get_unchecked(0).clone() },
+                                                    unsafe { reader.get_unchecked(1).clone() },
+                                                    unsafe { reader.get_unchecked(2).clone() },
+                                                    Date::from(date),
+                                                ) {
+                                                    Ok(_) => {
+                                                        fltk::dialog::message(
+                                                            500,
+                                                            500,
+                                                            match lang {
+                                                                Lang::English => {
+                                                                    "Successfully added"
+                                                                }
+                                                                Lang::Russian => {
+                                                                    "Успешно добавлено"
+                                                                }
+                                                            },
+                                                        );
+                                                        reader_base.save();
+                                                    }
+
+                                                    Err(_) => {
+                                                        alert(
+                                                            500,
+                                                            500,
+                                                            match lang {
+                                                                Lang::English => "Reader with same parameters already exists",
+                                                                Lang::Russian => "Читатель с предложенными парамтрами уже существует",
+                                                            }
+                                                        );
+                                                        caretaker.pop();
+                                                        return;
+                                                    }
                                                 }
+                                            }
 
-                                                Err(_) => {
-                                                    alert(
-														500,
-														500,
-														match lang {
-															Lang::English => "Reader with same parameters already exists",
-															Lang::Russian => "Читатель с предложенными парамтрами уже существует",
-														}
-													);
-                                                    caretaker.pop();
-                                                    return;
-                                                }
-                                            },
-
-                                            Err(_) => {
+                                            None => {
                                                 alert(
                                                     500,
                                                     500,
                                                     match lang {
-                                                        Lang::English => "Incorrect date",
-                                                        Lang::Russian => "Некорректная дата",
+                                                        Lang::English => "Date wasn't selected",
+                                                        Lang::Russian => "Дата не была выбрана",
                                                     },
                                                 );
                                                 caretaker.pop();
                                                 return;
                                             }
-                                        },
-
-                                        Err(_) => {
-                                            alert(
-                                                500,
-                                                500,
-                                                match lang {
-                                                    Lang::English => "'Age' input error",
-                                                    Lang::Russian => "Ошибка ввода 'Возраста'",
-                                                },
-                                            );
-                                            caretaker.pop();
-                                            return;
                                         }
-                                    },
-
-                                    Err(_) => {
-                                        alert(
-                                            500,
-                                            500,
-                                            match lang {
-                                                Lang::English => "'Age' input error",
-                                                Lang::Russian => "Ошибка ввода 'Возраста'",
-                                            },
-                                        );
-                                        caretaker.pop();
-                                        return;
                                     }
-                                },
 
-                                Err(_) => {
-                                    alert(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "'Age' input error",
-                                            Lang::Russian => "Ошибка ввода 'Возраста'",
-                                        },
-                                    );
-                                    caretaker.pop();
-                                    return;
+                                    false => (),
                                 }
+                            } else if !win.shown() {
+                                caretaker.pop();
+                                return;
                             }
                         }
                     }
@@ -203,7 +200,7 @@ pub fn remove_reader(
 ) {
     let (s2, r2) = app::channel();
 
-    let mut inp = Input4::<Input, Input, Input, Input>::new(
+    let mut inp = Input3::<Input, Input, Input>::new(
         match lang {
             Lang::English => "Remove Reader",
             Lang::Russian => "Удалить читателя",
@@ -220,10 +217,6 @@ pub fn remove_reader(
             Lang::English => "Middle Name",
             Lang::Russian => "Отчество",
         },
-        match lang {
-            Lang::English => "Birth Date (D/M/Y)",
-            Lang::Russian => "Дата Рождения (Д/М/Г)",
-        },
     );
 
     inp.show();
@@ -237,21 +230,18 @@ pub fn remove_reader(
                     inp.hide();
 
                     if let Ok(reader) = rem_reader_params {
-                        let rind;
+                        match check_reader(reader_base, &reader, app, lang) {
+                            Some(rind) => remove_reader_simple(
+                                rind,
+                                reader_base,
+                                book_system,
+                                genres,
+                                caretaker,
+                                lang,
+                            ),
 
-                        match check_reader(reader_base, &reader, lang) {
-                            Ok(x) => rind = x,
-                            Err(_) => return,
+                            None => return,
                         }
-
-                        remove_reader_simple(
-                            rind,
-                            reader_base,
-                            book_system,
-                            genres,
-                            caretaker,
-                            lang,
-                        );
                     }
                 }
                 false => (),

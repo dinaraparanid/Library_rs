@@ -12,7 +12,7 @@ use std::{
 /// name, family, father, age, ~~simple~~ books he' d read
 /// and book which he is reading now (or None)
 
-pub(crate) struct Reader {
+pub struct Reader {
     pub(crate) name: String,
     pub(crate) family: String,
     pub(crate) father: String,

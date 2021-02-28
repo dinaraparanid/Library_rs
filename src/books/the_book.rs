@@ -18,7 +18,7 @@ use std::{
 /// Interface Book structure, which contains
 /// title, author, amount of pages, simple books and genres.yaml
 
-pub(crate) struct TheBook {
+pub struct TheBook {
     pub(crate) title: String,
     pub(crate) author: String,
     pub(crate) pages: u16,

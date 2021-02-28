@@ -3,7 +3,7 @@ extern crate fltk;
 use crate::{
     actions::{book::*, giveaway::simple::*, read::utils::check_reader},
     books::{book::Book, book_sys::BookSystem, date::Date, genres::Genres},
-    change::{input4::Input4, Inputable},
+    change::{input3::Input3, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
     Lang,
@@ -29,7 +29,7 @@ pub fn change_return_date(
     lang: Lang,
 ) {
     let (s, r) = fltk::app::channel();
-    let mut inp2 = Input4::<Input, Input, Input, Input>::new(
+    let mut inp2 = Input3::<Input, Input, Input>::new(
         match lang {
             Lang::English => "Find Reader",
             Lang::Russian => "Поиск Читателя",
@@ -46,10 +46,6 @@ pub fn change_return_date(
             Lang::English => "Middle Name",
             Lang::Russian => "Отчество",
         },
-        match lang {
-            Lang::English => "Birth Date (D/M/Y)",
-            Lang::Russian => "Дата Рождения (Д/М/Г)",
-        },
     );
 
     inp2.show();
@@ -62,8 +58,8 @@ pub fn change_return_date(
                     inp2.hide();
 
                     if let Ok(reader) = inp2.set_input() {
-                        match check_reader(reader_base, &reader, lang) {
-                            Ok(rind) => unsafe {
+                        match check_reader(reader_base, &reader, app, lang) {
+                            Some(rind) => unsafe {
                                 match &(**reader_base.readers.get_unchecked(rind)).borrow().reading
                                 {
                                     Some(book) => {
@@ -96,7 +92,7 @@ pub fn change_return_date(
                                 }
                             },
 
-                            Err(_) => {
+                            None => {
                                 caretaker.pop();
                                 return;
                             }
@@ -129,7 +125,7 @@ pub fn give_book(
     lang: Lang,
 ) {
     let (s2, r2) = fltk::app::channel();
-    let mut inp = Input4::<Input, Input, Input, Input>::new(
+    let mut inp = Input3::<Input, Input, Input>::new(
         match lang {
             Lang::English => "Find Reader",
             Lang::Russian => "Поиск Читателя",
@@ -146,10 +142,6 @@ pub fn give_book(
             Lang::English => "Middle Name",
             Lang::Russian => "Отчество",
         },
-        match lang {
-            Lang::English => "Birth Date (D/M/Y)",
-            Lang::Russian => "Дата Рождения (Д/М/Г)",
-        },
     );
 
     caretaker.add_memento(reader_base, book_system, genres);
@@ -164,8 +156,8 @@ pub fn give_book(
                     inp.hide();
 
                     if let Ok(reader) = inp.set_input() {
-                        match check_reader(reader_base, &reader, lang) {
-                            Ok(x) => {
+                        match check_reader(reader_base, &reader, app, lang) {
+                            Some(x) => {
                                 give_book_known_reader(
                                     x,
                                     reader_base,
@@ -177,7 +169,7 @@ pub fn give_book(
                                 );
                             }
 
-                            Err(_) => {
+                            None => {
                                 caretaker.pop();
                                 return;
                             }
@@ -210,7 +202,7 @@ pub fn get_book(
     lang: Lang,
 ) {
     let (s2, r2) = fltk::app::channel();
-    let mut inp = Input4::<Input, Input, Input, Input>::new(
+    let mut inp = Input3::<Input, Input, Input>::new(
         match lang {
             Lang::English => "Find Reader",
             Lang::Russian => "Поиск Читателя",
@@ -227,10 +219,6 @@ pub fn get_book(
             Lang::English => "Middle Name",
             Lang::Russian => "Отчество",
         },
-        match lang {
-            Lang::English => "Birth Date (D/M/Y)",
-            Lang::Russian => "Дата Рождения (Д/М/Г)",
-        },
     );
 
     caretaker.add_memento(reader_base, book_system, genres);
@@ -245,8 +233,8 @@ pub fn get_book(
                     inp.hide();
 
                     if let Ok(reader) = inp.set_input() {
-                        match check_reader(reader_base, &reader, lang) {
-                            Ok(x) => {
+                        match check_reader(reader_base, &reader, app, lang) {
+                            Some(x) => {
                                 get_book_known_reader(
                                     x,
                                     reader_base,
@@ -258,7 +246,7 @@ pub fn get_book(
                                 );
                             }
 
-                            Err(_) => {
+                            None => {
                                 caretaker.pop();
                                 return;
                             }
