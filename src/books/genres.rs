@@ -7,6 +7,7 @@ use std::{
     iter::FromIterator,
 };
 
+use std::collections::hash_set::Iter;
 use yaml_rust::{yaml::Array, Yaml, YamlEmitter, YamlLoader};
 
 /// All existing genres.yaml of books
@@ -99,6 +100,13 @@ impl Genres {
     #[inline]
     pub fn new() -> Self {
         Genres::default()
+    }
+
+    /// iterator over Genres
+
+    #[inline]
+    pub fn iter(&self) -> Iter<String> {
+        self.genres.iter()
     }
 
     /// Adds new genre to set.

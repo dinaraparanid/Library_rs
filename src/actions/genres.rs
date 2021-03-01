@@ -26,6 +26,7 @@ use fltk::{
     window::SingleWindow,
 };
 
+use self::fltk::tree::Tree;
 use std::{cell::RefCell, cmp::max, collections::HashSet, rc::Rc};
 
 /// Function that adds new genre.
@@ -354,19 +355,10 @@ pub fn customize_book_genre(
 }
 
 #[inline]
-pub(crate) fn find_by_genre_simple(genre: &String, book_system: &BookSystem, lang: Lang) {
-    let mut wind = SingleWindow::new(
-        500,
-        500,
-        300,
-        400,
-        match lang {
-            Lang::English => "Books with spec genre",
-            Lang::Russian => "Книги с искомым жанром",
-        },
-    );
-    let mut book_table = Table::new(0, 0, 300, 400, "");
-
+pub fn find_by_genre_simple(
+    genre: &String,
+    book_system: &BookSystem,
+) -> Vec<(String, String, u16)> {
     let mut find = vec![];
 
     book_system.books.iter().for_each(|x| {
@@ -386,40 +378,16 @@ pub(crate) fn find_by_genre_simple(genre: &String, book_system: &BookSystem, lan
         }
     });
 
-    book_table.set_rows(max(20, find.len() as u32));
-
-    book_table.set_cols(1);
-    book_table.set_col_width_all(300);
-    book_table.end();
-
-    book_table.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
-        table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
-
-        table::TableContext::Cell => {
-            let gen = cell_book3(row, &find, lang);
-            draw_data(
-                &format!("{}", gen),
-                x,
-                y,
-                w,
-                h,
-                t.is_selected(row, col),
-                None,
-            );
-        }
-
-        _ => (),
-    });
-
-    wind.end();
-    wind.show();
+    find
 }
 
+/// **DEPRECATED**
+///
 /// Function that shows
 /// all books with specific genre
 
-#[inline]
-pub fn find_by_genre(book_system: &BookSystem, app: &App, lang: Lang) {
+#[deprecated]
+fn find_by_genre(book_system: &BookSystem, app: &App, lang: Lang) {
     let (s, r) = app::channel();
     let mut inp = Input1::<Input>::new(
         match lang {
@@ -442,7 +410,64 @@ pub fn find_by_genre(book_system: &BookSystem, app: &App, lang: Lang) {
                     inp.hide();
 
                     if let Ok(genre) = inp.set_input() {
-                        find_by_genre_simple(genre.first().unwrap(), book_system, lang);
+                        let mut wind = SingleWindow::new(
+                            500,
+                            500,
+                            300,
+                            400,
+                            match lang {
+                                Lang::English => "Books with spec genre",
+                                Lang::Russian => "Книги с искомым жанром",
+                            },
+                        );
+
+                        let mut book_table = Table::new(0, 0, 300, 400, "");
+                        let mut find = vec![];
+
+                        book_system.books.iter().for_each(|x| {
+                            if (**x).borrow().genres.is_some()
+                                && (**x)
+                                    .borrow()
+                                    .genres
+                                    .as_ref()
+                                    .unwrap()
+                                    .contains(genre.first().unwrap().as_str())
+                            {
+                                find.push((
+                                    (**x).borrow().title.clone(),
+                                    (**x).borrow().author.clone(),
+                                    (**x).borrow().pages.clone(),
+                                ))
+                            }
+                        });
+
+                        book_table.set_rows(max(20, find.len() as u32));
+
+                        book_table.set_cols(1);
+                        book_table.set_col_width_all(300);
+                        book_table.end();
+
+                        book_table.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+                            table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
+
+                            table::TableContext::Cell => {
+                                let gen = cell_book3(row, &find, lang);
+                                draw_data(
+                                    &format!("{}", gen),
+                                    x,
+                                    y,
+                                    w,
+                                    h,
+                                    t.is_selected(row, col),
+                                    None,
+                                );
+                            }
+
+                            _ => (),
+                        });
+
+                        wind.end();
+                        wind.show();
                     }
                 }
                 false => (),
@@ -454,11 +479,8 @@ pub fn find_by_genre(book_system: &BookSystem, app: &App, lang: Lang) {
     }
 }
 
-/// Function that shows
-/// all books with specific genre
-
 #[inline]
-pub fn all_genres(genres: Rc<RefCell<Genres>>, book_system: &BookSystem, app: &App, lang: Lang) {
+pub fn all_genres(genres: &Genres, book_system: &BookSystem, lang: Lang) {
     let mut wind = SingleWindow::new(
         500,
         500,
@@ -470,53 +492,31 @@ pub fn all_genres(genres: Rc<RefCell<Genres>>, book_system: &BookSystem, app: &A
         },
     );
 
-    let mut tab = Table::new(0, 0, 300, 400, "");
-    tab.set_rows(max(20, (*genres).borrow().genres.len() as u32));
-    tab.set_cols(1);
-    tab.set_col_width_all(300);
-    tab.end();
+    let mut tree = Tree::new(0, 0, 300, 400, "");
+    tree.set_root_label("Genres");
 
-    let gen = genres.clone();
-
-    tab.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
-        table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
-
-        table::TableContext::Cell => {
-            let gen = cell_genre2(row, &*(*gen).borrow());
-            draw_data(
-                &format!("{}", gen),
-                x,
-                y,
-                w,
-                h,
-                t.is_selected(row, col),
-                None,
-            );
-        }
-
-        _ => (),
-    });
+    for g in genres.iter() {
+        tree.add(g.as_str());
+        find_by_genre_simple(g, book_system)
+            .into_iter()
+            .for_each(|b| {
+                tree.add(
+                    format!(
+                        "{}/{} {} ({} {})",
+                        g,
+                        b.0,
+                        b.1,
+                        b.2,
+                        match lang {
+                            Lang::English => "pages",
+                            Lang::Russian => "страниц",
+                        }
+                    )
+                    .as_str(),
+                );
+            })
+    }
 
     wind.end();
     wind.show();
-
-    while app.wait() {
-        if !wind.shown() {
-            return;
-        }
-
-        let len = (*genres).borrow().genres.len();
-
-        (0..len).for_each(|ind| {
-            if tab.is_selected(ind as i32, 0) {
-                find_by_genre_simple(
-                    (*genres).borrow().genres.iter().skip(ind).next().unwrap(),
-                    book_system,
-                    lang,
-                );
-                tab.unset_selection();
-                return;
-            }
-        });
-    }
 }

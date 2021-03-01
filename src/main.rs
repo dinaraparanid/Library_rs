@@ -75,7 +75,7 @@ enum Message {
     AddGenre,
     RemoveGenre,
     CustomizeBookGenre,
-    FindByGenre,
+    //FindByGenre,
     PrevData,
     NextData,
     English,
@@ -615,7 +615,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         Message::CustomizeBookGenre,
     );
 
-    menu.add_emit(
+    /*menu.add_emit(
         match lang {
             Lang::English => "&Books/Find books by genre\t",
             Lang::Russian => "&Книги/Найти книгу по жанру\t",
@@ -624,7 +624,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         MenuFlag::Normal,
         s,
         Message::FindByGenre,
-    );
+    );   */
 
     menu.add_emit(
         match lang {
@@ -918,7 +918,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
 
                 Message::ShowGenres => {
-                    all_genres(genres.clone(), &*(*book_system).borrow(), &app, lang)
+                    all_genres(&(*genres).borrow(), &*(*book_system).borrow(), lang)
                 }
 
                 Message::AddGenre => add_genre(
@@ -948,7 +948,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     lang,
                 ),
 
-                Message::FindByGenre => find_by_genre(&*(*book_system).borrow(), &app, lang),
+                // Message::FindByGenre => find_by_genre(&*(*book_system).borrow(), &app, lang),
 
                 Message::ShowAllBooks => show_all_books(book_system.clone(), lang),
 
