@@ -510,7 +510,6 @@ pub fn reader_info_simple(
                         book_system,
                         genres,
                         caretaker,
-                        app,
                         lang,
                     ) {
                         reading_frame.set_label(

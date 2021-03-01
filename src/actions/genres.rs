@@ -23,10 +23,10 @@ use fltk::{
     prelude::*,
     table,
     table::Table,
+    tree::{Tree, TreeItem},
     window::SingleWindow,
 };
 
-use self::fltk::tree::Tree;
 use std::{cell::RefCell, cmp::max, collections::HashSet, rc::Rc};
 
 /// Function that adds new genre.
@@ -480,15 +480,20 @@ fn find_by_genre(book_system: &BookSystem, app: &App, lang: Lang) {
 }
 
 #[inline]
-pub fn all_genres(genres: &Genres, book_system: &BookSystem, lang: Lang) {
+pub fn all_genres(
+    genres: &Genres,
+    book_system: &BookSystem,
+    app: &App,
+    lang: Lang,
+) -> Option<TreeItem> {
     let mut wind = SingleWindow::new(
         500,
         500,
         300,
         400,
         match lang {
-            Lang::English => "All Genres",
-            Lang::Russian => "Все Жанры",
+            Lang::English => "All Books with Genres",
+            Lang::Russian => "Все Книги с Жанрами",
         },
     );
 
@@ -502,7 +507,7 @@ pub fn all_genres(genres: &Genres, book_system: &BookSystem, lang: Lang) {
             .for_each(|b| {
                 tree.add(
                     format!(
-                        "{}/{} {} ({} {})",
+                        "{}/{} {} {} {}",
                         g,
                         b.0,
                         b.1,
@@ -517,6 +522,45 @@ pub fn all_genres(genres: &Genres, book_system: &BookSystem, lang: Lang) {
             })
     }
 
+    let no_genre = book_system
+        .iter()
+        .filter(|b| (***b).borrow().genres.is_none())
+        .map(|b| {
+            format!(
+                "{} {} {} {}",
+                (**b).borrow().title,
+                (**b).borrow().author,
+                (**b).borrow().pages,
+                match lang {
+                    Lang::English => "pages",
+                    Lang::Russian => "страниц",
+                }
+            )
+        })
+        .collect::<Vec<_>>();
+
+    if !no_genre.is_empty() {
+        tree.add("No Genres");
+
+        no_genre.into_iter().for_each(|b| {
+            tree.add(format!("No Genres/{}", b).as_str());
+        });
+    }
+
     wind.end();
     wind.show();
+
+    while app.wait() {
+        if let Some(item) = tree.set_item_clicked() {
+            if !item.has_children() {
+                return Some(item);
+            } else {
+                continue;
+            }
+        } else if !wind.shown() {
+            return None;
+        }
+    }
+
+    None
 }

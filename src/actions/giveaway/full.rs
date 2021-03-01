@@ -241,7 +241,6 @@ pub fn get_book(
                                     book_system,
                                     genres,
                                     caretaker,
-                                    app,
                                     lang,
                                 );
                             }

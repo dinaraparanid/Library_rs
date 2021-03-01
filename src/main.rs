@@ -918,7 +918,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
 
                 Message::ShowGenres => {
-                    all_genres(&(*genres).borrow(), &*(*book_system).borrow(), lang)
+                    all_genres(&(*genres).borrow(), &*(*book_system).borrow(), &app, lang);
                 }
 
                 Message::AddGenre => add_genre(

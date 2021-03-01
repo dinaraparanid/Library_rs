@@ -3,7 +3,7 @@ extern crate fltk;
 extern crate fltk_calendar;
 
 use crate::{
-    actions::book::utils::check_book,
+    actions::{book::utils::check_book, genres::all_genres},
     books::{book::Book, book_sys::BookSystem, date::Date, genres::Genres},
     change::{input3::Input3, Inputable},
     reading::read_base::ReaderBase,
@@ -17,6 +17,7 @@ use fltk::{
     dialog::alert,
     input::{Input, IntInput},
     prelude::*,
+    tree::TreeItem,
 };
 
 use chrono::Local;
@@ -26,6 +27,260 @@ use std::{cell::RefCell, rc::Weak};
 /// Gives book to known reader
 
 pub(crate) fn give_book_known_reader(
+    rind: usize,
+    reader_base: &mut ReaderBase,
+    book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+    lang: Lang,
+) -> Option<String> {
+    match all_genres(genres, book_system, app, lang) {
+        Some(book) => {
+            let label = book.label().unwrap();
+            let book = label
+                .trim()
+                .split(' ')
+                .take(3)
+                .map(|s| s.to_string())
+                .collect::<Vec<_>>();
+
+            if book.len() != 3 {
+                alert(
+                    500,
+                    500,
+                    match lang {
+                        Lang::English => "Book isn't selected",
+                        Lang::Russian => "Книга не выбрана",
+                    },
+                );
+                return None;
+            }
+
+            let mut book = book.into_iter();
+
+            match book_system.find_book(
+                &book.next().unwrap(),
+                &book.next().unwrap(),
+                book.next().unwrap().parse().unwrap(),
+            ) {
+                Some(bind) => {
+                    caretaker.add_memento(reader_base, book_system, genres);
+
+                    let mut win =
+                        fltk::window::SingleWindow::new(800, 500, 200, 100, "Choose birth date");
+
+                    let _ = fltk::frame::Frame::new(
+                        30,
+                        10,
+                        150,
+                        50,
+                        match lang {
+                            Lang::English => "Choose finish date",
+                            Lang::Russian => "Выберите срок сдачи",
+                        },
+                    );
+
+                    let mut but = fltk::button::Button::new(
+                        80,
+                        60,
+                        60,
+                        20,
+                        match lang {
+                            Lang::English => "OK",
+                            Lang::Russian => "ОК",
+                        },
+                    );
+
+                    win.end();
+                    win.show();
+
+                    let (sd, rd) = app::channel();
+                    but.emit(sd, true);
+
+                    while app.wait() {
+                        if let Some(msg) = rd.recv() {
+                            match msg {
+                                true => {
+                                    win.hide();
+
+                                    let cal = Calendar::default();
+                                    let date = cal.get_date();
+
+                                    return match date {
+                                        Some(date) => {
+                                            let date = Date::from(date);
+
+                                            if date < Date::from(chrono::Local::now()) {
+                                                alert(
+                                                    500,
+                                                    500,
+                                                    match lang {
+                                                        Lang::English => {
+                                                            "The deadline must be no later than the day of issue"
+                                                        }
+                                                        Lang::Russian => {
+                                                            "Дедлайн должен быть не позднее дня выдачи"
+                                                        }
+                                                    },
+                                                );
+                                                return None;
+                                            }
+
+                                            let simple_book = unsafe {
+                                                (*book_system.books.get_unchecked(bind))
+                                                    .borrow_mut()
+                                                    .get_unused()
+                                            };
+
+                                            match simple_book {
+                                                None => {
+                                                    alert(
+                                                        500,
+                                                        500,
+                                                        match lang {
+                                                            Lang::English => {
+                                                                "There are no free books"
+                                                            }
+                                                            Lang::Russian => {
+                                                                "Свободных книг не осталось"
+                                                            }
+                                                        },
+                                                    );
+                                                    caretaker.pop();
+                                                    None
+                                                }
+
+                                                Some(sim) => unsafe {
+                                                    if (**reader_base.readers.get_unchecked(rind))
+                                                        .borrow()
+                                                        .reading
+                                                        .is_some()
+                                                    {
+                                                        alert(
+                                                            500,
+                                                            500,
+                                                            match lang {
+                                                                Lang::English => {
+                                                                    "This reader is already reading book"
+                                                                }
+                                                                Lang::Russian => {
+                                                                    "Этот читатель уже читает книгу"
+                                                                }
+                                                            },
+                                                        );
+
+                                                        caretaker.pop();
+                                                        return None;
+                                                    }
+
+                                                    (*reader_base.readers.get_unchecked(rind))
+                                                        .borrow_mut()
+                                                        .start_reading(
+                                                            (*book_system
+                                                                .books
+                                                                .get_unchecked(bind))
+                                                            .borrow_mut()
+                                                            .books
+                                                            .get_unchecked(sim),
+                                                        );
+
+                                                    (*(*book_system.books.get_unchecked(bind))
+                                                        .borrow_mut()
+                                                        .books
+                                                        .get_unchecked(sim))
+                                                    .borrow_mut()
+                                                    .start_reading(
+                                                        reader_base.readers.get_unchecked(rind),
+                                                        date,
+                                                    );
+
+                                                    fltk::dialog::message(
+                                                        500,
+                                                        500,
+                                                        match lang {
+                                                            Lang::English => {
+                                                                "Book successfully given to reader"
+                                                            }
+                                                            Lang::Russian => {
+                                                                "Книга успешно выдана читателю"
+                                                            }
+                                                        },
+                                                    );
+
+                                                    book_system.save();
+                                                    reader_base.save();
+
+                                                    Some(
+                                                        (*reader_base
+                                                            .readers
+                                                            .get_unchecked(rind)
+                                                            .borrow()
+                                                            .reading
+                                                            .as_ref()
+                                                            .unwrap()
+                                                            .upgrade()
+                                                            .unwrap())
+                                                        .borrow()
+                                                        .to_string(book_system),
+                                                    )
+                                                },
+                                            }
+                                        }
+
+                                        None => {
+                                            alert(
+                                                500,
+                                                500,
+                                                match lang {
+                                                    Lang::English => "Date wasn't selected",
+                                                    Lang::Russian => "Дата не была выбрана",
+                                                },
+                                            );
+                                            caretaker.pop();
+                                            None
+                                        }
+                                    };
+                                }
+
+                                false => (),
+                            }
+                        } else if !win.shown() {
+                            caretaker.pop();
+                            return None;
+                        }
+                    }
+                }
+
+                None => {
+                    alert(
+                        500,
+                        500,
+                        match lang {
+                            Lang::English => "Book isn't selected",
+                            Lang::Russian => "Книга не выбрана",
+                        },
+                    );
+                    return None;
+                }
+            }
+        }
+
+        None => {
+            alert(500, 500, "Book wasn't selected");
+            return None;
+        }
+    }
+
+    None
+}
+
+/// **DEPRECATED**
+///
+/// Gives book to known reader (user input version)
+
+#[deprecated]
+fn give_book_known_reader_input(
     rind: usize,
     reader_base: &mut ReaderBase,
     book_system: &mut BookSystem,
@@ -275,6 +530,126 @@ pub(crate) fn give_book_known_reader(
 
 #[inline]
 pub(crate) fn get_book_known_reader(
+    rind: usize,
+    reader_base: &mut ReaderBase,
+    book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    lang: Lang,
+) -> Option<()> {
+    return match reader_base.get_book(rind) {
+        Some(book) => {
+            caretaker.add_memento(reader_base, book_system, genres);
+
+            let book = {
+                (*book.upgrade().unwrap())
+                    .borrow()
+                    .the_book
+                    .as_ref()
+                    .unwrap()
+                    .upgrade()
+                    .unwrap()
+            };
+
+            let bind = book_system
+                .books
+                .iter()
+                .position(|b| b.as_ptr() == book.as_ptr())
+                .unwrap();
+
+            let sim;
+
+            unsafe {
+                sim = (*book_system.books.get_unchecked(bind))
+                    .borrow_mut()
+                    .find_by_reader(reader_base.readers.get_unchecked(rind))
+                    .unwrap();
+
+                (*reader_base.readers.get_unchecked_mut(rind))
+                    .borrow_mut()
+                    .finish_reading();
+
+                match (*(*book_system.books.get_unchecked(bind))
+                    .borrow_mut()
+                    .books
+                    .get_unchecked(sim))
+                .borrow_mut()
+                .finish_reading()
+                {
+                    Ok(_) => fltk::dialog::message(
+                        500,
+                        500,
+                        match lang {
+                            Lang::English => "Book is returned",
+                            Lang::Russian => "Книга возвращена",
+                        },
+                    ),
+
+                    Err(_) => fltk::dialog::message(
+                        500,
+                        500,
+                        match lang {
+                            Lang::English => "Book is returned after deadline",
+                            Lang::Russian => "Книга возвращена после дедлайна",
+                        },
+                    ),
+                }
+            }
+
+            let cab = unsafe {
+                (*(*book_system.books.get_unchecked(bind))
+                    .borrow()
+                    .books
+                    .get_unchecked(sim))
+                .borrow()
+                .cabinet
+            };
+
+            let shelf = unsafe {
+                (*(*book_system.books.get_unchecked(bind))
+                    .borrow()
+                    .books
+                    .get_unchecked(sim))
+                .borrow()
+                .shelf
+            };
+
+            fltk::dialog::message(
+                500,
+                500,
+                match lang {
+                    Lang::English => format!("Book location: cabinet {}, shelf {}", cab, shelf),
+                    Lang::Russian => format!("Расположение книги: шкаф {}, полка {}", cab, shelf),
+                }
+                .as_str(),
+            );
+
+            book_system.save();
+            reader_base.save();
+            Some(())
+        }
+
+        None => {
+            alert(
+                500,
+                500,
+                match lang {
+                    Lang::English => "This reader wasn't reading searching book",
+                    Lang::Russian => "Этот читатель не читает искомую книгу",
+                },
+            );
+
+            None
+        }
+    };
+}
+
+/// **DEPRECATED**
+///
+/// Gets book from known reader (user input version)
+
+#[deprecated]
+fn get_book_known_reader_input(
     rind: usize,
     reader_base: &mut ReaderBase,
     book_system: &mut BookSystem,
