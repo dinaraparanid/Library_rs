@@ -501,7 +501,7 @@ pub fn all_genres(
     tree.set_root_label("Genres");
 
     for g in genres.iter() {
-        tree.add(g.as_str());
+        tree.add(g.as_str()).unwrap();
         find_by_genre_simple(g, book_system)
             .into_iter()
             .for_each(|b| {
@@ -518,7 +518,8 @@ pub fn all_genres(
                         }
                     )
                     .as_str(),
-                );
+                )
+                .unwrap();
             })
     }
 
@@ -540,10 +541,10 @@ pub fn all_genres(
         .collect::<Vec<_>>();
 
     if !no_genre.is_empty() {
-        tree.add("No Genres");
+        tree.add("No Genres").unwrap();
 
         no_genre.into_iter().for_each(|b| {
-            tree.add(format!("No Genres/{}", b).as_str());
+            tree.add(format!("No Genres/{}", b).as_str()).unwrap();
         });
     }
 

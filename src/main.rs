@@ -72,6 +72,7 @@ enum Message {
     ChangeReturnDate,
     ShowAllBooks,
     ShowGenres,
+    ShowAuthor,
     AddGenre,
     RemoveGenre,
     CustomizeBookGenre,
@@ -573,6 +574,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     menu.add_emit(
         match lang {
+            Lang::English => "&Books/All authors\t",
+            Lang::Russian => "&Книги/Все авторы\t",
+        },
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        Message::ShowAuthor,
+    );
+
+    menu.add_emit(
+        match lang {
             Lang::English => "&Books/All genres\t",
             Lang::Russian => "&Книги/Все жанры\t",
         },
@@ -916,6 +928,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                     book_info(&(*book_system).borrow(), &app, lang);
                     table.redraw();
                 }
+
+                Message::ShowAuthor => show_all_authors(&(*book_system).borrow(), lang),
 
                 Message::ShowGenres => {
                     all_genres(&(*genres).borrow(), &*(*book_system).borrow(), &app, lang);

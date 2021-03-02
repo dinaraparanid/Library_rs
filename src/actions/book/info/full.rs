@@ -21,10 +21,11 @@ use fltk::{
     prelude::*,
     table,
     table::Table,
+    tree::Tree,
     window::SingleWindow,
 };
 
-use std::{cell::RefCell, cmp::max, rc::Rc};
+use std::{cell::RefCell, cmp::max, collections::BTreeMap, rc::Rc};
 
 /// Function that gives all information about TheBook:
 /// title, author, pages, amount of simple books.
@@ -293,6 +294,52 @@ pub fn show_all_books(book_system: Rc<RefCell<BookSystem>>, lang: Lang) {
         ),
 
         _ => (),
+    });
+
+    wind.end();
+    wind.show();
+}
+
+#[inline]
+pub fn show_all_authors(book_system: &BookSystem, lang: Lang) {
+    let mut wind = SingleWindow::new(
+        500,
+        500,
+        300,
+        400,
+        match lang {
+            Lang::English => "All Books with Genres",
+            Lang::Russian => "Все Книги с Жанрами",
+        },
+    );
+
+    let mut tree = Tree::new(0, 0, 300, 400, "");
+    tree.set_root_label("Authors");
+
+    let mut authors = BTreeMap::new();
+
+    book_system.iter().for_each(|b| {
+        authors
+            .entry((**b).borrow().author.clone())
+            .or_insert(vec![])
+            .push(format!(
+                "{}, {} {}",
+                (**b).borrow().title,
+                (**b).borrow().pages,
+                match lang {
+                    Lang::English => "pages",
+                    Lang::Russian => "страниц",
+                }
+            ));
+    });
+
+    authors.into_iter().for_each(|p| {
+        let author = p.0;
+        tree.add(author.as_str()).unwrap();
+
+        p.1.into_iter().for_each(|b| {
+            tree.add(format!("{}/{}", author, b).as_str()).unwrap();
+        });
     });
 
     wind.end();
