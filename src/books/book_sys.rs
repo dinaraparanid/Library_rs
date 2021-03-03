@@ -410,17 +410,14 @@ impl BookSystem {
                     }
 
                     Ok(shelf) => {
-                        if t_ind > self.books.len() || t_ind == 0 {
-                            return Err(2); // index out of range (the book)
-                        } else if s_ind
-                            > unsafe {
-                                (**self.books.get_unchecked(t_ind - 1)).borrow().books.len()
-                            }
+                        if s_ind
+                            > unsafe { (**self.books.get_unchecked(t_ind)).borrow().books.len() }
+                            || s_ind == 0
                         {
-                            return Err(3); // index out of range (book)
+                            return Err(2); // index out of range (book)
                         } else {
                             Ok(unsafe {
-                                self.change_location_unchecked(t_ind - 1, s_ind - 1, cab, shelf)
+                                self.change_location_unchecked(t_ind, s_ind - 1, cab, shelf)
                             })
                         }
                     }

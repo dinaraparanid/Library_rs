@@ -27,7 +27,7 @@ pub(crate) fn change_title_simple(
     caretaker: &mut Caretaker,
     app: &App,
     lang: Lang,
-) {
+) -> Option<String> {
     let (s3, r3) = app::channel();
     let mut get_title = Input1::<Input>::new(
         match lang {
@@ -53,7 +53,7 @@ pub(crate) fn change_title_simple(
 
                     if let Ok(mut new_title) = get_title.set_input() {
                         unsafe {
-                            if new_title.get_unchecked(0).is_empty() {
+                            return if new_title.get_unchecked(0).is_empty() {
                                 alert(
                                     500,
                                     500,
@@ -63,9 +63,11 @@ pub(crate) fn change_title_simple(
                                     },
                                 );
                                 caretaker.pop();
-                                return;
+                                None
                             } else {
-                                match book_system.change_title(ind, new_title.pop().unwrap()) {
+                                match book_system
+                                    .change_title(ind, new_title.first().unwrap().clone())
+                                {
                                     Ok(_) => {
                                         fltk::dialog::message(
                                             500,
@@ -78,19 +80,19 @@ pub(crate) fn change_title_simple(
 
                                         book_system.save();
                                         reader_base.save();
-                                        return;
+                                        Some(new_title.pop().unwrap())
                                     }
 
                                     Err(_) => {
                                         alert(500, 500, match lang {
-											Lang::English => "Book with same parameters already exists",
-											Lang::Russian => "Книга с предложенными параметрами уже сущетвует",
-										});
+                                            Lang::English => "Book with same parameters already exists",
+                                            Lang::Russian => "Книга с предложенными параметрами уже сущетвует",
+                                        });
                                         caretaker.pop();
-                                        return;
+                                        None
                                     }
                                 }
-                            }
+                            };
                         }
                     }
                 }
@@ -99,9 +101,11 @@ pub(crate) fn change_title_simple(
             }
         } else if !get_title.shown() {
             caretaker.pop();
-            return;
+            return None;
         }
     }
+
+    None
 }
 
 /// Changing author of already known book
@@ -115,7 +119,7 @@ pub(crate) fn change_author_simple(
     caretaker: &mut Caretaker,
     app: &App,
     lang: Lang,
-) {
+) -> Option<String> {
     let (s3, r3) = app::channel();
     let mut get_author = Input1::<Input>::new(
         match lang {
@@ -141,7 +145,7 @@ pub(crate) fn change_author_simple(
 
                     if let Ok(mut new_author) = get_author.set_input() {
                         unsafe {
-                            if new_author.get_unchecked(0).is_empty() {
+                            return if new_author.get_unchecked(0).is_empty() {
                                 alert(
                                     500,
                                     500,
@@ -151,9 +155,11 @@ pub(crate) fn change_author_simple(
                                     },
                                 );
                                 caretaker.pop();
-                                return;
+                                None
                             } else {
-                                match book_system.change_author(ind, new_author.pop().unwrap()) {
+                                match book_system
+                                    .change_author(ind, new_author.first().unwrap().clone())
+                                {
                                     Ok(_) => {
                                         fltk::dialog::message(
                                             500,
@@ -166,19 +172,19 @@ pub(crate) fn change_author_simple(
 
                                         book_system.save();
                                         reader_base.save();
-                                        return;
+                                        Some(new_author.pop().unwrap())
                                     }
 
                                     Err(_) => {
                                         alert(500, 500, match lang {
-											Lang::English => "Book with same parameters already exists",
-											Lang::Russian => "Книга с предложенными параметрами уже существует",
-										});
+                                            Lang::English => "Book with same parameters already exists",
+                                            Lang::Russian => "Книга с предложенными параметрами уже существует",
+                                        });
                                         caretaker.pop();
-                                        return;
+                                        None
                                     }
                                 }
-                            }
+                            };
                         }
                     }
                 }
@@ -187,9 +193,11 @@ pub(crate) fn change_author_simple(
             }
         } else if !get_author.shown() {
             caretaker.pop();
-            return;
+            return None;
         }
     }
+
+    None
 }
 
 /// Changing amount of pages of already known book
@@ -203,7 +211,7 @@ pub(crate) fn change_pages_simple(
     caretaker: &mut Caretaker,
     app: &App,
     lang: Lang,
-) {
+) -> Option<String> {
     let (s3, r3) = app::channel();
     let mut get_pages = Input1::<IntInput>::new(
         match lang {
@@ -229,7 +237,7 @@ pub(crate) fn change_pages_simple(
 
                     if let Ok(mut new_pages) = get_pages.set_input() {
                         unsafe {
-                            if new_pages.get_unchecked(0).is_empty() {
+                            return if new_pages.get_unchecked(0).is_empty() {
                                 alert(
                                     500,
                                     500,
@@ -239,9 +247,11 @@ pub(crate) fn change_pages_simple(
                                     },
                                 );
                                 caretaker.pop();
-                                return;
+                                None
                             } else {
-                                match book_system.change_pages(ind, new_pages.pop().unwrap()) {
+                                match book_system
+                                    .change_pages(ind, new_pages.first().unwrap().clone())
+                                {
                                     Ok(_) => {
                                         fltk::dialog::message(
                                             500,
@@ -254,28 +264,28 @@ pub(crate) fn change_pages_simple(
 
                                         book_system.save();
                                         reader_base.save();
-                                        return;
+                                        Some(new_pages.pop().unwrap())
                                     }
 
                                     Err(0) => {
                                         alert(500, 500, match lang {
-											Lang::English => "'New amount of pages' input error",
-											Lang::Russian => "Некорректный ввод для 'Нового количества странциц'",
-										});
+                                            Lang::English => "'New amount of pages' input error",
+                                            Lang::Russian => "Некорректный ввод для 'Нового количества странциц'",
+                                        });
                                         caretaker.pop();
-                                        return;
+                                        None
                                     }
 
                                     Err(_) => {
                                         alert(500, 500, match lang {
-											Lang::English => "Book with same parameters already exists",
-											Lang::Russian => "Книга с предложенными параметрами уже существует",
-										});
+                                            Lang::English => "Book with same parameters already exists",
+                                            Lang::Russian => "Книга с предложенными параметрами уже существует",
+                                        });
                                         caretaker.pop();
-                                        return;
+                                        None
                                     }
                                 }
-                            }
+                            };
                         }
                     }
                 }
@@ -284,9 +294,11 @@ pub(crate) fn change_pages_simple(
             }
         } else if !get_pages.shown() {
             caretaker.pop();
-            return;
+            return None;
         }
     }
+
+    None
 }
 
 #[inline]
@@ -393,19 +405,6 @@ pub(crate) fn change_location_simple(
                                             match lang {
                                                 Lang::English => "'New shelf' input error",
                                                 Lang::Russian => "Ошибка ввода 'Новой полки'",
-                                            },
-                                        );
-                                        caretaker.pop();
-                                        return;
-                                    }
-
-                                    Err(2) => {
-                                        alert(
-                                            500,
-                                            500,
-                                            match lang {
-                                                Lang::English => "Book is not found",
-                                                Lang::Russian => "Книга не найдена",
                                             },
                                         );
                                         caretaker.pop();

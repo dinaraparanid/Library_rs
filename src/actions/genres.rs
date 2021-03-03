@@ -498,7 +498,10 @@ pub fn all_genres(
     );
 
     let mut tree = Tree::new(0, 0, 300, 400, "");
-    tree.set_root_label("Genres");
+    tree.set_root_label(match lang {
+        Lang::English => "Genres",
+        Lang::Russian => "Жанры",
+    });
 
     for g in genres.iter() {
         tree.add(g.as_str()).unwrap();

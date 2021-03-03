@@ -325,33 +325,9 @@ impl ReaderBase {
     /// it will report error
 
     #[inline]
-    pub(crate) fn change_age(&mut self, ind: usize, new_birth: Vec<String>) -> ResultSelf<Self> {
-        let new_birth_num;
-
-        unsafe {
-            match new_birth.get_unchecked(0).trim().parse::<u8>() {
-                Err(_) => return Err(0), // day parse error
-                Ok(day) => {
-                    match new_birth.get_unchecked(1).trim().parse::<u8>() {
-                        Err(_) => return Err(1), // month parse error
-                        Ok(month) => {
-                            match new_birth.get_unchecked(2).trim().parse::<u16>() {
-                                Err(_) => return Err(2), // year parse error
-                                Ok(year) => {
-                                    match Date::new(day, month, year) {
-                                        Err(_) => return Err(3), // incorrect date
-                                        Ok(date) => new_birth_num = date,
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
+    pub(crate) fn change_age(&mut self, ind: usize, new_birth: Date) -> ResultSelf<Self> {
         return if ind >= self.readers.len() {
-            Err(1) // out of range
+            Err(0) // out of range
         } else {
             unsafe {
                 if self
@@ -359,13 +335,13 @@ impl ReaderBase {
                         &RefCell::borrow(&(**self.readers.get_unchecked(ind))).name,
                         &RefCell::borrow(&(**self.readers.get_unchecked(ind))).family,
                         &RefCell::borrow(&(**self.readers.get_unchecked(ind))).father,
-                        new_birth_num,
+                        new_birth,
                     )
                     .is_some()
                 {
-                    Err(2) // already exists
+                    Err(1) // already exists
                 } else {
-                    Ok(self.change_age_unchecked(ind, new_birth_num))
+                    Ok(self.change_age_unchecked(ind, new_birth))
                 }
             }
         };

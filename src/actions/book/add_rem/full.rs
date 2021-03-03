@@ -74,15 +74,17 @@ pub fn add_books(
                                     books.get_unchecked(1),
                                     x,
                                 ) {
-                                    Some(i) => add_books_simple(
-                                        i,
-                                        book_system,
-                                        reader_base,
-                                        genres,
-                                        caretaker,
-                                        app,
-                                        lang,
-                                    ),
+                                    Some(i) => {
+                                        add_books_simple(
+                                            i,
+                                            book_system,
+                                            reader_base,
+                                            genres,
+                                            caretaker,
+                                            app,
+                                            lang,
+                                        );
+                                    }
                                     None => add_book_simple(book_system, &books, app, lang),
                                 },
 

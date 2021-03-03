@@ -311,6 +311,8 @@ pub fn change_location(
                                         }
                                         false => (),
                                     }
+                                } else if !inp2.shown() {
+                                    break;
                                 }
                             }
                         }

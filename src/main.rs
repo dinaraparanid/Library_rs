@@ -76,7 +76,6 @@ enum Message {
     AddGenre,
     RemoveGenre,
     CustomizeBookGenre,
-    //FindByGenre,
     PrevData,
     NextData,
     English,
@@ -574,8 +573,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     menu.add_emit(
         match lang {
-            Lang::English => "&Books/All authors\t",
-            Lang::Russian => "&Книги/Все авторы\t",
+            Lang::English => "&Books/List of all books by authors\t",
+            Lang::Russian => "&Книги/Список всех книг по авторам\t",
         },
         Shortcut::empty(),
         MenuFlag::Normal,
@@ -585,8 +584,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     menu.add_emit(
         match lang {
-            Lang::English => "&Books/All genres\t",
-            Lang::Russian => "&Книги/Все жанры\t",
+            Lang::English => "&Books/List of all books by genres\t",
+            Lang::Russian => "&Книги/Список всех книг по жанрам\t",
         },
         Shortcut::empty(),
         MenuFlag::Normal,
@@ -626,17 +625,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         s,
         Message::CustomizeBookGenre,
     );
-
-    /*menu.add_emit(
-        match lang {
-            Lang::English => "&Books/Find books by genre\t",
-            Lang::Russian => "&Книги/Найти книгу по жанру\t",
-        },
-        Shortcut::empty(),
-        MenuFlag::Normal,
-        s,
-        Message::FindByGenre,
-    );   */
 
     menu.add_emit(
         match lang {
@@ -962,9 +950,14 @@ fn main() -> Result<(), Box<dyn Error>> {
                     lang,
                 ),
 
-                // Message::FindByGenre => find_by_genre(&*(*book_system).borrow(), &app, lang),
-
-                Message::ShowAllBooks => show_all_books(book_system.clone(), lang),
+                Message::ShowAllBooks => show_all_books(
+                    book_system.clone(),
+                    &mut (*reader_base).borrow_mut(),
+                    &(*genres).borrow(),
+                    &mut (*caretaker).borrow_mut(),
+                    &app,
+                    lang
+                ),
 
                 Message::GiveBook => {
                     give_book(

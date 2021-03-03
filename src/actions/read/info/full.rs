@@ -73,7 +73,9 @@ pub fn reader_info(
                     inp.hide();
 
                     if let Ok(reader) = inp.set_input() {
-                        match check_reader(&*(*reader_base).borrow(), &reader, app, lang) {
+                        let check = check_reader(&*(*reader_base).borrow(), &reader, app, lang);
+
+                        match check {
                             Some(ind) => reader_info_simple(
                                 ind,
                                 &mut *(*reader_base).borrow_mut(),

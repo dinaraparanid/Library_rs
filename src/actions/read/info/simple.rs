@@ -89,7 +89,7 @@ pub fn reader_info_simple(
                 "{}: {}",
                 match lang {
                     Lang::English => "First Name",
-                    Lang::Russian => "Имя",
+                    Lang::Russian => "\t\tИмя",
                 },
                 (*reader_base.readers.get_unchecked(ind)).borrow().name
             )
@@ -105,7 +105,7 @@ pub fn reader_info_simple(
                 "{}: {}",
                 match lang {
                     Lang::English => "Second Name",
-                    Lang::Russian => "Фамилия",
+                    Lang::Russian => "\t\tФамилия",
                 },
                 (*reader_base.readers.get_unchecked(ind)).borrow().family
             )
@@ -121,7 +121,7 @@ pub fn reader_info_simple(
                 "{}: {}",
                 match lang {
                     Lang::English => "Middle Name",
-                    Lang::Russian => "Отчество",
+                    Lang::Russian => "\t\tОтчество",
                 },
                 (*reader_base.readers.get_unchecked(ind)).borrow().father
             )
@@ -137,7 +137,7 @@ pub fn reader_info_simple(
                 "{}: {}",
                 match lang {
                     Lang::English => "Age",
-                    Lang::Russian => "Возраст",
+                    Lang::Russian => "\t\tВозраст",
                 },
                 (*reader_base.readers.get_unchecked(ind)).borrow().age()
             )
@@ -223,7 +223,7 @@ pub fn reader_info_simple(
     let mut menu = MenuBar::new(
         0,
         0,
-        240 + match lang {
+        255 + match lang {
             Lang::English => 0,
             Lang::Russian => 40,
         },
@@ -303,7 +303,7 @@ pub fn reader_info_simple(
     menu.add_emit(
         match lang {
             Lang::English => "&Remove reader\t",
-            Lang::Russian => "&Удалить читателя\t",
+            Lang::Russian => "&Удалить читателя",
         },
         Shortcut::empty(),
         MenuFlag::Normal,
@@ -536,9 +536,7 @@ pub fn reader_info_simple(
                     return;
                 }
             }
-        }
-
-        if !wind.shown() {
+        } else if !wind.shown() {
             return;
         }
 

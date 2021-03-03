@@ -1,7 +1,8 @@
 extern crate fltk;
+extern crate fltk_calendar;
 
 use crate::{
-    books::{book_sys::BookSystem, genres::Genres},
+    books::{book_sys::BookSystem, date::Date, genres::Genres},
     change::{input1::Input1, input3::Input3, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
@@ -15,6 +16,8 @@ use fltk::{
     input::{Input, IntInput},
     prelude::*,
 };
+
+use fltk_calendar::calendar::Calendar;
 
 /// Change name of already known reader
 
@@ -352,128 +355,115 @@ pub(crate) fn change_age_simple(
     app: &App,
     lang: Lang,
 ) -> Option<u16> {
-    let (s3, r3) = app::channel();
-    let mut get_age = Input3::<IntInput, IntInput, IntInput>::new(
+    caretaker.add_memento(reader_base, book_system, genres);
+
+    let mut win = fltk::window::SingleWindow::new(800, 500, 200, 100, "Choose birth date");
+
+    let _ = fltk::frame::Frame::new(
+        30,
+        10,
+        150,
+        50,
         match lang {
-            Lang::English => "Change Age",
-            Lang::Russian => "Изменить Возраст",
-        },
-        match lang {
-            Lang::English => "New Birth Day",
-            Lang::Russian => "Новый День Рождения",
-        },
-        match lang {
-            Lang::English => "New Birth Month",
-            Lang::Russian => "Новый Месяц Рождения",
-        },
-        match lang {
-            Lang::English => "New Birth Year",
-            Lang::Russian => "Новый Год Рождения",
+            Lang::English => "Choose birth date",
+            Lang::Russian => "Выберите дату рождения",
         },
     );
 
-    caretaker.add_memento(reader_base, book_system, genres);
+    let mut but = fltk::button::Button::new(
+        80,
+        60,
+        60,
+        20,
+        match lang {
+            Lang::English => "OK",
+            Lang::Russian => "ОК",
+        },
+    );
 
-    get_age.show();
-    (*get_age.ok).borrow_mut().emit(s3, true);
+    win.end();
+    win.show();
+
+    let (sd, rd) = app::channel();
+    but.emit(sd, true);
 
     while app.wait() {
-        if let Some(mes) = r3.recv() {
-            match mes {
+        if let Some(msg) = rd.recv() {
+            match msg {
                 true => {
-                    get_age.hide();
+                    win.hide();
 
-                    if let Ok(new_age) = get_age.set_input() {
-                        unsafe {
-                            if new_age.get_unchecked(0).is_empty() {
-                                alert(
+                    let cal = Calendar::default();
+                    let date = cal.get_date();
+
+                    return match date {
+                        Some(date) => match reader_base.change_age(ind, Date::from(date)) {
+                            Ok(_) => {
+                                fltk::dialog::message(
                                     500,
                                     500,
                                     match lang {
-                                        Lang::English => "'New Birth Day' is empty",
-                                        Lang::Russian => "'Новый День Рождения' пусто",
+                                        Lang::English => "Successfully changed",
+                                        Lang::Russian => "Успешно изменено",
                                     },
                                 );
-                                caretaker.pop();
-                                return None;
-                            }
 
-                            if new_age.get_unchecked(1).is_empty() {
-                                alert(
-                                    500,
-                                    500,
-                                    match lang {
-                                        Lang::English => "'New Birth Month' is empty",
-                                        Lang::Russian => "'Новый Месяц Рождения' пусто",
-                                    },
-                                );
-                                caretaker.pop();
-                                return None;
-                            }
+                                reader_base.save();
+                                book_system.save();
 
-                            if new_age.get_unchecked(2).is_empty() {
-                                alert(
-                                    500,
-                                    500,
-                                    match lang {
-                                        Lang::English => "'New Birth Year' is empty",
-                                        Lang::Russian => "'Новый Год Рождения' пусто",
-                                    },
-                                );
-                                caretaker.pop();
-                                return None;
-                            }
-
-                            return match reader_base.change_age(ind, new_age) {
-                                Ok(_) => {
-                                    fltk::dialog::message(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "Successfully changed",
-                                            Lang::Russian => "Успешно изменено",
-                                        },
-                                    );
-
-                                    reader_base.save();
-                                    book_system.save();
+                                unsafe {
                                     Some((**reader_base.readers.get_unchecked(ind)).borrow().age())
                                 }
+                            }
 
-                                Err(0) => {
-                                    alert(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "'New Age' input error",
-                                            Lang::Russian => "Ошибка ввода 'Нового возраста'",
-                                        },
-                                    );
-                                    caretaker.pop();
-                                    None
-                                }
+                            Err(0) => {
+                                alert(
+                                    500,
+                                    500,
+                                    match lang {
+                                        Lang::English => "Reader isn't found",
+                                        Lang::Russian => "Читатель не найден",
+                                    },
+                                );
+                                caretaker.pop();
+                                None
+                            }
 
-                                Err(_) => {
-                                    alert(
-										500,
-										500,
-										match lang {
-											Lang::English => "Reader with same parameters already exists",
-											Lang::Russian => "Читатель с предложенными параметрами уже существует",
-										}
-									);
-                                    caretaker.pop();
-                                    None
-                                }
-                            };
+                            Err(_) => {
+                                alert(
+                                    500,
+                                    500,
+                                    match lang {
+                                        Lang::English => {
+                                            "Reader with same parameters already exists"
+                                        }
+                                        Lang::Russian => {
+                                            "Читатель с предложенными параметрами уже существует"
+                                        }
+                                    },
+                                );
+                                caretaker.pop();
+                                None
+                            }
+                        },
+
+                        None => {
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "Date wasn't selected",
+                                    Lang::Russian => "Дата не была выбрана",
+                                },
+                            );
+                            None
                         }
-                    }
+                    };
                 }
+
                 false => (),
             }
-            break;
-        } else if !get_age.shown() {
-            caretaker.pop();
+        } else if !win.shown() {
             return None;
         }
     }

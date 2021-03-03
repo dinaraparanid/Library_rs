@@ -3,6 +3,7 @@ extern crate fltk;
 use crate::{
     actions::{
         book::{add_rem::simple::*, change::simple::*},
+        genres::customize_book_genre,
         read::utils::get_book_ind,
         tables::*,
     },
@@ -34,6 +35,7 @@ enum MessageTheBook {
     ChangeTitle,
     ChangeAuthor,
     ChangePages,
+    CustomizeBookGenre,
     RemoveThis,
     RemoveSimple,
     AddSimple,
@@ -352,6 +354,11 @@ pub fn the_book_info_simple(
     lang: Lang,
 ) {
     let mut wind;
+    let mut title_frame;
+    let mut author_frame;
+    let mut pages_frame;
+    let mut amount_frame;
+    let mut genre_table;
 
     unsafe {
         wind = SingleWindow::new(
@@ -370,7 +377,7 @@ pub fn the_book_info_simple(
         let mut table = VGrid::new(0, 30, 300, 180, "");
         table.set_params(5, 1, 1);
 
-        table.add(&Frame::new(
+        title_frame = Frame::new(
             30,
             50,
             200,
@@ -384,9 +391,9 @@ pub fn the_book_info_simple(
                 (**book_system.books.get_unchecked(ind)).borrow().title,
             )
             .as_str(),
-        ));
+        );
 
-        table.add(&Frame::new(
+        author_frame = Frame::new(
             50,
             50,
             200,
@@ -400,9 +407,9 @@ pub fn the_book_info_simple(
                 (**book_system.books.get_unchecked(ind)).borrow().author
             )
             .as_str(),
-        ));
+        );
 
-        table.add(&Frame::new(
+        pages_frame = Frame::new(
             70,
             50,
             200,
@@ -416,9 +423,9 @@ pub fn the_book_info_simple(
                 (**book_system.books.get_unchecked(ind)).borrow().pages
             )
             .as_str(),
-        ));
+        );
 
-        table.add(&Frame::new(
+        amount_frame = Frame::new(
             90,
             50,
             100,
@@ -435,7 +442,12 @@ pub fn the_book_info_simple(
                     .len()
             )
             .as_str(),
-        ));
+        );
+
+        table.add(&title_frame);
+        table.add(&author_frame);
+        table.add(&pages_frame);
+        table.add(&amount_frame);
 
         table.add(&Frame::new(
             90,
@@ -454,7 +466,7 @@ pub fn the_book_info_simple(
 
         table.auto_layout();
 
-        let mut genre_table = Table::new(0, 200, 280, 380, "");
+        genre_table = Table::new(0, 200, 280, 380, "");
 
         genre_table.set_rows(
             if let Some(g) = &(**book_system.books.get_unchecked(ind)).borrow().genres {
@@ -492,7 +504,16 @@ pub fn the_book_info_simple(
         wind.end();
     }
 
-    let mut menu = MenuBar::new(0, 0, 210, 30, "");
+    let mut menu = MenuBar::new(
+        0,
+        0,
+        220 + match lang {
+            Lang::English => 0,
+            Lang::Russian => 50,
+        },
+        30,
+        "",
+    );
     wind.add(&menu);
 
     let (s, r) = app::channel();
@@ -554,8 +575,8 @@ pub fn the_book_info_simple(
 
     menu.add_emit(
         match lang {
-            Lang::English => "&Add books\t",
-            Lang::Russian => "&Добавить книги\t",
+            Lang::English => "&Add books",
+            Lang::Russian => "&Добавить книги",
         },
         Shortcut::empty(),
         MenuFlag::Normal,
@@ -568,37 +589,144 @@ pub fn the_book_info_simple(
     while app.wait() {
         if let Some(msg) = r.recv() {
             match msg {
-                MessageTheBook::ChangeAuthor => change_author_simple(
-                    ind,
-                    book_system,
-                    reader_base,
-                    genres,
-                    caretaker,
-                    app,
-                    lang,
-                ),
-
                 MessageTheBook::ChangeTitle => {
-                    change_title_simple(ind, book_system, reader_base, genres, caretaker, app, lang)
+                    if let Some(new_title) = change_title_simple(
+                        ind,
+                        book_system,
+                        reader_base,
+                        genres,
+                        caretaker,
+                        app,
+                        lang,
+                    ) {
+                        title_frame.set_label(
+                            format!(
+                                "{}: {}",
+                                match lang {
+                                    Lang::English => "Title",
+                                    Lang::Russian => "Название",
+                                },
+                                new_title
+                            )
+                            .as_str(),
+                        );
+                        title_frame.redraw();
+                    }
+                }
+
+                MessageTheBook::ChangeAuthor => {
+                    if let Some(new_author) = change_author_simple(
+                        ind,
+                        book_system,
+                        reader_base,
+                        genres,
+                        caretaker,
+                        app,
+                        lang,
+                    ) {
+                        author_frame.set_label(
+                            format!(
+                                "{}: {}",
+                                match lang {
+                                    Lang::English => "Author",
+                                    Lang::Russian => "Автор",
+                                },
+                                new_author
+                            )
+                            .as_str(),
+                        );
+                        author_frame.redraw();
+                    }
                 }
 
                 MessageTheBook::ChangePages => {
-                    change_pages_simple(ind, book_system, reader_base, genres, caretaker, app, lang)
+                    if let Some(new_pages) = change_pages_simple(
+                        ind,
+                        book_system,
+                        reader_base,
+                        genres,
+                        caretaker,
+                        app,
+                        lang,
+                    ) {
+                        pages_frame.set_label(
+                            format!(
+                                "{}: {}",
+                                match lang {
+                                    Lang::English => "Amount of pages",
+                                    Lang::Russian => "Количество страниц",
+                                },
+                                new_pages
+                            )
+                            .as_str(),
+                        );
+                        pages_frame.redraw();
+                    }
                 }
 
                 MessageTheBook::RemoveSimple => {
-                    remove_book_simple(ind, book_system, reader_base, genres, caretaker, app, lang)
+                    if remove_book_simple(
+                        ind,
+                        book_system,
+                        reader_base,
+                        genres,
+                        caretaker,
+                        app,
+                        lang,
+                    ) {
+                        amount_frame.set_label(
+                            format!(
+                                "{}: {}",
+                                match lang {
+                                    Lang::English => "Amount of pages",
+                                    Lang::Russian => "Количество страниц",
+                                },
+                                unsafe {
+                                    (**book_system.books.get_unchecked(ind))
+                                        .borrow()
+                                        .books
+                                        .len()
+                                }
+                            )
+                            .as_str(),
+                        );
+                        amount_frame.redraw();
+                    }
                 }
 
                 MessageTheBook::AddSimple => {
-                    add_books_simple(ind, book_system, reader_base, genres, caretaker, app, lang)
+                    if add_books_simple(ind, book_system, reader_base, genres, caretaker, app, lang)
+                    {
+                        amount_frame.set_label(
+                            format!(
+                                "{}: {}",
+                                match lang {
+                                    Lang::English => "Amount of pages",
+                                    Lang::Russian => "Количество страниц",
+                                },
+                                unsafe {
+                                    (**book_system.books.get_unchecked(ind))
+                                        .borrow()
+                                        .books
+                                        .len()
+                                }
+                            )
+                            .as_str(),
+                        );
+                        amount_frame.redraw();
+                    }
                 }
 
                 MessageTheBook::RemoveThis => {
-                    remove_the_book_simple(ind, book_system, reader_base, genres, caretaker, lang)
+                    remove_the_book_simple(ind, book_system, reader_base, genres, caretaker, lang);
+                    return;
+                }
+
+                MessageTheBook::CustomizeBookGenre => {
+                    customize_book_genre(genres, book_system, reader_base, caretaker, app, lang);
+                    genre_table.redraw();
                 }
             }
-            return;
         } else if !wind.shown() {
             return;
         }

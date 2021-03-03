@@ -230,7 +230,14 @@ pub fn book_info(book_system: &BookSystem, app: &App, lang: Lang) {
 /// title, author, num of pages and num of available simple books
 
 #[inline]
-pub fn show_all_books(book_system: Rc<RefCell<BookSystem>>, lang: Lang) {
+pub fn show_all_books(
+    book_system: Rc<RefCell<BookSystem>>,
+    reader_base: &mut ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+    lang: Lang,
+) {
     let mut wind = SingleWindow::default()
         .with_label(match lang {
             Lang::English => "All Books",
@@ -246,6 +253,8 @@ pub fn show_all_books(book_system: Rc<RefCell<BookSystem>>, lang: Lang) {
     table.set_col_header(true);
     table.set_col_width_all(190);
     table.end();
+
+    let bs = book_system.clone();
 
     table.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
         fltk::table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
@@ -284,7 +293,7 @@ pub fn show_all_books(book_system: Rc<RefCell<BookSystem>>, lang: Lang) {
         fltk::table::TableContext::RowHeader => draw_header(&format!("{}", row + 1), x, y, w, h),
 
         fltk::table::TableContext::Cell => draw_data(
-            &format!("{}", cell_book(col, row, &*(*book_system).borrow())),
+            &format!("{}", cell_book(col, row, &*(*bs).borrow())),
             x,
             y,
             w,
@@ -298,6 +307,31 @@ pub fn show_all_books(book_system: Rc<RefCell<BookSystem>>, lang: Lang) {
 
     wind.end();
     wind.show();
+
+    while app.wait() {
+        let len = (*book_system).borrow().books.len();
+
+        (0..len).for_each(|i| {
+            if table.is_selected(i as i32, 0)
+                || table.is_selected(i as i32, 1)
+                || table.is_selected(i as i32, 2)
+                || table.is_selected(i as i32, 3)
+            {
+                the_book_info_simple(
+                    i,
+                    &mut (*book_system).borrow_mut(),
+                    reader_base,
+                    genres,
+                    caretaker,
+                    app,
+                    lang,
+                );
+
+                table.unset_selection();
+                return;
+            }
+        })
+    }
 }
 
 #[inline]
@@ -314,7 +348,10 @@ pub fn show_all_authors(book_system: &BookSystem, lang: Lang) {
     );
 
     let mut tree = Tree::new(0, 0, 300, 400, "");
-    tree.set_root_label("Authors");
+    tree.set_root_label(match lang {
+        Lang::English => "Authors",
+        Lang::Russian => "Авторы",
+    });
 
     let mut authors = BTreeMap::new();
 

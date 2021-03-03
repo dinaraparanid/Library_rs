@@ -64,7 +64,7 @@ pub(crate) fn add_books_simple(
     caretaker: &mut Caretaker,
     app: &App,
     lang: Lang,
-) {
+) -> bool {
     let (s3, r3) = app::channel();
     let mut get_amount = Input1::<IntInput>::new(
         match lang {
@@ -89,7 +89,7 @@ pub(crate) fn add_books_simple(
                     get_amount.hide();
 
                     if let Ok(amount) = get_amount.set_input() {
-                        match amount.first().unwrap().trim().parse::<usize>() {
+                        return match amount.first().unwrap().trim().parse::<usize>() {
                             Ok(x) => match book_system.add_books(ind, x, app, lang) {
                                 Ok(_) => {
                                     fltk::dialog::message(
@@ -101,6 +101,7 @@ pub(crate) fn add_books_simple(
                                         },
                                     );
                                     book_system.save();
+                                    true
                                 }
 
                                 Err(_) => {
@@ -113,7 +114,7 @@ pub(crate) fn add_books_simple(
                                         },
                                     );
                                     caretaker.pop();
-                                    return;
+                                    false
                                 }
                             },
 
@@ -127,18 +128,20 @@ pub(crate) fn add_books_simple(
                                     },
                                 );
                                 caretaker.pop();
-                                return;
+                                false
                             }
-                        }
+                        };
                     }
                 }
 
                 false => (),
             }
         } else if !get_amount.shown() {
-            return;
+            return false;
         }
     }
+
+    false
 }
 
 /// Removes one simple book from known the book
@@ -152,7 +155,7 @@ pub(crate) fn remove_book_simple(
     caretaker: &mut Caretaker,
     app: &App,
     lang: Lang,
-) {
+) -> bool {
     let (s3, r3) = app::channel();
     let mut get_ind = Input1::<IntInput>::new(
         match lang {
@@ -177,7 +180,7 @@ pub(crate) fn remove_book_simple(
                     get_ind.hide();
 
                     if let Ok(ind) = get_ind.set_input() {
-                        match ind.first().unwrap().trim().parse::<usize>() {
+                        return match ind.first().unwrap().trim().parse::<usize>() {
                             Ok(x) => {
                                 if x == 0 {
                                     alert(
@@ -189,7 +192,7 @@ pub(crate) fn remove_book_simple(
                                         },
                                     );
                                     caretaker.pop();
-                                    return;
+                                    false
                                 } else {
                                     match book_system.remove_one_book(index, x - 1) {
                                         Ok(_) => {
@@ -203,6 +206,7 @@ pub(crate) fn remove_book_simple(
                                             );
                                             book_system.save();
                                             reader_base.save();
+                                            true
                                         }
 
                                         Err(_) => {
@@ -215,7 +219,7 @@ pub(crate) fn remove_book_simple(
                                                 },
                                             );
                                             caretaker.pop();
-                                            return;
+                                            false
                                         }
                                     }
                                 }
@@ -231,18 +235,20 @@ pub(crate) fn remove_book_simple(
                                     },
                                 );
                                 caretaker.pop();
-                                return;
+                                false
                             }
-                        }
+                        };
                     }
                 }
 
                 false => (),
             }
         } else if !get_ind.shown() {
-            return;
+            return false;
         }
     }
+
+    false
 }
 
 /// Removes one known simple book from known the book
