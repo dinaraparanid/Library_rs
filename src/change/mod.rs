@@ -6,7 +6,9 @@ pub mod input1;
 pub mod input2;
 pub mod input3;
 
-#[deprecated]
+#[deprecated(
+    note = "Used with construction of reader, but after calendar from fltk_calendar has become useless"
+)]
 mod input4;
 
 /// Trait for change messages.

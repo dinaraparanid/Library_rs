@@ -57,129 +57,114 @@ pub fn add_reader(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(reader) = inp.set_input() {
-                        if empty_inp_reader(&reader, lang) {
-                            caretaker.pop();
-                            return;
-                        }
+                if let Ok(reader) = inp.set_input() {
+                    if empty_inp_reader(&reader, lang) {
+                        caretaker.pop().unwrap();
+                        return;
+                    }
 
-                        let mut win = fltk::window::SingleWindow::new(
-                            800,
-                            500,
-                            200,
-                            100,
-                            "Choose birth date",
-                        );
+                    let mut win =
+                        fltk::window::SingleWindow::new(800, 500, 200, 100, "Choose birth date");
 
-                        let _ = fltk::frame::Frame::new(
-                            30,
-                            10,
-                            150,
-                            50,
-                            match lang {
-                                Lang::English => "Choose birth date",
-                                Lang::Russian => "Выберите дату рождения",
-                            },
-                        );
+                    let _ = fltk::frame::Frame::new(
+                        30,
+                        10,
+                        150,
+                        50,
+                        match lang {
+                            Lang::English => "Choose birth date",
+                            Lang::Russian => "Выберите дату рождения",
+                        },
+                    );
 
-                        let mut but = fltk::button::Button::new(
-                            80,
-                            60,
-                            60,
-                            20,
-                            match lang {
-                                Lang::English => "OK",
-                                Lang::Russian => "ОК",
-                            },
-                        );
+                    let mut but = fltk::button::Button::new(
+                        80,
+                        60,
+                        60,
+                        20,
+                        match lang {
+                            Lang::English => "OK",
+                            Lang::Russian => "ОК",
+                        },
+                    );
 
-                        win.end();
-                        win.show();
+                    win.end();
+                    win.show();
 
-                        let (sd, rd) = app::channel();
-                        but.emit(sd, true);
+                    let (sd, rd) = app::channel();
+                    but.emit(sd, true);
 
-                        while app.wait() {
-                            if let Some(msg) = rd.recv() {
-                                match msg {
-                                    true => {
-                                        win.hide();
+                    while app.wait() {
+                        if let Some(msg) = rd.recv() {
+                            if msg {
+                                win.hide();
 
-                                        let cal = Calendar::default();
-                                        let date = cal.get_date();
+                                let cal = Calendar::default();
+                                let date = cal.get_date();
 
-                                        match date {
-                                            Some(date) => {
-                                                match reader_base.add_reader(
-                                                    unsafe { reader.get_unchecked(0).clone() },
-                                                    unsafe { reader.get_unchecked(1).clone() },
-                                                    unsafe { reader.get_unchecked(2).clone() },
-                                                    Date::from(date),
-                                                ) {
-                                                    Ok(_) => {
-                                                        fltk::dialog::message(
-                                                            500,
-                                                            500,
-                                                            match lang {
-                                                                Lang::English => {
-                                                                    "Successfully added"
-                                                                }
-                                                                Lang::Russian => {
-                                                                    "Успешно добавлено"
-                                                                }
-                                                            },
-                                                        );
-                                                        reader_base.save();
-                                                    }
-
-                                                    Err(_) => {
-                                                        alert(
-                                                            500,
-                                                            500,
-                                                            match lang {
-                                                                Lang::English => "Reader with same parameters already exists",
-                                                                Lang::Russian => "Читатель с предложенными парамтрами уже существует",
-                                                            }
-                                                        );
-                                                        caretaker.pop();
-                                                        return;
-                                                    }
-                                                }
+                                match date {
+                                    Some(date) => {
+                                        match reader_base.add_reader(
+                                            unsafe { reader.get_unchecked(0).clone() },
+                                            unsafe { reader.get_unchecked(1).clone() },
+                                            unsafe { reader.get_unchecked(2).clone() },
+                                            Date::from(date),
+                                        ) {
+                                            Ok(_) => {
+                                                fltk::dialog::message(
+                                                    500,
+                                                    500,
+                                                    match lang {
+                                                        Lang::English => "Successfully added",
+                                                        Lang::Russian => "Успешно добавлено",
+                                                    },
+                                                );
+                                                reader_base.save();
                                             }
 
-                                            None => {
+                                            Err(_) => {
                                                 alert(
                                                     500,
                                                     500,
                                                     match lang {
-                                                        Lang::English => "Date wasn't selected",
-                                                        Lang::Russian => "Дата не была выбрана",
-                                                    },
+                                                        Lang::English => "Reader with same parameters already exists",
+                                                        Lang::Russian => "Читатель с предложенными парамтрами уже существует",
+                                                    }
                                                 );
-                                                caretaker.pop();
+                                                caretaker.pop().unwrap();
                                                 return;
                                             }
                                         }
                                     }
 
-                                    false => (),
+                                    None => {
+                                        alert(
+                                            500,
+                                            500,
+                                            match lang {
+                                                Lang::English => "Date wasn't selected",
+                                                Lang::Russian => "Дата не была выбрана",
+                                            },
+                                        );
+                                        caretaker.pop().unwrap();
+                                        return;
+                                    }
                                 }
-                            } else if !win.shown() {
-                                caretaker.pop();
-                                return;
                             }
+                            break;
+                        } else if !win.shown() {
+                            caretaker.pop().unwrap();
+                            return;
                         }
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {
-            caretaker.pop();
+            caretaker.pop().unwrap();
             return;
         }
     }
@@ -224,27 +209,21 @@ pub fn remove_reader(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    let rem_reader_params = inp.set_input();
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(reader) = rem_reader_params {
-                        match check_reader(reader_base, &reader, app, lang) {
-                            Some(rind) => remove_reader_simple(
-                                rind,
-                                reader_base,
-                                book_system,
-                                genres,
-                                caretaker,
-                                lang,
-                            ),
-
-                            None => return,
-                        }
+                if let Ok(reader) = inp.set_input() {
+                    if let Some(rind) = check_reader(reader_base, &reader, app, lang) {
+                        remove_reader_simple(
+                            rind,
+                            reader_base,
+                            book_system,
+                            genres,
+                            caretaker,
+                            lang,
+                        )
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {

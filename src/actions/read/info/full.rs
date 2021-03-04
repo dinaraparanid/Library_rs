@@ -68,29 +68,24 @@ pub fn reader_info(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(reader) = inp.set_input() {
-                        let check = check_reader(&*(*reader_base).borrow(), &reader, app, lang);
+                if let Ok(reader) = inp.set_input() {
+                    let check = check_reader(&*(*reader_base).borrow(), &reader, app, lang);
 
-                        match check {
-                            Some(ind) => reader_info_simple(
-                                ind,
-                                &mut *(*reader_base).borrow_mut(),
-                                &mut *(*book_system).borrow_mut(),
-                                genres,
-                                caretaker,
-                                app,
-                                lang,
-                            ),
-
-                            None => return,
-                        }
+                    if let Some(ind) = check {
+                        reader_info_simple(
+                            ind,
+                            &mut *(*reader_base).borrow_mut(),
+                            &mut *(*book_system).borrow_mut(),
+                            genres,
+                            caretaker,
+                            app,
+                            lang,
+                        )
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {

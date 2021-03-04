@@ -5,7 +5,7 @@ use crate::{
     actions::read::utils::get_book_ind,
     books::{book_sys::BookSystem, date::Date, the_book::TheBook, ResultSelf},
     change::{input2::Input2, Inputable},
-    reading::{read_base::ReaderBase, reader::Reader},
+    reading::reader::Reader,
     Lang,
 };
 
@@ -133,23 +133,19 @@ impl Book {
 
         while app.wait() {
             if let Some(message) = r2.recv() {
-                match message {
-                    true => {
-                        inp.hide();
+                if message {
+                    inp.hide();
 
-                        if let Ok(location) = inp.set_input() {
-                            return Some(Book {
-                                the_book: Some(Rc::downgrade(&the_book)),
-                                is_using: false,
-                                cabinet: location.first().unwrap().trim().parse().unwrap(),
-                                shelf: location.last().unwrap().trim().parse().unwrap(),
-                                readers: vec![],
-                            });
-                        }
+                    if let Ok(location) = inp.set_input() {
+                        return Some(Book {
+                            the_book: Some(Rc::downgrade(&the_book)),
+                            is_using: false,
+                            cabinet: location.first().unwrap().trim().parse().unwrap(),
+                            shelf: location.last().unwrap().trim().parse().unwrap(),
+                            readers: vec![],
+                        });
                     }
-                    false => (),
                 }
-
                 return None;
             } else if !inp.shown() {
                 return None;
@@ -160,9 +156,9 @@ impl Book {
     }
 
     /// Constructs book with known params.
-    /// It uses for load and restore
 
     #[inline]
+    #[allow(dead_code)]
     pub(crate) fn restore(
         _the_book: Rc<RefCell<TheBook>>,
         _is_using: bool,
@@ -212,6 +208,7 @@ impl Book {
     /// else it will return reader index of the first occurrence
 
     #[inline]
+    #[allow(dead_code)]
     pub(crate) fn find_reader_first(&self, reader: &Rc<RefCell<Reader>>) -> Option<usize> {
         self.readers
             .iter()
@@ -223,6 +220,7 @@ impl Book {
     /// else it will return reader index of the last occurrence
 
     #[inline]
+    #[allow(dead_code)]
     pub(crate) fn find_reader_last(&self, reader: &Rc<RefCell<Reader>>) -> Option<usize> {
         self.readers
             .iter()

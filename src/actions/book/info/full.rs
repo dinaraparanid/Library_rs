@@ -5,7 +5,7 @@ use crate::{
         book::{info::simple::*, utils::check_book},
         tables::{cell_book, draw_data, draw_header},
     },
-    books::{book::Book, book_sys::BookSystem, genres::Genres},
+    books::{book_sys::BookSystem, genres::Genres},
     change::{input1::Input1, input3::Input3, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
@@ -19,7 +19,6 @@ use fltk::{
     draw,
     input::{Input, IntInput},
     prelude::*,
-    table,
     table::Table,
     tree::Tree,
     window::SingleWindow,
@@ -66,18 +65,11 @@ pub fn the_book_info(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(the_book) = inp.set_input() {
-                        let index;
-
-                        match check_book(&(*book_system).borrow(), &the_book, lang) {
-                            Ok(x) => index = x,
-                            Err(_) => return,
-                        }
-
+                if let Ok(the_book) = inp.set_input() {
+                    if let Ok(index) = check_book(&(*book_system).borrow(), &the_book, lang) {
                         the_book_info_simple(
                             index,
                             &mut *(*book_system).borrow_mut(),
@@ -89,7 +81,6 @@ pub fn the_book_info(
                         )
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {
@@ -130,18 +121,11 @@ pub fn book_info(book_system: &BookSystem, app: &App, lang: Lang) {
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(the_book) = inp.set_input() {
-                        let index;
-
-                        match check_book(book_system, &the_book, lang) {
-                            Ok(x) => index = x,
-                            Err(_) => return,
-                        }
-
+                if let Ok(the_book) = inp.set_input() {
+                    if let Ok(index) = check_book(book_system, &the_book, lang) {
                         let (s, r) = app::channel();
                         let mut inp2 = Input1::<IntInput>::new(
                             match lang {
@@ -159,65 +143,56 @@ pub fn book_info(book_system: &BookSystem, app: &App, lang: Lang) {
 
                         while app.wait() {
                             if let Some(msg) = r.recv() {
-                                match msg {
-                                    true => {
-                                        inp2.hide();
+                                if msg {
+                                    inp2.hide();
 
-                                        if let Ok(bind_v) = inp2.set_input() {
-                                            let bind = bind_v
-                                                .first()
-                                                .unwrap()
-                                                .trim()
-                                                .parse::<usize>()
-                                                .unwrap();
+                                    if let Ok(bind_v) = inp2.set_input() {
+                                        let bind = bind_v
+                                            .first()
+                                            .unwrap()
+                                            .trim()
+                                            .parse::<usize>()
+                                            .unwrap();
 
-                                            unsafe {
-                                                if bind
-                                                    > (**book_system.books.get_unchecked(index))
-                                                        .borrow()
-                                                        .books
-                                                        .len()
-                                                    || bind == 0
-                                                {
-                                                    alert(
-                                                        500,
-                                                        500,
-                                                        match lang {
-                                                            Lang::English => {
-                                                                "Incorrect number of book"
-                                                            }
-                                                            Lang::Russian => {
-                                                                "Некорректный номер книги"
-                                                            }
-                                                        },
-                                                    );
-                                                    return;
-                                                }
-
-                                                book_info_simple(
-                                                    Some(Rc::downgrade(
-                                                        (**book_system.books.get_unchecked(index))
-                                                            .borrow()
-                                                            .books
-                                                            .get_unchecked(bind - 1),
-                                                    )),
-                                                    book_system,
-                                                    app,
-                                                    lang,
-                                                );
+                                        if bind
+                                            > unsafe {
+                                                (**book_system.books.get_unchecked(index))
+                                                    .borrow()
+                                                    .books
+                                                    .len()
                                             }
+                                            || bind == 0
+                                        {
+                                            alert(
+                                                500,
+                                                500,
+                                                match lang {
+                                                    Lang::English => "Incorrect number of book",
+                                                    Lang::Russian => "Некорректный номер книги",
+                                                },
+                                            );
+                                            return;
                                         }
-                                    }
 
-                                    false => (),
+                                        book_info_simple(
+                                            Some(Rc::downgrade(unsafe {
+                                                (**book_system.books.get_unchecked(index))
+                                                    .borrow()
+                                                    .books
+                                                    .get_unchecked(bind - 1)
+                                            })),
+                                            book_system,
+                                            lang,
+                                        );
+                                    }
                                 }
+                                break;
                             } else if !inp2.shown() {
                                 return;
                             }
                         }
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {
@@ -226,8 +201,10 @@ pub fn book_info(book_system: &BookSystem, app: &App, lang: Lang) {
     }
 }
 
-/// Function that shows all information about all existing books:
-/// title, author, num of pages and num of available simple books
+/// Function that shows all
+/// information about all existing books:
+/// title, author, number of pages
+/// and number of available simple books
 
 #[inline]
 pub fn show_all_books(
@@ -330,9 +307,17 @@ pub fn show_all_books(
                 table.unset_selection();
                 return;
             }
-        })
+        });
+
+        if !wind.shown() {
+            return;
+        }
     }
 }
+
+/// Function that shows all books
+/// sorted by authors. Authors are
+/// also sorted in lexicographical order
 
 #[inline]
 pub fn show_all_authors(book_system: &BookSystem, lang: Lang) {

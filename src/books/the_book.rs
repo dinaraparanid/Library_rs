@@ -1,12 +1,7 @@
-extern crate fltk;
-
 use crate::{
     books::{book::Book, ResultSelf},
-    reading::{read_base::ReaderBase, reader::Reader},
-    Lang,
+    reading::reader::Reader,
 };
-
-use fltk::app::App;
 
 use std::{
     cell::RefCell,
@@ -175,6 +170,7 @@ impl TheBook {
     /// else true
 
     #[inline]
+    #[allow(dead_code)]
     pub(crate) fn add_genre(&mut self, genre: String) -> bool {
         if let None = self.genres {
             self.genres = Some(HashSet::new());
@@ -189,6 +185,7 @@ impl TheBook {
     /// else false
 
     #[inline]
+    #[allow(dead_code)]
     pub(crate) fn remove_genre(&mut self, genre: &String) -> bool {
         return if let None = self.genres {
             false

@@ -13,10 +13,16 @@ pub(crate) type ResultSelf<'a, T> = std::result::Result<&'a mut T, u8>;
 
 /// **DEPRECATED**
 ///
+/// Used when Book was containing title, author and pages as clones, but not references.
+/// No need for using now since it all uses in TheBook
+///
 /// Trait, which used to params of books
 /// like title, author and amount of pages
 
-#[deprecated]
+#[deprecated(
+    note = "Used when Book was containing title, author and pages as clones,\
+     but not references. No need for using now since it all uses in TheBook"
+)]
 pub(crate) trait BookInterface {
     /// Changes title of the book
     fn change_title(&mut self, new_title: String) -> &mut Self;

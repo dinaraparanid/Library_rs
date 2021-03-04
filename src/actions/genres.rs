@@ -3,7 +3,7 @@ extern crate fltk;
 use crate::{
     actions::{
         book::utils::check_book,
-        tables::{cell_book3, cell_genre2, draw_data},
+        tables::{cell_book3, draw_data},
     },
     books::{book_sys::BookSystem, genres::Genres},
     change::{input1::Input1, input3::Input3, Inputable},
@@ -19,7 +19,6 @@ use fltk::{
     dialog::alert,
     draw,
     input::{Input, IntInput},
-    menu::Choice,
     prelude::*,
     table,
     table::Table,
@@ -27,7 +26,7 @@ use fltk::{
     window::SingleWindow,
 };
 
-use std::{cell::RefCell, cmp::max, collections::HashSet, rc::Rc};
+use std::{cmp::max, collections::HashSet};
 
 /// Function that adds new genre.
 /// If you have mistakes in input,
@@ -61,37 +60,34 @@ pub fn add_genre(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(genre) = inp.set_input() {
-                        if genre.first().unwrap().is_empty() {
-                            alert(
-                                500,
-                                500,
-                                match lang {
-                                    Lang::English => "'New genre' is empty",
-                                    Lang::Russian => "'Новый жанр' пусто",
-                                },
-                            );
-                            caretaker.pop();
-                            return;
-                        } else {
-                            genres.add(genre.first().unwrap().clone());
-                            fltk::dialog::message(
-                                500,
-                                500,
-                                match lang {
-                                    Lang::English => "Successfully added",
-                                    Lang::Russian => "Успешно добавлено",
-                                },
-                            );
-                            genres.save();
-                        }
+                if let Ok(genre) = inp.set_input() {
+                    if genre.first().unwrap().is_empty() {
+                        alert(
+                            500,
+                            500,
+                            match lang {
+                                Lang::English => "'New genre' is empty",
+                                Lang::Russian => "'Новый жанр' пусто",
+                            },
+                        );
+                        caretaker.pop().unwrap();
+                        return;
+                    } else {
+                        genres.add(genre.first().unwrap().clone());
+                        fltk::dialog::message(
+                            500,
+                            500,
+                            match lang {
+                                Lang::English => "Successfully added",
+                                Lang::Russian => "Успешно добавлено",
+                            },
+                        );
+                        genres.save();
                     }
                 }
-                false => (),
             }
             return;
         } else if !inp.shown() {
@@ -132,37 +128,34 @@ pub fn remove_genre(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(genre) = inp.set_input() {
-                        if genre.first().unwrap().is_empty() {
-                            alert(
-                                500,
-                                500,
-                                match lang {
-                                    Lang::English => "'Genre's title' is empty",
-                                    Lang::Russian => "'Название жанра' пусто",
-                                },
-                            );
-                            caretaker.pop();
-                            return;
-                        } else {
-                            genres.remove(genre.first().unwrap());
-                            fltk::dialog::message(
-                                500,
-                                500,
-                                match lang {
-                                    Lang::English => "Successfully removed",
-                                    Lang::Russian => "Успешно удалено",
-                                },
-                            );
-                            genres.save();
-                        }
+                if let Ok(genre) = inp.set_input() {
+                    if genre.first().unwrap().is_empty() {
+                        alert(
+                            500,
+                            500,
+                            match lang {
+                                Lang::English => "'Genre's title' is empty",
+                                Lang::Russian => "'Название жанра' пусто",
+                            },
+                        );
+                        caretaker.pop().unwrap();
+                        return;
+                    } else {
+                        genres.remove(genre.first().unwrap());
+                        fltk::dialog::message(
+                            500,
+                            500,
+                            match lang {
+                                Lang::English => "Successfully removed",
+                                Lang::Russian => "Успешно удалено",
+                            },
+                        );
+                        genres.save();
                     }
                 }
-                false => (),
             }
             return;
         } else if !inp.shown() {
@@ -171,10 +164,10 @@ pub fn remove_genre(
     }
 }
 
-/// Function that changes title
+/// Function that changes genres
 /// of all simple books and TheBook.
-/// If you have mistakes in input,
-/// program will let you know
+/// You can choose as much
+/// genres as you need
 
 #[inline]
 pub fn customize_book_genre(
@@ -212,18 +205,11 @@ pub fn customize_book_genre(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(book) = inp.set_input() {
-                        let index;
-
-                        match check_book(book_system, &book, lang) {
-                            Ok(x) => index = x,
-                            Err(_) => return,
-                        }
-
+                if let Ok(book) = inp.set_input() {
+                    if let Ok(index) = check_book(book_system, &book, lang) {
                         let mut wind = SingleWindow::new(
                             500,
                             100,
@@ -345,7 +331,6 @@ pub fn customize_book_genre(
                         }
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {
@@ -353,6 +338,10 @@ pub fn customize_book_genre(
         }
     }
 }
+
+/// Function that searches
+/// all book with specific genre.
+/// Returns params of those books
 
 #[inline]
 pub fn find_by_genre_simple(
@@ -383,10 +372,15 @@ pub fn find_by_genre_simple(
 
 /// **DEPRECATED**
 ///
+/// Used before.
+/// Consider **using all_genres() instead**,
+/// it's more representable
+///
 /// Function that shows
 /// all books with specific genre
 
-#[deprecated]
+#[allow(dead_code)]
+#[deprecated(note = "Used before. Consider using all_genres() instead, it's more representable")]
 fn find_by_genre(book_system: &BookSystem, app: &App, lang: Lang) {
     let (s, r) = app::channel();
     let mut inp = Input1::<Input>::new(
@@ -405,72 +399,69 @@ fn find_by_genre(book_system: &BookSystem, app: &App, lang: Lang) {
 
     while app.wait() {
         if let Some(message) = r.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(genre) = inp.set_input() {
-                        let mut wind = SingleWindow::new(
-                            500,
-                            500,
-                            300,
-                            400,
-                            match lang {
-                                Lang::English => "Books with spec genre",
-                                Lang::Russian => "Книги с искомым жанром",
-                            },
-                        );
+                if let Ok(genre) = inp.set_input() {
+                    let mut wind = SingleWindow::new(
+                        500,
+                        500,
+                        300,
+                        400,
+                        match lang {
+                            Lang::English => "Books with spec genre",
+                            Lang::Russian => "Книги с искомым жанром",
+                        },
+                    );
 
-                        let mut book_table = Table::new(0, 0, 300, 400, "");
-                        let mut find = vec![];
+                    let mut book_table = Table::new(0, 0, 300, 400, "");
+                    let mut find = vec![];
 
-                        book_system.books.iter().for_each(|x| {
-                            if (**x).borrow().genres.is_some()
-                                && (**x)
-                                    .borrow()
-                                    .genres
-                                    .as_ref()
-                                    .unwrap()
-                                    .contains(genre.first().unwrap().as_str())
-                            {
-                                find.push((
-                                    (**x).borrow().title.clone(),
-                                    (**x).borrow().author.clone(),
-                                    (**x).borrow().pages.clone(),
-                                ))
-                            }
-                        });
+                    book_system.books.iter().for_each(|x| {
+                        if (**x).borrow().genres.is_some()
+                            && (**x)
+                                .borrow()
+                                .genres
+                                .as_ref()
+                                .unwrap()
+                                .contains(genre.first().unwrap().as_str())
+                        {
+                            find.push((
+                                (**x).borrow().title.clone(),
+                                (**x).borrow().author.clone(),
+                                (**x).borrow().pages.clone(),
+                            ))
+                        }
+                    });
 
-                        book_table.set_rows(max(20, find.len() as u32));
+                    book_table.set_rows(max(20, find.len() as u32));
 
-                        book_table.set_cols(1);
-                        book_table.set_col_width_all(300);
-                        book_table.end();
+                    book_table.set_cols(1);
+                    book_table.set_col_width_all(300);
+                    book_table.end();
 
-                        book_table.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
-                            table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
+                    book_table.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+                        table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
 
-                            table::TableContext::Cell => {
-                                let gen = cell_book3(row, &find, lang);
-                                draw_data(
-                                    &format!("{}", gen),
-                                    x,
-                                    y,
-                                    w,
-                                    h,
-                                    t.is_selected(row, col),
-                                    None,
-                                );
-                            }
+                        table::TableContext::Cell => {
+                            let gen = cell_book3(row, &find, lang);
+                            draw_data(
+                                &format!("{}", gen),
+                                x,
+                                y,
+                                w,
+                                h,
+                                t.is_selected(row, col),
+                                None,
+                            );
+                        }
 
-                            _ => (),
-                        });
+                        _ => (),
+                    });
 
-                        wind.end();
-                        wind.show();
-                    }
+                    wind.end();
+                    wind.show();
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {
@@ -478,6 +469,9 @@ fn find_by_genre(book_system: &BookSystem, app: &App, lang: Lang) {
         }
     }
 }
+
+/// Function that sorts
+/// all books by genres
 
 #[inline]
 pub fn all_genres(
@@ -503,7 +497,7 @@ pub fn all_genres(
         Lang::Russian => "Жанры",
     });
 
-    for g in genres.iter() {
+    genres.iter().for_each(|g| {
         tree.add(g.as_str()).unwrap();
         find_by_genre_simple(g, book_system)
             .into_iter()
@@ -524,7 +518,7 @@ pub fn all_genres(
                 )
                 .unwrap();
             })
-    }
+    });
 
     let no_genre = book_system
         .iter()

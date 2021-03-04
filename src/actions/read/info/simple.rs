@@ -28,6 +28,7 @@ use fltk::{
 use std::cmp::max;
 
 /// Messages for info menu
+/// for reader_info
 
 #[derive(Clone, Copy)]
 enum MessageReader {
@@ -52,114 +53,106 @@ pub fn reader_info_simple(
     app: &App,
     lang: Lang,
 ) {
-    let mut wind;
-    let mut table1;
-    let mut table2;
-    let mut name_frame;
-    let mut family_frame;
-    let mut father_frame;
-    let mut age_frame;
-    let mut reading_frame;
-
-    unsafe {
-        wind = SingleWindow::new(
-            800,
-            100,
-            570,
-            600,
-            format!(
-                "{} {} {}",
-                (*reader_base.readers.get_unchecked(ind)).borrow().name,
-                (*reader_base.readers.get_unchecked(ind)).borrow().family,
-                (*reader_base.readers.get_unchecked(ind)).borrow().father,
-            )
-            .as_str(),
+    let mut wind = SingleWindow::new(
+        800,
+        100,
+        570,
+        600,
+        format!(
+            "{} {} {}",
+            *unsafe { &(*reader_base.readers.get_unchecked(ind)).borrow().name },
+            *unsafe { &(*reader_base.readers.get_unchecked(ind)).borrow().family },
+            *unsafe { &(*reader_base.readers.get_unchecked(ind)).borrow().father },
         )
-        .center_screen();
+        .as_str(),
+    )
+    .center_screen();
 
-        table1 = VGrid::new(0, 0, 650, 100, "");
-        table1.set_params(6, 1, 1);
+    let mut table1 = VGrid::new(0, 0, 650, 100, "");
+    table1.set_params(6, 1, 1);
 
-        name_frame = Frame::new(
-            10,
-            50,
-            100,
-            30,
-            format!(
-                "{}: {}",
-                match lang {
-                    Lang::English => "First Name",
-                    Lang::Russian => "\t\tИмя",
-                },
-                (*reader_base.readers.get_unchecked(ind)).borrow().name
-            )
-            .as_str(),
-        );
+    let mut name_frame = Frame::new(
+        10,
+        50,
+        100,
+        30,
+        format!(
+            "{}: {}",
+            match lang {
+                Lang::English => "First Name",
+                Lang::Russian => "\t\tИмя",
+            },
+            *unsafe { &(*reader_base.readers.get_unchecked(ind)).borrow().name }
+        )
+        .as_str(),
+    );
 
-        family_frame = Frame::new(
-            30,
-            50,
-            100,
-            30,
-            format!(
-                "{}: {}",
-                match lang {
-                    Lang::English => "Second Name",
-                    Lang::Russian => "\t\tФамилия",
-                },
-                (*reader_base.readers.get_unchecked(ind)).borrow().family
-            )
-            .as_str(),
-        );
+    let mut family_frame = Frame::new(
+        30,
+        50,
+        100,
+        30,
+        format!(
+            "{}: {}",
+            match lang {
+                Lang::English => "Second Name",
+                Lang::Russian => "\t\tФамилия",
+            },
+            *unsafe { &(*reader_base.readers.get_unchecked(ind)).borrow().family }
+        )
+        .as_str(),
+    );
 
-        father_frame = Frame::new(
-            50,
-            50,
-            100,
-            30,
-            format!(
-                "{}: {}",
-                match lang {
-                    Lang::English => "Middle Name",
-                    Lang::Russian => "\t\tОтчество",
-                },
-                (*reader_base.readers.get_unchecked(ind)).borrow().father
-            )
-            .as_str(),
-        );
+    let mut father_frame = Frame::new(
+        50,
+        50,
+        100,
+        30,
+        format!(
+            "{}: {}",
+            match lang {
+                Lang::English => "Middle Name",
+                Lang::Russian => "\t\tОтчество",
+            },
+            *unsafe { &(*reader_base.readers.get_unchecked(ind)).borrow().father }
+        )
+        .as_str(),
+    );
 
-        age_frame = Frame::new(
-            70,
-            50,
-            100,
-            30,
-            format!(
-                "{}: {}",
-                match lang {
-                    Lang::English => "Age",
-                    Lang::Russian => "\t\tВозраст",
-                },
-                (*reader_base.readers.get_unchecked(ind)).borrow().age()
-            )
-            .as_str(),
-        );
+    let mut age_frame = Frame::new(
+        70,
+        50,
+        100,
+        30,
+        format!(
+            "{}: {}",
+            match lang {
+                Lang::English => "Age",
+                Lang::Russian => "\t\tВозраст",
+            },
+            *unsafe { &(*reader_base.readers.get_unchecked(ind)).borrow().age() }
+        )
+        .as_str(),
+    );
 
-        reading_frame = Frame::new(
-            70,
-            50,
-            100,
-            30,
-            format!(
-                "{}: {}",
-                match lang {
-                    Lang::English => "Reading now",
-                    Lang::Russian => "Читается сейчас",
-                },
-                if (**reader_base.readers.get_unchecked(ind))
+    let mut reading_frame = Frame::new(
+        70,
+        50,
+        100,
+        30,
+        format!(
+            "{}: {}",
+            match lang {
+                Lang::English => "Reading now",
+                Lang::Russian => "Читается сейчас",
+            },
+            if unsafe {
+                (**reader_base.readers.get_unchecked(ind))
                     .borrow()
                     .reading
                     .is_some()
-                {
+            } {
+                unsafe {
                     (*(**reader_base.readers.get_unchecked(ind))
                         .borrow()
                         .reading
@@ -169,54 +162,53 @@ pub fn reader_info_simple(
                         .unwrap())
                     .borrow()
                     .to_string(book_system)
-                } else {
-                    match lang {
-                        Lang::English => "None",
-                        Lang::Russian => "Ничего",
-                    }
-                    .to_string()
                 }
-            )
-            .as_str(),
-        );
-
-        table1.add(&name_frame);
-        table1.add(&family_frame);
-        table1.add(&father_frame);
-        table1.add(&age_frame);
-        table1.add(&reading_frame);
-
-        table1.add(&Frame::new(
-            90,
-            50,
-            100,
-            30,
-            format!(
-                "{}:",
+            } else {
                 match lang {
-                    Lang::English => "Books read by reader",
-                    Lang::Russian => "Прочитанные книги",
+                    Lang::English => "None",
+                    Lang::Russian => "Ничего",
                 }
-            )
-            .as_str(),
-        ));
+                .to_string()
+            }
+        )
+        .as_str(),
+    );
 
-        table1.auto_layout();
+    table1.add(&name_frame);
+    table1.add(&family_frame);
+    table1.add(&father_frame);
+    table1.add(&age_frame);
+    table1.add(&reading_frame);
 
-        table2 = Table::new(0, 127, 570, 600, "");
-        table2.set_rows(max(
-            30,
-            (**reader_base.readers.get_unchecked(ind))
-                .borrow()
-                .books
-                .len() as u32,
-        ));
-        table2.set_row_header(true);
-        table2.set_cols(4);
-        table2.set_col_header(true);
-        table2.set_col_width_all(130);
-        table2.end();
-    }
+    table1.add(&Frame::new(
+        90,
+        50,
+        100,
+        30,
+        format!(
+            "{}:",
+            match lang {
+                Lang::English => "Books read by reader",
+                Lang::Russian => "Прочитанные книги",
+            }
+        )
+        .as_str(),
+    ));
+
+    table1.auto_layout();
+
+    let mut table2 = Table::new(0, 127, 570, 600, "");
+    table2.set_rows(max(30, unsafe {
+        (**reader_base.readers.get_unchecked(ind))
+            .borrow()
+            .books
+            .len() as u32
+    }));
+    table2.set_row_header(true);
+    table2.set_cols(4);
+    table2.set_col_header(true);
+    table2.set_col_width_all(130);
+    table2.end();
 
     wind.end();
 
@@ -504,14 +496,8 @@ pub fn reader_info_simple(
                 }
 
                 MessageReader::GetBook => {
-                    if let Some(_) = get_book_known_reader(
-                        ind,
-                        reader_base,
-                        book_system,
-                        genres,
-                        caretaker,
-                        lang,
-                    ) {
+                    if get_book_known_reader(ind, reader_base, book_system, genres, caretaker, lang)
+                    {
                         reading_frame.set_label(
                             format!(
                                 "{}: {}",
@@ -563,7 +549,6 @@ pub fn reader_info_simple(
                                 .clone(),
                         ),
                         book_system,
-                        app,
                         lang,
                     );
                 }

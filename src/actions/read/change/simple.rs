@@ -3,23 +3,18 @@ extern crate fltk_calendar;
 
 use crate::{
     books::{book_sys::BookSystem, date::Date, genres::Genres},
-    change::{input1::Input1, input3::Input3, Inputable},
+    change::{input1::Input1, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
     Lang,
 };
 
-use fltk::{
-    app,
-    app::App,
-    dialog::alert,
-    input::{Input, IntInput},
-    prelude::*,
-};
+use fltk::{app, app::App, dialog::alert, input::Input, prelude::*};
 
 use fltk_calendar::calendar::Calendar;
 
-/// Change name of already known reader
+/// Function that changes
+/// name of already known reader
 
 #[inline]
 pub(crate) fn change_name_simple(
@@ -50,73 +45,74 @@ pub(crate) fn change_name_simple(
 
     while app.wait() {
         if let Some(mes) = r3.recv() {
-            match mes {
-                true => {
-                    get_name.hide();
+            if mes {
+                get_name.hide();
 
-                    if let Ok(new_name) = get_name.set_input() {
-                        unsafe {
-                            return match reader_base
-                                .change_name(ind, new_name.get_unchecked(0).clone())
-                            {
-                                Ok(_) => {
-                                    fltk::dialog::message(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "Successfully changed",
-                                            Lang::Russian => "Успешно изменено",
-                                        },
-                                    );
+                if let Ok(new_name) = get_name.set_input() {
+                    return match reader_base
+                        .change_name(ind, unsafe { new_name.get_unchecked(0).clone() })
+                    {
+                        Ok(_) => {
+                            fltk::dialog::message(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "Successfully changed",
+                                    Lang::Russian => "Успешно изменено",
+                                },
+                            );
 
-                                    reader_base.save();
-                                    book_system.save();
-                                    Some(new_name.get_unchecked(0).clone())
-                                }
-
-                                Err(0) => {
-                                    alert(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "Reader is not found",
-                                            Lang::Russian => "Читатель не найден",
-                                        },
-                                    );
-                                    caretaker.pop();
-                                    None
-                                }
-
-                                Err(1) => {
-                                    alert(500, 500, match lang {
-										Lang::English => "Reader with same parameters already exists",
-										Lang::Russian => "Читатель с предложенными параметрами уже существует",
-									});
-                                    caretaker.pop();
-                                    None
-                                }
-
-                                Err(_) => {
-                                    alert(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "'New name' is empty",
-                                            Lang::Russian => "'Новое имя' пусто",
-                                        },
-                                    );
-                                    caretaker.pop();
-                                    None
-                                }
-                            };
+                            reader_base.save();
+                            book_system.save();
+                            Some(unsafe { new_name.get_unchecked(0).clone() })
                         }
-                    }
+
+                        Err(0) => {
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "Reader is not found",
+                                    Lang::Russian => "Читатель не найден",
+                                },
+                            );
+                            caretaker.pop().unwrap();
+                            None
+                        }
+
+                        Err(1) => {
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "Reader with same parameters already exists",
+                                    Lang::Russian => {
+                                        "Читатель с предложенными параметрами уже существует"
+                                    }
+                                },
+                            );
+                            caretaker.pop().unwrap();
+                            None
+                        }
+
+                        Err(_) => {
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "'New name' is empty",
+                                    Lang::Russian => "'Новое имя' пусто",
+                                },
+                            );
+                            caretaker.pop().unwrap();
+                            None
+                        }
+                    };
                 }
-                false => (),
             }
             break;
         } else if !get_name.shown() {
-            caretaker.pop();
+            caretaker.pop().unwrap();
             return None;
         }
     }
@@ -124,7 +120,8 @@ pub(crate) fn change_name_simple(
     None
 }
 
-/// Change 2-nd name of already known reader
+/// Function that changes
+/// 2-nd name of already known reader
 
 #[inline]
 pub(crate) fn change_family_simple(
@@ -155,78 +152,75 @@ pub(crate) fn change_family_simple(
 
     while app.wait() {
         if let Some(mes) = r3.recv() {
-            match mes {
-                true => {
-                    get_family.hide();
+            if mes {
+                get_family.hide();
 
-                    if let Ok(new_family) = get_family.set_input() {
-                        unsafe {
-                            return match reader_base
-                                .change_family(ind, new_family.get_unchecked(0).clone())
-                            {
-                                Ok(_) => {
-                                    fltk::dialog::message(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "Successfully changed",
-                                            Lang::Russian => "Успешно изменено",
-                                        },
-                                    );
+                if let Ok(new_family) = get_family.set_input() {
+                    return match reader_base
+                        .change_family(ind, unsafe { new_family.get_unchecked(0).clone() })
+                    {
+                        Ok(_) => {
+                            fltk::dialog::message(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "Successfully changed",
+                                    Lang::Russian => "Успешно изменено",
+                                },
+                            );
 
-                                    reader_base.save();
-                                    book_system.save();
+                            reader_base.save();
+                            book_system.save();
 
-                                    Some(new_family.get_unchecked(0).clone())
-                                }
-
-                                Err(0) => {
-                                    alert(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "Reader is not found",
-                                            Lang::Russian => "Читатель не найден",
-                                        },
-                                    );
-                                    caretaker.pop();
-                                    None
-                                }
-
-                                Err(1) => {
-                                    alert(
-										500,
-										500,
-										match lang {
-											Lang::English => "Reader with same parameters already exists",
-											Lang::Russian => "Читатель с предложенными параметрами уже существует",
-										},
-									);
-                                    caretaker.pop();
-                                    None
-                                }
-
-                                Err(_) => {
-                                    alert(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "'New 2-nd Name' is empty",
-                                            Lang::Russian => "'Новая Фамилия' пусто",
-                                        },
-                                    );
-                                    caretaker.pop();
-                                    None
-                                }
-                            };
+                            Some(unsafe { new_family.get_unchecked(0).clone() })
                         }
-                    }
+
+                        Err(0) => {
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "Reader is not found",
+                                    Lang::Russian => "Читатель не найден",
+                                },
+                            );
+                            caretaker.pop().unwrap();
+                            None
+                        }
+
+                        Err(1) => {
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "Reader with same parameters already exists",
+                                    Lang::Russian => {
+                                        "Читатель с предложенными параметрами уже существует"
+                                    }
+                                },
+                            );
+                            caretaker.pop().unwrap();
+                            None
+                        }
+
+                        Err(_) => {
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "'New 2-nd Name' is empty",
+                                    Lang::Russian => "'Новая Фамилия' пусто",
+                                },
+                            );
+                            caretaker.pop().unwrap();
+                            None
+                        }
+                    };
                 }
-                false => (),
             }
             break;
         } else if !get_family.shown() {
-            caretaker.pop();
+            caretaker.pop().unwrap();
             return None;
         }
     }
@@ -265,77 +259,74 @@ pub(crate) fn change_father_simple(
 
     while app.wait() {
         if let Some(mes) = r3.recv() {
-            match mes {
-                true => {
-                    get_father.hide();
+            if mes {
+                get_father.hide();
 
-                    if let Ok(new_father) = get_father.set_input() {
-                        unsafe {
-                            return match reader_base
-                                .change_father(ind, new_father.get_unchecked(0).clone())
-                            {
-                                Ok(_) => {
-                                    fltk::dialog::message(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "Successfully changed",
-                                            Lang::Russian => "Успешно изменено",
-                                        },
-                                    );
+                if let Ok(new_father) = get_father.set_input() {
+                    return match reader_base
+                        .change_father(ind, unsafe { new_father.get_unchecked(0).clone() })
+                    {
+                        Ok(_) => {
+                            fltk::dialog::message(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "Successfully changed",
+                                    Lang::Russian => "Успешно изменено",
+                                },
+                            );
 
-                                    reader_base.save();
-                                    book_system.save();
-                                    Some(new_father.get_unchecked(0).clone())
-                                }
-
-                                Err(0) => {
-                                    alert(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "Reader is not found",
-                                            Lang::Russian => "Читатель не найден",
-                                        },
-                                    );
-                                    caretaker.pop();
-                                    None
-                                }
-
-                                Err(1) => {
-                                    alert(
-										500,
-										500,
-										match lang {
-											Lang::English => "Reader with same parameters already exists",
-											Lang::Russian => "Читатель с предложенными параметрами уже существует",
-										},
-									);
-                                    caretaker.pop();
-                                    None
-                                }
-
-                                Err(_) => {
-                                    alert(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "'New Mid. Name' is empty",
-                                            Lang::Russian => "'Новое Отчество' пусто",
-                                        },
-                                    );
-                                    caretaker.pop();
-                                    None
-                                }
-                            };
+                            reader_base.save();
+                            book_system.save();
+                            Some(unsafe { new_father.get_unchecked(0).clone() })
                         }
-                    }
+
+                        Err(0) => {
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "Reader is not found",
+                                    Lang::Russian => "Читатель не найден",
+                                },
+                            );
+                            caretaker.pop().unwrap();
+                            None
+                        }
+
+                        Err(1) => {
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "Reader with same parameters already exists",
+                                    Lang::Russian => {
+                                        "Читатель с предложенными параметрами уже существует"
+                                    }
+                                },
+                            );
+                            caretaker.pop().unwrap();
+                            None
+                        }
+
+                        Err(_) => {
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "'New Mid. Name' is empty",
+                                    Lang::Russian => "'Новое Отчество' пусто",
+                                },
+                            );
+                            caretaker.pop().unwrap();
+                            None
+                        }
+                    };
                 }
-                false => (),
             }
             break;
         } else if !get_father.shown() {
-            caretaker.pop();
+            caretaker.pop().unwrap();
             return None;
         }
     }
@@ -343,7 +334,8 @@ pub(crate) fn change_father_simple(
     None
 }
 
-/// Changes age of already known reader
+/// Function that changes
+/// age of already known reader
 
 #[inline]
 pub(crate) fn change_age_simple(
@@ -389,80 +381,75 @@ pub(crate) fn change_age_simple(
 
     while app.wait() {
         if let Some(msg) = rd.recv() {
-            match msg {
-                true => {
-                    win.hide();
+            if msg {
+                win.hide();
 
-                    let cal = Calendar::default();
-                    let date = cal.get_date();
+                let cal = Calendar::default();
+                let date = cal.get_date();
 
-                    return match date {
-                        Some(date) => match reader_base.change_age(ind, Date::from(date)) {
-                            Ok(_) => {
-                                fltk::dialog::message(
-                                    500,
-                                    500,
-                                    match lang {
-                                        Lang::English => "Successfully changed",
-                                        Lang::Russian => "Успешно изменено",
-                                    },
-                                );
+                return match date {
+                    Some(date) => match reader_base.change_age(ind, Date::from(date)) {
+                        Ok(_) => {
+                            fltk::dialog::message(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "Successfully changed",
+                                    Lang::Russian => "Успешно изменено",
+                                },
+                            );
 
-                                reader_base.save();
-                                book_system.save();
+                            reader_base.save();
+                            book_system.save();
 
-                                unsafe {
-                                    Some((**reader_base.readers.get_unchecked(ind)).borrow().age())
-                                }
+                            unsafe {
+                                Some((**reader_base.readers.get_unchecked(ind)).borrow().age())
                             }
+                        }
 
-                            Err(0) => {
-                                alert(
-                                    500,
-                                    500,
-                                    match lang {
-                                        Lang::English => "Reader isn't found",
-                                        Lang::Russian => "Читатель не найден",
-                                    },
-                                );
-                                caretaker.pop();
-                                None
-                            }
-
-                            Err(_) => {
-                                alert(
-                                    500,
-                                    500,
-                                    match lang {
-                                        Lang::English => {
-                                            "Reader with same parameters already exists"
-                                        }
-                                        Lang::Russian => {
-                                            "Читатель с предложенными параметрами уже существует"
-                                        }
-                                    },
-                                );
-                                caretaker.pop();
-                                None
-                            }
-                        },
-
-                        None => {
+                        Err(0) => {
                             alert(
                                 500,
                                 500,
                                 match lang {
-                                    Lang::English => "Date wasn't selected",
-                                    Lang::Russian => "Дата не была выбрана",
+                                    Lang::English => "Reader isn't found",
+                                    Lang::Russian => "Читатель не найден",
                                 },
                             );
+                            caretaker.pop().unwrap();
                             None
                         }
-                    };
-                }
 
-                false => (),
+                        Err(_) => {
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "Reader with same parameters already exists",
+                                    Lang::Russian => {
+                                        "Читатель с предложенными параметрами уже существует"
+                                    }
+                                },
+                            );
+                            caretaker.pop().unwrap();
+                            None
+                        }
+                    },
+
+                    None => {
+                        alert(
+                            500,
+                            500,
+                            match lang {
+                                Lang::English => "Date wasn't selected",
+                                Lang::Russian => "Дата не была выбрана",
+                            },
+                        );
+                        None
+                    }
+                };
             }
+            break;
         } else if !win.shown() {
             return None;
         }

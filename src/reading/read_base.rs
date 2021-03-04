@@ -14,7 +14,6 @@ use std::{
 };
 
 use std::iter::FromIterator;
-use std::num::ParseIntError;
 use yaml_rust::{yaml::Hash, Yaml, YamlEmitter, YamlLoader};
 
 /// Reader Base structure,
@@ -93,6 +92,7 @@ impl ReaderBase {
     /// Iterate on Book System with smart pointers of The Book
 
     #[inline]
+    #[allow(dead_code)]
     pub(crate) fn iter(&self) -> std::slice::Iter<Rc<RefCell<Reader>>> {
         self.readers.iter()
     }
@@ -365,6 +365,7 @@ impl ReaderBase {
     /// (But not readers themselves)
 
     #[inline]
+    #[allow(dead_code)]
     pub(crate) fn clear(&mut self) -> &mut Self {
         self.readers.clear();
         self

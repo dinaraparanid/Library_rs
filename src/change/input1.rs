@@ -11,6 +11,7 @@ where
 {
     wind: Rc<RefCell<SingleWindow>>,
     pub ok: Rc<RefCell<Button>>,
+    #[allow(dead_code)]
     what: Rc<RefCell<Frame>>,
     input: Rc<RefCell<I>>,
 }

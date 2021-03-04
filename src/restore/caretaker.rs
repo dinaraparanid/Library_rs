@@ -102,8 +102,13 @@ impl Caretaker {
     /// Removes last memento
 
     #[inline]
-    pub(crate) fn pop(&mut self) {
-        self.mementos.pop().unwrap();
-        self.ind -= 1;
+    pub(crate) fn pop(&mut self) -> Option<Memento> {
+        return match self.mementos.pop() {
+            None => None,
+            Some(val) => {
+                self.ind -= 1;
+                Some(val)
+            }
+        };
     }
 }

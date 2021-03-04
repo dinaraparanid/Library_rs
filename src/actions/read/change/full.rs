@@ -50,29 +50,22 @@ pub fn change_name(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(reader) = inp.set_input() {
-                        match check_reader(reader_base, &reader, app, lang) {
-                            Some(rind) => {
-                                change_name_simple(
-                                    rind,
-                                    reader_base,
-                                    book_system,
-                                    genres,
-                                    caretaker,
-                                    app,
-                                    lang,
-                                );
-                            }
-
-                            None => return,
-                        }
+                if let Ok(reader) = inp.set_input() {
+                    if let Some(rind) = check_reader(reader_base, &reader, app, lang) {
+                        change_name_simple(
+                            rind,
+                            reader_base,
+                            book_system,
+                            genres,
+                            caretaker,
+                            app,
+                            lang,
+                        );
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {
@@ -120,29 +113,22 @@ pub fn change_family(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(reader) = inp.set_input() {
-                        match check_reader(reader_base, &reader, app, lang) {
-                            Some(rind) => {
-                                change_family_simple(
-                                    rind,
-                                    reader_base,
-                                    book_system,
-                                    genres,
-                                    caretaker,
-                                    app,
-                                    lang,
-                                );
-                            }
-
-                            None => return,
-                        }
+                if let Ok(reader) = inp.set_input() {
+                    if let Some(rind) = check_reader(reader_base, &reader, app, lang) {
+                        change_family_simple(
+                            rind,
+                            reader_base,
+                            book_system,
+                            genres,
+                            caretaker,
+                            app,
+                            lang,
+                        );
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {
@@ -190,29 +176,22 @@ pub fn change_father(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(reader) = inp.set_input() {
-                        match check_reader(reader_base, &reader, app, lang) {
-                            Some(rind) => {
-                                change_father_simple(
-                                    rind,
-                                    reader_base,
-                                    book_system,
-                                    genres,
-                                    caretaker,
-                                    app,
-                                    lang,
-                                );
-                            }
-
-                            None => return,
-                        }
+                if let Ok(reader) = inp.set_input() {
+                    if let Some(rind) = check_reader(reader_base, &reader, app, lang) {
+                        change_father_simple(
+                            rind,
+                            reader_base,
+                            book_system,
+                            genres,
+                            caretaker,
+                            app,
+                            lang,
+                        );
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {
@@ -260,29 +239,22 @@ pub fn change_age(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(reader) = inp.set_input() {
-                        match check_reader(reader_base, &reader, app, lang) {
-                            Some(rind) => {
-                                change_age_simple(
-                                    rind,
-                                    reader_base,
-                                    book_system,
-                                    genres,
-                                    caretaker,
-                                    app,
-                                    lang,
-                                );
-                            }
-
-                            None => return,
-                        }
+                if let Ok(reader) = inp.set_input() {
+                    if let Some(rind) = check_reader(reader_base, &reader, app, lang) {
+                        change_age_simple(
+                            rind,
+                            reader_base,
+                            book_system,
+                            genres,
+                            caretaker,
+                            app,
+                            lang,
+                        );
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {

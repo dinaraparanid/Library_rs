@@ -17,11 +17,12 @@ use fltk::{
     prelude::*,
 };
 
-/// Function that add simple books.
+/// Function that add simple books
+/// and the book (if it wasn't in library)
 /// If number of books to add plus
 /// number of existing books
-/// is more than **usize::MAX**,
-/// than you will receive message about it.
+/// is **more than usize::MAX**,
+/// than you will receive error.
 /// If you have mistakes in input,
 /// program will let you know
 
@@ -53,6 +54,7 @@ pub fn add_books(
             Lang::Russian => "Количество страниц",
         },
     );
+
     inp.show();
     (*inp.ok).borrow_mut().emit(s2, true);
 
@@ -63,15 +65,11 @@ pub fn add_books(
                     inp.hide();
 
                     if let Ok(books) = inp.set_input() {
-                        unsafe {
-                            if empty_inp_book(&books, lang) {
-                                return;
-                            }
-
-                            return match books.get_unchecked(2).trim().parse::<u16>() {
+                        if !empty_inp_book(&books, lang) {
+                            match unsafe { books.get_unchecked(2).trim().parse::<u16>() } {
                                 Ok(x) => match book_system.find_book(
-                                    books.get_unchecked(0),
-                                    books.get_unchecked(1),
+                                    unsafe { books.get_unchecked(0) },
+                                    unsafe { books.get_unchecked(1) },
                                     x,
                                 ) {
                                     Some(i) => {
@@ -85,7 +83,16 @@ pub fn add_books(
                                             lang,
                                         );
                                     }
-                                    None => add_book_simple(book_system, &books, app, lang),
+
+                                    None => add_book_simple(
+                                        &books,
+                                        book_system,
+                                        reader_base,
+                                        genres,
+                                        caretaker,
+                                        app,
+                                        lang,
+                                    ),
                                 },
 
                                 Err(_) => {
@@ -98,7 +105,7 @@ pub fn add_books(
                                         },
                                     );
                                 }
-                            };
+                            }
                         }
                     }
                 }
@@ -111,7 +118,7 @@ pub fn add_books(
     }
 }
 
-/// Function that removes simple books.
+/// Function that removes one simple book.
 /// It takes index of book, so be careful.
 /// If you have mistakes in input,
 /// program will let you know
@@ -179,12 +186,17 @@ pub fn remove_book(
 
 /// **DEPRECATED**
 ///
+/// Used before to add new TheBook.
+/// Complains if TheBook with same params exists.
+/// **Use add_books() instead**
+///
 /// Function that add new book and with some simple books.
 /// If you have mistakes in input,
 /// program will let you know
 
-#[inline]
-#[deprecated]
+#[deprecated(
+    note = "Used before to add new TheBook. Complains if TheBook with same params exists. Use add_books() instead"
+)]
 fn add_book(
     book_system: &mut BookSystem,
     reader_base: &ReaderBase,
@@ -220,15 +232,11 @@ fn add_book(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(the_book) = inp.set_input() {
-                        if empty_inp_book(&the_book, lang) {
-                            return;
-                        }
-
+                if let Ok(the_book) = inp.set_input() {
+                    if !empty_inp_book(&the_book, lang) {
                         let (s, r) = app::channel();
                         let mut am = Input1::<IntInput>::new(
                             match lang {
@@ -246,88 +254,97 @@ fn add_book(
 
                         while app.wait() {
                             if let Some(mes) = r.recv() {
-                                match mes {
-                                    true => {
-                                        am.hide();
+                                if mes {
+                                    am.hide();
 
-                                        if let Ok(amount) = am.set_input() {
-                                            match amount.first().unwrap().trim().parse::<usize>() {
-                                                Ok(amount) => {
-                                                    match the_book
-                                                        .last()
-                                                        .unwrap()
-                                                        .trim()
-                                                        .parse::<u16>()
-                                                    {
-                                                        Ok(x) => unsafe {
-                                                            match book_system.add_book(
-																the_book.get_unchecked(0).clone(),
-																the_book.get_unchecked(1).clone(),
-																x,
-																amount,
-																app,
-																lang,
-															) {
-																Ok(_) => {
-																	fltk::dialog::message(500, 500, match lang {
-																		Lang::English => "Successfully added",
-																		Lang::Russian => "Успешно добавлено",
-																	});
-																	book_system.save();
-																}
+                                    if let Ok(amount) = am.set_input() {
+                                        match amount.first().unwrap().trim().parse::<usize>() {
+                                            Ok(amount) => {
+                                                match the_book.last().unwrap().trim().parse::<u16>()
+                                                {
+                                                    Ok(x) => unsafe {
+                                                        match book_system.add_book(
+                                                            the_book.get_unchecked(0).clone(),
+                                                            the_book.get_unchecked(1).clone(),
+                                                            x,
+                                                            amount,
+                                                            app,
+                                                            lang,
+                                                        ) {
+                                                            Ok(_) => {
+                                                                fltk::dialog::message(
+                                                                    500,
+                                                                    500,
+                                                                    match lang {
+                                                                        Lang::English => {
+                                                                            "Successfully added"
+                                                                        }
+                                                                        Lang::Russian => {
+                                                                            "Успешно добавлено"
+                                                                        }
+                                                                    },
+                                                                );
+                                                                book_system.save();
+                                                                return;
+                                                            }
 
-																Err(_) => {
-																	alert(500,
-																	      500,
-																	      match lang {
-																		      Lang::English => "Book with same parameters already exists",
-																		      Lang::Russian => concat!("Книга с предложенными",
-																		      " параметрами уже существует"),
-																	      }
-																	)
-																}
-															}
-                                                        },
-
-                                                        Err(_) => {
-                                                            alert(
-																500,
-																500,
-																match lang {
-																	Lang::English => "Incorrect 'Amount of Pages' input",
-																	Lang::Russian => "Некорретный ввод количества страниц",
-																}
-															);
+                                                            Err(_) => {
+                                                                alert(
+                                                                    500,
+                                                                    500,
+                                                                    match lang {
+                                                                        Lang::English => "Book with same params already exists",
+                                                                        Lang::Russian => concat!("Книга с предложенными",
+                                                                        " параметрами уже существует"),
+                                                                    }
+                                                                );
+                                                                caretaker.pop().unwrap();
+                                                                return;
+                                                            }
                                                         }
+                                                    },
+
+                                                    Err(_) => {
+                                                        alert(
+                                                            500,
+                                                            500,
+                                                            match lang {
+                                                                Lang::English => "Incorrect 'Amount of Pages' input",
+                                                                Lang::Russian => "Некорретный ввод количества страниц",
+                                                            }
+                                                        );
+                                                        caretaker.pop().unwrap();
+                                                        return;
                                                     }
                                                 }
+                                            }
 
-                                                Err(_) => {
-                                                    alert(
-                                                        500,
-                                                        500,
-                                                        match lang {
-                                                            Lang::English => {
-                                                                "'Amount of Pages' input error"
-                                                            }
-                                                            Lang::Russian => {
-                                                                "Ошибка ввода количества страниц"
-                                                            }
-                                                        },
-                                                    );
-                                                }
+                                            Err(_) => {
+                                                alert(
+                                                    500,
+                                                    500,
+                                                    match lang {
+                                                        Lang::English => {
+                                                            "'Amount of Pages' input error"
+                                                        }
+                                                        Lang::Russian => {
+                                                            "Ошибка ввода количества страниц"
+                                                        }
+                                                    },
+                                                );
+                                                caretaker.pop().unwrap();
+                                                return;
                                             }
                                         }
                                     }
-                                    false => (),
                                 }
+                                break;
                             } else if !am.shown() {
                                 break;
                             }
                         }
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {
@@ -336,7 +353,8 @@ fn add_book(
     }
 }
 
-/// Function that removes all simple books and TheBook.
+/// Function that removes
+/// all simple books and TheBook.
 /// If you have mistakes in input,
 /// program will let you know
 
@@ -374,24 +392,21 @@ pub fn remove_the_book(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(the_book) = inp.set_input() {
-                        if let Ok(index) = check_book(book_system, &the_book, lang) {
-                            remove_the_book_simple(
-                                index,
-                                book_system,
-                                reader_base,
-                                genres,
-                                caretaker,
-                                lang,
-                            );
-                        }
+                if let Ok(the_book) = inp.set_input() {
+                    if let Ok(index) = check_book(book_system, &the_book, lang) {
+                        remove_the_book_simple(
+                            index,
+                            book_system,
+                            reader_base,
+                            genres,
+                            caretaker,
+                            lang,
+                        );
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {

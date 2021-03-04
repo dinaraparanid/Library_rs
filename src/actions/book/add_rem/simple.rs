@@ -10,7 +10,9 @@ use crate::{
 
 use fltk::{app, app::App, dialog::alert, input::IntInput, prelude::*};
 
-/// Removes already known the book
+/// Function that removes
+/// already known the book
+/// and all simple books
 
 #[inline]
 pub(crate) fn remove_the_book_simple(
@@ -47,13 +49,14 @@ pub(crate) fn remove_the_book_simple(
                     Lang::Russian => "Номер книги некорректен",
                 },
             );
-            caretaker.pop();
+            caretaker.pop().unwrap();
             return;
         }
     }
 }
 
-/// Adds simple books to already known the book
+/// Function that adds simple books
+/// to already known the book
 
 #[inline]
 pub(crate) fn add_books_simple(
@@ -84,59 +87,57 @@ pub(crate) fn add_books_simple(
 
     while app.wait() {
         if let Some(msg) = r3.recv() {
-            match msg {
-                true => {
-                    get_amount.hide();
+            if msg {
+                get_amount.hide();
 
-                    if let Ok(amount) = get_amount.set_input() {
-                        return match amount.first().unwrap().trim().parse::<usize>() {
-                            Ok(x) => match book_system.add_books(ind, x, app, lang) {
-                                Ok(_) => {
-                                    fltk::dialog::message(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "Successfully added",
-                                            Lang::Russian => "Успешно добавлено",
-                                        },
-                                    );
-                                    book_system.save();
-                                    true
-                                }
-
-                                Err(_) => {
-                                    alert(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "Too much books",
-                                            Lang::Russian => "Слишком много книг",
-                                        },
-                                    );
-                                    caretaker.pop();
-                                    false
-                                }
-                            },
+                if let Ok(amount) = get_amount.set_input() {
+                    return match amount.first().unwrap().trim().parse::<usize>() {
+                        Ok(x) => match book_system.add_books(ind, x, app, lang) {
+                            Ok(_) => {
+                                fltk::dialog::message(
+                                    500,
+                                    500,
+                                    match lang {
+                                        Lang::English => "Successfully added",
+                                        Lang::Russian => "Успешно добавлено",
+                                    },
+                                );
+                                book_system.save();
+                                true
+                            }
 
                             Err(_) => {
                                 alert(
                                     500,
                                     500,
                                     match lang {
-                                        Lang::English => "'Amount of books' input error",
-                                        Lang::Russian => "Ошибка ввода количества книг",
+                                        Lang::English => "Too much books",
+                                        Lang::Russian => "Слишком много книг",
                                     },
                                 );
-                                caretaker.pop();
+                                caretaker.pop().unwrap();
                                 false
                             }
-                        };
-                    }
-                }
+                        },
 
-                false => (),
+                        Err(_) => {
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "'Amount of books' input error",
+                                    Lang::Russian => "Ошибка ввода количества книг",
+                                },
+                            );
+                            caretaker.pop().unwrap();
+                            false
+                        }
+                    };
+                }
             }
+            break;
         } else if !get_amount.shown() {
+            caretaker.pop().unwrap();
             return false;
         }
     }
@@ -144,7 +145,9 @@ pub(crate) fn add_books_simple(
     false
 }
 
-/// Removes one simple book from known the book
+/// Function that removes
+/// *one* simple book by *index*
+/// from known the book
 
 #[inline]
 pub(crate) fn remove_book_simple(
@@ -175,75 +178,73 @@ pub(crate) fn remove_book_simple(
 
     while app.wait() {
         if let Some(msg) = r3.recv() {
-            match msg {
-                true => {
-                    get_ind.hide();
+            if msg {
+                get_ind.hide();
 
-                    if let Ok(ind) = get_ind.set_input() {
-                        return match ind.first().unwrap().trim().parse::<usize>() {
-                            Ok(x) => {
-                                if x == 0 {
-                                    alert(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "Incorrect number of book",
-                                            Lang::Russian => "Некорректный номер книги",
-                                        },
-                                    );
-                                    caretaker.pop();
-                                    false
-                                } else {
-                                    match book_system.remove_one_book(index, x - 1) {
-                                        Ok(_) => {
-                                            fltk::dialog::message(
-                                                500,
-                                                500,
-                                                match lang {
-                                                    Lang::English => "Successfully removed",
-                                                    Lang::Russian => "Успешно удалено",
-                                                },
-                                            );
-                                            book_system.save();
-                                            reader_base.save();
-                                            true
-                                        }
-
-                                        Err(_) => {
-                                            alert(
-                                                500,
-                                                500,
-                                                match lang {
-                                                    Lang::English => "Incorrect number of book",
-                                                    Lang::Russian => "Некорректный номер книги",
-                                                },
-                                            );
-                                            caretaker.pop();
-                                            false
-                                        }
-                                    }
-                                }
-                            }
-
-                            Err(_) => {
+                if let Ok(ind) = get_ind.set_input() {
+                    return match ind.first().unwrap().trim().parse::<usize>() {
+                        Ok(x) => {
+                            if x == 0 {
                                 alert(
                                     500,
                                     500,
                                     match lang {
-                                        Lang::English => "Book's number input error",
-                                        Lang::Russian => "Ошибка ввода номера книги",
+                                        Lang::English => "Incorrect number of book",
+                                        Lang::Russian => "Некорректный номер книги",
                                     },
                                 );
-                                caretaker.pop();
+                                caretaker.pop().unwrap();
                                 false
-                            }
-                        };
-                    }
-                }
+                            } else {
+                                match book_system.remove_one_book(index, x - 1) {
+                                    Ok(_) => {
+                                        fltk::dialog::message(
+                                            500,
+                                            500,
+                                            match lang {
+                                                Lang::English => "Successfully removed",
+                                                Lang::Russian => "Успешно удалено",
+                                            },
+                                        );
+                                        book_system.save();
+                                        reader_base.save();
+                                        true
+                                    }
 
-                false => (),
+                                    Err(_) => {
+                                        alert(
+                                            500,
+                                            500,
+                                            match lang {
+                                                Lang::English => "Incorrect number of book",
+                                                Lang::Russian => "Некорректный номер книги",
+                                            },
+                                        );
+                                        caretaker.pop().unwrap();
+                                        false
+                                    }
+                                }
+                            }
+                        }
+
+                        Err(_) => {
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "Book's number input error",
+                                    Lang::Russian => "Ошибка ввода номера книги",
+                                },
+                            );
+                            caretaker.pop().unwrap();
+                            false
+                        }
+                    };
+                }
             }
+            break;
         } else if !get_ind.shown() {
+            caretaker.pop().unwrap();
             return false;
         }
     }
@@ -251,7 +252,9 @@ pub(crate) fn remove_book_simple(
     false
 }
 
-/// Removes one known simple book from known the book
+/// Function that removes
+/// one known simple book
+/// from known the book
 
 #[inline]
 pub(crate) fn remove_book_simple2(
@@ -282,12 +285,15 @@ pub(crate) fn remove_book_simple2(
     reader_base.save();
 }
 
-/// Adds known The Book
+/// Adds The Book with known params
 
 #[inline]
 pub(crate) fn add_book_simple(
-    book_system: &mut BookSystem,
     the_book: &Vec<String>,
+    book_system: &mut BookSystem,
+    reader_base: &ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
     app: &App,
     lang: Lang,
 ) {
@@ -303,74 +309,85 @@ pub(crate) fn add_book_simple(
         },
     );
 
+    caretaker.add_memento(reader_base, book_system, genres);
+
     am.show();
     (*am.ok).borrow_mut().emit(s, true);
 
     while app.wait() {
         if let Some(mes) = r.recv() {
-            match mes {
-                true => {
-                    am.hide();
+            if mes {
+                am.hide();
 
-                    if let Ok(amount) = am.set_input() {
-                        match amount.first().unwrap().trim().parse::<usize>() {
-                            Ok(amount) => match the_book.last().unwrap().trim().parse::<u16>() {
-                                Ok(x) => unsafe {
-                                    match book_system.add_book(
-										the_book.get_unchecked(0).clone(),
-										the_book.get_unchecked(1).clone(),
-										x,
-										amount,
-										app,
-										lang
-									) {
-										Ok(_) => {
-											fltk::dialog::message(500, 500, match lang {
-												Lang::English => "Successfully added",
-												Lang::Russian => "Успешно добавлено",
-											});
-											book_system.save();
-										}
+                if let Ok(amount) = am.set_input() {
+                    match amount.first().unwrap().trim().parse::<usize>() {
+                        Ok(amount) => match the_book.last().unwrap().trim().parse::<u16>() {
+                            Ok(x) => {
+                                match book_system.add_book(
+                                    unsafe { the_book.get_unchecked(0).clone() },
+                                    unsafe { the_book.get_unchecked(1).clone() },
+                                    x,
+                                    amount,
+                                    app,
+                                    lang,
+                                ) {
+                                    Ok(_) => {
+                                        fltk::dialog::message(
+                                            500,
+                                            500,
+                                            match lang {
+                                                Lang::English => "Successfully added",
+                                                Lang::Russian => "Успешно добавлено",
+                                            },
+                                        );
+                                        book_system.save();
+                                    }
 
-										Err(_) => {
-											alert(500,
-											      500,
-											      match lang {
-												      Lang::English => "Book with same parameters already exists",
-												      Lang::Russian => "Книга с предложенными параметрами уже сузествует",
-											      }
-											)
-										}
-									}
-                                },
-
-                                Err(_) => {
-                                    alert(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "Incorrect 'Amount of Pages' input",
-                                            Lang::Russian => "Некорретный ввод количества страниц",
-                                        },
-                                    );
+                                    Err(_) => {
+                                        alert(
+                                            500,
+                                            500,
+                                            match lang {
+                                                Lang::English => "Book with same parameters already exists",
+                                                Lang::Russian => "Книга с предложенными параметрами уже сузествует",
+                                            }
+                                        );
+                                        caretaker.pop().unwrap();
+                                        return;
+                                    }
                                 }
-                            },
+                            }
 
                             Err(_) => {
                                 alert(
                                     500,
                                     500,
                                     match lang {
-                                        Lang::English => "'Amount of Pages' input error",
-                                        Lang::Russian => "Ошибка ввода количества страниц",
+                                        Lang::English => "Incorrect 'Amount of Pages' input",
+                                        Lang::Russian => "Некорретный ввод количества страниц",
                                     },
                                 );
+                                caretaker.pop().unwrap();
+                                return;
                             }
+                        },
+
+                        Err(_) => {
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "'Amount of Pages' input error",
+                                    Lang::Russian => "Ошибка ввода количества страниц",
+                                },
+                            );
+                            caretaker.pop().unwrap();
+                            return;
                         }
                     }
                 }
-                false => (),
             }
+            break;
         } else if !am.shown() {
             break;
         }

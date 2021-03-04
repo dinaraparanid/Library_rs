@@ -3,7 +3,7 @@ extern crate fltk;
 use crate::{
     actions::book::{change::simple::*, utils::check_book},
     books::{book_sys::BookSystem, genres::Genres},
-    change::{input1::Input1, input2::Input2, input3::Input3, Inputable},
+    change::{input1::Input1, input3::Input3, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
     Lang,
@@ -56,25 +56,22 @@ pub fn change_title(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(book) = inp.set_input() {
-                        if let Ok(index) = check_book(book_system, &book, lang) {
-                            change_title_simple(
-                                index,
-                                book_system,
-                                reader_base,
-                                genres,
-                                caretaker,
-                                app,
-                                lang,
-                            );
-                        }
+                if let Ok(book) = inp.set_input() {
+                    if let Ok(index) = check_book(book_system, &book, lang) {
+                        change_title_simple(
+                            index,
+                            book_system,
+                            reader_base,
+                            genres,
+                            caretaker,
+                            app,
+                            lang,
+                        );
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {
@@ -122,25 +119,22 @@ pub fn change_author(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(book) = inp.set_input() {
-                        if let Ok(index) = check_book(book_system, &book, lang) {
-                            change_author_simple(
-                                index,
-                                book_system,
-                                reader_base,
-                                genres,
-                                caretaker,
-                                app,
-                                lang,
-                            );
-                        }
+                if let Ok(book) = inp.set_input() {
+                    if let Ok(index) = check_book(book_system, &book, lang) {
+                        change_author_simple(
+                            index,
+                            book_system,
+                            reader_base,
+                            genres,
+                            caretaker,
+                            app,
+                            lang,
+                        );
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {
@@ -188,25 +182,22 @@ pub fn change_pages(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(book) = inp.set_input() {
-                        if let Ok(index) = check_book(book_system, &book, lang) {
-                            change_pages_simple(
-                                index,
-                                book_system,
-                                reader_base,
-                                genres,
-                                caretaker,
-                                app,
-                                lang,
-                            );
-                        }
+                if let Ok(book) = inp.set_input() {
+                    if let Ok(index) = check_book(book_system, &book, lang) {
+                        change_pages_simple(
+                            index,
+                            book_system,
+                            reader_base,
+                            genres,
+                            caretaker,
+                            app,
+                            lang,
+                        );
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {
@@ -216,7 +207,7 @@ pub fn change_pages(
 }
 
 /// Function that changes location
-/// of simple book.
+/// (cabinet and shelf) of simple book.
 /// If you have mistakes in input,
 /// program will let you know
 
@@ -254,71 +245,61 @@ pub fn change_location(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(book) = inp.set_input() {
-                        if let Ok(t_ind) = check_book(book_system, &book, lang) {
-                            let (s, r) = app::channel();
-                            let mut inp2 = Input1::<IntInput>::new(
-                                match lang {
-                                    Lang::English => "Book's number",
-                                    Lang::Russian => "Номер книги",
-                                },
-                                match lang {
-                                    Lang::English => "Book's number",
-                                    Lang::Russian => "Номер книги",
-                                },
-                            );
+                if let Ok(book) = inp.set_input() {
+                    if let Ok(t_ind) = check_book(book_system, &book, lang) {
+                        let (s, r) = app::channel();
+                        let mut inp2 = Input1::<IntInput>::new(
+                            match lang {
+                                Lang::English => "Book's number",
+                                Lang::Russian => "Номер книги",
+                            },
+                            match lang {
+                                Lang::English => "Book's number",
+                                Lang::Russian => "Номер книги",
+                            },
+                        );
 
-                            inp2.show();
-                            (*inp2.ok).borrow_mut().emit(s, true);
+                        inp2.show();
+                        (*inp2.ok).borrow_mut().emit(s, true);
 
-                            while app.wait() {
-                                if let Some(mes) = r.recv() {
-                                    match mes {
-                                        true => {
-                                            inp2.hide();
+                        while app.wait() {
+                            if let Some(mes) = r.recv() {
+                                if mes {
+                                    inp2.hide();
 
-                                            if let Ok(ind) = inp2.set_input() {
-                                                match ind.first().unwrap().trim().parse::<usize>() {
-                                                    Err(_) => alert(
-                                                        500,
-                                                        500,
-                                                        match lang {
-                                                            Lang::English => {
-                                                                "Incorrect book's number"
-                                                            }
-                                                            Lang::Russian => {
-                                                                "Некорректный номер книги"
-                                                            }
-                                                        },
-                                                    ),
+                                    if let Ok(ind) = inp2.set_input() {
+                                        match ind.first().unwrap().trim().parse::<usize>() {
+                                            Err(_) => alert(
+                                                500,
+                                                500,
+                                                match lang {
+                                                    Lang::English => "Incorrect book's number",
+                                                    Lang::Russian => "Некорректный номер книги",
+                                                },
+                                            ),
 
-                                                    Ok(s_ind) => change_location_simple(
-                                                        t_ind,
-                                                        s_ind,
-                                                        book_system,
-                                                        reader_base,
-                                                        genres,
-                                                        caretaker,
-                                                        app,
-                                                        lang,
-                                                    ),
-                                                }
-                                            }
+                                            Ok(s_ind) => change_location_simple(
+                                                t_ind,
+                                                s_ind,
+                                                book_system,
+                                                reader_base,
+                                                genres,
+                                                caretaker,
+                                                app,
+                                                lang,
+                                            ),
                                         }
-                                        false => (),
                                     }
-                                } else if !inp2.shown() {
-                                    break;
                                 }
+                            } else if !inp2.shown() {
+                                break;
                             }
                         }
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {

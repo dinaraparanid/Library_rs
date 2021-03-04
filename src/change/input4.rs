@@ -21,12 +21,16 @@ where
 {
     wind: Rc<RefCell<SingleWindow>>,
     pub ok: Rc<RefCell<Button>>,
+    #[allow(dead_code)]
     what1: Rc<RefCell<Frame>>,
     input1: Rc<RefCell<I>>,
+    #[allow(dead_code)]
     what2: Rc<RefCell<Frame>>,
     input2: Rc<RefCell<J>>,
+    #[allow(dead_code)]
     what3: Rc<RefCell<Frame>>,
     input3: Rc<RefCell<L>>,
+    #[allow(dead_code)]
     what4: Rc<RefCell<Frame>>,
     input4: Rc<RefCell<K>>,
 }
@@ -79,6 +83,7 @@ where
     /// Creates window with asking message and 4 input labels
 
     #[inline]
+    #[allow(dead_code)]
     pub fn new(
         title: &str,
         what_mes1: &str,

@@ -9,7 +9,8 @@ use crate::{
 
 use fltk::dialog::alert;
 
-/// Removes already known reader
+/// Function that removes
+/// already known reader
 
 #[inline]
 pub(crate) fn remove_reader_simple(
@@ -46,7 +47,7 @@ pub(crate) fn remove_reader_simple(
                     Lang::Russian => "Читатель не найден",
                 },
             );
-            caretaker.pop();
+            caretaker.pop().unwrap();
             return;
         }
     }

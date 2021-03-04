@@ -430,6 +430,7 @@ impl BookSystem {
     /// (But not Books themselves)
 
     #[inline]
+    #[allow(dead_code)]
     pub(crate) fn clear(&mut self) -> &mut Self {
         self.books.clear();
         self

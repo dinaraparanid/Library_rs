@@ -1,7 +1,7 @@
 extern crate fltk;
 
 use crate::{
-    actions::{book::*, giveaway::simple::*, read::utils::check_reader},
+    actions::{giveaway::simple::*, read::utils::check_reader},
     books::{book::Book, book_sys::BookSystem, date::Date, genres::Genres},
     change::{input3::Input3, Inputable},
     reading::read_base::ReaderBase,
@@ -10,14 +10,14 @@ use crate::{
 };
 
 use fltk::{
-    app,
     app::{channel, App},
     dialog::alert,
     input::*,
     prelude::*,
 };
 
-/// Changes return date
+/// Function that changes
+/// return date for the book
 
 #[inline]
 pub fn change_return_date(
@@ -53,57 +53,52 @@ pub fn change_return_date(
 
     while app.wait() {
         if let Some(mes) = r.recv() {
-            match mes {
-                true => {
-                    inp2.hide();
+            if mes {
+                inp2.hide();
 
-                    if let Ok(reader) = inp2.set_input() {
-                        match check_reader(reader_base, &reader, app, lang) {
-                            Some(rind) => unsafe {
-                                match &(**reader_base.readers.get_unchecked(rind)).borrow().reading
-                                {
-                                    Some(book) => {
-                                        change_return_date_simple(
-                                            &Some(book.clone()),
-                                            book_system,
-                                            reader_base,
-                                            genres,
-                                            caretaker,
-                                            app,
-                                            lang,
-                                        );
-                                    }
-
-                                    None => {
-                                        alert(
-                                            500,
-                                            500,
-                                            match lang {
-                                                Lang::English => {
-                                                    "This reader isn't reading anything"
-                                                }
-                                                Lang::Russian => "Этот читатель ничего не читает",
-                                            },
-                                        );
-
-                                        caretaker.pop();
-                                        return;
-                                    }
+                if let Ok(reader) = inp2.set_input() {
+                    match check_reader(reader_base, &reader, app, lang) {
+                        Some(rind) => {
+                            match unsafe {
+                                &(**reader_base.readers.get_unchecked(rind)).borrow().reading
+                            } {
+                                Some(book) => {
+                                    change_return_date_simple(
+                                        &Some(book.clone()),
+                                        book_system,
+                                        reader_base,
+                                        genres,
+                                        caretaker,
+                                        app,
+                                        lang,
+                                    );
                                 }
-                            },
 
-                            None => {
-                                caretaker.pop();
-                                return;
+                                None => {
+                                    alert(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "This reader isn't reading anything",
+                                            Lang::Russian => "Этот читатель ничего не читает",
+                                        },
+                                    );
+
+                                    caretaker.pop().unwrap();
+                                    return;
+                                }
                             }
+                        }
+
+                        None => {
+                            caretaker.pop().unwrap();
+                            return;
                         }
                     }
                 }
-
-                false => (),
             }
         } else if !inp2.shown() {
-            caretaker.pop();
+            caretaker.pop().unwrap();
             return;
         }
     }
@@ -151,44 +146,39 @@ pub fn give_book(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(reader) = inp.set_input() {
-                        match check_reader(reader_base, &reader, app, lang) {
-                            Some(x) => {
-                                give_book_known_reader(
-                                    x,
-                                    reader_base,
-                                    book_system,
-                                    genres,
-                                    caretaker,
-                                    app,
-                                    lang,
-                                );
-                            }
+                if let Ok(reader) = inp.set_input() {
+                    match check_reader(reader_base, &reader, app, lang) {
+                        Some(x) => {
+                            give_book_known_reader(
+                                x,
+                                reader_base,
+                                book_system,
+                                genres,
+                                caretaker,
+                                app,
+                                lang,
+                            );
+                        }
 
-                            None => {
-                                caretaker.pop();
-                                return;
-                            }
+                        None => {
+                            caretaker.pop().unwrap();
+                            return;
                         }
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {
-            caretaker.pop();
+            caretaker.pop().unwrap();
             break;
         }
     }
 }
 
-/// Function that gives book to reader.
-/// It requires you to input
-/// info about reader, book and return date.
+/// Function that gets book from reader.
 /// If you have mistakes in input,
 /// program will let you know
 
@@ -228,31 +218,28 @@ pub fn get_book(
 
     while app.wait() {
         if let Some(message) = r2.recv() {
-            match message {
-                true => {
-                    inp.hide();
+            if message {
+                inp.hide();
 
-                    if let Ok(reader) = inp.set_input() {
-                        match check_reader(reader_base, &reader, app, lang) {
-                            Some(x) => {
-                                get_book_known_reader(
-                                    x,
-                                    reader_base,
-                                    book_system,
-                                    genres,
-                                    caretaker,
-                                    lang,
-                                );
-                            }
+                if let Ok(reader) = inp.set_input() {
+                    match check_reader(reader_base, &reader, app, lang) {
+                        Some(x) => {
+                            get_book_known_reader(
+                                x,
+                                reader_base,
+                                book_system,
+                                genres,
+                                caretaker,
+                                lang,
+                            );
+                        }
 
-                            None => {
-                                caretaker.pop();
-                                return;
-                            }
+                        None => {
+                            caretaker.pop();
+                            return;
                         }
                     }
                 }
-                false => (),
             }
             break;
         } else if !inp.shown() {

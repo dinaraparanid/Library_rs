@@ -3,28 +3,14 @@ use std::{
     io::{Read, Write},
 };
 
-#[allow(dead_code)]
-#[allow(unused_imports)]
-pub mod books;
-
-#[allow(dead_code)]
-#[allow(unused_imports)]
-pub mod reading;
-
-#[allow(dead_code)]
-#[allow(unused_imports)]
-pub mod change;
-
-#[allow(dead_code)]
-#[allow(unused_imports)]
 pub mod actions;
-
-#[allow(dead_code)]
-#[allow(unused_imports)]
+pub mod books;
+pub mod change;
+pub mod reading;
 pub mod restore;
 
-#[allow(dead_code)]
-#[allow(unused_imports)]
+#[deprecated(note = "It has been a lot of changes since I need it,\
+     since everything works correct, I have no need for tests")]
 mod tests;
 
 /// Language.

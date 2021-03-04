@@ -1092,7 +1092,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                 book_info_simple(
                     (*reader_base).borrow().get_book(i),
                     &mut (*book_system).borrow_mut(),
-                    &app,
                     lang,
                 );
 
