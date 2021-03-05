@@ -1,4 +1,3 @@
-extern crate chrono;
 extern crate fltk;
 extern crate fltk_calendar;
 
@@ -13,8 +12,6 @@ use crate::{
     restore::caretaker::Caretaker,
     Lang,
 };
-
-use chrono::Datelike;
 
 /// Function that adds reader.
 /// If you have mistakes in input,

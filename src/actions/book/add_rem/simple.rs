@@ -257,6 +257,7 @@ pub(crate) fn remove_book_simple(
 /// from known the book
 
 #[inline]
+#[allow(dead_code)]
 pub(crate) fn remove_book_simple2(
     index: usize,
     s_index: usize,

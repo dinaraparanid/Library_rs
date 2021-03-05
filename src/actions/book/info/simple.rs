@@ -533,6 +533,17 @@ pub fn the_book_info_simple(
 
     menu.add_emit(
         match lang {
+            Lang::English => "&Change/Customize book genres\t",
+            Lang::Russian => "&Изменить/Изменить жанры книги\t",
+        },
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        MessageTheBook::CustomizeBookGenre,
+    );
+
+    menu.add_emit(
+        match lang {
             Lang::English => "&Remove/Remove all books\t",
             Lang::Russian => "&Удалить/Удалить все книги\t",
         },

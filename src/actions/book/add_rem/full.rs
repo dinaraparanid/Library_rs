@@ -194,6 +194,7 @@ pub fn remove_book(
 /// If you have mistakes in input,
 /// program will let you know
 
+#[allow(dead_code)]
 #[deprecated(
     note = "Used before to add new TheBook. Complains if TheBook with same params exists. Use add_books() instead"
 )]

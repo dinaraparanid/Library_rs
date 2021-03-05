@@ -2,19 +2,14 @@ extern crate fltk;
 
 use crate::{
     actions::{giveaway::simple::*, read::utils::check_reader},
-    books::{book::Book, book_sys::BookSystem, date::Date, genres::Genres},
+    books::{book_sys::BookSystem, genres::Genres},
     change::{input3::Input3, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
     Lang,
 };
 
-use fltk::{
-    app::{channel, App},
-    dialog::alert,
-    input::*,
-    prelude::*,
-};
+use fltk::{app::App, dialog::alert, input::*};
 
 /// Function that changes
 /// return date for the book

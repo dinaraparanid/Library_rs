@@ -9,6 +9,8 @@ pub mod change;
 pub mod reading;
 pub mod restore;
 
+#[allow(dead_code)]
+#[allow(unused_imports)]
 #[deprecated(note = "It has been a lot of changes since I need it,\
      since everything works correct, I have no need for tests")]
 mod tests;

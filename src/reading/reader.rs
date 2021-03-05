@@ -138,6 +138,7 @@ impl Reader {
     /// else none
 
     #[inline]
+    #[allow(dead_code)]
     pub(crate) fn find_book_first(&self, book: &Rc<RefCell<Book>>) -> Option<usize> {
         self.books
             .iter()
@@ -149,6 +150,7 @@ impl Reader {
     /// else none
 
     #[inline]
+    #[allow(dead_code)]
     pub(crate) fn find_book_last(&self, book: &Rc<RefCell<Book>>) -> Option<usize> {
         self.books
             .iter()

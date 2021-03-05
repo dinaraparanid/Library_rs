@@ -1,34 +1,17 @@
 extern crate fltk;
 
-use fltk::{
-    app,
-    app::App,
-    dialog::alert,
-    draw,
-    frame::Frame,
-    group::VGrid,
-    input::{Input, IntInput},
-    menu::{MenuBar, MenuFlag},
-    prelude::*,
-    table::Table,
-    window::SingleWindow,
-};
+use fltk::{app, app::App, input::Input, prelude::*};
 
 use crate::{
-    actions::{
-        book::info::simple::book_info_simple,
-        giveaway::simple::{get_book_known_reader, give_book_known_reader},
-        read::{change::*, info::simple::reader_info_simple, utils::check_reader},
-        tables::*,
-    },
-    books::{book_sys::BookSystem, date::Date, genres::Genres},
+    actions::read::{info::simple::reader_info_simple, utils::check_reader},
+    books::{book_sys::BookSystem, genres::Genres},
     change::{input3::Input3, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
     Lang,
 };
 
-use std::{cell::RefCell, cmp::max, rc::Rc};
+use std::{cell::RefCell, rc::Rc};
 
 /// Function that gives info about reader.
 /// If you have mistakes in input,

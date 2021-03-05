@@ -17,7 +17,6 @@ use fltk::{
     dialog::alert,
     input::{Input, IntInput},
     prelude::*,
-    tree::TreeItem,
 };
 
 use chrono::Local;
@@ -280,6 +279,7 @@ pub(crate) fn give_book_known_reader(
 ///
 /// Gives book to known reader (user input version)
 
+#[allow(dead_code)]
 #[deprecated(note = "Used before. Requires input. Consider using give_book_known_reader() instead")]
 fn give_book_known_reader_input(
     rind: usize,
@@ -710,6 +710,7 @@ pub(crate) fn get_book_known_reader(
 ///
 /// Function that gets book from known reader
 
+#[allow(dead_code)]
 #[deprecated(
     note = "Used before. Requires user input. Consider using get_book_known_reader() instead"
 )]
