@@ -28,6 +28,7 @@ use yaml_rust::{
 /// Reader Base structure,
 /// which contains only Book interfaces
 
+#[derive(Default)]
 pub struct BookSystem {
     pub(crate) books: Vec<Rc<RefCell<TheBook>>>,
 }
@@ -42,7 +43,6 @@ impl Debug for BookSystem {
             .field(
                 "books",
                 &self
-                    .books
                     .iter()
                     .map(|x| format!("{:?}", *(**x).borrow()))
                     .collect::<Vec<_>>(),
@@ -89,12 +89,19 @@ impl BookSystem {
         self.books.iter()
     }
 
+    /// Amount of books
+
+    #[inline]
+    pub(crate) fn len(&self) -> usize {
+        self.books.len()
+    }
+
     /// Finds The Book.
     /// If book is not found, it' ll return TheBooks amount
 
     #[inline]
     pub(crate) fn find_book(&self, title: &String, author: &String, pages: u16) -> Option<usize> {
-        self.books.iter().position(|x| {
+        self.iter().position(|x| {
             (**x).borrow().title == *title
                 && (**x).borrow().author == *author
                 && (**x).borrow().pages == pages
@@ -132,7 +139,7 @@ impl BookSystem {
         app: &App,
         lang: Lang,
     ) -> ResultSelf<Self> {
-        return if ind >= self.books.len() {
+        return if ind >= self.len() {
             Err(1) // out of range
         } else {
             unsafe {
@@ -207,7 +214,7 @@ impl BookSystem {
 
     #[inline]
     pub(crate) fn remove_one_book(&mut self, ind: usize, rind: usize) -> ResultSelf<Self> {
-        return if ind >= self.books.len() {
+        return if ind >= self.len() {
             Err(0) // search ind (TheBook) out of range
         } else {
             unsafe {
@@ -241,7 +248,7 @@ impl BookSystem {
 
     #[inline]
     pub(crate) fn remove_book(&mut self, ind: usize) -> ResultSelf<Self> {
-        return if ind >= self.books.len() {
+        return if ind >= self.len() {
             Err(0) // out of range
         } else {
             Ok(unsafe { self.remove_book_unchecked(ind) })
@@ -342,30 +349,28 @@ impl BookSystem {
 
     #[inline]
     pub(crate) fn change_pages(&mut self, ind: usize, new_pages: String) -> ResultSelf<Self> {
-        let new_pages_num;
-
-        match new_pages.trim().parse::<u16>() {
-            Ok(x) => new_pages_num = x,
-            Err(_) => return Err(0), // parse error
-        }
-
-        return if ind == self.books.len() {
-            Err(1) // not found
-        } else {
-            unsafe {
-                if self
-                    .find_book(
-                        &RefCell::borrow(&(**self.books.get_unchecked(ind))).title,
-                        &RefCell::borrow(&(**self.books.get_unchecked(ind))).author,
-                        new_pages_num,
-                    )
-                    .is_some()
-                {
-                    Err(2) // already exists
+        return match new_pages.trim().parse::<u16>() {
+            Ok(new_pages_num) => {
+                if ind == self.len() {
+                    Err(1) // not found
                 } else {
-                    Ok(self.change_pages_unchecked(ind, new_pages_num))
+                    unsafe {
+                        if self
+                            .find_book(
+                                &RefCell::borrow(&(**self.books.get_unchecked(ind))).title,
+                                &RefCell::borrow(&(**self.books.get_unchecked(ind))).author,
+                                new_pages_num,
+                            )
+                            .is_some()
+                        {
+                            Err(2) // already exists
+                        } else {
+                            Ok(self.change_pages_unchecked(ind, new_pages_num))
+                        }
+                    }
                 }
             }
+            Err(_) => Err(0), // parse error
         };
     }
 

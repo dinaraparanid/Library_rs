@@ -25,7 +25,7 @@ use fltk::{
     window::SingleWindow,
 };
 
-use std::cmp::max;
+use std::{cell::RefCell, cmp::max, rc::Rc};
 
 /// Messages for info menu
 /// for reader_info
@@ -46,8 +46,8 @@ enum MessageReader {
 
 pub fn reader_info_simple(
     ind: usize,
-    reader_base: &mut ReaderBase,
-    book_system: &mut BookSystem,
+    reader_base: Rc<RefCell<ReaderBase>>,
+    book_system: Rc<RefCell<BookSystem>>,
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
@@ -60,9 +60,21 @@ pub fn reader_info_simple(
         600,
         format!(
             "{} {} {}",
-            *unsafe { &(*reader_base.readers.get_unchecked(ind)).borrow().name },
-            *unsafe { &(*reader_base.readers.get_unchecked(ind)).borrow().family },
-            *unsafe { &(*reader_base.readers.get_unchecked(ind)).borrow().father },
+            *unsafe {
+                &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                    .borrow()
+                    .name
+            },
+            *unsafe {
+                &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                    .borrow()
+                    .family
+            },
+            *unsafe {
+                &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                    .borrow()
+                    .father
+            },
         )
         .as_str(),
     )
@@ -82,7 +94,11 @@ pub fn reader_info_simple(
                 Lang::English => "First Name",
                 Lang::Russian => "\t\tИмя",
             },
-            *unsafe { &(*reader_base.readers.get_unchecked(ind)).borrow().name }
+            *unsafe {
+                &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                    .borrow()
+                    .name
+            }
         )
         .as_str(),
     );
@@ -98,7 +114,11 @@ pub fn reader_info_simple(
                 Lang::English => "Second Name",
                 Lang::Russian => "\t\tФамилия",
             },
-            *unsafe { &(*reader_base.readers.get_unchecked(ind)).borrow().family }
+            *unsafe {
+                &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                    .borrow()
+                    .family
+            }
         )
         .as_str(),
     );
@@ -114,7 +134,11 @@ pub fn reader_info_simple(
                 Lang::English => "Middle Name",
                 Lang::Russian => "\t\tОтчество",
             },
-            *unsafe { &(*reader_base.readers.get_unchecked(ind)).borrow().father }
+            *unsafe {
+                &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                    .borrow()
+                    .father
+            }
         )
         .as_str(),
     );
@@ -130,7 +154,11 @@ pub fn reader_info_simple(
                 Lang::English => "Age",
                 Lang::Russian => "\t\tВозраст",
             },
-            *unsafe { &(*reader_base.readers.get_unchecked(ind)).borrow().age() }
+            *unsafe {
+                &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                    .borrow()
+                    .age()
+            }
         )
         .as_str(),
     );
@@ -147,13 +175,13 @@ pub fn reader_info_simple(
                 Lang::Russian => "Читается сейчас",
             },
             if unsafe {
-                (**reader_base.readers.get_unchecked(ind))
+                (**(*reader_base).borrow().readers.get_unchecked(ind))
                     .borrow()
                     .reading
                     .is_some()
             } {
                 unsafe {
-                    (*(**reader_base.readers.get_unchecked(ind))
+                    (*(**(*reader_base).borrow().readers.get_unchecked(ind))
                         .borrow()
                         .reading
                         .as_ref()
@@ -161,7 +189,7 @@ pub fn reader_info_simple(
                         .upgrade()
                         .unwrap())
                     .borrow()
-                    .to_string(book_system)
+                    .to_string(&*(*book_system).borrow())
                 }
             } else {
                 match lang {
@@ -199,7 +227,7 @@ pub fn reader_info_simple(
 
     let mut table2 = Table::new(0, 127, 570, 600, "");
     table2.set_rows(max(30, unsafe {
-        (**reader_base.readers.get_unchecked(ind))
+        (**(*reader_base).borrow().readers.get_unchecked(ind))
             .borrow()
             .books
             .len() as u32
@@ -305,8 +333,8 @@ pub fn reader_info_simple(
 
     wind.show();
 
-    let base_ptr = reader_base as *mut ReaderBase;
-    let sys_ptr = book_system as *mut BookSystem;
+    let rb = reader_base.clone();
+    let bs = book_system.clone();
 
     table2.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
         fltk::table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
@@ -347,13 +375,7 @@ pub fn reader_info_simple(
         fltk::table::TableContext::Cell => draw_data(
             &format!(
                 "{}",
-                cell_book2(
-                    col,
-                    row,
-                    ind,
-                    unsafe { base_ptr.as_ref().unwrap() },
-                    unsafe { sys_ptr.as_ref().unwrap() }
-                )
+                cell_book2(col, row, ind, &*(*rb).borrow(), &*(*bs).borrow())
             ),
             x,
             y,
@@ -372,8 +394,8 @@ pub fn reader_info_simple(
                 MessageReader::ChangeName => {
                     if let Some(new_name) = change_name_simple(
                         ind,
-                        reader_base,
-                        book_system,
+                        &mut *(*reader_base).borrow_mut(),
+                        &mut *(*book_system).borrow_mut(),
                         genres,
                         caretaker,
                         app,
@@ -397,8 +419,8 @@ pub fn reader_info_simple(
                 MessageReader::ChangeFamily => {
                     if let Some(new_family) = change_family_simple(
                         ind,
-                        reader_base,
-                        book_system,
+                        &mut *(*reader_base).borrow_mut(),
+                        &mut *(*book_system).borrow_mut(),
                         genres,
                         caretaker,
                         app,
@@ -422,8 +444,8 @@ pub fn reader_info_simple(
                 MessageReader::ChangeFather => {
                     if let Some(new_father) = change_father_simple(
                         ind,
-                        reader_base,
-                        book_system,
+                        &mut *(*reader_base).borrow_mut(),
+                        &mut *(*book_system).borrow_mut(),
                         genres,
                         caretaker,
                         app,
@@ -447,8 +469,8 @@ pub fn reader_info_simple(
                 MessageReader::ChangeAge => {
                     if let Some(new_age) = change_age_simple(
                         ind,
-                        reader_base,
-                        book_system,
+                        &mut *(*reader_base).borrow_mut(),
+                        &mut *(*book_system).borrow_mut(),
                         genres,
                         caretaker,
                         app,
@@ -472,8 +494,8 @@ pub fn reader_info_simple(
                 MessageReader::GiveBook => {
                     if let Some(book) = give_book_known_reader(
                         ind,
-                        reader_base,
-                        book_system,
+                        &mut *(*reader_base).borrow_mut(),
+                        &mut *(*book_system).borrow_mut(),
                         genres,
                         caretaker,
                         app,
@@ -496,8 +518,14 @@ pub fn reader_info_simple(
                 }
 
                 MessageReader::GetBook => {
-                    if get_book_known_reader(ind, reader_base, book_system, genres, caretaker, lang)
-                    {
+                    if get_book_known_reader(
+                        ind,
+                        &mut *(*reader_base).borrow_mut(),
+                        &mut *(*book_system).borrow_mut(),
+                        genres,
+                        caretaker,
+                        lang,
+                    ) {
                         reading_frame.set_label(
                             format!(
                                 "{}: {}",
@@ -518,7 +546,14 @@ pub fn reader_info_simple(
                 }
 
                 MessageReader::RemoveThis => {
-                    remove_reader_simple(ind, reader_base, book_system, genres, caretaker, lang);
+                    remove_reader_simple(
+                        ind,
+                        &mut *(*reader_base).borrow_mut(),
+                        &mut *(*book_system).borrow_mut(),
+                        genres,
+                        caretaker,
+                        lang,
+                    );
                     return;
                 }
             }
@@ -527,7 +562,7 @@ pub fn reader_info_simple(
         }
 
         let len = unsafe {
-            (**reader_base.readers.get_unchecked(ind))
+            (**(*reader_base).borrow().readers.get_unchecked(ind))
                 .borrow()
                 .books
                 .len()
@@ -542,13 +577,13 @@ pub fn reader_info_simple(
                 unsafe {
                     book_info_simple(
                         Some(
-                            (**reader_base.readers.get_unchecked(ind))
+                            (**(*reader_base).borrow().readers.get_unchecked(ind))
                                 .borrow()
                                 .books
                                 .get_unchecked(i)
                                 .clone(),
                         ),
-                        book_system,
+                        &*(*book_system).borrow(),
                         lang,
                     );
                 }

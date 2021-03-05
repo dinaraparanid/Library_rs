@@ -19,7 +19,7 @@ use fltk::{
     prelude::*,
 };
 
-use chrono::Local;
+use chrono::{Datelike, Local};
 use fltk_calendar::calendar::Calendar;
 use std::{cell::RefCell, rc::Weak};
 
@@ -103,8 +103,7 @@ pub(crate) fn give_book_known_reader(
                             if msg {
                                 win.hide();
 
-                                let cal = Calendar::default();
-                                let date = cal.get_date();
+                                let date = Calendar::default().get_date();
 
                                 return match date {
                                     Some(date) => {
@@ -611,7 +610,6 @@ pub(crate) fn get_book_known_reader(
             };
 
             let bind = book_system
-                .books
                 .iter()
                 .position(|b| b.as_ptr() == book.as_ptr())
                 .unwrap();
@@ -775,7 +773,7 @@ fn get_book_known_reader_input(
                                             }
                                         },
                                     );
-                                    caretaker.pop();
+                                    caretaker.pop().unwrap();
                                     false
                                 }
 
@@ -859,7 +857,7 @@ fn get_book_known_reader_input(
             }
             break;
         } else if !inp2.shown() {
-            caretaker.pop();
+            caretaker.pop().unwrap();
             return false;
         }
     }
@@ -872,6 +870,122 @@ fn get_book_known_reader_input(
 
 #[inline]
 pub fn change_return_date_simple(
+    book_op: &Option<Weak<RefCell<Book>>>,
+    book_system: &mut BookSystem,
+    reader_base: &ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    lang: Lang,
+) -> bool {
+    caretaker.add_memento(reader_base, book_system, genres);
+
+    return match book_op {
+        None => {
+            alert(
+                500,
+                500,
+                match lang {
+                    Lang::English => "This reader isn't reading anything",
+                    Lang::Russian => "Этот читатель ни читает книгу",
+                },
+            );
+
+            caretaker.pop().unwrap();
+            false
+        }
+
+        Some(book) => {
+            return match Calendar::default().get_date() {
+                None => {
+                    alert(
+                        500,
+                        500,
+                        match lang {
+                            Lang::English => "Date wasn't selected",
+                            Lang::Russian => "Дата не была выбрана",
+                        },
+                    );
+                    false
+                }
+
+                Some(date) => {
+                    let new_date = Date {
+                        day: date.day() as u8,
+                        month: date.month() as u8,
+                        year: date.year() as u16,
+                    };
+
+                    let start = ((*(*book.upgrade().unwrap())
+                        .borrow_mut()
+                        .readers
+                        .last_mut()
+                        .unwrap())
+                    .1)
+                        .0;
+
+                    if new_date >= start && new_date >= Date::from(Local::now()) {
+                        ((*(*book.upgrade().unwrap())
+                            .borrow_mut()
+                            .readers
+                            .last_mut()
+                            .unwrap())
+                        .1)
+                            .1 = new_date;
+
+                        fltk::dialog::message(
+                            500,
+                            500,
+                            match lang {
+                                Lang::English => "Date is successfully changed",
+                                Lang::Russian => "Дата успешно изменена",
+                            },
+                        );
+
+                        book_system.save();
+                        true
+                    } else {
+                        alert(
+                            500,
+                            500,
+                            match lang {
+                                Lang::English => {
+                                    concat!(
+                                        "Date can only be not earlier than deadline",
+                                        " and not earlier than today"
+                                    )
+                                }
+
+                                Lang::Russian => {
+                                    concat!(
+                                        "Дата обязана быть не позже дедлайна",
+                                        " и не позже сегоднешней даты"
+                                    )
+                                }
+                            },
+                        );
+
+                        caretaker.pop().unwrap();
+                        false
+                    }
+                }
+            }
+        }
+    };
+}
+
+/// **DEPRECATED**
+///
+/// Used before. Requires user input.
+/// Consider using **change_return_date_simple() instead**
+///
+/// Function that changes
+/// return date for already known book
+
+#[allow(dead_code)]
+#[deprecated(
+    note = "Used before. Requires user input. Consider using change_return_date_simple() instead"
+)]
+fn change_return_date_simple_input(
     book_op: &Option<Weak<RefCell<Book>>>,
     book_system: &mut BookSystem,
     reader_base: &ReaderBase,
@@ -974,15 +1088,15 @@ pub fn change_return_date_simple(
                                                                 match lang {
                                                                     Lang::English => {
                                                                         concat!(
-                                                                            "Date can only be not earlier than deadline",
-                                                                            " and not earlier than today"
+                                                                        "Date can only be not earlier than deadline",
+                                                                        " and not earlier than today"
                                                                         )
                                                                     }
 
                                                                     Lang::Russian => {
                                                                         concat!(
-                                                                            "Дата обязана быть не позже дедлайна",
-                                                                            " и не позже сегоднешней даты"
+                                                                        "Дата обязана быть не позже дедлайна",
+                                                                        " и не позже сегоднешней даты"
                                                                         )
                                                                     }
                                                                 },

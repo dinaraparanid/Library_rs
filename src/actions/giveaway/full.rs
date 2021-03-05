@@ -64,7 +64,6 @@ pub fn change_return_date(
                                         reader_base,
                                         genres,
                                         caretaker,
-                                        app,
                                         lang,
                                     );
                                 }
@@ -230,7 +229,7 @@ pub fn get_book(
                         }
 
                         None => {
-                            caretaker.pop();
+                            caretaker.pop().unwrap();
                             return;
                         }
                     }
@@ -238,7 +237,7 @@ pub fn get_book(
             }
             break;
         } else if !inp.shown() {
-            caretaker.pop();
+            caretaker.pop().unwrap();
             break;
         }
     }

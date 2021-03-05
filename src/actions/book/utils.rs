@@ -1,8 +1,7 @@
 extern crate fltk;
 
-use fltk::dialog::alert;
-
 use crate::{books::book_sys::BookSystem, Lang};
+use fltk::dialog::alert;
 
 /// Function that checks
 /// if input of book was empty

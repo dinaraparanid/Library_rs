@@ -214,7 +214,7 @@ pub fn customize_book_genre(
                             500,
                             100,
                             300,
-                            50 * genres.genres.len() as i32,
+                            50 * genres.len() as i32,
                             match lang {
                                 Lang::English => "Select Genres",
                                 Lang::Russian => "Выбрать жанры",
@@ -222,9 +222,9 @@ pub fn customize_book_genre(
                         );
 
                         let mut genre_choice =
-                            CheckBrowser::new(0, 0, 300, 50 * genres.genres.len() as i32, "");
+                            CheckBrowser::new(0, 0, 300, 50 * genres.len() as i32, "");
 
-                        genres.genres.iter().for_each(|g| unsafe {
+                        genres.iter().for_each(|g| unsafe {
                             genre_choice.add(
                                 g.as_str(),
                                 if let Some(gen) = &(**book_system.books.get_unchecked(index))
@@ -246,7 +246,7 @@ pub fn customize_book_genre(
                         wind.show();
 
                         while app.wait() {
-                            (0..genres.genres.len()).for_each(|i| {
+                            (0..genres.len()).for_each(|i| {
                                 if genre_choice.checked(i as i32 + 1) {
                                     unsafe {
                                         if (**book_system.books.get_unchecked(index))
@@ -260,13 +260,7 @@ pub fn customize_book_genre(
                                                 .as_mut()
                                                 .unwrap()
                                                 .insert(
-                                                    genres
-                                                        .genres
-                                                        .iter()
-                                                        .skip(i)
-                                                        .next()
-                                                        .unwrap()
-                                                        .clone(),
+                                                    genres.iter().skip(i).next().unwrap().clone(),
                                                 );
                                         } else {
                                             (**book_system.books.get_unchecked(index))
@@ -279,13 +273,7 @@ pub fn customize_book_genre(
                                                 .as_mut()
                                                 .unwrap()
                                                 .insert(
-                                                    genres
-                                                        .genres
-                                                        .iter()
-                                                        .skip(i)
-                                                        .next()
-                                                        .unwrap()
-                                                        .clone(),
+                                                    genres.iter().skip(i).next().unwrap().clone(),
                                                 );
                                         }
                                     }
@@ -303,9 +291,7 @@ pub fn customize_book_genre(
                                                 .genres
                                                 .as_mut()
                                                 .unwrap()
-                                                .remove(
-                                                    genres.genres.iter().skip(i).next().unwrap(),
-                                                );
+                                                .remove(genres.iter().skip(i).next().unwrap());
 
                                             if (**book_system.books.get_unchecked(index))
                                                 .borrow()
@@ -350,7 +336,7 @@ pub fn find_by_genre_simple(
 ) -> Vec<(String, String, u16)> {
     let mut find = vec![];
 
-    book_system.books.iter().for_each(|x| {
+    book_system.iter().for_each(|x| {
         if (**x).borrow().genres.is_some()
             && (**x)
                 .borrow()
@@ -417,7 +403,7 @@ fn find_by_genre(book_system: &BookSystem, app: &App, lang: Lang) {
                     let mut book_table = Table::new(0, 0, 300, 400, "");
                     let mut find = vec![];
 
-                    book_system.books.iter().for_each(|x| {
+                    book_system.iter().for_each(|x| {
                         if (**x).borrow().genres.is_some()
                             && (**x)
                                 .borrow()

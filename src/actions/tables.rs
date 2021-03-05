@@ -78,7 +78,7 @@ pub fn cell_reader(
     book_system: &BookSystem,
     lang: Lang,
 ) -> (String, Option<fltk::enums::Color>) {
-    return if y < reader_base.readers.len() as i32 {
+    return if y < reader_base.len() as i32 {
         let reader_date;
 
         match RefCell::borrow(unsafe { &(**reader_base.readers.get_unchecked(y as usize)) }).reading
@@ -393,7 +393,7 @@ pub fn cell_reader2(x: i32, y: i32, book: Weak<RefCell<Book>>) -> String {
 pub fn cell_book(x: i32, y: i32, book_system: &BookSystem) -> String {
     return format!(
         "{}",
-        if y < book_system.books.len() as i32 {
+        if y < book_system.len() as i32 {
             match x {
                 0 => RefCell::borrow(unsafe { &(**book_system.books.get_unchecked(y as usize)) })
                     .title
@@ -572,7 +572,7 @@ pub(crate) fn cell_genre(x: i32, book: &Rc<RefCell<TheBook>>, lang: Lang) -> Str
 fn cell_genre2(y: i32, genres: &Genres) -> String {
     return format!(
         "{}",
-        if y < genres.genres.len() as i32 {
+        if y < genres.len() as i32 {
             genres
                 .genres
                 .iter()

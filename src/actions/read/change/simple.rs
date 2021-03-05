@@ -10,7 +10,6 @@ use crate::{
 };
 
 use fltk::{app, app::App, dialog::alert, input::Input, prelude::*};
-
 use fltk_calendar::calendar::Calendar;
 
 /// Function that changes
@@ -384,10 +383,7 @@ pub(crate) fn change_age_simple(
             if msg {
                 win.hide();
 
-                let cal = Calendar::default();
-                let date = cal.get_date();
-
-                return match date {
+                return match Calendar::default().get_date() {
                     Some(date) => match reader_base.change_age(ind, Date::from(date)) {
                         Ok(_) => {
                             fltk::dialog::message(

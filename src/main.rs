@@ -143,55 +143,42 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             while app.wait() {
                 if let Some(msg) = r.recv() {
-                    match msg {
-                        true => {
-                            password.hide();
+                    if msg {
+                        password.hide();
 
-                            if let Ok(data) = password.set_input() {
-                                if !data.first().unwrap().is_ascii()
-                                    || !data.last().unwrap().is_ascii()
-                                {
-                                    alert(
-                                        500,
-                                        500,
-                                        "Incorrect Password. You must use only English letters. Try again",
-                                    );
+                        if let Ok(data) = password.set_input() {
+                            if !data.first().unwrap().is_ascii() || !data.last().unwrap().is_ascii()
+                            {
+                                alert(
+                                    500,
+                                    500,
+                                    "Incorrect Password. You must use only English letters. Try again",
+                                );
 
-                                    success = 2;
-                                } else {
-                                    let hash1 =
-                                        get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7);
-                                    let hash2 =
-                                        get_hash(&data.last().unwrap(), 101, 1e9 as u128 + 7);
+                                success = 2;
+                            } else {
+                                let hash1 = get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7);
+                                let hash2 = get_hash(&data.last().unwrap(), 101, 1e9 as u128 + 7);
 
-                                    File::create("src/utils/admin.bin").unwrap().write(
-                                        format!(
-                                            "{}",
-                                            hash1
+                                File::create("src/utils/admin.bin").unwrap().write(
+                                    format!(
+                                        "{}",
+                                        hash1.iter().map(|x| *x as u8 as char).collect::<String>()
+                                            + "\0"
+                                            + hash2
                                                 .iter()
                                                 .map(|x| *x as u8 as char)
                                                 .collect::<String>()
-                                                + "\0"
-                                                + hash2
-                                                    .iter()
-                                                    .map(|x| *x as u8 as char)
-                                                    .collect::<String>()
-                                                    .as_str()
-                                        )
-                                        .as_bytes(),
-                                    )?;
+                                                .as_str()
+                                    )
+                                    .as_bytes(),
+                                )?;
 
-                                    fltk::dialog::message(
-                                        500,
-                                        500,
-                                        "New login and password are saved",
-                                    );
-                                    success = 1;
-                                    break;
-                                }
+                                fltk::dialog::message(500, 500, "New login and password are saved");
+                                success = 1;
+                                break;
                             }
                         }
-                        false => (),
                     }
                 }
             }
@@ -227,49 +214,45 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             while app.wait() {
                 if let Some(msg) = r.recv() {
-                    match msg {
-                        true => {
-                            let input = password.set_input();
-                            password.hide();
+                    if msg {
+                        let input = password.set_input();
+                        password.hide();
 
-                            if let Ok(data) = input {
-                                let hash1 = get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7);
-                                let hash2 = get_hash(&data.last().unwrap(), 101, 1e9 as u128 + 7);
+                        if let Ok(data) = input {
+                            let hash1 = get_hash(&data.first().unwrap(), 97, 1e9 as u128 + 7);
+                            let hash2 = get_hash(&data.last().unwrap(), 101, 1e9 as u128 + 7);
 
-                                let rehash1 =
-                                    hash1.iter().map(|x| *x as u8 as char).collect::<String>();
-                                let rehash2 =
-                                    hash2.iter().map(|x| *x as u8 as char).collect::<String>();
+                            let rehash1 =
+                                hash1.iter().map(|x| *x as u8 as char).collect::<String>();
+                            let rehash2 =
+                                hash2.iter().map(|x| *x as u8 as char).collect::<String>();
 
-                                if format!("{}", rehash1)
-                                    == format!("{}", admin_data.first().unwrap())
-                                    && format!("{}", rehash2)
-                                        == format!("{}", *admin_data.last().unwrap())
-                                {
-                                    fltk::dialog::message(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "Authorization is complete",
-                                            Lang::Russian => "Авторизация пройдена",
-                                        },
-                                    );
-                                    success = 1;
-                                    break;
-                                } else {
-                                    success = 2;
-                                    alert(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "Wrong login or password. Try again",
-                                            Lang::Russian => "Неправильный логин или пароль",
-                                        },
-                                    );
-                                }
+                            if format!("{}", rehash1) == format!("{}", admin_data.first().unwrap())
+                                && format!("{}", rehash2)
+                                    == format!("{}", *admin_data.last().unwrap())
+                            {
+                                fltk::dialog::message(
+                                    500,
+                                    500,
+                                    match lang {
+                                        Lang::English => "Authorization is complete",
+                                        Lang::Russian => "Авторизация пройдена",
+                                    },
+                                );
+                                success = 1;
+                                break;
+                            } else {
+                                success = 2;
+                                alert(
+                                    500,
+                                    500,
+                                    match lang {
+                                        Lang::English => "Wrong login or password. Try again",
+                                        Lang::Russian => "Неправильный логин или пароль",
+                                    },
+                                );
                             }
                         }
-                        false => (),
                     }
                 }
             }
@@ -1078,8 +1061,8 @@ fn main() -> Result<(), Box<dyn Error>> {
             if table.is_selected(i as i32, 0) {
                 reader_info_simple(
                     i,
-                    &mut (*reader_base).borrow_mut(),
-                    &mut (*book_system).borrow_mut(),
+                    reader_base.clone(),
+                    book_system.clone(),
                     &(*genres).borrow(),
                     &mut (*caretaker).borrow_mut(),
                     &app,
@@ -1104,7 +1087,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                     &(*reader_base).borrow(),
                     &(*genres).borrow(),
                     &mut (*caretaker).borrow_mut(),
-                    &app,
                     lang,
                 );
 

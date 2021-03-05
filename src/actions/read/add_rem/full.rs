@@ -99,10 +99,7 @@ pub fn add_reader(
                             if msg {
                                 win.hide();
 
-                                let cal = Calendar::default();
-                                let date = cal.get_date();
-
-                                match date {
+                                match Calendar::default().get_date() {
                                     Some(date) => {
                                         match reader_base.add_reader(
                                             unsafe { reader.get_unchecked(0).clone() },

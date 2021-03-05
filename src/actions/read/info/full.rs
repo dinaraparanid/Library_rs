@@ -60,8 +60,8 @@ pub fn reader_info(
                     if let Some(ind) = check {
                         reader_info_simple(
                             ind,
-                            &mut *(*reader_base).borrow_mut(),
-                            &mut *(*book_system).borrow_mut(),
+                            reader_base.clone(),
+                            book_system.clone(),
                             genres,
                             caretaker,
                             app,

@@ -33,7 +33,6 @@ impl Debug for ReaderBase {
             .field(
                 "readers",
                 &self
-                    .readers
                     .iter()
                     .map(|x| format!("{:?}", *(**x).borrow()))
                     .collect::<Vec<_>>(),
@@ -50,7 +49,6 @@ impl Clone for ReaderBase {
     fn clone(&self) -> Self {
         ReaderBase {
             readers: self
-                .readers
                 .iter()
                 .map(|x| Rc::new(RefCell::new((**x).borrow().clone())))
                 .collect(),
@@ -92,9 +90,15 @@ impl ReaderBase {
     /// Iterate on Book System with smart pointers of The Book
 
     #[inline]
-    #[allow(dead_code)]
     pub(crate) fn iter(&self) -> std::slice::Iter<Rc<RefCell<Reader>>> {
         self.readers.iter()
+    }
+
+    /// Returns amount of readers
+
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.readers.len()
     }
 
     /// Searches reader by his params.
@@ -109,7 +113,7 @@ impl ReaderBase {
         father: &String,
         birth: Date,
     ) -> Option<usize> {
-        self.readers.iter().position(|x| {
+        self.iter().position(|x| {
             (**x).borrow().name == *name
                 && (**x).borrow().family == *family
                 && (**x).borrow().father == *father
@@ -173,7 +177,7 @@ impl ReaderBase {
 
     #[inline]
     pub(crate) fn remove_reader(&mut self, ind: usize) -> ResultSelf<Self> {
-        return if ind >= self.readers.len() {
+        return if ind >= self.len() {
             Err(0) // out of range
         } else {
             Ok(unsafe { self.remove_reader_unchecked(ind) })
@@ -202,7 +206,7 @@ impl ReaderBase {
 
     #[inline]
     pub(crate) fn change_name(&mut self, ind: usize, new_name: String) -> ResultSelf<Self> {
-        return if ind >= self.readers.len() {
+        return if ind >= self.len() {
             Err(0) // out of range
         } else {
             unsafe {
@@ -245,7 +249,7 @@ impl ReaderBase {
 
     #[inline]
     pub(crate) fn change_family(&mut self, ind: usize, new_family: String) -> ResultSelf<Self> {
-        return if ind >= self.readers.len() {
+        return if ind >= self.len() {
             Err(0) // out of range
         } else {
             unsafe {
@@ -288,7 +292,7 @@ impl ReaderBase {
 
     #[inline]
     pub(crate) fn change_father(&mut self, ind: usize, new_father: String) -> ResultSelf<Self> {
-        return if ind >= self.readers.len() {
+        return if ind >= self.len() {
             Err(0) // out of range
         } else {
             unsafe {
@@ -326,7 +330,7 @@ impl ReaderBase {
 
     #[inline]
     pub(crate) fn change_age(&mut self, ind: usize, new_birth: Date) -> ResultSelf<Self> {
-        return if ind >= self.readers.len() {
+        return if ind >= self.len() {
             Err(0) // out of range
         } else {
             unsafe {
@@ -345,13 +349,6 @@ impl ReaderBase {
                 }
             }
         };
-    }
-
-    /// Returns amount of readers
-
-    #[inline]
-    pub fn len(&self) -> usize {
-        self.readers.len()
     }
 
     /// Returns book (or None) which is read by reader now
@@ -376,7 +373,7 @@ impl ReaderBase {
     pub(crate) fn save(&self) {
         let mut array = yaml_rust::yaml::Array::new();
 
-        (0..self.readers.len()).for_each(|guy| {
+        (0..self.len()).for_each(|guy| {
             let mut data = Hash::new();
 
             unsafe {
@@ -524,13 +521,7 @@ impl ReaderBase {
                     if d["Reading"].as_str().unwrap() == "None" {
                         None
                     } else {
-                        Some(Rc::downgrade(&Rc::new(RefCell::new(Book {
-                            the_book: None,
-                            is_using: false,
-                            cabinet: 0,
-                            shelf: 0,
-                            readers: vec![],
-                        }))))
+                        Some(Rc::downgrade(&Rc::new(RefCell::new(Book::default()))))
                     }
             });
         }

@@ -109,6 +109,13 @@ impl Genres {
         self.genres.iter()
     }
 
+    /// Amount of genres
+
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.genres.len()
+    }
+
     /// Adds new genre to set.
     /// If this genre is already exists,
     /// it will return false
