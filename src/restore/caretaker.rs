@@ -28,6 +28,13 @@ impl Caretaker {
         }
     }
 
+    /// Amount of mementos
+
+    #[inline]
+    pub(crate) fn len(&self) -> usize {
+        self.mementos.len()
+    }
+
     /// Gets reference to previous memento
 
     #[inline]
@@ -37,11 +44,14 @@ impl Caretaker {
         book_system: &mut BookSystem,
         genres: &mut Genres,
     ) {
-        self.ind -= 1;
-
         if self.ind == 0 {
             alert(500, 500, "Last version");
         } else {
+            if self.ind == self.len() {
+                self.add_memento(reader_base, book_system, genres);
+                self.ind -= 1;
+            }
+
             self.ind -= 1;
             let mem = unsafe { self.mementos.get_unchecked(self.ind) }.get_state();
 
@@ -66,7 +76,7 @@ impl Caretaker {
         book_system: &mut BookSystem,
         genres: &mut Genres,
     ) {
-        return if self.ind == self.mementos.len() - 1 {
+        return if self.len() == 0 || self.ind == self.len() - 1 {
             alert(500, 500, "First version");
         } else {
             self.ind += 1;
@@ -93,9 +103,9 @@ impl Caretaker {
         book_system: &BookSystem,
         genres: &Genres,
     ) -> &mut Self {
-        self.mementos
-            .resize(self.ind + 1, Memento::new(reader_base, book_system, genres));
         self.ind += 1;
+        self.mementos
+            .resize(self.ind, Memento::new(reader_base, book_system, genres));
         self
     }
 

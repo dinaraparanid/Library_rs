@@ -55,9 +55,10 @@ pub fn reader_info(
                 inp.hide();
 
                 if let Ok(reader) = inp.set_input() {
-                    let check = check_reader(&*(*reader_base).borrow(), &reader, app, lang);
-
-                    if let Some(ind) = check {
+                    if let Some(ind) = {
+                        let check = check_reader(&*(*reader_base).borrow(), &reader, app, lang);
+                        check
+                    } {
                         reader_info_simple(
                             ind,
                             reader_base.clone(),

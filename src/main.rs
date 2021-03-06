@@ -25,6 +25,7 @@ use booklibrs::{
 
 use fltk::{
     app,
+    app::Sender,
     button::*,
     dialog::alert,
     draw,
@@ -131,7 +132,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut success = 0; // 0 - no input / 1 - ok / 2 - mistake
 
     if adm.is_empty() {
-        let (s, r) = app::channel();
+        let (s, r): (Sender<bool>, _) = app::channel();
 
         loop {
             success = 0;
@@ -190,7 +191,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     } else {
         let admin_data = adm.split('\0').collect::<Vec<_>>();
-        let (s, r) = app::channel();
+        let (s, r): (Sender<bool>, _) = app::channel();
 
         loop {
             success = 0;
@@ -982,12 +983,6 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
 
                 Message::PrevData => {
-                    (*caretaker).borrow_mut().add_memento(
-                        &(*reader_base).borrow(),
-                        &(*book_system).borrow(),
-                        &(*genres).borrow(),
-                    );
-
                     (*caretaker).borrow_mut().get_memento_back(
                         &mut *(reader_base).borrow_mut(),
                         &mut *(book_system).borrow_mut(),

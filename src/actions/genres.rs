@@ -224,13 +224,14 @@ pub fn customize_book_genre(
                         let mut genre_choice =
                             CheckBrowser::new(0, 0, 300, 50 * genres.len() as i32, "");
 
-                        genres.iter().for_each(|g| unsafe {
+                        genres.iter().for_each(|g| {
                             genre_choice.add(
                                 g.as_str(),
-                                if let Some(gen) = &(**book_system.books.get_unchecked(index))
-                                    .borrow_mut()
-                                    .genres
-                                {
+                                if let Some(gen) = unsafe {
+                                    &(**book_system.books.get_unchecked(index))
+                                        .borrow_mut()
+                                        .genres
+                                } {
                                     if gen.contains(g) {
                                         true
                                     } else {
@@ -308,11 +309,13 @@ pub fn customize_book_genre(
                                         }
                                     }
                                 }
+
                                 book_system.save();
                             });
 
                             if !wind.shown() {
-                                break;
+                                caretaker.pop().unwrap();
+                                return;
                             }
                         }
                     }
@@ -320,7 +323,8 @@ pub fn customize_book_genre(
             }
             break;
         } else if !inp.shown() {
-            break;
+            caretaker.pop().unwrap();
+            return;
         }
     }
 }

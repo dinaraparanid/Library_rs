@@ -6,7 +6,7 @@ use crate::{
         tables::{cell_book, draw_data, draw_header},
     },
     books::{book_sys::BookSystem, genres::Genres},
-    change::{input1::Input1, input3::Input3, Inputable},
+    change::{input3::Input3, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
     Lang,
@@ -15,7 +15,6 @@ use crate::{
 use fltk::{
     app,
     app::App,
-    dialog::alert,
     draw,
     input::{Input, IntInput},
     prelude::*,
@@ -69,7 +68,10 @@ pub fn the_book_info(
                 inp.hide();
 
                 if let Ok(the_book) = inp.set_input() {
-                    if let Ok(index) = check_book(&(*book_system).borrow(), &the_book, lang) {
+                    if let Ok(index) = {
+                        let check = check_book(&(*book_system).borrow(), &the_book, lang);
+                        check
+                    } {
                         the_book_info_simple(
                             index,
                             &mut *(*book_system).borrow_mut(),
@@ -126,71 +128,7 @@ pub fn book_info(book_system: &BookSystem, app: &App, lang: Lang) {
 
                 if let Ok(the_book) = inp.set_input() {
                     if let Ok(index) = check_book(book_system, &the_book, lang) {
-                        let (s, r) = app::channel();
-                        let mut inp2 = Input1::<IntInput>::new(
-                            match lang {
-                                Lang::English => "Number of Book",
-                                Lang::Russian => "Номер книги",
-                            },
-                            match lang {
-                                Lang::English => "Number of Book",
-                                Lang::Russian => "Номер книги",
-                            },
-                        );
-
-                        inp2.show();
-                        (*inp2.ok).borrow_mut().emit(s, true);
-
-                        while app.wait() {
-                            if let Some(msg) = r.recv() {
-                                if msg {
-                                    inp2.hide();
-
-                                    if let Ok(bind_v) = inp2.set_input() {
-                                        let bind = bind_v
-                                            .first()
-                                            .unwrap()
-                                            .trim()
-                                            .parse::<usize>()
-                                            .unwrap();
-
-                                        if bind
-                                            > unsafe {
-                                                (**book_system.books.get_unchecked(index))
-                                                    .borrow()
-                                                    .books
-                                                    .len()
-                                            }
-                                            || bind == 0
-                                        {
-                                            alert(
-                                                500,
-                                                500,
-                                                match lang {
-                                                    Lang::English => "Incorrect number of book",
-                                                    Lang::Russian => "Некорректный номер книги",
-                                                },
-                                            );
-                                            return;
-                                        }
-
-                                        book_info_simple(
-                                            Some(Rc::downgrade(unsafe {
-                                                (**book_system.books.get_unchecked(index))
-                                                    .borrow()
-                                                    .books
-                                                    .get_unchecked(bind - 1)
-                                            })),
-                                            book_system,
-                                            lang,
-                                        );
-                                    }
-                                }
-                                break;
-                            } else if !inp2.shown() {
-                                return;
-                            }
-                        }
+                        book_info_simple2(index, book_system, app, lang)
                     }
                 }
             }

@@ -348,7 +348,7 @@ pub(crate) fn change_age_simple(
 ) -> Option<u16> {
     caretaker.add_memento(reader_base, book_system, genres);
 
-    let mut win = fltk::window::SingleWindow::new(800, 500, 200, 100, "Choose birth date");
+    let mut win = fltk::window::SingleWindow::new(800, 500, 200, 100, "Choose new birth date");
 
     let _ = fltk::frame::Frame::new(
         30,
@@ -356,8 +356,8 @@ pub(crate) fn change_age_simple(
         150,
         50,
         match lang {
-            Lang::English => "Choose birth date",
-            Lang::Russian => "Выберите дату рождения",
+            Lang::English => "Choose new birth date",
+            Lang::Russian => "Выберите новую дату рождения",
         },
     );
 

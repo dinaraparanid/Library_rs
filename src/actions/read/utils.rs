@@ -101,7 +101,7 @@ pub(crate) fn check_reader(
                     if msg {
                         win.hide();
 
-                        match Calendar::default().get_date() {
+                        return match Calendar::default().get_date() {
                             Some(date) => reader_base.find_reader(
                                 unsafe { &reader.get_unchecked(0) },
                                 unsafe { &reader.get_unchecked(1) },

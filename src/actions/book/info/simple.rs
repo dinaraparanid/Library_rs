@@ -8,6 +8,7 @@ use crate::{
         tables::*,
     },
     books::{book::Book, book_sys::BookSystem, genres::Genres},
+    change::{input1::Input1, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
     Lang,
@@ -16,9 +17,11 @@ use crate::{
 use fltk::{
     app,
     app::App,
+    dialog::alert,
     draw,
     frame::Frame,
     group::VGrid,
+    input::IntInput,
     menu::{MenuBar, MenuFlag},
     prelude::*,
     table,
@@ -26,7 +29,7 @@ use fltk::{
     window::SingleWindow,
 };
 
-use std::{cell::RefCell, cmp::max, rc::Weak};
+use std::{cell::RefCell, cmp::max, rc::Rc, rc::Weak};
 
 /// Messages for info_the_book
 /// menu for The Book
@@ -37,6 +40,7 @@ enum MessageTheBook {
     ChangeAuthor,
     ChangePages,
     CustomizeBookGenre,
+    Info,
     RemoveThis,
     RemoveSimple,
     AddSimple,
@@ -44,6 +48,7 @@ enum MessageTheBook {
 
 /// Function that gives information
 /// about already known simple book
+/// by a smart pointer
 
 pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSystem, lang: Lang) {
     if let Some(b) = book {
@@ -328,6 +333,73 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
     }
 }
 
+/// Gets information about
+/// simple book by index of TheBook
+
+#[inline]
+pub(crate) fn book_info_simple2(index: usize, book_system: &BookSystem, app: &App, lang: Lang) {
+    let (s, r) = app::channel();
+    let mut inp2 = Input1::<IntInput>::new(
+        match lang {
+            Lang::English => "Number of Book",
+            Lang::Russian => "Номер книги",
+        },
+        match lang {
+            Lang::English => "Number of Book",
+            Lang::Russian => "Номер книги",
+        },
+    );
+
+    inp2.show();
+    (*inp2.ok).borrow_mut().emit(s, true);
+
+    while app.wait() {
+        if let Some(msg) = r.recv() {
+            if msg {
+                inp2.hide();
+
+                if let Ok(bind_v) = inp2.set_input() {
+                    let bind = bind_v.first().unwrap().trim().parse::<usize>().unwrap();
+
+                    if bind
+                        > unsafe {
+                            (**book_system.books.get_unchecked(index))
+                                .borrow()
+                                .books
+                                .len()
+                        }
+                        || bind == 0
+                    {
+                        alert(
+                            500,
+                            500,
+                            match lang {
+                                Lang::English => "Incorrect number of book",
+                                Lang::Russian => "Некорректный номер книги",
+                            },
+                        );
+                        return;
+                    }
+
+                    book_info_simple(
+                        Some(Rc::downgrade(unsafe {
+                            (**book_system.books.get_unchecked(index))
+                                .borrow()
+                                .books
+                                .get_unchecked(bind - 1)
+                        })),
+                        book_system,
+                        lang,
+                    );
+                }
+            }
+            break;
+        } else if !inp2.shown() {
+            return;
+        }
+    }
+}
+
 /// Function that returns info
 /// of already known the book
 
@@ -343,7 +415,7 @@ pub fn the_book_info_simple(
     let mut wind = SingleWindow::new(
         800,
         100,
-        300,
+        520,
         600,
         format!(
             "{} {}",
@@ -353,13 +425,13 @@ pub fn the_book_info_simple(
         .as_str(),
     );
 
-    let mut table = VGrid::new(0, 30, 300, 180, "");
+    let mut table = VGrid::new(0, 30, 520, 180, "");
     table.set_params(5, 1, 1);
 
     let mut title_frame = Frame::new(
         30,
         50,
-        200,
+        420,
         30,
         format!(
             "{}: {}",
@@ -375,7 +447,7 @@ pub fn the_book_info_simple(
     let mut author_frame = Frame::new(
         50,
         50,
-        200,
+        420,
         30,
         format!(
             "{}: {}",
@@ -391,7 +463,7 @@ pub fn the_book_info_simple(
     let mut pages_frame = Frame::new(
         70,
         50,
-        200,
+        420,
         30,
         format!(
             "{}: {}",
@@ -407,7 +479,7 @@ pub fn the_book_info_simple(
     let mut amount_frame = Frame::new(
         90,
         50,
-        100,
+        320,
         30,
         format!(
             "{}: {}",
@@ -433,7 +505,7 @@ pub fn the_book_info_simple(
     table.add(&Frame::new(
         90,
         50,
-        100,
+        320,
         30,
         format!(
             "{}:",
@@ -447,7 +519,7 @@ pub fn the_book_info_simple(
 
     table.auto_layout();
 
-    let mut genre_table = Table::new(0, 200, 280, 380, "");
+    let mut genre_table = Table::new(0, 200, 520, 380, "");
 
     genre_table.set_rows(
         if let Some(g) = unsafe { &(**book_system.books.get_unchecked(ind)).borrow().genres } {
@@ -458,7 +530,7 @@ pub fn the_book_info_simple(
     );
 
     genre_table.set_cols(1);
-    genre_table.set_col_width_all(280);
+    genre_table.set_col_width_all(500);
     genre_table.end();
 
     let b = unsafe { book_system.books.get_unchecked(ind).clone() };
@@ -487,9 +559,9 @@ pub fn the_book_info_simple(
     let mut menu = MenuBar::new(
         0,
         0,
-        220 + match lang {
+        420 + match lang {
             Lang::English => 0,
-            Lang::Russian => 50,
+            Lang::Russian => 90,
         },
         30,
         "",
@@ -573,6 +645,17 @@ pub fn the_book_info_simple(
         MenuFlag::Normal,
         s,
         MessageTheBook::AddSimple,
+    );
+
+    menu.add_emit(
+        match lang {
+            Lang::English => "&Get current book's information",
+            Lang::Russian => "&Информация о конкретной книгe",
+        },
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        MessageTheBook::Info,
     );
 
     wind.show();
@@ -717,6 +800,8 @@ pub fn the_book_info_simple(
                     customize_book_genre(genres, book_system, reader_base, caretaker, app, lang);
                     genre_table.redraw();
                 }
+
+                MessageTheBook::Info => book_info_simple2(ind, book_system, app, lang),
             }
         } else if !wind.shown() {
             return;
