@@ -333,12 +333,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 
                     2 => match lang {
                         Lang::English => "Start Date",
-                        Lang::Russian => "Дата начала",
+                        Lang::Russian => "Дата Выдачи",
                     },
 
                     _ => match lang {
                         Lang::English => "Finish Date",
-                        Lang::Russian => "Дедлайн",
+                        Lang::Russian => "Срок Сдачи",
                     },
                 }
             ),
@@ -646,7 +646,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     menu.add_emit(
         match lang {
             Lang::English => "&Giveaway/Change return date\t",
-            Lang::Russian => "&Выдача/Изменить дедлайн\t",
+            Lang::Russian => "&Выдача/Изменить Срок Сдачи\t",
         },
         Shortcut::empty(),
         MenuFlag::Normal,
@@ -919,7 +919,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 Message::RemoveGenre => remove_genre(
                     &mut (*genres).borrow_mut(),
                     &(*reader_base).borrow(),
-                    &(*book_system).borrow(),
+                    &mut (*book_system).borrow_mut(),
                     &mut *(caretaker).borrow_mut(),
                     &app,
                     lang,
@@ -987,6 +987,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &mut *(reader_base).borrow_mut(),
                         &mut *(book_system).borrow_mut(),
                         &mut *(genres).borrow_mut(),
+                        lang
                     );
 
                     table.redraw();
@@ -997,6 +998,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &mut *(reader_base).borrow_mut(),
                         &mut *(book_system).borrow_mut(),
                         &mut *(genres).borrow_mut(),
+                        lang
                     );
 
                     table.redraw();

@@ -63,8 +63,16 @@ pub fn add_reader(
                         return;
                     }
 
-                    let mut win =
-                        fltk::window::SingleWindow::new(800, 500, 200, 100, "Choose birth date");
+                    let mut win = fltk::window::SingleWindow::new(
+                        800,
+                        500,
+                        200,
+                        100,
+                        match lang {
+                            Lang::English => "Choose birth date",
+                            Lang::Russian => "Выберите дату рождения",
+                        },
+                    );
 
                     let _ = fltk::frame::Frame::new(
                         30,

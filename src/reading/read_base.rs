@@ -121,7 +121,8 @@ impl ReaderBase {
         })
     }
 
-    /// Adds reader by params.
+    /// Adds reader by params
+    /// in an ascending order.
     /// No checks provided
 
     #[inline]
@@ -132,13 +133,38 @@ impl ReaderBase {
         father: String,
         birth: Date,
     ) -> &mut Self {
-        self.readers.push(Rc::new(RefCell::new(Reader::new(
-            name, family, father, birth,
-        ))));
+        let reader = Rc::new(RefCell::new(Reader::new(name, family, father, birth)));
+
+        if self.readers.is_empty() {
+            self.readers.push(reader);
+        } else {
+            self.readers.insert(
+                self.readers
+                    .binary_search_by(|r| {
+                        format!(
+                            "{} {} {} {}",
+                            (**r).borrow().name,
+                            (**r).borrow().family,
+                            (**r).borrow().father,
+                            (**r).borrow().birth.to_string()
+                        )
+                        .cmp(&format!(
+                            "{} {} {} {}",
+                            (*reader).borrow().name,
+                            (*reader).borrow().family,
+                            (*reader).borrow().father,
+                            (*reader).borrow().birth.to_string()
+                        ))
+                    })
+                    .unwrap_err(),
+                reader,
+            );
+        }
+
         self
     }
 
-    /// Adds reader by params.
+    /// Adds reader by params in an ascending order.
     /// If reader with same params exists,
     /// it will report error
 

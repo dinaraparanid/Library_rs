@@ -298,7 +298,7 @@ impl Book {
         let now = Date::from(chrono::Local::now());
         let was = ((*self.readers.last().unwrap()).1).1;
 
-        if now < was {
+        if now > was {
             Err(1) // Reader is late
         } else {
             ((*self.readers.last_mut().unwrap()).1).1 = now;

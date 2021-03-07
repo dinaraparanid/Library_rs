@@ -82,11 +82,22 @@ impl BookSystem {
         BookSystem { books: vec![] }
     }
 
-    /// Iterate on Book System with smart pointers of The Book
+    /// Creates immutable iterator
+    /// on Book System with
+    /// smart pointers of The Book
 
     #[inline]
     pub(crate) fn iter(&self) -> std::slice::Iter<Rc<RefCell<TheBook>>> {
         self.books.iter()
+    }
+
+    /// Creates mutable iterate
+    /// on Book System with
+    /// smart pointers of The Book
+
+    #[inline]
+    pub(crate) fn iter_mut(&mut self) -> std::slice::IterMut<Rc<RefCell<TheBook>>> {
+        self.books.iter_mut()
     }
 
     /// Amount of books
@@ -208,6 +219,10 @@ impl BookSystem {
             .borrow_mut()
             .remove_book(rind)
             .unwrap();
+
+        if (**self.books.get_unchecked(ind)).borrow().books.is_empty() {
+            self.books.remove(ind);
+        }
     }
 
     /// Remove one simple book by index

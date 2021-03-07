@@ -111,7 +111,7 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                 "{}: {}",
                 match lang {
                     Lang::English => "Amount of Pages",
-                    Lang::Russian => "Количество страниц",
+                    Lang::Russian => "Кол-во страниц",
                 },
                 (*b.upgrade().unwrap()).borrow().pages(),
             )
@@ -304,7 +304,7 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
 
                         _ => match lang {
                             Lang::English => "Finish Date",
-                            Lang::Russian => "Дедлайн",
+                            Lang::Russian => "Срок Сдачи",
                         },
                     }
                 ),
@@ -469,7 +469,7 @@ pub fn the_book_info_simple(
             "{}: {}",
             match lang {
                 Lang::English => "Amount of Pages",
-                Lang::Russian => "Количество страниц",
+                Lang::Russian => "Кол-во страниц",
             },
             *unsafe { &(**book_system.books.get_unchecked(ind)).borrow().pages }
         )
@@ -485,7 +485,7 @@ pub fn the_book_info_simple(
             "{}: {}",
             match lang {
                 Lang::English => "Amount of books",
-                Lang::Russian => "Количество книг",
+                Lang::Russian => "Кол-во книг",
             },
             unsafe {
                 (**book_system.books.get_unchecked(ind))
@@ -595,7 +595,7 @@ pub fn the_book_info_simple(
     menu.add_emit(
         match lang {
             Lang::English => "&Change/Change amount of pages\t",
-            Lang::Russian => "&Изменить/Изменить количество страниц\t",
+            Lang::Russian => "&Изменить/Изменить Кол-во страниц\t",
         },
         Shortcut::empty(),
         MenuFlag::Normal,
@@ -728,7 +728,7 @@ pub fn the_book_info_simple(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "Amount of pages",
-                                    Lang::Russian => "Количество страниц",
+                                    Lang::Russian => "Кол-во страниц",
                                 },
                                 new_pages
                             )
@@ -753,7 +753,7 @@ pub fn the_book_info_simple(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "Amount of pages",
-                                    Lang::Russian => "Количество страниц",
+                                    Lang::Russian => "Кол-во страниц",
                                 },
                                 unsafe {
                                     (**book_system.books.get_unchecked(ind))
@@ -775,8 +775,8 @@ pub fn the_book_info_simple(
                             format!(
                                 "{}: {}",
                                 match lang {
-                                    Lang::English => "Amount of pages",
-                                    Lang::Russian => "Количество страниц",
+                                    Lang::English => "Amount of books",
+                                    Lang::Russian => "Кол-во книг",
                                 },
                                 unsafe {
                                     (**book_system.books.get_unchecked(ind))

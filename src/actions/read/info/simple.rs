@@ -355,7 +355,7 @@ pub fn reader_info_simple(
 
                     2 => match lang {
                         Lang::English => "Amount of Pages",
-                        Lang::Russian => "Количество страниц",
+                        Lang::Russian => "Кол-во страниц",
                     },
 
                     _ => match lang {

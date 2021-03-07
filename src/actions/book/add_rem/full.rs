@@ -51,7 +51,7 @@ pub fn add_books(
         },
         match lang {
             Lang::English => "Amount of Pages",
-            Lang::Russian => "Количество страниц",
+            Lang::Russian => "Кол-во страниц",
         },
     );
 
@@ -148,7 +148,7 @@ pub fn remove_book(
         },
         match lang {
             Lang::English => "Amount of Pages",
-            Lang::Russian => "Количество страниц",
+            Lang::Russian => "Кол-во страниц",
         },
     );
 
@@ -222,7 +222,7 @@ fn add_book(
         },
         match lang {
             Lang::English => "Amount of Pages",
-            Lang::Russian => "Количество страниц",
+            Lang::Russian => "Кол-во страниц",
         },
     );
 
@@ -242,11 +242,11 @@ fn add_book(
                         let mut am = Input1::<IntInput>::new(
                             match lang {
                                 Lang::English => "Amount of Books",
-                                Lang::Russian => "Количество Книг",
+                                Lang::Russian => "Кол-во Книг",
                             },
                             match lang {
                                 Lang::English => "Set amount of books",
-                                Lang::Russian => "Укажите количество книг",
+                                Lang::Russian => "Укажите Кол-во книг",
                             },
                         );
 
@@ -384,7 +384,7 @@ pub fn remove_the_book(
         },
         match lang {
             Lang::English => "Amount of Pages",
-            Lang::Russian => "Количество страниц",
+            Lang::Russian => "Кол-во страниц",
         },
     );
 

@@ -55,7 +55,7 @@ pub fn the_book_info(
         },
         match lang {
             Lang::English => "Amount of Pages",
-            Lang::Russian => "Количество страниц",
+            Lang::Russian => "Кол-во страниц",
         },
     );
 
@@ -114,7 +114,7 @@ pub fn book_info(book_system: &BookSystem, app: &App, lang: Lang) {
         },
         match lang {
             Lang::English => "Amount of Pages",
-            Lang::Russian => "Количество страниц",
+            Lang::Russian => "Кол-во страниц",
         },
     );
 
@@ -190,12 +190,12 @@ pub fn show_all_books(
 
                     2 => match lang {
                         Lang::English => "Amount of Pages",
-                        Lang::Russian => "Количество страниц",
+                        Lang::Russian => "Кол-во страниц",
                     },
 
                     _ => match lang {
                         Lang::English => "Amount of available books",
-                        Lang::Russian => "Количество доступных книг",
+                        Lang::Russian => "Кол-во доступных книг",
                     },
                 }
             ),

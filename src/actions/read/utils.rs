@@ -66,7 +66,16 @@ pub(crate) fn check_reader(
         true => None,
 
         false => {
-            let mut win = fltk::window::SingleWindow::new(800, 500, 200, 100, "Choose birth date");
+            let mut win = fltk::window::SingleWindow::new(
+                800,
+                500,
+                200,
+                100,
+                match lang {
+                    Lang::English => "Choose birth date",
+                    Lang::Russian => "Выберите дату рождения",
+                },
+            );
 
             let _ = fltk::frame::Frame::new(
                 30,
@@ -102,12 +111,26 @@ pub(crate) fn check_reader(
                         win.hide();
 
                         return match Calendar::default().get_date() {
-                            Some(date) => reader_base.find_reader(
+                            Some(date) => match reader_base.find_reader(
                                 unsafe { &reader.get_unchecked(0) },
                                 unsafe { &reader.get_unchecked(1) },
                                 unsafe { &reader.get_unchecked(2) },
                                 Date::from(date),
-                            ),
+                            ) {
+                                None => {
+                                    alert(
+                                        500,
+                                        500,
+                                        match lang {
+                                            Lang::English => "Reader isn't found",
+                                            Lang::Russian => "Читатель не найден",
+                                        },
+                                    );
+                                    None
+                                }
+
+                                Some(i) => Some(i),
+                            },
 
                             None => {
                                 alert(

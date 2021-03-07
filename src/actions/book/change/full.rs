@@ -47,7 +47,7 @@ pub fn change_title(
         },
         match lang {
             Lang::English => "Amount of Pages",
-            Lang::Russian => "Количество страниц",
+            Lang::Russian => "Кол-во страниц",
         },
     );
 
@@ -110,7 +110,7 @@ pub fn change_author(
         },
         match lang {
             Lang::English => "Amount of Pages",
-            Lang::Russian => "Количество страниц",
+            Lang::Russian => "Кол-во страниц",
         },
     );
 
@@ -161,7 +161,7 @@ pub fn change_pages(
     let mut inp = Input3::<Input, Input, IntInput>::new(
         match lang {
             Lang::English => "Change amount of pages",
-            Lang::Russian => "Изменить количество страниц",
+            Lang::Russian => "Изменить Кол-во страниц",
         },
         match lang {
             Lang::English => "Title",
@@ -173,7 +173,7 @@ pub fn change_pages(
         },
         match lang {
             Lang::English => "Amount of Pages",
-            Lang::Russian => "Количество страниц",
+            Lang::Russian => "Кол-во страниц",
         },
     );
 
@@ -236,7 +236,7 @@ pub fn change_location(
         },
         match lang {
             Lang::English => "Amount of Pages",
-            Lang::Russian => "Количество страниц",
+            Lang::Russian => "Кол-во страниц",
         },
     );
 

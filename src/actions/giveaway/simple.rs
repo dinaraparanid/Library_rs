@@ -67,8 +67,16 @@ pub(crate) fn give_book_known_reader(
                 Some(bind) => {
                     caretaker.add_memento(reader_base, book_system, genres);
 
-                    let mut win =
-                        fltk::window::SingleWindow::new(800, 500, 200, 100, "Choose birth date");
+                    let mut win = fltk::window::SingleWindow::new(
+                        800,
+                        500,
+                        200,
+                        100,
+                        match lang {
+                            Lang::English => "Choose birth date",
+                            Lang::Russian => "Выберите дату рождения",
+                        },
+                    );
 
                     let _ = fltk::frame::Frame::new(
                         30,
@@ -103,9 +111,7 @@ pub(crate) fn give_book_known_reader(
                             if msg {
                                 win.hide();
 
-                                let date = Calendar::default().get_date();
-
-                                return match date {
+                                return match Calendar::default().get_date() {
                                     Some(date) => {
                                         let date = Date::from(date);
 
@@ -118,7 +124,7 @@ pub(crate) fn give_book_known_reader(
                                                         "The deadline must be no later than the day of issue"
                                                     }
                                                     Lang::Russian => {
-                                                        "Дедлайн должен быть не позднее дня выдачи"
+                                                        "Срок Сдачи должен быть не позднее дня выдачи"
                                                     }
                                                 },
                                             );
@@ -263,7 +269,14 @@ pub(crate) fn give_book_known_reader(
         }
 
         None => {
-            alert(500, 500, "Book wasn't selected");
+            alert(
+                500,
+                500,
+                match lang {
+                    Lang::English => "Book isn't selected",
+                    Lang::Russian => "Книга не выбрана",
+                },
+            );
             return None;
         }
     }
@@ -305,7 +318,7 @@ fn give_book_known_reader_input(
         },
         match lang {
             Lang::English => "Amount of Pages",
-            Lang::Russian => "Количество страниц",
+            Lang::Russian => "Кол-во страниц",
         },
     );
 
@@ -331,7 +344,7 @@ fn give_book_known_reader_input(
                     let mut inp3 = Input3::<IntInput, IntInput, IntInput>::new(
                         match lang {
                             Lang::English => "Set Return Date",
-                            Lang::Russian => "Дедлайн",
+                            Lang::Russian => "Срок Сдачи",
                         },
                         match lang {
                             Lang::English => "Day (number)",
@@ -394,7 +407,7 @@ fn give_book_known_reader_input(
                                                                                     concat!("The deadline must be no later",
                                                                                     " than the day of issue"),
                                                                                 Lang::Russian =>
-                                                                                    concat!("Дедлайн должен быть не",
+                                                                                    concat!("Срок Сдачи должен быть не",
                                                                                     " позднее дня выдачи"),
                                                                             });
                                                                         return None;
@@ -647,7 +660,7 @@ pub(crate) fn get_book_known_reader(
                         500,
                         match lang {
                             Lang::English => "Book is returned after deadline",
-                            Lang::Russian => "Книга возвращена после дедлайна",
+                            Lang::Russian => "Книга возвращена после Срок Сдачиа",
                         },
                     ),
                 }
@@ -737,7 +750,7 @@ fn get_book_known_reader_input(
         },
         match lang {
             Lang::English => "Amount of Pages",
-            Lang::Russian => "Количество страниц",
+            Lang::Russian => "Кол-во страниц",
         },
     );
 
@@ -806,7 +819,9 @@ fn get_book_known_reader_input(
                                             500,
                                             match lang {
                                                 Lang::English => "Book is returned after deadline",
-                                                Lang::Russian => "Книга возвращена после дедлайна",
+                                                Lang::Russian => {
+                                                    "Книга возвращена после Срок Сдачиа"
+                                                }
                                             },
                                         ),
                                     }
@@ -957,7 +972,7 @@ pub fn change_return_date_simple(
 
                                 Lang::Russian => {
                                     concat!(
-                                        "Дата обязана быть не позже дедлайна",
+                                        "Дата обязана быть не позже Срок Сдачиа",
                                         " и не позже сегоднешней даты"
                                     )
                                 }
@@ -1095,7 +1110,7 @@ fn change_return_date_simple_input(
 
                                                                     Lang::Russian => {
                                                                         concat!(
-                                                                        "Дата обязана быть не позже дедлайна",
+                                                                        "Дата обязана быть не позже Срок Сдачиа",
                                                                         " и не позже сегоднешней даты"
                                                                         )
                                                                     }

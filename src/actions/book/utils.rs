@@ -34,7 +34,7 @@ pub(crate) fn empty_inp_book(inp: &Vec<String>, lang: Lang) -> bool {
             500,
             match lang {
                 Lang::English => "'Amount of pages' is empty",
-                Lang::Russian => "'Количество страниц' пусто",
+                Lang::Russian => "'Кол-во страниц' пусто",
             },
         );
         true

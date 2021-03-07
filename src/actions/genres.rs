@@ -104,7 +104,7 @@ pub fn add_genre(
 pub fn remove_genre(
     genres: &mut Genres,
     reader_base: &ReaderBase,
-    book_system: &BookSystem,
+    book_system: &mut BookSystem,
     caretaker: &mut Caretaker,
     app: &App,
     lang: Lang,
@@ -145,6 +145,28 @@ pub fn remove_genre(
                         return;
                     } else {
                         genres.remove(genre.first().unwrap());
+
+                        book_system.iter_mut().for_each(|b| {
+                            if {
+                                let check = (**b).borrow().genres.is_some();
+                                check
+                            } {
+                                (**b)
+                                    .borrow_mut()
+                                    .genres
+                                    .as_mut()
+                                    .unwrap()
+                                    .remove(genre.first().unwrap());
+
+                                if {
+                                    let check = (**b).borrow().genres.as_ref().unwrap().is_empty();
+                                    check
+                                } {
+                                    (**b).borrow_mut().genres = None
+                                }
+                            }
+                        });
+
                         fltk::dialog::message(
                             500,
                             500,
@@ -159,6 +181,126 @@ pub fn remove_genre(
             }
             return;
         } else if !inp.shown() {
+            return;
+        }
+    }
+}
+
+/// Function that changes genres
+/// of all simple books and TheBook.
+/// TheBook is taking by index.
+/// You can choose as much
+/// genres as you need
+
+#[inline]
+pub(crate) fn customize_book_genre_simple(
+    index: usize,
+    genres: &Genres,
+    book_system: &mut BookSystem,
+    caretaker: &mut Caretaker,
+    app: &App,
+    lang: Lang,
+) {
+    let mut wind = SingleWindow::new(
+        500,
+        100,
+        300,
+        50 * genres.len() as i32,
+        match lang {
+            Lang::English => "Select Genres",
+            Lang::Russian => "Выбрать жанры",
+        },
+    );
+
+    let mut genre_choice = CheckBrowser::new(0, 0, 300, 50 * genres.len() as i32 + 30, "");
+
+    genres.iter().for_each(|g| {
+        genre_choice.add(
+            g.as_str(),
+            if let Some(gen) = unsafe {
+                &(**book_system.books.get_unchecked(index))
+                    .borrow_mut()
+                    .genres
+            } {
+                if gen.contains(g) {
+                    true
+                } else {
+                    false
+                }
+            } else {
+                false
+            },
+        );
+    });
+
+    wind.end();
+    wind.show();
+
+    while app.wait() {
+        (0..genres.len()).for_each(|i| {
+            if genre_choice.checked(i as i32 + 1) {
+                unsafe {
+                    if (**book_system.books.get_unchecked(index))
+                        .borrow_mut()
+                        .genres
+                        .is_some()
+                    {
+                        (**book_system.books.get_unchecked(index))
+                            .borrow_mut()
+                            .genres
+                            .as_mut()
+                            .unwrap()
+                            .insert(genres.iter().skip(i).next().unwrap().clone());
+                    } else {
+                        (**book_system.books.get_unchecked(index))
+                            .borrow_mut()
+                            .genres = Some(HashSet::new());
+
+                        (**book_system.books.get_unchecked(index))
+                            .borrow_mut()
+                            .genres
+                            .as_mut()
+                            .unwrap()
+                            .insert(genres.iter().skip(i).next().unwrap().clone());
+                    }
+                }
+
+                book_system.save();
+            } else {
+                unsafe {
+                    if (**book_system.books.get_unchecked(index))
+                        .borrow_mut()
+                        .genres
+                        .is_some()
+                    {
+                        (**book_system.books.get_unchecked(index))
+                            .borrow_mut()
+                            .genres
+                            .as_mut()
+                            .unwrap()
+                            .remove(genres.iter().skip(i).next().unwrap());
+
+                        if (**book_system.books.get_unchecked(index))
+                            .borrow()
+                            .genres
+                            .as_ref()
+                            .unwrap()
+                            .len()
+                            == 0
+                        {
+                            (**book_system.books.get_unchecked(index))
+                                .borrow_mut()
+                                .genres = None;
+                        }
+                    }
+                }
+            }
+
+            book_system.save();
+        });
+
+        if !wind.shown() {
+            caretaker.pop().unwrap();
             return;
         }
     }
@@ -194,7 +336,7 @@ pub fn customize_book_genre(
         },
         match lang {
             Lang::English => "Amount of Pages",
-            Lang::Russian => "Количество страниц",
+            Lang::Russian => "Кол-во страниц",
         },
     );
 
@@ -210,114 +352,14 @@ pub fn customize_book_genre(
 
                 if let Ok(book) = inp.set_input() {
                     if let Ok(index) = check_book(book_system, &book, lang) {
-                        let mut wind = SingleWindow::new(
-                            500,
-                            100,
-                            300,
-                            50 * genres.len() as i32,
-                            match lang {
-                                Lang::English => "Select Genres",
-                                Lang::Russian => "Выбрать жанры",
-                            },
-                        );
-
-                        let mut genre_choice =
-                            CheckBrowser::new(0, 0, 300, 50 * genres.len() as i32, "");
-
-                        genres.iter().for_each(|g| {
-                            genre_choice.add(
-                                g.as_str(),
-                                if let Some(gen) = unsafe {
-                                    &(**book_system.books.get_unchecked(index))
-                                        .borrow_mut()
-                                        .genres
-                                } {
-                                    if gen.contains(g) {
-                                        true
-                                    } else {
-                                        false
-                                    }
-                                } else {
-                                    false
-                                },
-                            );
-                        });
-
-                        wind.end();
-                        wind.show();
-
-                        while app.wait() {
-                            (0..genres.len()).for_each(|i| {
-                                if genre_choice.checked(i as i32 + 1) {
-                                    unsafe {
-                                        if (**book_system.books.get_unchecked(index))
-                                            .borrow_mut()
-                                            .genres
-                                            .is_some()
-                                        {
-                                            (**book_system.books.get_unchecked(index))
-                                                .borrow_mut()
-                                                .genres
-                                                .as_mut()
-                                                .unwrap()
-                                                .insert(
-                                                    genres.iter().skip(i).next().unwrap().clone(),
-                                                );
-                                        } else {
-                                            (**book_system.books.get_unchecked(index))
-                                                .borrow_mut()
-                                                .genres = Some(HashSet::new());
-
-                                            (**book_system.books.get_unchecked(index))
-                                                .borrow_mut()
-                                                .genres
-                                                .as_mut()
-                                                .unwrap()
-                                                .insert(
-                                                    genres.iter().skip(i).next().unwrap().clone(),
-                                                );
-                                        }
-                                    }
-
-                                    book_system.save();
-                                } else {
-                                    unsafe {
-                                        if (**book_system.books.get_unchecked(index))
-                                            .borrow_mut()
-                                            .genres
-                                            .is_some()
-                                        {
-                                            (**book_system.books.get_unchecked(index))
-                                                .borrow_mut()
-                                                .genres
-                                                .as_mut()
-                                                .unwrap()
-                                                .remove(genres.iter().skip(i).next().unwrap());
-
-                                            if (**book_system.books.get_unchecked(index))
-                                                .borrow()
-                                                .genres
-                                                .as_ref()
-                                                .unwrap()
-                                                .len()
-                                                == 0
-                                            {
-                                                (**book_system.books.get_unchecked(index))
-                                                    .borrow_mut()
-                                                    .genres = None;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                book_system.save();
-                            });
-
-                            if !wind.shown() {
-                                caretaker.pop().unwrap();
-                                return;
-                            }
-                        }
+                        customize_book_genre_simple(
+                            index,
+                            genres,
+                            book_system,
+                            caretaker,
+                            app,
+                            lang,
+                        )
                     }
                 }
             }
@@ -528,10 +570,25 @@ pub fn all_genres(
         .collect::<Vec<_>>();
 
     if !no_genre.is_empty() {
-        tree.add("No Genres").unwrap();
+        tree.add(match lang {
+            Lang::English => "Without Genres",
+            Lang::Russian => "Без Жанров",
+        })
+        .unwrap();
 
         no_genre.into_iter().for_each(|b| {
-            tree.add(format!("No Genres/{}", b).as_str()).unwrap();
+            tree.add(
+                format!(
+                    "{}/{}",
+                    match lang {
+                        Lang::English => "Without Genres",
+                        Lang::Russian => "Без Жанров",
+                    },
+                    b
+                )
+                .as_str(),
+            )
+            .unwrap();
         });
     }
 
@@ -541,14 +598,17 @@ pub fn all_genres(
     while app.wait() {
         if let Some(item) = tree.set_item_clicked() {
             if !item.has_children() {
+                wind.hide();
                 return Some(item);
             } else {
                 continue;
             }
         } else if !wind.shown() {
+            wind.hide();
             return None;
         }
     }
 
+    wind.hide();
     None
 }

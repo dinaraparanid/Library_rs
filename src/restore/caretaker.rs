@@ -4,6 +4,7 @@ use crate::{
     books::{book_sys::BookSystem, genres::Genres},
     reading::read_base::ReaderBase,
     restore::memento::Memento,
+    Lang,
 };
 
 use fltk::dialog::{alert, message};
@@ -43,9 +44,17 @@ impl Caretaker {
         reader_base: &mut ReaderBase,
         book_system: &mut BookSystem,
         genres: &mut Genres,
+        lang: Lang,
     ) {
         if self.ind == 0 {
-            alert(500, 500, "Last version");
+            alert(
+                500,
+                500,
+                match lang {
+                    Lang::English => "First version",
+                    Lang::Russian => "Первая версия",
+                },
+            );
         } else {
             if self.ind == self.len() {
                 self.add_memento(reader_base, book_system, genres);
@@ -63,7 +72,14 @@ impl Caretaker {
             book_system.save();
             genres.save();
 
-            message(500, 500, "Successfully restored");
+            message(
+                500,
+                500,
+                match lang {
+                    Lang::English => "Successfully restored",
+                    Lang::Russian => "Успешно восстановленно",
+                },
+            );
         }
     }
 
@@ -75,9 +91,17 @@ impl Caretaker {
         reader_base: &mut ReaderBase,
         book_system: &mut BookSystem,
         genres: &mut Genres,
+        lang: Lang,
     ) {
         return if self.len() == 0 || self.ind == self.len() - 1 {
-            alert(500, 500, "First version");
+            alert(
+                500,
+                500,
+                match lang {
+                    Lang::English => "Last version",
+                    Lang::Russian => "Последняя версия",
+                },
+            );
         } else {
             self.ind += 1;
             let mem = unsafe { self.mementos.get_unchecked(self.ind) }.get_state();
@@ -90,7 +114,14 @@ impl Caretaker {
             book_system.save();
             genres.save();
 
-            message(500, 500, "Successfully restored")
+            message(
+                500,
+                500,
+                match lang {
+                    Lang::English => "Successfully restored",
+                    Lang::Russian => "Успешно восстановленно",
+                },
+            )
         };
     }
 

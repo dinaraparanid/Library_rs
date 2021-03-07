@@ -231,11 +231,11 @@ pub(crate) fn change_pages_simple(
     let mut get_pages = Input1::<IntInput>::new(
         match lang {
             Lang::English => "New Amount of Pages",
-            Lang::Russian => "Новое Количество страниц",
+            Lang::Russian => "Новое Кол-во страниц",
         },
         match lang {
             Lang::English => "New Amount of Pages",
-            Lang::Russian => "Новое Количество Страниц",
+            Lang::Russian => "Новое Кол-во Страниц",
         },
     );
 
@@ -257,7 +257,7 @@ pub(crate) fn change_pages_simple(
                                 500,
                                 match lang {
                                     Lang::English => "'New amount of pages' is empty",
-                                    Lang::Russian => "'Новое количество страниц' пусто",
+                                    Lang::Russian => "'Новое Кол-во страниц' пусто",
                                 },
                             );
                             caretaker.pop().unwrap();

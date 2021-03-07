@@ -72,11 +72,11 @@ pub(crate) fn add_books_simple(
     let mut get_amount = Input1::<IntInput>::new(
         match lang {
             Lang::English => "Books amount",
-            Lang::Russian => "Количество книг",
+            Lang::Russian => "Кол-во книг",
         },
         match lang {
             Lang::English => "Amount of books to add",
-            Lang::Russian => "Количество добавляемых книг",
+            Lang::Russian => "Кол-во добавляемых книг",
         },
     );
 
@@ -302,11 +302,11 @@ pub(crate) fn add_book_simple(
     let mut am = Input1::<IntInput>::new(
         match lang {
             Lang::English => "Amount of Books",
-            Lang::Russian => "Количество Книг",
+            Lang::Russian => "Кол-во Книг",
         },
         match lang {
             Lang::English => "Set amount of books",
-            Lang::Russian => "Укажите количество книг",
+            Lang::Russian => "Укажите Кол-во книг",
         },
     );
 
