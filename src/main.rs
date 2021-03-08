@@ -9,6 +9,7 @@ use booklibrs::{
         },
         genres::*,
         giveaway::{full::*, simple::*},
+        help,
         read::{
             add_rem::full::*,
             change::full::*,
@@ -81,6 +82,7 @@ enum Message {
     NextData,
     English,
     Russian,
+    Help,
 }
 
 /// Hashing login and password
@@ -370,9 +372,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut menu = MenuBar::new(
         0,
         0,
-        350 - match lang {
+        455 - match lang {
             Lang::English => 0,
-            Lang::Russian => 40,
+            Lang::Russian => 25,
         },
         30,
         "",
@@ -525,7 +527,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     menu.add_emit(
         match lang {
             Lang::English => "&Books/Change book's location\t",
-            Lang::Russian => "&Книги/Изменить номер полки книги\t",
+            Lang::Russian => "&Книги/Изменить расположение книги\t",
         },
         Shortcut::empty(),
         MenuFlag::Normal,
@@ -568,8 +570,19 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     menu.add_emit(
         match lang {
-            Lang::English => "&Books/List of all books by genres\t",
-            Lang::Russian => "&Книги/Список всех книг по жанрам\t",
+            Lang::English => "&Books/List of all books\t",
+            Lang::Russian => "&Книги/Все книги\t",
+        },
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        Message::ShowAllBooks,
+    );
+
+    menu.add_emit(
+        match lang {
+            Lang::English => "&Genres/List of all books by genres\t",
+            Lang::Russian => "&Жанры/Список всех книг по жанрам\t",
         },
         Shortcut::empty(),
         MenuFlag::Normal,
@@ -579,8 +592,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     menu.add_emit(
         match lang {
-            Lang::English => "&Books/Add genre\t",
-            Lang::Russian => "&Книги/Добавить жанр\t",
+            Lang::English => "&Genres/Add genre\t",
+            Lang::Russian => "&Жанры/Добавить жанр\t",
         },
         Shortcut::empty(),
         MenuFlag::Normal,
@@ -590,8 +603,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     menu.add_emit(
         match lang {
-            Lang::English => "&Books/Remove genre\t",
-            Lang::Russian => "&Книги/Удалить жанр\t",
+            Lang::English => "&Genres/Remove genre\t",
+            Lang::Russian => "&Жанры/Удалить жанр\t",
         },
         Shortcut::empty(),
         MenuFlag::Normal,
@@ -601,24 +614,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     menu.add_emit(
         match lang {
-            Lang::English => "&Books/Customize book genres\t",
-            Lang::Russian => "&Книги/Изменить жанры книги\t",
+            Lang::English => "&Genres/Customize book genres\t",
+            Lang::Russian => "&Жанры/Изменить жанры книги\t",
         },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
         Message::CustomizeBookGenre,
-    );
-
-    menu.add_emit(
-        match lang {
-            Lang::English => "&Books/List of all books\t",
-            Lang::Russian => "&Книги/Все книги\t",
-        },
-        Shortcut::empty(),
-        MenuFlag::Normal,
-        s,
-        Message::ShowAllBooks,
     );
 
     menu.add_emit(
@@ -679,7 +681,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     menu.add_emit(
         match lang {
             Lang::English => "&Language/English\t",
-            Lang::Russian => "&Язык/Английский\t",
+            Lang::Russian => "&Язык/English\t",
         },
         Shortcut::empty(),
         MenuFlag::Normal,
@@ -689,13 +691,24 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     menu.add_emit(
         match lang {
-            Lang::English => "&Language/Russian\t",
+            Lang::English => "&Language/Русский\t",
             Lang::Russian => "&Язык/Русский\t",
         },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
         Message::Russian,
+    );
+
+    menu.add_emit(
+        match lang {
+            Lang::English => "&Help",
+            Lang::Russian => "&Помощь",
+        },
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        Message::Help,
     );
 
     main_window.show();
@@ -897,7 +910,14 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
 
                 Message::InfoBook => {
-                    book_info(&(*book_system).borrow(), &app, lang);
+                    book_info(
+                        book_system.clone(),
+                        &*(*reader_base).borrow(),
+                        &*(*genres).borrow(),
+                        &mut *(*caretaker).borrow_mut(),
+                        &app,
+                        lang
+                    );
                     table.redraw();
                 }
 
@@ -1049,6 +1069,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                         app.quit()
                     }
                 }
+
+                Message::Help => help(lang)
             }
         }
 
@@ -1071,7 +1093,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             } else if table.is_selected(i as i32, 1) {
                 book_info_simple(
                     (*reader_base).borrow().get_book(i),
-                    &mut (*book_system).borrow_mut(),
+                    book_system.clone(),
+                    &*(*reader_base).borrow(),
+                    &*(*genres).borrow(),
+                    &mut *(*caretaker).borrow_mut(),
+                    &app,
                     lang,
                 );
 

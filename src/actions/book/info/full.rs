@@ -74,7 +74,7 @@ pub fn the_book_info(
                     } {
                         the_book_info_simple(
                             index,
-                            &mut *(*book_system).borrow_mut(),
+                            book_system.clone(),
                             &mut *(*reader_base).borrow_mut(),
                             genres,
                             caretaker,
@@ -97,7 +97,14 @@ pub fn the_book_info(
 /// program will let you know
 
 #[inline]
-pub fn book_info(book_system: &BookSystem, app: &App, lang: Lang) {
+pub fn book_info(
+    book_system: Rc<RefCell<BookSystem>>,
+    reader_base: &ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+    lang: Lang,
+) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::<Input, Input, IntInput>::new(
         match lang {
@@ -127,8 +134,16 @@ pub fn book_info(book_system: &BookSystem, app: &App, lang: Lang) {
                 inp.hide();
 
                 if let Ok(the_book) = inp.set_input() {
-                    if let Ok(index) = check_book(book_system, &the_book, lang) {
-                        book_info_simple2(index, book_system, app, lang)
+                    if let Ok(index) = check_book(&*(*book_system).borrow(), &the_book, lang) {
+                        book_info_simple2(
+                            index,
+                            book_system.clone(),
+                            reader_base,
+                            genres,
+                            caretaker,
+                            app,
+                            lang,
+                        )
                     }
                 }
             }
@@ -234,7 +249,7 @@ pub fn show_all_books(
             {
                 the_book_info_simple(
                     i,
-                    &mut (*book_system).borrow_mut(),
+                    book_system.clone(),
                     reader_base,
                     genres,
                     caretaker,

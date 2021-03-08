@@ -29,7 +29,11 @@ use fltk::{
     window::SingleWindow,
 };
 
-use std::{cell::RefCell, cmp::max, rc::Rc, rc::Weak};
+use std::{
+    cell::RefCell,
+    cmp::max,
+    rc::{Rc, Weak},
+};
 
 /// Messages for info_the_book
 /// menu for The Book
@@ -50,8 +54,39 @@ enum MessageTheBook {
 /// about already known simple book
 /// by a smart pointer
 
-pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSystem, lang: Lang) {
-    if let Some(b) = book {
+pub fn book_info_simple(
+    book: Option<Weak<RefCell<Book>>>,
+    book_system: Rc<RefCell<BookSystem>>,
+    reader_base: &ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+    lang: Lang,
+) {
+    if let Some(book) = book {
+        let (t_ind, s_ind) = {
+            let t_ind = (*book_system)
+                .borrow()
+                .find_book(
+                    &(*book.upgrade().unwrap()).borrow().title(),
+                    &(*book.upgrade().unwrap()).borrow().author(),
+                    (*book.upgrade().unwrap()).borrow().pages(),
+                )
+                .unwrap();
+
+            (t_ind, unsafe {
+                (*book_system)
+                    .borrow()
+                    .books
+                    .get_unchecked(t_ind)
+                    .borrow()
+                    .books
+                    .iter()
+                    .position(|b| b.as_ptr() == book.upgrade().unwrap().as_ptr())
+                    .unwrap()
+            })
+        };
+
         let mut wind = SingleWindow::new(
             800,
             100,
@@ -59,9 +94,21 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
             600,
             format!(
                 "{} {} {}",
-                (*b.upgrade().unwrap()).borrow().title(),
-                (*b.upgrade().unwrap()).borrow().author(),
-                (*b.upgrade().unwrap()).borrow().pages(),
+                *unsafe {
+                    &(**(*book_system).borrow().books.get_unchecked(t_ind))
+                        .borrow()
+                        .title
+                },
+                *unsafe {
+                    &(**(*book_system).borrow().books.get_unchecked(t_ind))
+                        .borrow()
+                        .author
+                },
+                *unsafe {
+                    &(**(*book_system).borrow().books.get_unchecked(t_ind))
+                        .borrow()
+                        .pages
+                },
             )
             .as_str(),
         )
@@ -81,7 +128,11 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                     Lang::English => "Title",
                     Lang::Russian => "Название",
                 },
-                (*b.upgrade().unwrap()).borrow().title()
+                *unsafe {
+                    &(**(*book_system).borrow().books.get_unchecked(t_ind))
+                        .borrow()
+                        .title
+                }
             )
             .as_str(),
         ));
@@ -97,7 +148,11 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                     Lang::English => "Author",
                     Lang::Russian => "Автор",
                 },
-                (*b.upgrade().unwrap()).borrow().author()
+                *unsafe {
+                    &(**(*book_system).borrow().books.get_unchecked(t_ind))
+                        .borrow()
+                        .author
+                }
             )
             .as_str(),
         ));
@@ -113,7 +168,11 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                     Lang::English => "Amount of Pages",
                     Lang::Russian => "Кол-во страниц",
                 },
-                (*b.upgrade().unwrap()).borrow().pages(),
+                *unsafe {
+                    &(**(*book_system).borrow().books.get_unchecked(t_ind))
+                        .borrow()
+                        .pages
+                },
             )
             .as_str(),
         ));
@@ -129,7 +188,13 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                     Lang::English => "Order Number",
                     Lang::Russian => "Порядковый номер",
                 },
-                get_book_ind(book_system, b.upgrade().unwrap().as_ptr()),
+                get_book_ind(&*(*book_system).borrow(), unsafe {
+                    (**(*book_system).borrow().books.get_unchecked(t_ind))
+                        .borrow()
+                        .books
+                        .get_unchecked(s_ind)
+                        .as_ptr()
+                }),
             )
             .as_str(),
         ));
@@ -145,20 +210,34 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                     Lang::English => "Now is Read By",
                     Lang::Russian => "В данный момент читается",
                 },
-                if (*b.upgrade().unwrap()).borrow().is_using {
-                    (*(*b.upgrade().unwrap())
+                if unsafe {
+                    (**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                        .borrow()
+                        .books
+                        .get_unchecked(s_ind))
+                    .borrow()
+                    .is_using
+                } {
+                    unsafe {
+                        (**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                            .borrow()
+                            .books
+                            .get_unchecked(s_ind))
                         .borrow()
                         .readers
                         .last()
                         .unwrap()
                         .0
                         .upgrade()
-                        .unwrap())
-                    .borrow()
-                    .name
-                    .clone()
-                        + " "
-                        + (*(*b.upgrade().unwrap())
+                        .unwrap()
+                        .borrow()
+                        .name
+                        .clone()
+                            + " "
+                            + (*(**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                                .borrow()
+                                .books
+                                .get_unchecked(s_ind))
                             .borrow()
                             .readers
                             .last()
@@ -166,11 +245,14 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                             .0
                             .upgrade()
                             .unwrap())
-                        .borrow()
-                        .family
-                        .as_str()
-                        + " "
-                        + (*(*b.upgrade().unwrap())
+                            .borrow()
+                            .family
+                            .as_str()
+                            + " "
+                            + (*(**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                                .borrow()
+                                .books
+                                .get_unchecked(s_ind))
                             .borrow()
                             .readers
                             .last()
@@ -178,11 +260,14 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                             .0
                             .upgrade()
                             .unwrap())
-                        .borrow()
-                        .father
-                        .as_str()
-                        + " "
-                        + (*(*b.upgrade().unwrap())
+                            .borrow()
+                            .father
+                            .as_str()
+                            + " "
+                            + (*(**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                                .borrow()
+                                .books
+                                .get_unchecked(s_ind))
                             .borrow()
                             .readers
                             .last()
@@ -190,10 +275,11 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                             .0
                             .upgrade()
                             .unwrap())
-                        .borrow()
-                        .age()
-                        .to_string()
-                        .as_str()
+                            .borrow()
+                            .age()
+                            .to_string()
+                            .as_str()
+                    }
                 } else {
                     match lang {
                         Lang::English => "None",
@@ -216,7 +302,14 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                     Lang::English => "Cabinet",
                     Lang::Russian => "Шкаф",
                 },
-                (*b.upgrade().unwrap()).borrow().cabinet,
+                unsafe {
+                    (**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                        .borrow()
+                        .books
+                        .get_unchecked(s_ind))
+                    .borrow()
+                    .cabinet
+                },
             )
             .as_str(),
         ));
@@ -232,7 +325,14 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
                     Lang::English => "Shelf",
                     Lang::Russian => "Полка",
                 },
-                (*b.upgrade().unwrap()).borrow().shelf,
+                unsafe {
+                    (**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                        .borrow()
+                        .books
+                        .get_unchecked(s_ind))
+                    .borrow()
+                    .shelf
+                }
             )
             .as_str(),
         ));
@@ -256,10 +356,15 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
 
         let mut table2 = Table::new(0, 127, 848, 600, "");
 
-        table2.set_rows(max(
-            30,
-            (*b.upgrade().unwrap()).borrow().readers.len() as u32,
-        ));
+        table2.set_rows(max(30, unsafe {
+            (**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                .borrow()
+                .books
+                .get_unchecked(s_ind))
+            .borrow()
+            .readers
+            .len() as u32
+        }));
 
         table2.set_row_header(true);
         table2.set_cols(6);
@@ -269,6 +374,8 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
 
         wind.end();
         wind.show();
+
+        let bs = book_system.clone();
 
         table2.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
             fltk::table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
@@ -319,7 +426,20 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
             }
 
             fltk::table::TableContext::Cell => draw_data(
-                &format!("{}", cell_reader2(col, row, b.clone(),)),
+                &format!(
+                    "{}",
+                    cell_reader2(
+                        col,
+                        row,
+                        Rc::downgrade(&unsafe {
+                            (*(**(*bs).borrow().books.get_unchecked(t_ind))
+                                .borrow()
+                                .books
+                                .get_unchecked(s_ind))
+                            .clone()
+                        }),
+                    )
+                ),
                 x,
                 y,
                 w,
@@ -330,6 +450,53 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
 
             _ => (),
         });
+
+        let mut menu = MenuBar::new(
+            0,
+            0,
+            130 + match lang {
+                Lang::English => 0,
+                Lang::Russian => 50,
+            },
+            30,
+            "",
+        );
+
+        wind.add(&menu);
+
+        let (s, r) = app::channel();
+
+        menu.add_emit(
+            match lang {
+                Lang::English => "&Change location\t",
+                Lang::Russian => "&Изменить расположение\t",
+            },
+            Shortcut::empty(),
+            MenuFlag::Normal,
+            s,
+            true,
+        );
+
+        wind.show();
+
+        while app.wait() {
+            if let Some(msg) = r.recv() {
+                if msg {
+                    change_location_simple(
+                        t_ind,
+                        s_ind,
+                        &mut *(*book_system).borrow_mut(),
+                        reader_base,
+                        genres,
+                        caretaker,
+                        app,
+                        lang,
+                    )
+                }
+            } else if !wind.shown() {
+                return;
+            }
+        }
     }
 }
 
@@ -337,7 +504,15 @@ pub fn book_info_simple(book: Option<Weak<RefCell<Book>>>, book_system: &BookSys
 /// simple book by index of TheBook
 
 #[inline]
-pub(crate) fn book_info_simple2(index: usize, book_system: &BookSystem, app: &App, lang: Lang) {
+pub(crate) fn book_info_simple2(
+    index: usize,
+    book_system: Rc<RefCell<BookSystem>>,
+    reader_base: &ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+    lang: Lang,
+) {
     let (s, r) = app::channel();
     let mut inp2 = Input1::<IntInput>::new(
         match lang {
@@ -363,7 +538,7 @@ pub(crate) fn book_info_simple2(index: usize, book_system: &BookSystem, app: &Ap
 
                     if bind
                         > unsafe {
-                            (**book_system.books.get_unchecked(index))
+                            (**(*book_system).borrow().books.get_unchecked(index))
                                 .borrow()
                                 .books
                                 .len()
@@ -383,12 +558,16 @@ pub(crate) fn book_info_simple2(index: usize, book_system: &BookSystem, app: &Ap
 
                     book_info_simple(
                         Some(Rc::downgrade(unsafe {
-                            (**book_system.books.get_unchecked(index))
+                            (**(*book_system).borrow().books.get_unchecked(index))
                                 .borrow()
                                 .books
                                 .get_unchecked(bind - 1)
                         })),
-                        book_system,
+                        book_system.clone(),
+                        reader_base,
+                        genres,
+                        caretaker,
+                        app,
                         lang,
                     );
                 }
@@ -405,7 +584,7 @@ pub(crate) fn book_info_simple2(index: usize, book_system: &BookSystem, app: &Ap
 
 pub fn the_book_info_simple(
     ind: usize,
-    book_system: &mut BookSystem,
+    book_system: Rc<RefCell<BookSystem>>,
     reader_base: &mut ReaderBase,
     genres: &Genres,
     caretaker: &mut Caretaker,
@@ -419,8 +598,16 @@ pub fn the_book_info_simple(
         600,
         format!(
             "{} {}",
-            *unsafe { &(**book_system.books.get_unchecked(ind)).borrow().title },
-            *unsafe { &(**book_system.books.get_unchecked(ind)).borrow().author }
+            *unsafe {
+                &(**(*book_system).borrow().books.get_unchecked(ind))
+                    .borrow()
+                    .title
+            },
+            *unsafe {
+                &(**(*book_system).borrow().books.get_unchecked(ind))
+                    .borrow()
+                    .author
+            }
         )
         .as_str(),
     );
@@ -439,7 +626,11 @@ pub fn the_book_info_simple(
                 Lang::English => "Title",
                 Lang::Russian => "Название",
             },
-            *unsafe { &(**book_system.books.get_unchecked(ind)).borrow().title },
+            *unsafe {
+                &(**(*book_system).borrow().books.get_unchecked(ind))
+                    .borrow()
+                    .title
+            },
         )
         .as_str(),
     );
@@ -455,7 +646,11 @@ pub fn the_book_info_simple(
                 Lang::English => "Author",
                 Lang::Russian => "Автор",
             },
-            *unsafe { &(**book_system.books.get_unchecked(ind)).borrow().author }
+            *unsafe {
+                &(**(*book_system).borrow().books.get_unchecked(ind))
+                    .borrow()
+                    .author
+            }
         )
         .as_str(),
     );
@@ -471,7 +666,11 @@ pub fn the_book_info_simple(
                 Lang::English => "Amount of Pages",
                 Lang::Russian => "Кол-во страниц",
             },
-            *unsafe { &(**book_system.books.get_unchecked(ind)).borrow().pages }
+            *unsafe {
+                &(**(*book_system).borrow().books.get_unchecked(ind))
+                    .borrow()
+                    .pages
+            }
         )
         .as_str(),
     );
@@ -488,7 +687,7 @@ pub fn the_book_info_simple(
                 Lang::Russian => "Кол-во книг",
             },
             unsafe {
-                (**book_system.books.get_unchecked(ind))
+                (**(*book_system).borrow().books.get_unchecked(ind))
                     .borrow()
                     .books
                     .len()
@@ -522,7 +721,11 @@ pub fn the_book_info_simple(
     let mut genre_table = Table::new(0, 200, 520, 380, "");
 
     genre_table.set_rows(
-        if let Some(g) = unsafe { &(**book_system.books.get_unchecked(ind)).borrow().genres } {
+        if let Some(g) = unsafe {
+            &(**(*book_system).borrow().books.get_unchecked(ind))
+                .borrow()
+                .genres
+        } {
             max(20, g.len() as u32)
         } else {
             20
@@ -533,7 +736,7 @@ pub fn the_book_info_simple(
     genre_table.set_col_width_all(500);
     genre_table.end();
 
-    let b = unsafe { book_system.books.get_unchecked(ind).clone() };
+    let b = unsafe { (*book_system).borrow().books.get_unchecked(ind).clone() };
 
     genre_table.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
         table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
@@ -666,7 +869,7 @@ pub fn the_book_info_simple(
                 MessageTheBook::ChangeTitle => {
                     if let Some(new_title) = change_title_simple(
                         ind,
-                        book_system,
+                        &mut *(*book_system).borrow_mut(),
                         reader_base,
                         genres,
                         caretaker,
@@ -691,7 +894,7 @@ pub fn the_book_info_simple(
                 MessageTheBook::ChangeAuthor => {
                     if let Some(new_author) = change_author_simple(
                         ind,
-                        book_system,
+                        &mut *(*book_system).borrow_mut(),
                         reader_base,
                         genres,
                         caretaker,
@@ -716,7 +919,7 @@ pub fn the_book_info_simple(
                 MessageTheBook::ChangePages => {
                     if let Some(new_pages) = change_pages_simple(
                         ind,
-                        book_system,
+                        &mut *(*book_system).borrow_mut(),
                         reader_base,
                         genres,
                         caretaker,
@@ -741,7 +944,7 @@ pub fn the_book_info_simple(
                 MessageTheBook::RemoveSimple => {
                     if remove_book_simple(
                         ind,
-                        book_system,
+                        &mut *(*book_system).borrow_mut(),
                         reader_base,
                         genres,
                         caretaker,
@@ -756,7 +959,7 @@ pub fn the_book_info_simple(
                                     Lang::Russian => "Кол-во страниц",
                                 },
                                 unsafe {
-                                    (**book_system.books.get_unchecked(ind))
+                                    (**(*book_system).borrow().books.get_unchecked(ind))
                                         .borrow()
                                         .books
                                         .len()
@@ -769,8 +972,15 @@ pub fn the_book_info_simple(
                 }
 
                 MessageTheBook::AddSimple => {
-                    if add_books_simple(ind, book_system, reader_base, genres, caretaker, app, lang)
-                    {
+                    if add_books_simple(
+                        ind,
+                        &mut *(*book_system).borrow_mut(),
+                        reader_base,
+                        genres,
+                        caretaker,
+                        app,
+                        lang,
+                    ) {
                         amount_frame.set_label(
                             format!(
                                 "{}: {}",
@@ -779,7 +989,7 @@ pub fn the_book_info_simple(
                                     Lang::Russian => "Кол-во книг",
                                 },
                                 unsafe {
-                                    (**book_system.books.get_unchecked(ind))
+                                    (**(*book_system).borrow().books.get_unchecked(ind))
                                         .borrow()
                                         .books
                                         .len()
@@ -792,16 +1002,38 @@ pub fn the_book_info_simple(
                 }
 
                 MessageTheBook::RemoveThis => {
-                    remove_the_book_simple(ind, book_system, reader_base, genres, caretaker, lang);
+                    remove_the_book_simple(
+                        ind,
+                        &mut *(*book_system).borrow_mut(),
+                        reader_base,
+                        genres,
+                        caretaker,
+                        lang,
+                    );
                     return;
                 }
 
                 MessageTheBook::CustomizeBookGenre => {
-                    customize_book_genre(genres, book_system, reader_base, caretaker, app, lang);
+                    customize_book_genre(
+                        genres,
+                        &mut *(*book_system).borrow_mut(),
+                        reader_base,
+                        caretaker,
+                        app,
+                        lang,
+                    );
                     genre_table.redraw();
                 }
 
-                MessageTheBook::Info => book_info_simple2(ind, book_system, app, lang),
+                MessageTheBook::Info => book_info_simple2(
+                    ind,
+                    book_system.clone(),
+                    reader_base,
+                    genres,
+                    caretaker,
+                    app,
+                    lang,
+                ),
             }
         } else if !wind.shown() {
             return;

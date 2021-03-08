@@ -583,7 +583,11 @@ pub fn reader_info_simple(
                                 .get_unchecked(i)
                                 .clone(),
                         ),
-                        &*(*book_system).borrow(),
+                        book_system.clone(),
+                        &(*reader_base).borrow(),
+                        genres,
+                        caretaker,
+                        app,
                         lang,
                     );
                 }

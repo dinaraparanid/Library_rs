@@ -335,7 +335,7 @@ pub(crate) fn change_location_simple(
     t_ind: usize,
     s_ind: usize,
     book_system: &mut BookSystem,
-    reader_base: &mut ReaderBase,
+    reader_base: &ReaderBase,
     genres: &Genres,
     caretaker: &mut Caretaker,
     app: &App,
@@ -409,7 +409,6 @@ pub(crate) fn change_location_simple(
                                     );
 
                                     book_system.save();
-                                    reader_base.save();
                                     return;
                                 }
 
