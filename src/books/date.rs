@@ -1,9 +1,11 @@
 extern crate chrono;
 
-use self::chrono::NaiveDate;
-use chrono::{DateTime, Datelike, Local};
-use std::fmt::{Display, Formatter};
-use std::{cmp::*, ops::Sub};
+use chrono::{DateTime, Datelike, Local, NaiveDate};
+use std::{
+    cmp::*,
+    fmt::{Display, Formatter},
+    ops::Sub,
+};
 
 /// Date structure, which contains day, month and year.
 /// It's a copyable type like i32 (no move).

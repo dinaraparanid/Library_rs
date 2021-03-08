@@ -1,13 +1,12 @@
 extern crate yaml_rust;
 
 use std::{
-    collections::{BTreeSet, HashSet},
+    collections::{hash_set::Iter, BTreeSet, HashSet},
     fs::File,
     io::{Read, Write},
     iter::FromIterator,
 };
 
-use std::collections::hash_set::Iter;
 use yaml_rust::{yaml::Array, Yaml, YamlEmitter, YamlLoader};
 
 /// All existing genres.yaml of books

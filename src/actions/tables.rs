@@ -79,18 +79,19 @@ pub fn cell_reader(
     lang: Lang,
 ) -> (String, Option<fltk::enums::Color>) {
     return if y < reader_base.len() as i32 {
-        let reader_date;
-
-        match RefCell::borrow(unsafe { &(**reader_base.readers.get_unchecked(y as usize)) }).reading
-        {
-            None => reader_date = Date::from(chrono::Local::now()),
-            Some(_) => {
-                reader_date = Date::new(
+        let reader_date =
+            match RefCell::borrow(unsafe { &(**reader_base.readers.get_unchecked(y as usize)) })
+                .reading
+            {
+                None => Date::from(chrono::Local::now()),
+                Some(_) => Date::new(
                     ((*RefCell::borrow(unsafe {
                         &(**reader_base.readers.get_unchecked(y as usize))
                     })
                     .reading
                     .as_ref()
+                    .unwrap()
+                    .first()
                     .unwrap()
                     .upgrade()
                     .unwrap())
@@ -107,6 +108,8 @@ pub fn cell_reader(
                     .reading
                     .as_ref()
                     .unwrap()
+                    .first()
+                    .unwrap()
                     .upgrade()
                     .unwrap())
                     .borrow()
@@ -122,6 +125,8 @@ pub fn cell_reader(
                     .reading
                     .as_ref()
                     .unwrap()
+                    .first()
+                    .unwrap()
                     .upgrade()
                     .unwrap())
                     .borrow()
@@ -132,9 +137,8 @@ pub fn cell_reader(
                         .1
                         .year,
                 )
-                .unwrap()
-            }
-        }
+                .unwrap(),
+            };
 
         let color = {
             let cur_date = Date::from(chrono::Local::now());
@@ -175,6 +179,8 @@ pub fn cell_reader(
                         .reading
                         .as_ref()
                         .unwrap()
+                        .first()
+                        .unwrap()
                         .upgrade()
                         .unwrap())
                         .borrow()
@@ -185,6 +191,8 @@ pub fn cell_reader(
                         .reading
                         .as_ref()
                         .unwrap()
+                        .first()
+                        .unwrap()
                         .upgrade()
                         .unwrap())
                         .borrow()
@@ -194,6 +202,8 @@ pub fn cell_reader(
                         })
                         .reading
                         .as_ref()
+                        .unwrap()
+                        .first()
                         .unwrap()
                         .upgrade()
                         .unwrap())
@@ -210,6 +220,8 @@ pub fn cell_reader(
                             })
                             .reading
                             .as_ref()
+                            .unwrap()
+                            .first()
                             .unwrap()
                             .upgrade()
                             .unwrap())
@@ -228,6 +240,8 @@ pub fn cell_reader(
                         .reading
                         .as_ref()
                         .unwrap()
+                        .first()
+                        .unwrap()
                         .upgrade()
                         .unwrap())
                         .borrow()
@@ -243,6 +257,8 @@ pub fn cell_reader(
                         .reading
                         .as_ref()
                         .unwrap()
+                        .first()
+                        .unwrap()
                         .upgrade()
                         .unwrap())
                         .borrow()
@@ -257,6 +273,8 @@ pub fn cell_reader(
                         })
                         .reading
                         .as_ref()
+                        .unwrap()
+                        .first()
                         .unwrap()
                         .upgrade()
                         .unwrap())
@@ -423,6 +441,91 @@ pub fn cell_book(x: i32, y: i32, book_system: &BookSystem) -> String {
 
 #[inline]
 pub fn cell_book2(
+    x: i32,
+    y: i32,
+    ind: usize,
+    reader_base: &ReaderBase,
+    book_system: &BookSystem,
+) -> String {
+    return format!(
+        "{}",
+        if RefCell::borrow(unsafe { &(**reader_base.readers.get_unchecked(ind)) })
+            .reading
+            .is_some()
+            && y < RefCell::borrow(unsafe { &(**reader_base.readers.get_unchecked(ind)) })
+                .reading
+                .as_ref()
+                .unwrap()
+                .len() as i32
+        {
+            match x {
+                0 => unsafe {
+                    (*RefCell::borrow(&(**reader_base.readers.get_unchecked(ind)))
+                        .reading
+                        .as_ref()
+                        .unwrap()
+                        .get_unchecked(y as usize)
+                        .upgrade()
+                        .unwrap())
+                    .borrow()
+                    .title()
+                    .to_string()
+                },
+                1 => unsafe {
+                    (*RefCell::borrow(&(**reader_base.readers.get_unchecked(ind)))
+                        .reading
+                        .as_ref()
+                        .unwrap()
+                        .get_unchecked(y as usize)
+                        .upgrade()
+                        .unwrap())
+                    .borrow()
+                    .author()
+                    .to_string()
+                },
+                2 => unsafe {
+                    (*RefCell::borrow(&(**reader_base.readers.get_unchecked(ind)))
+                        .reading
+                        .as_ref()
+                        .unwrap()
+                        .get_unchecked(y as usize)
+                        .upgrade()
+                        .unwrap())
+                    .borrow()
+                    .pages()
+                    .to_string()
+                },
+                _ => unsafe {
+                    get_book_ind(
+                        book_system,
+                        (*RefCell::borrow(&(**reader_base.readers.get_unchecked(ind)))
+                            .reading
+                            .as_ref()
+                            .unwrap()
+                            .get_unchecked(y as usize)
+                            .upgrade()
+                            .unwrap())
+                        .as_ptr(),
+                    )
+                    .to_string()
+                },
+            }
+        } else {
+            "".to_string()
+        }
+    );
+}
+
+/// **DEPRECATED**
+///
+/// Shows all read books
+///
+/// Function that returns
+/// name, 2-nd name, mid name and age
+/// of reader with known index
+
+#[deprecated(note = "Shows all read books")]
+pub fn cell_book2_old(
     x: i32,
     y: i32,
     ind: usize,

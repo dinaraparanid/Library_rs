@@ -317,7 +317,7 @@ impl Book {
     }
 
     /// Clones simple book
-    /// with new readers' pointers
+    /// with empty readers
 
     #[inline]
     pub(crate) fn clone(&self, the_book: Rc<RefCell<TheBook>>) -> Self {

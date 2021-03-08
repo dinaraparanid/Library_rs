@@ -9,7 +9,7 @@ use crate::{
     Lang,
 };
 
-use fltk::{app::App, dialog::alert, input::*};
+use fltk::{app::App, input::*};
 
 /// Function that changes
 /// return date for the book
@@ -54,34 +54,15 @@ pub fn change_return_date(
                 if let Ok(reader) = inp2.set_input() {
                     match check_reader(reader_base, &reader, app, lang) {
                         Some(rind) => {
-                            match unsafe {
-                                &(**reader_base.readers.get_unchecked(rind)).borrow().reading
-                            } {
-                                Some(book) => {
-                                    change_return_date_simple(
-                                        &Some(book.clone()),
-                                        book_system,
-                                        reader_base,
-                                        genres,
-                                        caretaker,
-                                        lang,
-                                    );
-                                }
-
-                                None => {
-                                    alert(
-                                        500,
-                                        500,
-                                        match lang {
-                                            Lang::English => "This reader isn't reading anything",
-                                            Lang::Russian => "Этот читатель ничего не читает",
-                                        },
-                                    );
-
-                                    caretaker.pop().unwrap();
-                                    return;
-                                }
-                            }
+                            change_return_date_simple(
+                                rind,
+                                book_system,
+                                reader_base,
+                                genres,
+                                caretaker,
+                                app,
+                                lang,
+                            );
                         }
 
                         None => {
@@ -224,6 +205,7 @@ pub fn get_book(
                                 book_system,
                                 genres,
                                 caretaker,
+                                app,
                                 lang,
                             );
                         }

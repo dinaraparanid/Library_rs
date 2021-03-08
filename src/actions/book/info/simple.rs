@@ -3,7 +3,7 @@ extern crate fltk;
 use crate::{
     actions::{
         book::{add_rem::simple::*, change::simple::*},
-        genres::customize_book_genre,
+        genres::full::customize_book_genre,
         read::utils::get_book_ind,
         tables::*,
     },
@@ -55,7 +55,7 @@ enum MessageTheBook {
 /// by a smart pointer
 
 pub fn book_info_simple(
-    book: Option<Weak<RefCell<Book>>>,
+    book: &Weak<RefCell<Book>>,
     book_system: Rc<RefCell<BookSystem>>,
     reader_base: &ReaderBase,
     genres: &Genres,
@@ -63,163 +63,177 @@ pub fn book_info_simple(
     app: &App,
     lang: Lang,
 ) {
-    if let Some(book) = book {
-        let (t_ind, s_ind) = {
-            let t_ind = (*book_system)
+    let (t_ind, s_ind) = {
+        let t_ind = (*book_system)
+            .borrow()
+            .find_book(
+                &(*book.upgrade().unwrap()).borrow().title(),
+                &(*book.upgrade().unwrap()).borrow().author(),
+                (*book.upgrade().unwrap()).borrow().pages(),
+            )
+            .unwrap();
+
+        (t_ind, unsafe {
+            (*book_system)
                 .borrow()
-                .find_book(
-                    &(*book.upgrade().unwrap()).borrow().title(),
-                    &(*book.upgrade().unwrap()).borrow().author(),
-                    (*book.upgrade().unwrap()).borrow().pages(),
-                )
-                .unwrap();
+                .books
+                .get_unchecked(t_ind)
+                .borrow()
+                .books
+                .iter()
+                .position(|b| b.as_ptr() == book.upgrade().unwrap().as_ptr())
+                .unwrap()
+        })
+    };
 
-            (t_ind, unsafe {
-                (*book_system)
+    let mut wind = SingleWindow::new(
+        800,
+        100,
+        848,
+        600,
+        format!(
+            "{} {} {}",
+            *unsafe {
+                &(**(*book_system).borrow().books.get_unchecked(t_ind))
                     .borrow()
-                    .books
-                    .get_unchecked(t_ind)
+                    .title
+            },
+            *unsafe {
+                &(**(*book_system).borrow().books.get_unchecked(t_ind))
                     .borrow()
-                    .books
-                    .iter()
-                    .position(|b| b.as_ptr() == book.upgrade().unwrap().as_ptr())
-                    .unwrap()
-            })
-        };
-
-        let mut wind = SingleWindow::new(
-            800,
-            100,
-            848,
-            600,
-            format!(
-                "{} {} {}",
-                *unsafe {
-                    &(**(*book_system).borrow().books.get_unchecked(t_ind))
-                        .borrow()
-                        .title
-                },
-                *unsafe {
-                    &(**(*book_system).borrow().books.get_unchecked(t_ind))
-                        .borrow()
-                        .author
-                },
-                *unsafe {
-                    &(**(*book_system).borrow().books.get_unchecked(t_ind))
-                        .borrow()
-                        .pages
-                },
-            )
-            .as_str(),
+                    .author
+            },
+            *unsafe {
+                &(**(*book_system).borrow().books.get_unchecked(t_ind))
+                    .borrow()
+                    .pages
+            },
         )
-        .center_screen();
+        .as_str(),
+    )
+    .center_screen();
 
-        let mut table1 = VGrid::new(0, 0, 908, 170, "");
-        table1.set_params(6, 1, 1);
+    let mut table1 = VGrid::new(0, 0, 908, 170, "");
+    table1.set_params(6, 1, 1);
 
-        table1.add(&Frame::new(
-            10,
-            50,
-            100,
-            30,
-            format!(
-                "{}: {}",
-                match lang {
-                    Lang::English => "Title",
-                    Lang::Russian => "Название",
-                },
-                *unsafe {
-                    &(**(*book_system).borrow().books.get_unchecked(t_ind))
-                        .borrow()
-                        .title
-                }
-            )
-            .as_str(),
-        ));
+    table1.add(&Frame::new(
+        10,
+        50,
+        100,
+        30,
+        format!(
+            "{}: {}",
+            match lang {
+                Lang::English => "Title",
+                Lang::Russian => "Название",
+            },
+            *unsafe {
+                &(**(*book_system).borrow().books.get_unchecked(t_ind))
+                    .borrow()
+                    .title
+            }
+        )
+        .as_str(),
+    ));
 
-        table1.add(&Frame::new(
-            30,
-            50,
-            100,
-            30,
-            format!(
-                "{}: {}",
-                match lang {
-                    Lang::English => "Author",
-                    Lang::Russian => "Автор",
-                },
-                *unsafe {
-                    &(**(*book_system).borrow().books.get_unchecked(t_ind))
-                        .borrow()
-                        .author
-                }
-            )
-            .as_str(),
-        ));
+    table1.add(&Frame::new(
+        30,
+        50,
+        100,
+        30,
+        format!(
+            "{}: {}",
+            match lang {
+                Lang::English => "Author",
+                Lang::Russian => "Автор",
+            },
+            *unsafe {
+                &(**(*book_system).borrow().books.get_unchecked(t_ind))
+                    .borrow()
+                    .author
+            }
+        )
+        .as_str(),
+    ));
 
-        table1.add(&Frame::new(
-            50,
-            50,
-            100,
-            30,
-            format!(
-                "{}: {}",
-                match lang {
-                    Lang::English => "Amount of Pages",
-                    Lang::Russian => "Кол-во страниц",
-                },
-                *unsafe {
-                    &(**(*book_system).borrow().books.get_unchecked(t_ind))
-                        .borrow()
-                        .pages
-                },
-            )
-            .as_str(),
-        ));
+    table1.add(&Frame::new(
+        50,
+        50,
+        100,
+        30,
+        format!(
+            "{}: {}",
+            match lang {
+                Lang::English => "Amount of Pages",
+                Lang::Russian => "Кол-во страниц",
+            },
+            *unsafe {
+                &(**(*book_system).borrow().books.get_unchecked(t_ind))
+                    .borrow()
+                    .pages
+            },
+        )
+        .as_str(),
+    ));
 
-        table1.add(&Frame::new(
-            70,
-            50,
-            100,
-            30,
-            format!(
-                "{}: {}",
-                match lang {
-                    Lang::English => "Order Number",
-                    Lang::Russian => "Порядковый номер",
-                },
-                get_book_ind(&*(*book_system).borrow(), unsafe {
-                    (**(*book_system).borrow().books.get_unchecked(t_ind))
-                        .borrow()
-                        .books
-                        .get_unchecked(s_ind)
-                        .as_ptr()
-                }),
-            )
-            .as_str(),
-        ));
+    table1.add(&Frame::new(
+        70,
+        50,
+        100,
+        30,
+        format!(
+            "{}: {}",
+            match lang {
+                Lang::English => "Order Number",
+                Lang::Russian => "Порядковый номер",
+            },
+            get_book_ind(&*(*book_system).borrow(), unsafe {
+                (**(*book_system).borrow().books.get_unchecked(t_ind))
+                    .borrow()
+                    .books
+                    .get_unchecked(s_ind)
+                    .as_ptr()
+            }),
+        )
+        .as_str(),
+    ));
 
-        table1.add(&Frame::new(
-            90,
-            50,
-            100,
-            30,
-            format!(
-                "{}: {}",
-                match lang {
-                    Lang::English => "Now is Read By",
-                    Lang::Russian => "В данный момент читается",
-                },
-                if unsafe {
+    table1.add(&Frame::new(
+        90,
+        50,
+        100,
+        30,
+        format!(
+            "{}: {}",
+            match lang {
+                Lang::English => "Now is Read By",
+                Lang::Russian => "В данный момент читается",
+            },
+            if unsafe {
+                (**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                    .borrow()
+                    .books
+                    .get_unchecked(s_ind))
+                .borrow()
+                .is_using
+            } {
+                unsafe {
                     (**(**(*book_system).borrow().books.get_unchecked(t_ind))
                         .borrow()
                         .books
                         .get_unchecked(s_ind))
                     .borrow()
-                    .is_using
-                } {
-                    unsafe {
-                        (**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                    .readers
+                    .last()
+                    .unwrap()
+                    .0
+                    .upgrade()
+                    .unwrap()
+                    .borrow()
+                    .name
+                    .clone()
+                        + " "
+                        + (*(**(**(*book_system).borrow().books.get_unchecked(t_ind))
                             .borrow()
                             .books
                             .get_unchecked(s_ind))
@@ -229,273 +243,255 @@ pub fn book_info_simple(
                         .unwrap()
                         .0
                         .upgrade()
+                        .unwrap())
+                        .borrow()
+                        .family
+                        .as_str()
+                        + " "
+                        + (*(**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                            .borrow()
+                            .books
+                            .get_unchecked(s_ind))
+                        .borrow()
+                        .readers
+                        .last()
                         .unwrap()
+                        .0
+                        .upgrade()
+                        .unwrap())
                         .borrow()
-                        .name
-                        .clone()
-                            + " "
-                            + (*(**(**(*book_system).borrow().books.get_unchecked(t_ind))
-                                .borrow()
-                                .books
-                                .get_unchecked(s_ind))
+                        .father
+                        .as_str()
+                        + " "
+                        + (*(**(**(*book_system).borrow().books.get_unchecked(t_ind))
                             .borrow()
-                            .readers
-                            .last()
-                            .unwrap()
-                            .0
-                            .upgrade()
-                            .unwrap())
-                            .borrow()
-                            .family
-                            .as_str()
-                            + " "
-                            + (*(**(**(*book_system).borrow().books.get_unchecked(t_ind))
-                                .borrow()
-                                .books
-                                .get_unchecked(s_ind))
-                            .borrow()
-                            .readers
-                            .last()
-                            .unwrap()
-                            .0
-                            .upgrade()
-                            .unwrap())
-                            .borrow()
-                            .father
-                            .as_str()
-                            + " "
-                            + (*(**(**(*book_system).borrow().books.get_unchecked(t_ind))
-                                .borrow()
-                                .books
-                                .get_unchecked(s_ind))
-                            .borrow()
-                            .readers
-                            .last()
-                            .unwrap()
-                            .0
-                            .upgrade()
-                            .unwrap())
-                            .borrow()
-                            .age()
-                            .to_string()
-                            .as_str()
-                    }
-                } else {
-                    match lang {
-                        Lang::English => "None",
-                        Lang::Russian => "Никем",
-                    }
-                    .to_string()
-                }
-            )
-            .as_str(),
-        ));
-
-        table1.add(&Frame::new(
-            110,
-            50,
-            100,
-            30,
-            format!(
-                "{}: {}",
-                match lang {
-                    Lang::English => "Cabinet",
-                    Lang::Russian => "Шкаф",
-                },
-                unsafe {
-                    (**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                            .books
+                            .get_unchecked(s_ind))
                         .borrow()
-                        .books
-                        .get_unchecked(s_ind))
-                    .borrow()
-                    .cabinet
-                },
-            )
-            .as_str(),
-        ));
-
-        table1.add(&Frame::new(
-            130,
-            50,
-            100,
-            30,
-            format!(
-                "{}: {}",
-                match lang {
-                    Lang::English => "Shelf",
-                    Lang::Russian => "Полка",
-                },
-                unsafe {
-                    (**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                        .readers
+                        .last()
+                        .unwrap()
+                        .0
+                        .upgrade()
+                        .unwrap())
                         .borrow()
-                        .books
-                        .get_unchecked(s_ind))
-                    .borrow()
-                    .shelf
+                        .age()
+                        .to_string()
+                        .as_str()
                 }
-            )
-            .as_str(),
-        ));
-
-        table1.add(&Frame::new(
-            150,
-            50,
-            100,
-            30,
-            format!(
-                "{}:",
+            } else {
                 match lang {
-                    Lang::English => "All Readers",
-                    Lang::Russian => "Все читатели",
+                    Lang::English => "None",
+                    Lang::Russian => "Никем",
                 }
-            )
-            .as_str(),
-        ));
-
-        table1.auto_layout();
-
-        let mut table2 = Table::new(0, 127, 848, 600, "");
-
-        table2.set_rows(max(30, unsafe {
-            (**(**(*book_system).borrow().books.get_unchecked(t_ind))
-                .borrow()
-                .books
-                .get_unchecked(s_ind))
-            .borrow()
-            .readers
-            .len() as u32
-        }));
-
-        table2.set_row_header(true);
-        table2.set_cols(6);
-        table2.set_col_header(true);
-        table2.set_col_width_all(130);
-        table2.end();
-
-        wind.end();
-        wind.show();
-
-        let bs = book_system.clone();
-
-        table2.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
-            fltk::table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
-
-            fltk::table::TableContext::ColHeader => draw_header(
-                &format!(
-                    "{}",
-                    match col {
-                        0 => match lang {
-                            Lang::English => "1-st Name",
-                            Lang::Russian => "Имя",
-                        },
-
-                        1 => match lang {
-                            Lang::English => "2-nd Name",
-                            Lang::Russian => "Фамилия",
-                        },
-
-                        2 => match lang {
-                            Lang::English => "Middle Name",
-                            Lang::Russian => "Отчество",
-                        },
-
-                        3 => match lang {
-                            Lang::English => "Age",
-                            Lang::Russian => "Возраст",
-                        },
-
-                        4 => match lang {
-                            Lang::English => "Start Date",
-                            Lang::Russian => "Дата начала",
-                        },
-
-                        _ => match lang {
-                            Lang::English => "Finish Date",
-                            Lang::Russian => "Срок Сдачи",
-                        },
-                    }
-                ),
-                x,
-                y,
-                w,
-                h,
-            ),
-
-            fltk::table::TableContext::RowHeader => {
-                draw_header(&format!("{}", row + 1), x, y, w, h)
+                .to_string()
             }
+        )
+        .as_str(),
+    ));
 
-            fltk::table::TableContext::Cell => draw_data(
-                &format!(
-                    "{}",
-                    cell_reader2(
-                        col,
-                        row,
-                        Rc::downgrade(&unsafe {
-                            (*(**(*bs).borrow().books.get_unchecked(t_ind))
-                                .borrow()
-                                .books
-                                .get_unchecked(s_ind))
-                            .clone()
-                        }),
-                    )
-                ),
-                x,
-                y,
-                w,
-                h,
-                t.is_selected(row, col),
-                None,
-            ),
-
-            _ => (),
-        });
-
-        let mut menu = MenuBar::new(
-            0,
-            0,
-            130 + match lang {
-                Lang::English => 0,
-                Lang::Russian => 50,
-            },
-            30,
-            "",
-        );
-
-        wind.add(&menu);
-
-        let (s, r) = app::channel();
-
-        menu.add_emit(
+    table1.add(&Frame::new(
+        110,
+        50,
+        100,
+        30,
+        format!(
+            "{}: {}",
             match lang {
-                Lang::English => "&Change location\t",
-                Lang::Russian => "&Изменить расположение\t",
+                Lang::English => "Cabinet",
+                Lang::Russian => "Шкаф",
             },
-            Shortcut::empty(),
-            MenuFlag::Normal,
-            s,
-            true,
-        );
+            unsafe {
+                (**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                    .borrow()
+                    .books
+                    .get_unchecked(s_ind))
+                .borrow()
+                .cabinet
+            },
+        )
+        .as_str(),
+    ));
 
-        wind.show();
-
-        while app.wait() {
-            if let Some(msg) = r.recv() {
-                if msg {
-                    change_location_simple(
-                        t_ind,
-                        s_ind,
-                        &mut *(*book_system).borrow_mut(),
-                        reader_base,
-                        genres,
-                        caretaker,
-                        app,
-                        lang,
-                    )
-                }
-            } else if !wind.shown() {
-                return;
+    table1.add(&Frame::new(
+        130,
+        50,
+        100,
+        30,
+        format!(
+            "{}: {}",
+            match lang {
+                Lang::English => "Shelf",
+                Lang::Russian => "Полка",
+            },
+            unsafe {
+                (**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                    .borrow()
+                    .books
+                    .get_unchecked(s_ind))
+                .borrow()
+                .shelf
             }
+        )
+        .as_str(),
+    ));
+
+    table1.add(&Frame::new(
+        150,
+        50,
+        100,
+        30,
+        format!(
+            "{}:",
+            match lang {
+                Lang::English => "All Readers",
+                Lang::Russian => "Все читатели",
+            }
+        )
+        .as_str(),
+    ));
+
+    table1.auto_layout();
+
+    let mut table2 = Table::new(0, 127, 848, 600, "");
+
+    table2.set_rows(max(30, unsafe {
+        (**(**(*book_system).borrow().books.get_unchecked(t_ind))
+            .borrow()
+            .books
+            .get_unchecked(s_ind))
+        .borrow()
+        .readers
+        .len() as u32
+    }));
+
+    table2.set_row_header(true);
+    table2.set_cols(6);
+    table2.set_col_header(true);
+    table2.set_col_width_all(130);
+    table2.end();
+
+    wind.end();
+    wind.show();
+
+    let bs = book_system.clone();
+
+    table2.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+        fltk::table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
+
+        fltk::table::TableContext::ColHeader => draw_header(
+            &format!(
+                "{}",
+                match col {
+                    0 => match lang {
+                        Lang::English => "1-st Name",
+                        Lang::Russian => "Имя",
+                    },
+
+                    1 => match lang {
+                        Lang::English => "2-nd Name",
+                        Lang::Russian => "Фамилия",
+                    },
+
+                    2 => match lang {
+                        Lang::English => "Middle Name",
+                        Lang::Russian => "Отчество",
+                    },
+
+                    3 => match lang {
+                        Lang::English => "Age",
+                        Lang::Russian => "Возраст",
+                    },
+
+                    4 => match lang {
+                        Lang::English => "Start Date",
+                        Lang::Russian => "Дата начала",
+                    },
+
+                    _ => match lang {
+                        Lang::English => "Finish Date",
+                        Lang::Russian => "Срок Сдачи",
+                    },
+                }
+            ),
+            x,
+            y,
+            w,
+            h,
+        ),
+
+        fltk::table::TableContext::RowHeader => draw_header(&format!("{}", row + 1), x, y, w, h),
+
+        fltk::table::TableContext::Cell => draw_data(
+            &format!(
+                "{}",
+                cell_reader2(
+                    col,
+                    row,
+                    Rc::downgrade(&unsafe {
+                        (*(**(*bs).borrow().books.get_unchecked(t_ind))
+                            .borrow()
+                            .books
+                            .get_unchecked(s_ind))
+                        .clone()
+                    }),
+                )
+            ),
+            x,
+            y,
+            w,
+            h,
+            t.is_selected(row, col),
+            None,
+        ),
+
+        _ => (),
+    });
+
+    let mut menu = MenuBar::new(
+        0,
+        0,
+        130 + match lang {
+            Lang::English => 0,
+            Lang::Russian => 50,
+        },
+        30,
+        "",
+    );
+
+    wind.add(&menu);
+
+    let (s, r) = app::channel();
+
+    menu.add_emit(
+        match lang {
+            Lang::English => "&Change location\t",
+            Lang::Russian => "&Изменить расположение\t",
+        },
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        true,
+    );
+
+    wind.show();
+
+    while app.wait() {
+        if let Some(msg) = r.recv() {
+            if msg {
+                change_location_simple(
+                    t_ind,
+                    s_ind,
+                    &mut *(*book_system).borrow_mut(),
+                    reader_base,
+                    genres,
+                    caretaker,
+                    app,
+                    lang,
+                )
+            }
+        } else if !wind.shown() {
+            return;
         }
     }
 }
@@ -557,12 +553,12 @@ pub(crate) fn book_info_simple2(
                     }
 
                     book_info_simple(
-                        Some(Rc::downgrade(unsafe {
+                        &Rc::downgrade(unsafe {
                             (**(*book_system).borrow().books.get_unchecked(index))
                                 .borrow()
                                 .books
                                 .get_unchecked(bind - 1)
-                        })),
+                        }),
                         book_system.clone(),
                         reader_base,
                         genres,

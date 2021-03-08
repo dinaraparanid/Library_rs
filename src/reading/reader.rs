@@ -8,7 +8,7 @@ use std::{
 
 /// Reader structure, which contains
 /// name, family, father, age, ~~simple~~ books he' d read
-/// and book which he is reading now (or None)
+/// and books which he is reading now (or None)
 
 pub struct Reader {
     pub(crate) name: String,
@@ -16,7 +16,7 @@ pub struct Reader {
     pub(crate) father: String,
     pub(crate) birth: Date,
     pub(crate) books: Vec<Weak<RefCell<Book>>>,
-    pub(crate) reading: Option<Weak<RefCell<Book>>>,
+    pub(crate) reading: Option<Vec<Weak<RefCell<Book>>>>,
 }
 
 impl Drop for Reader {
@@ -157,21 +157,101 @@ impl Reader {
     }
 
     /// Function, that uses after giving book to reader.
-    /// Adds book to books and reading params
+    /// Adds book to books and reading params without checks
+    ///
+    /// #Safety
+    /// Reader can read only one book with same title, author and pages.
 
     #[inline]
-    pub(crate) fn start_reading(&mut self, book: &Rc<RefCell<Book>>) -> &mut Self {
+    pub(crate) unsafe fn start_reading_unchecked(
+        &mut self,
+        book: &Rc<RefCell<Book>>,
+        date: &Date,
+    ) -> &mut Self {
+        match &mut self.reading {
+            None => self.reading = Some(vec![Rc::downgrade(&book)]),
+            Some(books) => {
+                if let Err(ind) = books.binary_search_by(|b| {
+                    ((*b.upgrade().unwrap()).borrow().readers.last().unwrap().1)
+                        .1
+                        .cmp(date)
+                }) {
+                    books.insert(ind, Rc::downgrade(&book));
+                }
+            }
+        }
+
         self.books.push(Rc::downgrade(&book));
-        self.reading = Some(Rc::downgrade(&book));
         self
     }
 
     /// Function, that uses after giving book to reader.
-    /// Sets reading param as None
+    /// Adds book to books and reading params.
+    ///
+    /// **NOTE**: Reader can read only one book with same title, author and pages.
 
     #[inline]
-    pub(crate) fn finish_reading(&mut self) {
-        self.reading = None;
+    pub(crate) fn start_reading(
+        &mut self,
+        book: &Rc<RefCell<Book>>,
+        date: &Date,
+    ) -> ResultSelf<Self> {
+        match &mut self.reading {
+            None => self.reading = Some(vec![Rc::downgrade(&book)]),
+            Some(books) => {
+                match books.iter().position(|b| {
+                    (*b.upgrade().unwrap()).borrow().title() == (**book).borrow().title()
+                        && (*b.upgrade().unwrap()).borrow().author() == (**book).borrow().author()
+                        && (*b.upgrade().unwrap()).borrow().pages() == (**book).borrow().pages()
+                }) {
+                    None => books.insert(
+                        books
+                            .binary_search_by(|b| {
+                                ((*b.upgrade().unwrap()).borrow().readers.last().unwrap().1)
+                                    .1
+                                    .cmp(date)
+                            })
+                            .unwrap_err(),
+                        Rc::downgrade(&book),
+                    ),
+                    Some(_) => return Err(0), // already reading this kind of book
+                }
+            }
+        }
+
+        self.books.push(Rc::downgrade(&book));
+        Ok(self)
+    }
+
+    /// Function, that uses after giving book to reader.
+    /// Sets reading param as None if there are no books to read
+
+    #[inline]
+    pub(crate) fn finish_reading(&mut self, book: Weak<RefCell<Book>>) {
+        let bs = self
+            .reading
+            .as_ref()
+            .unwrap()
+            .binary_search_by(|b| {
+                ((*b.upgrade().unwrap()).borrow().readers.last().unwrap().1)
+                    .1
+                    .cmp(
+                        &((*book.upgrade().unwrap())
+                            .borrow()
+                            .readers
+                            .last()
+                            .unwrap()
+                            .1)
+                            .1,
+                    )
+            })
+            .unwrap();
+
+        self.reading.as_mut().unwrap().remove(bs);
+
+        if self.reading.as_ref().unwrap().is_empty() {
+            self.reading = None;
+        }
     }
 
     /// Removes book
@@ -179,9 +259,17 @@ impl Reader {
     #[inline]
     pub(crate) fn remove_book(&mut self, book: &mut Book) -> &mut Self {
         if book.is_using
-            && (*(book.readers.last().unwrap().0).upgrade().unwrap()).as_ptr()
-                == self as *mut Reader
+            && (*(book.readers.last().unwrap().0).upgrade().unwrap()).as_ptr() == self as *mut _
         {
+            let ind = self
+                .reading
+                .as_ref()
+                .unwrap()
+                .iter()
+                .position(|b| &*(*b.upgrade().unwrap()).borrow() as *const _ == book as *const _)
+                .unwrap();
+
+            self.reading.as_mut().unwrap().remove(ind);
             self.reading = None;
             book.is_using = false;
         }
@@ -190,7 +278,7 @@ impl Reader {
             .books
             .clone()
             .into_iter()
-            .filter(|x| (*(*x).upgrade().unwrap()).as_ptr() != book as *mut Book)
+            .filter(|x| (*(*x).upgrade().unwrap()).as_ptr() != book as *mut _)
             .collect();
 
         self
@@ -214,7 +302,7 @@ impl Reader {
                     .upgrade()
                     .unwrap())
                 .as_ptr()
-                    == self as *mut Reader
+                    == self as *mut _
             {
                 (*self.books.last().unwrap().upgrade().unwrap())
                     .borrow_mut()

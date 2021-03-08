@@ -9,9 +9,9 @@ MIT or Apache-2.0
 **Documentation**: 
 ----------------------
 
-    *public*: https://docs.rs/binartree/1.1.2/booklibrs/
+    public: https://docs.rs/binartree/1.1.2/booklibrs/
 		
-    *private* (whole project): go to librs/target/doc/booklibrs/all.html (click on it)
+    private (whole project): go to librs/target/doc/booklibrs/all.html (click on it)
 **About project**:
 ---------------------------
 This is a project that aims to create a system for issuing books in libraries.

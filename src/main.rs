@@ -7,8 +7,8 @@ use booklibrs::{
             change::full::*,
             info::{full::*, simple::book_info_simple},
         },
-        genres::*,
-        giveaway::{full::*, simple::*},
+        genres::full::*,
+        giveaway::full::*,
         help,
         read::{
             add_rem::full::*,
@@ -40,6 +40,7 @@ use fltk::{
     window::*,
 };
 
+use booklibrs::actions::giveaway::simple::change_return_date_first_book;
 use std::{
     cell::RefCell,
     cmp::max,
@@ -1091,27 +1092,38 @@ fn main() -> Result<(), Box<dyn Error>> {
                 table.unset_selection();
                 return;
             } else if table.is_selected(i as i32, 1) {
-                book_info_simple(
-                    (*reader_base).borrow().get_book(i),
-                    book_system.clone(),
-                    &*(*reader_base).borrow(),
-                    &*(*genres).borrow(),
-                    &mut *(*caretaker).borrow_mut(),
-                    &app,
-                    lang,
-                );
+                if (*reader_base).borrow().get_book(i).is_some() {
+                    book_info_simple(
+                        (*reader_base)
+                            .borrow()
+                            .get_book(i)
+                            .unwrap()
+                            .first()
+                            .unwrap(),
+                        book_system.clone(),
+                        &*(*reader_base).borrow(),
+                        &*(*genres).borrow(),
+                        &mut *(*caretaker).borrow_mut(),
+                        &app,
+                        lang,
+                    );
+                }
 
                 table.unset_selection();
                 return;
             } else if table.is_selected(i as i32, 3) {
-                change_return_date_simple(
-                    &(*reader_base).borrow().get_book(i),
-                    &mut (*book_system).borrow_mut(),
-                    &(*reader_base).borrow(),
-                    &(*genres).borrow(),
-                    &mut (*caretaker).borrow_mut(),
-                    lang,
-                );
+                if (*reader_base).borrow().get_book(i).is_some() {
+                    if change_return_date_first_book(
+                        i,
+                        &mut (*book_system).borrow_mut(),
+                        &(*reader_base).borrow(),
+                        &(*genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
+                        lang,
+                    ) {
+                        table.redraw();
+                    }
+                }
 
                 table.unset_selection();
                 return;

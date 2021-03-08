@@ -10,10 +10,10 @@ use std::{
     fmt::{Debug, Formatter},
     fs::File,
     io::{Read, Write},
+    iter::FromIterator,
     rc::{Rc, Weak},
 };
 
-use std::iter::FromIterator;
 use yaml_rust::{yaml::Hash, Yaml, YamlEmitter, YamlLoader};
 
 /// Reader Base structure,
@@ -380,8 +380,11 @@ impl ReaderBase {
     /// Returns book (or None) which is read by reader now
 
     #[inline]
-    pub fn get_book(&self, ind: usize) -> Option<Weak<RefCell<Book>>> {
-        unsafe { (**self.readers.get_unchecked(ind)).borrow().reading.clone() }
+    pub fn get_book(&self, ind: usize) -> Option<Vec<Weak<RefCell<Book>>>> {
+        return match unsafe { &(**self.readers.get_unchecked(ind)).borrow().reading } {
+            None => None,
+            Some(books) => Some(books.clone()),
+        };
     }
 
     /// Deletes all readers from current Reade Base
@@ -407,38 +410,22 @@ impl ReaderBase {
 
                 data.insert(
                     Yaml::String("Name".to_string()),
-                    Yaml::String(
-                        RefCell::borrow(&(**self.readers.get_unchecked(guy)))
-                            .name
-                            .clone(),
-                    ),
+                    Yaml::String((**self.readers.get_unchecked(guy)).borrow().name.clone()),
                 );
 
                 data.insert(
                     Yaml::String("Family".to_string()),
-                    Yaml::String(
-                        RefCell::borrow(&(**self.readers.get_unchecked(guy)))
-                            .family
-                            .clone(),
-                    ),
+                    Yaml::String((**self.readers.get_unchecked(guy)).borrow().family.clone()),
                 );
 
                 data.insert(
                     Yaml::String("Father".to_string()),
-                    Yaml::String(
-                        RefCell::borrow(&(**self.readers.get_unchecked(guy)))
-                            .father
-                            .clone(),
-                    ),
+                    Yaml::String((**self.readers.get_unchecked(guy)).borrow().father.clone()),
                 );
 
                 data.insert(
                     Yaml::String("Day".to_string()),
-                    Yaml::Integer(
-                        RefCell::borrow(&(**self.readers.get_unchecked(guy)))
-                            .birth
-                            .day as i64,
-                    ),
+                    Yaml::Integer((**self.readers.get_unchecked(guy)).borrow().birth.day as i64),
                 );
 
                 data.insert(
@@ -461,40 +448,28 @@ impl ReaderBase {
 
                 data.insert(
                     Yaml::String("Reading".to_string()),
-                    Yaml::String(
+                    Yaml::Array(
                         if RefCell::borrow(&(**self.readers.get_unchecked(guy)))
                             .reading
                             .is_some()
                         {
-                            format!(
-                                "{} {} {}",
-                                (*(RefCell::borrow(&(**self.readers.get_unchecked(guy)))
-                                    .reading
-                                    .as_ref()
-                                    .unwrap())
-                                .upgrade()
-                                .unwrap())
+                            (**self.readers.get_unchecked(guy))
                                 .borrow()
-                                .title(),
-                                (*(RefCell::borrow(&(**self.readers.get_unchecked(guy)))
-                                    .reading
-                                    .as_ref()
-                                    .unwrap())
-                                .upgrade()
-                                .unwrap())
-                                .borrow()
-                                .author(),
-                                (*(RefCell::borrow(&(**self.readers.get_unchecked(guy)))
-                                    .reading
-                                    .as_ref()
-                                    .unwrap())
-                                .upgrade()
-                                .unwrap())
-                                .borrow()
-                                .pages()
-                            )
+                                .reading
+                                .as_ref()
+                                .unwrap()
+                                .iter()
+                                .map(|b| {
+                                    Yaml::String(format!(
+                                        "{} {} {}",
+                                        (*b.upgrade().unwrap()).borrow().title(),
+                                        (*b.upgrade().unwrap()).borrow().author(),
+                                        (*b.upgrade().unwrap()).borrow().pages()
+                                    ))
+                                })
+                                .collect()
                         } else {
-                            "None".to_string()
+                            vec![Yaml::String("None".to_string())]
                         },
                     ),
                 );
@@ -543,12 +518,7 @@ impl ReaderBase {
                     .unwrap(),
                 ))));
 
-                (*self.readers.last_mut().unwrap()).borrow_mut().reading =
-                    if d["Reading"].as_str().unwrap() == "None" {
-                        None
-                    } else {
-                        Some(Rc::downgrade(&Rc::new(RefCell::new(Book::default()))))
-                    }
+                (*self.readers.last_mut().unwrap()).borrow_mut().reading = None;
             });
         }
     }

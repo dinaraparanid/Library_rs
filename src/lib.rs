@@ -1,3 +1,5 @@
+#![feature(option_result_unwrap_unchecked)]
+
 use std::{
     fs::File,
     io::{Read, Write},

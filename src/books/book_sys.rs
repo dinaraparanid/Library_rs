@@ -486,40 +486,64 @@ impl BookSystem {
                                 .borrow()
                                 .readers
                                 .iter()
-                                .map(|x| {
-                                    let rind = reader_base
-                                        .find_reader(
-                                            &(*(x.0).upgrade().unwrap()).borrow().name,
-                                            &(*(x.0).upgrade().unwrap()).borrow().family,
-                                            &(*(x.0).upgrade().unwrap()).borrow().father,
-                                            (*(x.0).upgrade().unwrap()).borrow().birth,
-                                        )
-                                        .unwrap();
+                                .map(|r| {
+                                    (
+                                        unsafe {
+                                            Rc::downgrade(
+                                                reader_base.readers.get_unchecked(
+                                                    reader_base
+                                                        .find_reader(
+                                                            &(*(r.0).upgrade().unwrap())
+                                                                .borrow()
+                                                                .name,
+                                                            &(*(r.0).upgrade().unwrap())
+                                                                .borrow()
+                                                                .family,
+                                                            &(*(r.0).upgrade().unwrap())
+                                                                .borrow()
+                                                                .father,
+                                                            (*(r.0).upgrade().unwrap())
+                                                                .borrow()
+                                                                .birth,
+                                                        )
+                                                        .unwrap(),
+                                                ),
+                                            )
+                                        },
+                                        (r.1).clone(),
+                                    )
+                                })
+                                .collect();
 
-                                    if (**s).borrow().is_using
+                            unsafe { (*(*sim_book).as_ptr()).readers.iter_mut() }.for_each(|r| {
+                                if {
+                                    let check = (**s).borrow().is_using
                                         && *(*(*(**s).borrow().readers.last().unwrap())
                                             .borrow()
                                             .0
                                             .upgrade()
                                             .unwrap())
                                         .borrow()
-                                            == *(*(x.0).upgrade().unwrap()).borrow()
-                                    {
-                                        unsafe {
-                                            (**reader_base.readers.get_unchecked(rind))
-                                                .borrow_mut()
-                                                .reading = Some(Rc::downgrade(&sim_book));
-                                        }
-                                    }
+                                            == *(*(r.0).upgrade().unwrap()).borrow();
+                                    check
+                                } {
+                                    let rind = reader_base
+                                        .find_reader(
+                                            &(*(r.0).upgrade().unwrap()).borrow().name,
+                                            &(*(r.0).upgrade().unwrap()).borrow().family,
+                                            &(*(r.0).upgrade().unwrap()).borrow().father,
+                                            (*(r.0).upgrade().unwrap()).borrow().birth,
+                                        )
+                                        .unwrap();
 
-                                    (
-                                        unsafe {
-                                            Rc::downgrade(reader_base.readers.get_unchecked(rind))
-                                        },
-                                        (x.1).clone(),
-                                    )
-                                })
-                                .collect();
+                                    unsafe {
+                                        (**reader_base.readers.get_unchecked(rind))
+                                            .borrow_mut()
+                                            .start_reading_unchecked(&sim_book, &(r.1).1);
+                                    }
+                                }
+                            });
+
                             sim_book
                         })
                         .collect();
@@ -773,13 +797,25 @@ impl BookSystem {
 
                                     (**reader_base.readers.get_unchecked_mut(ind))
                                         .borrow_mut()
-                                        .reading = Some(Rc::downgrade(
-                                        &(*(**self.books.last_mut().unwrap())
-                                            .borrow_mut()
-                                            .books
-                                            .last_mut()
-                                            .unwrap()),
-                                    ));
+                                        .start_reading_unchecked(
+                                            &(*(**self.books.last_mut().unwrap())
+                                                .borrow()
+                                                .books
+                                                .last()
+                                                .unwrap()),
+                                            &Date {
+                                                day: last_reader["Finish date"][0].as_i64().unwrap()
+                                                    as u8,
+                                                month: last_reader["Finish date"][1]
+                                                    .as_i64()
+                                                    .unwrap()
+                                                    as u8,
+                                                year: last_reader["Finish date"][2]
+                                                    .as_i64()
+                                                    .unwrap()
+                                                    as u16,
+                                            },
+                                        );
                                 }
                             }
                         }
