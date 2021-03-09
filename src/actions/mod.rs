@@ -1,8 +1,10 @@
 extern crate fltk;
-
-use self::fltk::text::TextBuffer;
 use crate::Lang;
-use fltk::{prelude::*, text::TextDisplay, window::SingleWindow};
+use fltk::{
+    prelude::*,
+    text::{TextBuffer, TextDisplay},
+    window::SingleWindow,
+};
 
 pub mod book;
 pub mod genres;
@@ -47,11 +49,10 @@ pub fn help(lang: Lang) {
     First of all you will see a table. It contains all readers in an ascending order and their reading status \
     (book / start date / finish date)\n
     In main menu (on the left top corner) you will see 6 sub menus: Readers, Books, Giveaway, Restore, Language, Help.\n\n
-
     Reader menu:\n contains all action that you can do with readers: Add, Remove, Change 1-st name, 2-nd name, mid. name, get information.\n
+    There are also 2 types of getting info: with books that reader is reading now and with all books that reader read\n  
     All these action requires your input. But you can simply click on reader you need in main table and all needed action will be there
     (except adding reader, that's requires input for new reader)\n\n
-
     Book menu:\n
     1) Add books (if book in library, it'll add new books, else it'll create new books in library)\n
     2) Remove book. You can remove only one book in this action. Requires number of book.\n
@@ -63,32 +64,25 @@ pub fn help(lang: Lang) {
     7) Get current book's information. You'll get info window about current book. Also you can change location (cabinet and shelf) of book\n
     8) List of all books by authors. Window with all books sorted by authors. Authors sorted by ascending.\n
     9) List of all books.\n\n
-
     Genres menu:\n
     1) List of all books by genres. Sort all books by genres.\n
     2) Add genre / Remove genre. By default it'll be no genres, so, you need to add it. It can be anything, so you can use your imagination\
      :)\n
     3) Customize book genres. You'll get window with genres. You need to choose genre. If book has some genres, it'll be a check mark near \
      genre\n\n
-
     Giveaway menu is a menu for giving and returning books.\n
     1) Give book. Requires input for reader and book. At the end you need to choose return date. Also you can do it in reader info
      (or just click on reader)\n
     2) Get book from reader. Requires reader input. Also you can do it in reader info or click on reader.\n
     3) Change return date. You can also click on return date in main table and change it.\n\n
-
     Restore menu:\n
     1) Restore previous data. Also you can use Ctrl-Z.\n
     2) Restore next date. Also you can use Ctrl-Shift-Z.\n\n
-
     In language menu you can choose language. My languages are Russian and English, so I don't add others,
     so I hope your english is not worse than mine :D\n\n
-
     In Help menu you can read same things if you forgot something.\n\n
-
     Full version with all decompiled files (recommend to download from here):
     https://drive.google.com/drive/u/0/folders/1mOTWStFbS_NS7iYs0uxS6MlT9jv8qZRf\n
-
     Enjoy!\n");
 
     let mut tbr = TextBuffer::default();
@@ -118,6 +112,7 @@ pub fn help(lang: Lang) {
     Меню Читатели:\n 
     Содержит все действия, выполнимые с читателями: Добавить, Удалить, Изменить имя, фамилию, отчество,
      получить информацию.\n
+    Получить информацию о читателями можно в двух видах: с прочитанными книгами, и с читаемыми сйчас.\n
     Во всех этих действиях необходим ввод. Но вы можете кликнуть на читателя в главной таблице и все необходимые 
     действия будут там.(кроме добавления читателя - необходим ввод параметров читателя)\n\n
     Меню Книги:\n
@@ -153,7 +148,6 @@ pub fn help(lang: Lang) {
     В меню Помощь можно прочитать всё, что вы прочли, если что-то забыли.\n\n
     Полная версия со всеми скомпилированными файлами (СКАЧИВАТЬ ОТСЮДА):
     https://drive.google.com/drive/u/0/folders/1mOTWStFbS_NS7iYs0uxS6MlT9jv8qZRf\n
-
     Надеюсь, вам понравится!\n");
 
     text.set_buffer(match lang {

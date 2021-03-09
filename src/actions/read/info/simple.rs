@@ -41,10 +41,11 @@ enum MessageReader {
     RemoveThis,
 }
 
+/// Show books that reader is reading now.
 /// Function that gives information
 /// about already known reader
 
-pub fn reader_info_simple(
+pub fn reader_info_simple_reading(
     ind: usize,
     reader_base: Rc<RefCell<ReaderBase>>,
     book_system: Rc<RefCell<BookSystem>>,
@@ -52,6 +53,7 @@ pub fn reader_info_simple(
     caretaker: &mut Caretaker,
     app: &App,
     lang: Lang,
+    main_table: &mut Table,
 ) {
     let mut wind = SingleWindow::new(
         800,
@@ -80,7 +82,7 @@ pub fn reader_info_simple(
     )
     .center_screen();
 
-    let mut table1 = VGrid::new(0, 0, 650, 100, "");
+    let mut table1 = VGrid::new(0, 0, 650, 200, "");
     table1.set_params(6, 1, 1);
 
     let mut name_frame = Frame::new(
@@ -169,7 +171,27 @@ pub fn reader_info_simple(
     table1.add(&age_frame);
 
     table1.add(&Frame::new(
-        90,
+        120,
+        50,
+        100,
+        50,
+        format!(
+            "{}: {}",
+            match lang {
+                Lang::English => "Additional information",
+                Lang::Russian => "Дополнительная информация",
+            },
+            *unsafe {
+                &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                    .borrow()
+                    .info
+            }
+        )
+        .as_str(),
+    ));
+
+    table1.add(&Frame::new(
+        200,
         50,
         100,
         30,
@@ -185,7 +207,7 @@ pub fn reader_info_simple(
 
     table1.auto_layout();
 
-    let mut table2 = Table::new(0, 127, 570, 600, "");
+    let mut table2 = Table::new(0, 230, 570, 600, "");
     table2.set_rows(max(30, unsafe {
         (**(*reader_base).borrow().readers.get_unchecked(ind))
             .borrow()
@@ -373,6 +395,7 @@ pub fn reader_info_simple(
                             .as_str(),
                         );
                         name_frame.redraw();
+                        main_table.redraw();
                     }
                 }
 
@@ -398,6 +421,7 @@ pub fn reader_info_simple(
                             .as_str(),
                         );
                         family_frame.redraw();
+                        main_table.redraw();
                     }
                 }
 
@@ -423,6 +447,7 @@ pub fn reader_info_simple(
                             .as_str(),
                         );
                         father_frame.redraw();
+                        main_table.redraw();
                     }
                 }
 
@@ -448,6 +473,7 @@ pub fn reader_info_simple(
                             .as_str(),
                         );
                         age_frame.redraw();
+                        main_table.redraw();
                     }
                 }
 
@@ -462,6 +488,7 @@ pub fn reader_info_simple(
                         lang,
                     );
                     table2.redraw();
+                    main_table.redraw();
                 }
 
                 MessageReader::GetBook => {
@@ -475,6 +502,7 @@ pub fn reader_info_simple(
                         lang,
                     ) {
                         table2.redraw();
+                        main_table.redraw();
                     }
                 }
 
@@ -487,6 +515,7 @@ pub fn reader_info_simple(
                         caretaker,
                         lang,
                     );
+                    main_table.redraw();
                     return;
                 }
             }
@@ -530,16 +559,11 @@ pub fn reader_info_simple(
     }
 }
 
-/// **DEPRECATED**
-///
 /// Shows all books read by reader.
-///
 /// Function that gives information
 /// about already known reader
 
-#[allow(dead_code)]
-#[deprecated(note = "Shows all books read by reader.")]
-pub fn reader_info_simple_old(
+pub(crate) fn reader_info_simple_all_books(
     ind: usize,
     reader_base: Rc<RefCell<ReaderBase>>,
     book_system: Rc<RefCell<BookSystem>>,
@@ -547,6 +571,7 @@ pub fn reader_info_simple_old(
     caretaker: &mut Caretaker,
     app: &App,
     lang: Lang,
+    main_table: &mut Table,
 ) {
     let mut wind = SingleWindow::new(
         800,
@@ -575,7 +600,7 @@ pub fn reader_info_simple_old(
     )
     .center_screen();
 
-    let mut table1 = VGrid::new(0, 0, 650, 100, "");
+    let mut table1 = VGrid::new(0, 0, 650, 200, "");
     table1.set_params(6, 1, 1);
 
     let mut name_frame = Frame::new(
@@ -659,15 +684,15 @@ pub fn reader_info_simple_old(
     );
 
     let mut reading_frame = Frame::new(
-        70,
+        90,
         50,
         100,
         30,
         format!(
             "{}: {}",
             match lang {
-                Lang::English => "Reading now",
-                Lang::Russian => "Читается сейчас",
+                Lang::English => "Nearest to return deadline",
+                Lang::Russian => "Ближайщее к сдаче",
             },
             if unsafe {
                 (**(*reader_base).borrow().readers.get_unchecked(ind))
@@ -706,7 +731,27 @@ pub fn reader_info_simple_old(
     table1.add(&reading_frame);
 
     table1.add(&Frame::new(
-        90,
+        100,
+        50,
+        100,
+        50,
+        format!(
+            "{}: {}",
+            match lang {
+                Lang::English => "Additional information",
+                Lang::Russian => "Дополнительная информация",
+            },
+            *unsafe {
+                &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                    .borrow()
+                    .info
+            }
+        )
+        .as_str(),
+    ));
+
+    table1.add(&Frame::new(
+        160,
         50,
         100,
         30,
@@ -722,7 +767,7 @@ pub fn reader_info_simple_old(
 
     table1.auto_layout();
 
-    let mut table2 = Table::new(0, 127, 570, 600, "");
+    let mut table2 = Table::new(0, 230, 570, 600, "");
     table2.set_rows(max(30, unsafe {
         (**(*reader_base).borrow().readers.get_unchecked(ind))
             .borrow()
@@ -910,6 +955,7 @@ pub fn reader_info_simple_old(
                             .as_str(),
                         );
                         name_frame.redraw();
+                        main_table.redraw();
                     }
                 }
 
@@ -935,6 +981,7 @@ pub fn reader_info_simple_old(
                             .as_str(),
                         );
                         family_frame.redraw();
+                        main_table.redraw();
                     }
                 }
 
@@ -960,6 +1007,7 @@ pub fn reader_info_simple_old(
                             .as_str(),
                         );
                         father_frame.redraw();
+                        main_table.redraw();
                     }
                 }
 
@@ -985,6 +1033,7 @@ pub fn reader_info_simple_old(
                             .as_str(),
                         );
                         age_frame.redraw();
+                        main_table.redraw();
                     }
                 }
 
@@ -1012,6 +1061,7 @@ pub fn reader_info_simple_old(
                         reading_frame.redraw();
                     }
                     table2.redraw();
+                    main_table.redraw();
                 }
 
                 MessageReader::GetBook => {
@@ -1041,6 +1091,7 @@ pub fn reader_info_simple_old(
                         reading_frame.redraw();
                     }
                     table2.redraw();
+                    main_table.redraw();
                 }
 
                 MessageReader::RemoveThis => {

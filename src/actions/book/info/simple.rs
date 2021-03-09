@@ -586,6 +586,7 @@ pub fn the_book_info_simple(
     caretaker: &mut Caretaker,
     app: &App,
     lang: Lang,
+    main_table: &mut Table,
 ) {
     let mut wind = SingleWindow::new(
         800,
@@ -884,6 +885,7 @@ pub fn the_book_info_simple(
                             .as_str(),
                         );
                         title_frame.redraw();
+                        main_table.redraw();
                     }
                 }
 
@@ -909,6 +911,7 @@ pub fn the_book_info_simple(
                             .as_str(),
                         );
                         author_frame.redraw();
+                        main_table.redraw();
                     }
                 }
 
@@ -934,6 +937,7 @@ pub fn the_book_info_simple(
                             .as_str(),
                         );
                         pages_frame.redraw();
+                        main_table.redraw();
                     }
                 }
 
@@ -964,6 +968,7 @@ pub fn the_book_info_simple(
                             .as_str(),
                         );
                         amount_frame.redraw();
+                        main_table.redraw();
                     }
                 }
 
@@ -1019,6 +1024,7 @@ pub fn the_book_info_simple(
                         lang,
                     );
                     genre_table.redraw();
+                    main_table.redraw();
                 }
 
                 MessageTheBook::Info => book_info_simple2(

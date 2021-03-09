@@ -13,7 +13,7 @@ use booklibrs::{
         read::{
             add_rem::full::*,
             change::full::*,
-            info::{full::*, simple::*},
+            info::{full::*, simple::reader_info_simple_reading},
         },
         tables::{cell_reader, draw_data, draw_header},
     },
@@ -60,7 +60,8 @@ enum Message {
     ChangeFamily,
     ChangeFather,
     ChangeAge,
-    InfoReader,
+    InfoReaderReading,
+    InfoReaderAllBooks,
     AddBooks,
     RemoveBook,
     RemoveTheBook,
@@ -450,13 +451,24 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     menu.add_emit(
         match lang {
-            Lang::English => "&Readers/Get reader's information\t",
-            Lang::Russian => "&Читатели/Получить информацию о читателе\t",
+            Lang::English => "&Readers/Reader's information with reading now books\t",
+            Lang::Russian => "&Читатели/Информация о читателе с читаемыми книгами\t",
         },
         Shortcut::empty(),
         MenuFlag::Normal,
         s,
-        Message::InfoReader,
+        Message::InfoReaderReading,
+    );
+
+    menu.add_emit(
+        match lang {
+            Lang::English => "&Readers/Reader's information with read books\t",
+            Lang::Russian => "&Читатели/Информация о читателе с прочитанными книгами\t",
+        },
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        Message::InfoReaderAllBooks,
     );
 
     menu.add_emit(
@@ -797,14 +809,29 @@ fn main() -> Result<(), Box<dyn Error>> {
                     table.redraw();
                 }
 
-                Message::InfoReader => {
-                    reader_info(
+                Message::InfoReaderReading => {
+                    reader_info_reading(
                         reader_base.clone(),
                         book_system.clone(),
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
                         lang,
+                        &mut table
+                    );
+
+                    table.redraw();
+                }
+
+                Message::InfoReaderAllBooks => {
+                    reader_info_all_books(
+                        reader_base.clone(),
+                        book_system.clone(),
+                        &(*genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
+                        &app,
+                        lang,
+                        &mut table
                     );
 
                     table.redraw();
@@ -905,6 +932,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         &mut (*caretaker).borrow_mut(),
                         &app,
                         lang,
+                        &mut table
                     );
 
                     table.redraw();
@@ -961,7 +989,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                     &(*genres).borrow(),
                     &mut (*caretaker).borrow_mut(),
                     &app,
-                    lang
+                    lang,
+                    &mut table
                 ),
 
                 Message::GiveBook => {
@@ -1079,7 +1108,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         (0..len).for_each(|i| {
             if table.is_selected(i as i32, 0) {
-                reader_info_simple(
+                reader_info_simple_reading(
                     i,
                     reader_base.clone(),
                     book_system.clone(),
@@ -1087,6 +1116,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     &mut (*caretaker).borrow_mut(),
                     &app,
                     lang,
+                    &mut table,
                 );
 
                 table.unset_selection();

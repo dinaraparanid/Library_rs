@@ -38,6 +38,7 @@ pub fn the_book_info(
     caretaker: &mut Caretaker,
     app: &App,
     lang: Lang,
+    main_table: &mut Table,
 ) {
     let (s2, r2) = app::channel();
     let mut inp = Input3::<Input, Input, IntInput>::new(
@@ -80,6 +81,7 @@ pub fn the_book_info(
                             caretaker,
                             app,
                             lang,
+                            main_table,
                         )
                     }
                 }
@@ -167,6 +169,7 @@ pub fn show_all_books(
     caretaker: &mut Caretaker,
     app: &App,
     lang: Lang,
+    main_table: &mut Table,
 ) {
     let mut wind = SingleWindow::default()
         .with_label(match lang {
@@ -255,6 +258,7 @@ pub fn show_all_books(
                     caretaker,
                     app,
                     lang,
+                    main_table,
                 );
 
                 table.unset_selection();

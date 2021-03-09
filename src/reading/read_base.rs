@@ -131,9 +131,10 @@ impl ReaderBase {
         name: String,
         family: String,
         father: String,
+        info: String,
         birth: Date,
     ) -> &mut Self {
-        let reader = Rc::new(RefCell::new(Reader::new(name, family, father, birth)));
+        let reader = Rc::new(RefCell::new(Reader::new(name, family, father, info, birth)));
 
         if self.readers.is_empty() {
             self.readers.push(reader);
@@ -174,6 +175,7 @@ impl ReaderBase {
         name: String,
         family: String,
         father: String,
+        info: String,
         birth: Date,
     ) -> ResultSelf<Self> {
         return if !self.readers.is_empty()
@@ -181,7 +183,7 @@ impl ReaderBase {
         {
             Err(0) // already exists
         } else {
-            Ok(unsafe { self.add_reader_unchecked(name, family, father, birth) })
+            Ok(unsafe { self.add_reader_unchecked(name, family, father, info, birth) })
         };
     }
 
@@ -424,6 +426,11 @@ impl ReaderBase {
                 );
 
                 data.insert(
+                    Yaml::String("Info".to_string()),
+                    Yaml::String((**self.readers.get_unchecked(guy)).borrow().info.clone()),
+                );
+
+                data.insert(
                     Yaml::String("Day".to_string()),
                     Yaml::Integer((**self.readers.get_unchecked(guy)).borrow().birth.day as i64),
                 );
@@ -510,6 +517,7 @@ impl ReaderBase {
                     d["Name"].as_str().unwrap().to_string(),
                     d["Family"].as_str().unwrap().to_string(),
                     d["Father"].as_str().unwrap().to_string(),
+                    d["Info"].as_str().unwrap().to_string(),
                     Date::new(
                         d["Day"].as_i64().unwrap() as u8,
                         d["Month"].as_i64().unwrap() as u8,

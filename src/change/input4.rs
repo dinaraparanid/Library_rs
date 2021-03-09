@@ -8,11 +8,9 @@ use fltk::{
 
 use std::{cell::RefCell, rc::Rc};
 
-/// **DEPRECATED**
-///
 /// Changes four values
 
-struct Input4<I, J, L, K>
+pub struct Input4<I, J, L, K>
 where
     I: InputExt + WidgetBase,
     J: InputExt + WidgetBase,
@@ -83,7 +81,6 @@ where
     /// Creates window with asking message and 4 input labels
 
     #[inline]
-    #[allow(dead_code)]
     pub fn new(
         title: &str,
         what_mes1: &str,

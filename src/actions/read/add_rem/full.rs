@@ -1,17 +1,25 @@
 extern crate fltk;
 extern crate fltk_calendar;
 
-use fltk::{app, app::App, dialog::alert, input::Input, prelude::*};
-use fltk_calendar::calendar::Calendar;
+use fltk::{
+    app,
+    app::App,
+    dialog::alert,
+    input::{Input, MultilineInput},
+    prelude::*,
+};
 
 use crate::{
     actions::read::{add_rem::simple::*, utils::*},
     books::{book_sys::BookSystem, date::Date, genres::Genres},
-    change::{input3::Input3, Inputable},
+    change::{input3::Input3, input4::Input4, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
     Lang,
 };
+
+use fltk_calendar::calendar::Calendar;
+use std::cmp::min;
 
 /// Function that adds reader.
 /// If you have mistakes in input,
@@ -28,7 +36,7 @@ pub fn add_reader(
 ) {
     let (s2, r2) = app::channel();
 
-    let mut inp = Input3::<Input, Input, Input>::new(
+    let mut inp = Input4::<Input, Input, Input, MultilineInput>::new(
         match lang {
             Lang::English => "Add Reader",
             Lang::Russian => "Добавить читателя",
@@ -44,6 +52,10 @@ pub fn add_reader(
         match lang {
             Lang::English => "Middle Name",
             Lang::Russian => "Отчество",
+        },
+        match lang {
+            Lang::English => "Information (< 50 symb.)",
+            Lang::Russian => "Информация (< 50 симв.)",
         },
     );
 
@@ -110,9 +122,17 @@ pub fn add_reader(
                                 match Calendar::default().get_date() {
                                     Some(date) => {
                                         match reader_base.add_reader(
-                                            unsafe { reader.get_unchecked(0).clone() },
-                                            unsafe { reader.get_unchecked(1).clone() },
-                                            unsafe { reader.get_unchecked(2).clone() },
+                                            unsafe { reader.get_unchecked(0).trim().to_string() },
+                                            unsafe { reader.get_unchecked(1).trim().to_string() },
+                                            unsafe { reader.get_unchecked(2).trim().to_string() },
+                                            unsafe {
+                                                reader.get_unchecked(3).trim()
+                                                    [0..min(50, reader.get_unchecked(3).len())]
+                                                    .split('\n')
+                                                    .collect::<Vec<_>>()
+                                                    .into_iter()
+                                                    .fold("".to_string(), |acc, s| acc + " " + s)
+                                            },
                                             Date::from(date),
                                         ) {
                                             Ok(_) => {

@@ -39,8 +39,10 @@ First of all you will see a table. It contains all readers in an ascending order
 In main menu (on the left top corner) you will see 6 sub menus: "Readers", "Books", "Giveaway", "Restore", "Language", "Help".
 
 **Reader menu**: contains all action that you can do with readers: Add, Remove, Change 1-st name, 2-nd name, mid. name, get information.
+There are also 2 types of getting info: with books that reader is reading now and with all books that reader read 
+(all existing books in library, if you delete book, it will not be shown.)  
 All these action requires your input. But you can simply click on reader you need in main table and all needed action will be there 
-(except adding reader, that's requires input)
+(except adding reader, that's can't handle without input)
 
 **Book menu**:
 1) Add books (if book in library, it'll add new books, else it'll create new books in library)
