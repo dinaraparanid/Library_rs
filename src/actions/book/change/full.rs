@@ -281,16 +281,18 @@ pub fn change_location(
                                                 },
                                             ),
 
-                                            Ok(s_ind) => change_location_simple(
-                                                t_ind,
-                                                s_ind,
-                                                book_system,
-                                                reader_base,
-                                                genres,
-                                                caretaker,
-                                                app,
-                                                lang,
-                                            ),
+                                            Ok(s_ind) => {
+                                                change_location_simple(
+                                                    t_ind,
+                                                    s_ind,
+                                                    book_system,
+                                                    reader_base,
+                                                    genres,
+                                                    caretaker,
+                                                    app,
+                                                    lang,
+                                                );
+                                            }
                                         }
                                     }
                                 }

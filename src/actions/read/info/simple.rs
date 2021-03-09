@@ -388,7 +388,7 @@ pub fn reader_info_simple_reading(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "First Name",
-                                    Lang::Russian => "Имя",
+                                    Lang::Russian => "\tИмя",
                                 },
                                 new_name
                             )
@@ -414,7 +414,7 @@ pub fn reader_info_simple_reading(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "Second Name",
-                                    Lang::Russian => "Фамилия",
+                                    Lang::Russian => "\tФамилия",
                                 },
                                 new_family
                             )
@@ -440,7 +440,7 @@ pub fn reader_info_simple_reading(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "Middle Name",
-                                    Lang::Russian => "Отчество",
+                                    Lang::Russian => "\tОтчество",
                                 },
                                 new_father
                             )
@@ -466,7 +466,7 @@ pub fn reader_info_simple_reading(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "Age",
-                                    Lang::Russian => "Возраст",
+                                    Lang::Russian => "\tВозраст",
                                 },
                                 new_age,
                             )
@@ -948,7 +948,7 @@ pub(crate) fn reader_info_simple_all_books(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "First Name",
-                                    Lang::Russian => "Имя",
+                                    Lang::Russian => "\tИмя",
                                 },
                                 new_name
                             )
@@ -974,7 +974,7 @@ pub(crate) fn reader_info_simple_all_books(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "Second Name",
-                                    Lang::Russian => "Фамилия",
+                                    Lang::Russian => "\tФамилия",
                                 },
                                 new_family
                             )
@@ -1000,7 +1000,7 @@ pub(crate) fn reader_info_simple_all_books(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "Middle Name",
-                                    Lang::Russian => "Отчество",
+                                    Lang::Russian => "\tОтчество",
                                 },
                                 new_father
                             )
@@ -1026,7 +1026,7 @@ pub(crate) fn reader_info_simple_all_books(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "Age",
-                                    Lang::Russian => "Возраст",
+                                    Lang::Russian => "\tВозраст",
                                 },
                                 new_age,
                             )

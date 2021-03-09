@@ -1,0 +1,198 @@
+---
+- №: 1
+  Title: A
+  Author: A
+  Pages: 12
+  Simple Books:
+    - Cabinet: 2
+      Shelf: 3
+      Using: false
+      Readers:
+        - Name: A
+          Family: A
+          Father: A
+          Day: 11
+          Month: 3
+          Year: 2021
+          Start date:
+            - 9
+            - 3
+            - 2021
+          Finish date:
+            - 9
+            - 3
+            - 2021
+    - Cabinet: 1
+      Shelf: 1
+      Using: true
+      Readers:
+        - Name: Genady
+          Family: Петрович
+          Father: "000000"
+          Day: 20
+          Month: 3
+          Year: 1983
+          Start date:
+            - 9
+            - 3
+            - 2021
+          Finish date:
+            - 19
+            - 3
+            - 2021
+    - Cabinet: 11
+      Shelf: 1
+      Using: true
+      Readers:
+        - Name: Vasily
+          Family: Pomidorov
+          Father: Antonovich
+          Day: 4
+          Month: 10
+          Year: 2004
+          Start date:
+            - 9
+            - 3
+            - 2021
+          Finish date:
+            - 31
+            - 3
+            - 2021
+  Genres:
+    - письмо
+    - книга
+    - поэзия
+- №: 2
+  Title: F
+  Author: F
+  Pages: 12
+  Simple Books:
+    - Cabinet: 3
+      Shelf: 4
+      Using: true
+      Readers:
+        - Name: A
+          Family: A
+          Father: A
+          Day: 11
+          Month: 3
+          Year: 2021
+          Start date:
+            - 9
+            - 3
+            - 2021
+          Finish date:
+            - 10
+            - 8
+            - 2021
+  Genres: ~
+- №: 3
+  Title: E
+  Author: E
+  Pages: 12
+  Simple Books:
+    - Cabinet: 1
+      Shelf: 1
+      Using: true
+      Readers:
+        - Name: Vasily
+          Family: Pomidorov
+          Father: Antonovich
+          Day: 4
+          Month: 10
+          Year: 2004
+          Start date:
+            - 9
+            - 3
+            - 2021
+          Finish date:
+            - 9
+            - 3
+            - 2021
+    - Cabinet: 1
+      Shelf: 1
+      Using: true
+      Readers:
+        - Name: Егор
+          Family: Topor
+          Father: Fomich
+          Day: 29
+          Month: 2
+          Year: 1924
+          Start date:
+            - 9
+            - 3
+            - 2021
+          Finish date:
+            - 24
+            - 12
+            - 2021
+    - Cabinet: 2
+      Shelf: 2
+      Using: true
+      Readers:
+        - Name: Николай
+          Family: Петров
+          Father: Максимович
+          Day: 10
+          Month: 8
+          Year: 1984
+          Start date:
+            - 9
+            - 3
+            - 2021
+          Finish date:
+            - 11
+            - 3
+            - 2021
+    - Cabinet: 3
+      Shelf: 3
+      Using: false
+      Readers: []
+    - Cabinet: 44
+      Shelf: 4
+      Using: false
+      Readers: []
+  Genres: ~
+- №: 4
+  Title: A
+  Author: F
+  Pages: 12
+  Simple Books:
+    - Cabinet: 1
+      Shelf: 1
+      Using: true
+      Readers:
+        - Name: Егор
+          Family: Topor
+          Father: Fomich
+          Day: 29
+          Month: 2
+          Year: 1924
+          Start date:
+            - 9
+            - 3
+            - 2021
+          Finish date:
+            - 26
+            - 3
+            - 2021
+    - Cabinet: 1
+      Shelf: 1
+      Using: true
+      Readers:
+        - Name: Николай
+          Family: Петров
+          Father: Максимович
+          Day: 10
+          Month: 8
+          Year: 1984
+          Start date:
+            - 9
+            - 3
+            - 2021
+          Finish date:
+            - 31
+            - 3
+            - 2021
+  Genres: ~

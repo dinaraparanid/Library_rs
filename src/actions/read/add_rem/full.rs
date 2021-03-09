@@ -54,8 +54,8 @@ pub fn add_reader(
             Lang::Russian => "Отчество",
         },
         match lang {
-            Lang::English => "Information (< 50 symb.)",
-            Lang::Russian => "Информация (< 50 симв.)",
+            Lang::English => "Info (< 30 symb.)",
+            Lang::Russian => "Инфо (< 30 симв.)",
         },
     );
 
@@ -127,7 +127,7 @@ pub fn add_reader(
                                             unsafe { reader.get_unchecked(2).trim().to_string() },
                                             unsafe {
                                                 reader.get_unchecked(3).trim()
-                                                    [0..min(50, reader.get_unchecked(3).len())]
+                                                    [0..min(30, reader.get_unchecked(3).len())]
                                                     .split('\n')
                                                     .collect::<Vec<_>>()
                                                     .into_iter()

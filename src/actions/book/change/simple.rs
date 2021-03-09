@@ -340,7 +340,7 @@ pub(crate) fn change_location_simple(
     caretaker: &mut Caretaker,
     app: &App,
     lang: Lang,
-) {
+) -> Option<(u16, u8)> {
     let (s3, r3) = app::channel();
     let mut get_loc = Input2::<IntInput, IntInput>::new(
         match lang {
@@ -369,7 +369,7 @@ pub(crate) fn change_location_simple(
 
                 if let Ok(mut new_loc) = get_loc.set_input() {
                     unsafe {
-                        if new_loc.get_unchecked(0).is_empty() {
+                        return if new_loc.get_unchecked(0).is_empty() {
                             alert(
                                 500,
                                 500,
@@ -379,7 +379,7 @@ pub(crate) fn change_location_simple(
                                 },
                             );
                             caretaker.pop().unwrap();
-                            return;
+                            None
                         } else if new_loc.get_unchecked(1).is_empty() {
                             alert(
                                 500,
@@ -390,7 +390,7 @@ pub(crate) fn change_location_simple(
                                 },
                             );
                             caretaker.pop().unwrap();
-                            return;
+                            None
                         } else {
                             match book_system.change_location(
                                 t_ind,
@@ -409,7 +409,21 @@ pub(crate) fn change_location_simple(
                                     );
 
                                     book_system.save();
-                                    return;
+
+                                    Some((
+                                        (**(**book_system.books.get_unchecked(t_ind))
+                                            .borrow()
+                                            .books
+                                            .get_unchecked(s_ind - 1))
+                                        .borrow()
+                                        .cabinet,
+                                        (**(**book_system.books.get_unchecked(t_ind))
+                                            .borrow()
+                                            .books
+                                            .get_unchecked(s_ind - 1))
+                                        .borrow()
+                                        .shelf,
+                                    ))
                                 }
 
                                 Err(0) => {
@@ -422,7 +436,7 @@ pub(crate) fn change_location_simple(
                                         },
                                     );
                                     caretaker.pop().unwrap();
-                                    return;
+                                    None
                                 }
 
                                 Err(1) => {
@@ -435,7 +449,7 @@ pub(crate) fn change_location_simple(
                                         },
                                     );
                                     caretaker.pop().unwrap();
-                                    return;
+                                    None
                                 }
 
                                 Err(_) => {
@@ -444,21 +458,22 @@ pub(crate) fn change_location_simple(
                                         500,
                                         match lang {
                                             Lang::English => "Book's number is incorrect",
-                                            Lang::Russian => "Номер книги некорректен",
+                                            Lang::Russian => "Номер книги не корректен",
                                         },
                                     );
                                     caretaker.pop().unwrap();
-                                    return;
+                                    None
                                 }
                             }
-                        }
+                        };
                     }
                 }
             }
             break;
         } else if !get_loc.shown() {
             caretaker.pop().unwrap();
-            return;
+            return None;
         }
     }
+    None
 }

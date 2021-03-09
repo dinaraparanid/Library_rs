@@ -208,16 +208,16 @@ impl Reader {
                         && (*b.upgrade().unwrap()).borrow().author() == (**book).borrow().author()
                         && (*b.upgrade().unwrap()).borrow().pages() == (**book).borrow().pages()
                 }) {
-                    None => books.insert(
-                        books
-                            .binary_search_by(|b| {
-                                ((*b.upgrade().unwrap()).borrow().readers.last().unwrap().1)
-                                    .1
-                                    .cmp(date)
-                            })
-                            .unwrap_err(),
-                        Rc::downgrade(&book),
-                    ),
+                    None => {
+                        if let Err(ind) = books.binary_search_by(|b| {
+                            ((*b.upgrade().unwrap()).borrow().readers.last().unwrap().1)
+                                .1
+                                .cmp(date)
+                        }) {
+                            books.insert(ind, Rc::downgrade(&book));
+                        }
+                    }
+
                     Some(_) => return Err(0), // already reading this kind of book
                 }
             }

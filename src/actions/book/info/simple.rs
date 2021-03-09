@@ -290,7 +290,7 @@ pub fn book_info_simple(
         .as_str(),
     ));
 
-    table1.add(&Frame::new(
+    let mut cab_frame = Frame::new(
         110,
         50,
         100,
@@ -311,9 +311,9 @@ pub fn book_info_simple(
             },
         )
         .as_str(),
-    ));
+    );
 
-    table1.add(&Frame::new(
+    let mut shelf_frame = Frame::new(
         130,
         50,
         100,
@@ -334,7 +334,10 @@ pub fn book_info_simple(
             }
         )
         .as_str(),
-    ));
+    );
+
+    table1.add(&cab_frame);
+    table1.add(&shelf_frame);
 
     table1.add(&Frame::new(
         150,
@@ -479,16 +482,43 @@ pub fn book_info_simple(
     while app.wait() {
         if let Some(msg) = r.recv() {
             if msg {
-                change_location_simple(
+                if let Some((cab, shelf)) = change_location_simple(
                     t_ind,
-                    s_ind,
+                    s_ind + 1,
                     &mut *(*book_system).borrow_mut(),
                     reader_base,
                     genres,
                     caretaker,
                     app,
                     lang,
-                )
+                ) {
+                    cab_frame.set_label(
+                        format!(
+                            "{}: {}",
+                            match lang {
+                                Lang::English => "Cabinet",
+                                Lang::Russian => "Шкаф",
+                            },
+                            cab
+                        )
+                        .as_str(),
+                    );
+
+                    shelf_frame.set_label(
+                        format!(
+                            "{}: {}",
+                            match lang {
+                                Lang::English => "Shelf",
+                                Lang::Russian => "Полка",
+                            },
+                            shelf
+                        )
+                        .as_str(),
+                    );
+
+                    cab_frame.redraw();
+                    shelf_frame.redraw();
+                }
             }
         } else if !wind.shown() {
             return;
