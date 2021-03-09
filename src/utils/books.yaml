@@ -1,0 +1,103 @@
+---
+- №: 1
+  Title: A
+  Author: A
+  Pages: 12
+  Simple Books:
+    - Cabinet: 1
+      Shelf: 1
+      Using: true
+      Readers:
+        - Name: A
+          Family: A
+          Father: A
+          Day: 26
+          Month: 3
+          Year: 2021
+          Start date:
+            - 9
+            - 3
+            - 2021
+          Finish date:
+            - 19
+            - 3
+            - 2021
+    - Cabinet: 1
+      Shelf: 1
+      Using: true
+      Readers:
+        - Name: B
+          Family: B
+          Father: B
+          Day: 27
+          Month: 3
+          Year: 2021
+          Start date:
+            - 9
+            - 3
+            - 2021
+          Finish date:
+            - 18
+            - 3
+            - 2021
+  Genres: ~
+- №: 2
+  Title: F
+  Author: F
+  Pages: 12
+  Simple Books:
+    - Cabinet: 1
+      Shelf: 1
+      Using: true
+      Readers:
+        - Name: A
+          Family: A
+          Father: A
+          Day: 26
+          Month: 3
+          Year: 2021
+          Start date:
+            - 9
+            - 3
+            - 2021
+          Finish date:
+            - 11
+            - 3
+            - 2021
+    - Cabinet: 1
+      Shelf: 1
+      Using: true
+      Readers:
+        - Name: C
+          Family: C
+          Father: C
+          Day: 11
+          Month: 3
+          Year: 2021
+          Start date:
+            - 9
+            - 3
+            - 2021
+          Finish date:
+            - 26
+            - 3
+            - 2021
+    - Cabinet: 1
+      Shelf: 1
+      Using: true
+      Readers:
+        - Name: B
+          Family: B
+          Father: B
+          Day: 27
+          Month: 3
+          Year: 2021
+          Start date:
+            - 9
+            - 3
+            - 2021
+          Finish date:
+            - 26
+            - 3
+            - 2021
+  Genres: ~

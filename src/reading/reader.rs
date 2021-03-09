@@ -261,16 +261,6 @@ impl Reader {
         if book.is_using
             && (*(book.readers.last().unwrap().0).upgrade().unwrap()).as_ptr() == self as *mut _
         {
-            let ind = self
-                .reading
-                .as_ref()
-                .unwrap()
-                .iter()
-                .position(|b| &*(*b.upgrade().unwrap()).borrow() as *const _ == book as *const _)
-                .unwrap();
-
-            self.reading.as_mut().unwrap().remove(ind);
-            self.reading = None;
             book.is_using = false;
         }
 
@@ -314,6 +304,8 @@ impl Reader {
                 .remove_reader(self);
             self.books.pop();
         }
+
+        self.reading = None;
         self
     }
 

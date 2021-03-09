@@ -255,9 +255,35 @@ impl Book {
     #[inline]
     pub(crate) fn remove_all_readers(&mut self) -> &mut Self {
         if self.is_using {
+            let ind = (*(self.readers.last_mut().unwrap().0).upgrade().unwrap())
+                .borrow_mut()
+                .reading
+                .as_ref()
+                .unwrap()
+                .iter()
+                .position(|b| (*b.upgrade().unwrap()).as_ptr() == self as *mut _)
+                .unwrap();
+
             (*(self.readers.last_mut().unwrap().0).upgrade().unwrap())
                 .borrow_mut()
-                .reading = None;
+                .reading
+                .as_mut()
+                .unwrap()
+                .remove(ind);
+
+            if {
+                let check = (*(self.readers.last().unwrap().0).upgrade().unwrap())
+                    .borrow()
+                    .reading
+                    .as_ref()
+                    .unwrap()
+                    .is_empty();
+                check
+            } {
+                (*(self.readers.last().unwrap().0).upgrade().unwrap())
+                    .borrow_mut()
+                    .reading = None;
+            }
         }
 
         while !self.readers.is_empty() {
@@ -341,7 +367,7 @@ impl Book {
             self.title(),
             self.author(),
             self.pages(),
-            get_book_ind(book_system, self as *const Book)
+            get_book_ind(book_system, self as *const _)
         )
     }
 }
