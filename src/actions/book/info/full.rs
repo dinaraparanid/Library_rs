@@ -284,8 +284,8 @@ pub fn show_all_authors(book_system: &BookSystem, lang: Lang) {
         300,
         400,
         match lang {
-            Lang::English => "All Books with Genres",
-            Lang::Russian => "Все Книги с Жанрами",
+            Lang::English => "All Books by Authors",
+            Lang::Russian => "Все Книги по Авторам",
         },
     );
 

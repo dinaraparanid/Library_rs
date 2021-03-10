@@ -58,7 +58,7 @@ pub fn reader_info_simple_reading(
     let mut wind = SingleWindow::new(
         800,
         100,
-        570,
+        670,
         600,
         format!(
             "{} {} {}",
@@ -82,7 +82,7 @@ pub fn reader_info_simple_reading(
     )
     .center_screen();
 
-    let mut table1 = VGrid::new(0, 0, 650, 200, "");
+    let mut table1 = VGrid::new(0, 0, 670, 200, "");
     table1.set_params(6, 1, 1);
 
     let mut name_frame = Frame::new(
@@ -207,7 +207,7 @@ pub fn reader_info_simple_reading(
 
     table1.auto_layout();
 
-    let mut table2 = Table::new(0, 230, 570, 600, "");
+    let mut table2 = Table::new(0, 230, 670, 600, "");
     table2.set_rows(max(30, unsafe {
         (**(*reader_base).borrow().readers.get_unchecked(ind))
             .borrow()
@@ -217,7 +217,7 @@ pub fn reader_info_simple_reading(
     table2.set_row_header(true);
     table2.set_cols(4);
     table2.set_col_header(true);
-    table2.set_col_width_all(130);
+    table2.set_col_width_all(152);
     table2.end();
 
     wind.end();
@@ -388,7 +388,7 @@ pub fn reader_info_simple_reading(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "First Name",
-                                    Lang::Russian => "\tИмя",
+                                    Lang::Russian => "\t\tИмя",
                                 },
                                 new_name
                             )
@@ -414,7 +414,7 @@ pub fn reader_info_simple_reading(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "Second Name",
-                                    Lang::Russian => "\tФамилия",
+                                    Lang::Russian => "\t\tФамилия",
                                 },
                                 new_family
                             )
@@ -440,7 +440,7 @@ pub fn reader_info_simple_reading(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "Middle Name",
-                                    Lang::Russian => "\tОтчество",
+                                    Lang::Russian => "\t\tОтчество",
                                 },
                                 new_father
                             )
@@ -466,7 +466,7 @@ pub fn reader_info_simple_reading(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "Age",
-                                    Lang::Russian => "\tВозраст",
+                                    Lang::Russian => "\t\tВозраст",
                                 },
                                 new_age,
                             )
@@ -576,7 +576,7 @@ pub(crate) fn reader_info_simple_all_books(
     let mut wind = SingleWindow::new(
         800,
         100,
-        570,
+        670,
         600,
         format!(
             "{} {} {}",
@@ -600,7 +600,7 @@ pub(crate) fn reader_info_simple_all_books(
     )
     .center_screen();
 
-    let mut table1 = VGrid::new(0, 0, 650, 200, "");
+    let mut table1 = VGrid::new(0, 0, 670, 200, "");
     table1.set_params(6, 1, 1);
 
     let mut name_frame = Frame::new(
@@ -777,7 +777,7 @@ pub(crate) fn reader_info_simple_all_books(
     table2.set_row_header(true);
     table2.set_cols(4);
     table2.set_col_header(true);
-    table2.set_col_width_all(130);
+    table2.set_col_width_all(152);
     table2.end();
 
     wind.end();
@@ -948,7 +948,7 @@ pub(crate) fn reader_info_simple_all_books(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "First Name",
-                                    Lang::Russian => "\tИмя",
+                                    Lang::Russian => "\t\tИмя",
                                 },
                                 new_name
                             )
@@ -974,7 +974,7 @@ pub(crate) fn reader_info_simple_all_books(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "Second Name",
-                                    Lang::Russian => "\tФамилия",
+                                    Lang::Russian => "\t\tФамилия",
                                 },
                                 new_family
                             )
@@ -1000,7 +1000,7 @@ pub(crate) fn reader_info_simple_all_books(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "Middle Name",
-                                    Lang::Russian => "\tОтчество",
+                                    Lang::Russian => "\t\tОтчество",
                                 },
                                 new_father
                             )
@@ -1026,7 +1026,7 @@ pub(crate) fn reader_info_simple_all_books(
                                 "{}: {}",
                                 match lang {
                                     Lang::English => "Age",
-                                    Lang::Russian => "\tВозраст",
+                                    Lang::Russian => "\t\tВозраст",
                                 },
                                 new_age,
                             )

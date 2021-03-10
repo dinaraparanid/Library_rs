@@ -661,7 +661,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     menu.add_emit(
         match lang {
             Lang::English => "&Giveaway/Change return date\t",
-            Lang::Russian => "&Выдача/Изменить Срок Сдачи\t",
+            Lang::Russian => "&Выдача/Изменить срок сдачи\t",
         },
         Shortcut::empty(),
         MenuFlag::Normal,

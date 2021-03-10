@@ -348,10 +348,10 @@ pub(crate) fn change_age_simple(
 ) -> Option<u16> {
     caretaker.add_memento(reader_base, book_system, genres);
 
-    let mut win = fltk::window::SingleWindow::new(800, 500, 200, 100, "Choose new birth date");
+    let mut win = fltk::window::SingleWindow::new(800, 500, 250, 100, "Choose new birth date");
 
     let _ = fltk::frame::Frame::new(
-        30,
+        50,
         10,
         150,
         50,

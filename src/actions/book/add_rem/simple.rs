@@ -76,7 +76,7 @@ pub(crate) fn add_books_simple(
         },
         match lang {
             Lang::English => "Amount of books to add",
-            Lang::Russian => "Кол-во добавляемых книг",
+            Lang::Russian => "Кол-во книг",
         },
     );
 
@@ -306,7 +306,7 @@ pub(crate) fn add_book_simple(
         },
         match lang {
             Lang::English => "Set amount of books",
-            Lang::Russian => "Укажите Кол-во книг",
+            Lang::Russian => "Кол-во книг",
         },
     );
 
