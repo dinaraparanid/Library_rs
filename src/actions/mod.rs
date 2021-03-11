@@ -1,5 +1,7 @@
 extern crate fltk;
+
 use crate::Lang;
+
 use fltk::{
     prelude::*,
     text::{TextBuffer, TextDisplay},
@@ -11,6 +13,10 @@ pub mod genres;
 pub mod giveaway;
 pub mod read;
 pub mod tables;
+
+/// Function that makes almost
+/// all manipulations with books
+/// (except adding new book)
 
 #[inline]
 pub fn help(lang: Lang) {

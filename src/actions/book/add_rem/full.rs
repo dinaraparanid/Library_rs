@@ -118,13 +118,19 @@ pub fn add_books(
     }
 }
 
+/// **DEPRECATED**
+///
+/// Used before, requires input.
+/// Consider **using remove_book() instead**
+///
 /// Function that removes one simple book.
 /// It takes index of book, so be careful.
 /// If you have mistakes in input,
 /// program will let you know
 
-#[inline]
-pub fn remove_book(
+#[allow(dead_code)]
+#[deprecated(note = "Used before, requires input. Consider using action_books() instead")]
+fn remove_book(
     book_system: &mut BookSystem,
     reader_base: &mut ReaderBase,
     genres: &Genres,
@@ -354,13 +360,19 @@ fn add_book(
     }
 }
 
+/// **DEPRECATED**
+///
+/// Used before, requires input.
+/// Consider **using remove_the_book() instead**
+///
 /// Function that removes
 /// all simple books and TheBook.
 /// If you have mistakes in input,
 /// program will let you know
 
-#[inline]
-pub fn remove_the_book(
+#[allow(dead_code)]
+#[deprecated(note = "Used before, requires input. Consider using remove_the_book() instead")]
+fn remove_the_book_input(
     book_system: &mut BookSystem,
     reader_base: &mut ReaderBase,
     genres: &Genres,

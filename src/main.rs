@@ -3,12 +3,12 @@ extern crate fltk;
 use booklibrs::{
     actions::{
         book::{
+            action_books,
             add_rem::full::*,
-            change::full::*,
             info::{full::*, simple::book_info_simple},
         },
         genres::full::*,
-        giveaway::full::*,
+        giveaway::{full::*, simple::change_return_date_first_book},
         help,
         read::{
             add_rem::full::*,
@@ -21,7 +21,7 @@ use booklibrs::{
     change::{input2::Input2, Inputable},
     reading::read_base::ReaderBase,
     restore::caretaker::Caretaker,
-    Lang,
+    Lang, Message,
 };
 
 use fltk::{
@@ -40,7 +40,6 @@ use fltk::{
     window::*,
 };
 
-use booklibrs::actions::giveaway::simple::change_return_date_first_book;
 use std::{
     cell::RefCell,
     cmp::max,
@@ -49,43 +48,6 @@ use std::{
     io::{Read, Write},
     rc::Rc,
 };
-
-/// All messages, which used to call functions
-
-#[derive(Clone, Copy)]
-enum Message {
-    AddReader,
-    RemoveReader,
-    ChangeName,
-    ChangeFamily,
-    ChangeFather,
-    ChangeAge,
-    InfoReaderReading,
-    InfoReaderAllBooks,
-    AddBooks,
-    RemoveBook,
-    RemoveTheBook,
-    ChangeTitle,
-    ChangeAuthor,
-    ChangePages,
-    ChangeLocation,
-    InfoTheBook,
-    InfoBook,
-    GiveBook,
-    GetBook,
-    ChangeReturnDate,
-    ShowAllBooks,
-    ShowGenres,
-    ShowAuthor,
-    AddGenre,
-    RemoveGenre,
-    CustomizeBookGenre,
-    PrevData,
-    NextData,
-    English,
-    Russian,
-    Help,
-}
 
 /// Hashing login and password
 
@@ -851,102 +813,120 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
 
                 Message::RemoveBook => {
-                    remove_book(
-                        &mut (*book_system).borrow_mut(),
+                    action_books(
+                        book_system.clone(),
                         &mut (*reader_base).borrow_mut(),
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
                         lang,
+                        &mut table,
+                        Message::RemoveBook
                     );
 
                     table.redraw();
                 }
 
                 Message::RemoveTheBook => {
-                    remove_the_book(
-                        &mut (*book_system).borrow_mut(),
+                    action_books(
+                        book_system.clone(),
                         &mut (*reader_base).borrow_mut(),
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
                         lang,
+                        &mut table,
+                        Message::RemoveTheBook
                     );
 
                     table.redraw();
                 }
 
                 Message::ChangeTitle => {
-                    change_title(
-                        &mut (*book_system).borrow_mut(),
+                    action_books(
+                        book_system.clone(),
                         &mut (*reader_base).borrow_mut(),
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
                         lang,
+                        &mut table,
+                        Message::ChangeTitle
                     );
 
                     table.redraw();
                 }
 
                 Message::ChangeAuthor => {
-                    change_author(
-                        &mut (*book_system).borrow_mut(),
+                    action_books(
+                        book_system.clone(),
                         &mut (*reader_base).borrow_mut(),
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
                         lang,
+                        &mut table,
+                        Message::ChangeAuthor
                     );
 
                     table.redraw();
                 }
 
                 Message::ChangePages => {
-                    change_pages(
-                        &mut (*book_system).borrow_mut(),
+                    action_books(
+                        book_system.clone(),
                         &mut (*reader_base).borrow_mut(),
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
                         lang,
+                        &mut table,
+                        Message::ChangePages
                     );
 
                     table.redraw();
                 }
 
-                Message::ChangeLocation => change_location(
-                    &mut (*book_system).borrow_mut(),
-                    &mut (*reader_base).borrow_mut(),
-                    &(*genres).borrow(),
-                    &mut (*caretaker).borrow_mut(),
-                    &app,
-                    lang
-                ),
-
-                Message::InfoTheBook => {
-                    the_book_info(
+                Message::ChangeLocation => {
+                    action_books(
                         book_system.clone(),
-                        reader_base.clone(),
+                        &mut (*reader_base).borrow_mut(),
                         &(*genres).borrow(),
                         &mut (*caretaker).borrow_mut(),
                         &app,
                         lang,
-                        &mut table
+                        &mut table,
+                        Message::ChangeLocation
+                    );
+                }
+
+                Message::InfoTheBook => {
+                    action_books(
+                        book_system.clone(),
+                        &mut (*reader_base).borrow_mut(),
+                        &(*genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
+                        &app,
+                        lang,
+                        &mut table,
+                        Message::InfoTheBook
                     );
 
                     table.redraw();
                 }
 
                 Message::InfoBook => {
-                    book_info(
+                    action_books(
                         book_system.clone(),
-                        &*(*reader_base).borrow(),
-                        &*(*genres).borrow(),
-                        &mut *(*caretaker).borrow_mut(),
+                        &mut (*reader_base).borrow_mut(),
+                        &(*genres).borrow(),
+                        &mut (*caretaker).borrow_mut(),
                         &app,
-                        lang
+                        lang,
+                        &mut table,
+                        Message::InfoBook
                     );
+
                     table.redraw();
                 }
 

@@ -17,6 +17,43 @@ pub mod restore;
      since everything works correct, I have no need for tests")]
 mod tests;
 
+/// All messages, which used to call functions
+
+#[derive(Clone, Copy)]
+pub enum Message {
+    AddReader,
+    RemoveReader,
+    ChangeName,
+    ChangeFamily,
+    ChangeFather,
+    ChangeAge,
+    InfoReaderReading,
+    InfoReaderAllBooks,
+    AddBooks,
+    RemoveBook,
+    RemoveTheBook,
+    ChangeTitle,
+    ChangeAuthor,
+    ChangePages,
+    ChangeLocation,
+    InfoTheBook,
+    InfoBook,
+    GiveBook,
+    GetBook,
+    ChangeReturnDate,
+    ShowAllBooks,
+    ShowGenres,
+    ShowAuthor,
+    AddGenre,
+    RemoveGenre,
+    CustomizeBookGenre,
+    PrevData,
+    NextData,
+    English,
+    Russian,
+    Help,
+}
+
 /// Language.
 /// Helps to choose preferred language
 

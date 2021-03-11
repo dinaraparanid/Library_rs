@@ -25,13 +25,19 @@ use fltk::{
 
 use std::{cell::RefCell, cmp::max, collections::BTreeMap, rc::Rc};
 
+/// **DEPRECATED**
+///
+/// Used before, requires input.
+/// Consider **using action_books() instead**
+///
 /// Function that gives all information about TheBook:
 /// title, author, pages, amount of simple books.
 /// If you have mistakes in input,
 /// program will let you know
 
-#[inline]
-pub fn the_book_info(
+#[allow(dead_code)]
+#[deprecated(note = "Used before, requires input. Consider using action_books() instead")]
+fn the_book_info(
     book_system: Rc<RefCell<BookSystem>>,
     reader_base: Rc<RefCell<ReaderBase>>,
     genres: &Genres,
@@ -93,13 +99,19 @@ pub fn the_book_info(
     }
 }
 
+/// **DEPRECATED**
+///
+/// Used before, requires input.
+/// Consider **using action_books() instead**
+///
 /// Function that gives all information about simple Book:
 /// title, author, pages, and readers (+ current reader).
 /// If you have mistakes in input,
 /// program will let you know
 
-#[inline]
-pub fn book_info(
+#[allow(dead_code)]
+#[deprecated(note = "Used before, requires input. Consider using action_books() instead")]
+fn book_info(
     book_system: Rc<RefCell<BookSystem>>,
     reader_base: &ReaderBase,
     genres: &Genres,

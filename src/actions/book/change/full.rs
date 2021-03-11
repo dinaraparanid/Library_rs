@@ -17,13 +17,19 @@ use fltk::{
     prelude::*,
 };
 
+/// **DEPRECATED**
+///
+/// Used before, requires input.
+/// Consider **using action_books() instead**
+///
 /// Function that changes title
 /// of all simple books and TheBook.
 /// If you have mistakes in input,
 /// program will let you know
 
-#[inline]
-pub fn change_title(
+#[allow(dead_code)]
+#[deprecated(note = "Used before, requires input. Consider using action_books() instead")]
+fn change_title(
     book_system: &mut BookSystem,
     reader_base: &mut ReaderBase,
     genres: &Genres,
@@ -80,13 +86,19 @@ pub fn change_title(
     }
 }
 
+/// **DEPRECATED**
+///
+/// Used before, requires input.
+/// Consider **using action_books() instead**
+///
 /// Function that changes author
 /// of all simple books and TheBook.
 /// If you have mistakes in input,
 /// program will let you know
 
-#[inline]
-pub fn change_author(
+#[allow(dead_code)]
+#[deprecated(note = "Used before, requires input. Consider using action_books() instead")]
+fn change_author(
     book_system: &mut BookSystem,
     reader_base: &mut ReaderBase,
     genres: &Genres,
@@ -143,13 +155,19 @@ pub fn change_author(
     }
 }
 
+/// **DEPRECATED**
+///
+/// Used before, requires input.
+/// Consider **using action_books() instead**
+///
 /// Function that changes pages
 /// of all simple books and TheBook.
 /// If you have mistakes in input,
 /// program will let you know
 
-#[inline]
-pub fn change_pages(
+#[allow(dead_code)]
+#[deprecated(note = "Used before, requires input. Consider using action_books() instead")]
+fn change_pages(
     book_system: &mut BookSystem,
     reader_base: &mut ReaderBase,
     genres: &Genres,
@@ -213,6 +231,79 @@ pub fn change_pages(
 
 #[inline]
 pub fn change_location(
+    t_ind: usize,
+    book_system: &mut BookSystem,
+    reader_base: &mut ReaderBase,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+    lang: Lang,
+) {
+    let (s, r) = app::channel();
+    let mut inp2 = Input1::<IntInput>::new(
+        match lang {
+            Lang::English => "Book's number",
+            Lang::Russian => "Номер книги",
+        },
+        match lang {
+            Lang::English => "Book's number",
+            Lang::Russian => "Номер книги",
+        },
+    );
+
+    inp2.show();
+    (*inp2.ok).borrow_mut().emit(s, true);
+
+    while app.wait() {
+        if let Some(mes) = r.recv() {
+            if mes {
+                inp2.hide();
+
+                if let Ok(ind) = inp2.set_input(lang) {
+                    match ind.first().unwrap().trim().parse::<usize>() {
+                        Err(_) => alert(
+                            500,
+                            500,
+                            match lang {
+                                Lang::English => "Incorrect book's number",
+                                Lang::Russian => "Некорректный номер книги",
+                            },
+                        ),
+
+                        Ok(s_ind) => {
+                            change_location_simple(
+                                t_ind,
+                                s_ind,
+                                book_system,
+                                reader_base,
+                                genres,
+                                caretaker,
+                                app,
+                                lang,
+                            );
+                        }
+                    }
+                }
+            }
+        } else if !inp2.shown() {
+            break;
+        }
+    }
+}
+
+/// **DEPRECATED**
+///
+/// Used before, requires input.
+/// Consider **using action_books() instead**
+///
+/// Function that changes location
+/// (cabinet and shelf) of simple book.
+/// If you have mistakes in input,
+/// program will let you know
+
+#[allow(dead_code)]
+#[deprecated(note = "Used before, requires input. Consider using change_location() instead")]
+fn change_location_input(
     book_system: &mut BookSystem,
     reader_base: &mut ReaderBase,
     genres: &Genres,
