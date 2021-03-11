@@ -53,7 +53,7 @@ pub fn change_name(
             if message {
                 inp.hide();
 
-                if let Ok(reader) = inp.set_input() {
+                if let Ok(reader) = inp.set_input(lang) {
                     if let Some(rind) = check_reader(reader_base, &reader, app, lang) {
                         change_name_simple(
                             rind,
@@ -116,7 +116,7 @@ pub fn change_family(
             if message {
                 inp.hide();
 
-                if let Ok(reader) = inp.set_input() {
+                if let Ok(reader) = inp.set_input(lang) {
                     if let Some(rind) = check_reader(reader_base, &reader, app, lang) {
                         change_family_simple(
                             rind,
@@ -179,7 +179,7 @@ pub fn change_father(
             if message {
                 inp.hide();
 
-                if let Ok(reader) = inp.set_input() {
+                if let Ok(reader) = inp.set_input(lang) {
                     if let Some(rind) = check_reader(reader_base, &reader, app, lang) {
                         change_father_simple(
                             rind,
@@ -242,7 +242,7 @@ pub fn change_age(
             if message {
                 inp.hide();
 
-                if let Ok(reader) = inp.set_input() {
+                if let Ok(reader) = inp.set_input(lang) {
                     if let Some(rind) = check_reader(reader_base, &reader, app, lang) {
                         change_age_simple(
                             rind,

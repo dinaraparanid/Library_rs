@@ -1,4 +1,5 @@
 extern crate fltk;
+use crate::Lang;
 use fltk::{prelude::*, window::SingleWindow};
 use std::{cell::RefCell, rc::Rc};
 
@@ -17,7 +18,7 @@ pub trait Inputable {
     /// Returns input by vector of strings if everything is ok
     /// else it returns error
 
-    fn set_input(&mut self) -> Result<Vec<String>, ()>;
+    fn set_input(&mut self, lang: Lang) -> Result<Vec<String>, ()>;
 
     /// Checks if window is shown
 

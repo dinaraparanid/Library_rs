@@ -51,7 +51,7 @@ pub fn change_return_date(
             if mes {
                 inp2.hide();
 
-                if let Ok(reader) = inp2.set_input() {
+                if let Ok(reader) = inp2.set_input(lang) {
                     match check_reader(reader_base, &reader, app, lang) {
                         Some(rind) => {
                             change_return_date_simple(
@@ -124,7 +124,7 @@ pub fn give_book(
             if message {
                 inp.hide();
 
-                if let Ok(reader) = inp.set_input() {
+                if let Ok(reader) = inp.set_input(lang) {
                     match check_reader(reader_base, &reader, app, lang) {
                         Some(x) => {
                             give_book_known_reader(
@@ -196,7 +196,7 @@ pub fn get_book(
             if message {
                 inp.hide();
 
-                if let Ok(reader) = inp.set_input() {
+                if let Ok(reader) = inp.set_input(lang) {
                     match check_reader(reader_base, &reader, app, lang) {
                         Some(x) => {
                             get_book_known_reader(

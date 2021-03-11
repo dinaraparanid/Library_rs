@@ -90,7 +90,7 @@ pub(crate) fn add_books_simple(
             if msg {
                 get_amount.hide();
 
-                if let Ok(amount) = get_amount.set_input() {
+                if let Ok(amount) = get_amount.set_input(lang) {
                     return match amount.first().unwrap().trim().parse::<usize>() {
                         Ok(x) => match book_system.add_books(ind, x, app, lang) {
                             Ok(_) => {
@@ -181,7 +181,7 @@ pub(crate) fn remove_book_simple(
             if msg {
                 get_ind.hide();
 
-                if let Ok(ind) = get_ind.set_input() {
+                if let Ok(ind) = get_ind.set_input(lang) {
                     return match ind.first().unwrap().trim().parse::<usize>() {
                         Ok(x) => {
                             if x == 0 {
@@ -320,7 +320,7 @@ pub(crate) fn add_book_simple(
             if mes {
                 am.hide();
 
-                if let Ok(amount) = am.set_input() {
+                if let Ok(amount) = am.set_input(lang) {
                     match amount.first().unwrap().trim().parse::<usize>() {
                         Ok(amount) => match the_book.last().unwrap().trim().parse::<u16>() {
                             Ok(x) => {

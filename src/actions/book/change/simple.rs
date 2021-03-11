@@ -52,7 +52,7 @@ pub(crate) fn change_title_simple(
             if msg {
                 get_title.hide();
 
-                if let Ok(mut new_title) = get_title.set_input() {
+                if let Ok(mut new_title) = get_title.set_input(lang) {
                     unsafe {
                         return if new_title.get_unchecked(0).is_empty() {
                             alert(
@@ -150,7 +150,7 @@ pub(crate) fn change_author_simple(
             if msg {
                 get_author.hide();
 
-                if let Ok(mut new_author) = get_author.set_input() {
+                if let Ok(mut new_author) = get_author.set_input(lang) {
                     unsafe {
                         return if new_author.get_unchecked(0).is_empty() {
                             alert(
@@ -249,7 +249,7 @@ pub(crate) fn change_pages_simple(
             if msg {
                 get_pages.hide();
 
-                if let Ok(mut new_pages) = get_pages.set_input() {
+                if let Ok(mut new_pages) = get_pages.set_input(lang) {
                     unsafe {
                         return if new_pages.get_unchecked(0).is_empty() {
                             alert(
@@ -367,7 +367,7 @@ pub(crate) fn change_location_simple(
             if msg {
                 get_loc.hide();
 
-                if let Ok(mut new_loc) = get_loc.set_input() {
+                if let Ok(mut new_loc) = get_loc.set_input(lang) {
                     unsafe {
                         return if new_loc.get_unchecked(0).is_empty() {
                             alert(

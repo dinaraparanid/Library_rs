@@ -151,7 +151,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                     if msg {
                         password.hide();
 
-                        if let Ok(data) = password.set_input() {
+                        if let Ok(data) = password.set_input(lang) {
                             if !data.first().unwrap().is_ascii() || !data.last().unwrap().is_ascii()
                             {
                                 alert(
@@ -220,7 +220,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             while app.wait() {
                 if let Some(msg) = r.recv() {
                     if msg {
-                        let input = password.set_input();
+                        let input = password.set_input(lang);
                         password.hide();
 
                         if let Ok(data) = input {

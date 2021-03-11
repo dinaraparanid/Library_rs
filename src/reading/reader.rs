@@ -175,12 +175,13 @@ impl Reader {
         match &mut self.reading {
             None => self.reading = Some(vec![Rc::downgrade(&book)]),
             Some(books) => {
-                if let Err(ind) = books.binary_search_by(|b| {
+                match books.binary_search_by(|b| {
                     ((*b.upgrade().unwrap()).borrow().readers.last().unwrap().1)
                         .1
                         .cmp(date)
                 }) {
-                    books.insert(ind, Rc::downgrade(&book));
+                    Ok(ind) => books.insert(ind, Rc::downgrade(&book)),
+                    Err(ind) => books.insert(ind, Rc::downgrade(&book)),
                 }
             }
         }
@@ -209,12 +210,13 @@ impl Reader {
                         && (*b.upgrade().unwrap()).borrow().pages() == (**book).borrow().pages()
                 }) {
                     None => {
-                        if let Err(ind) = books.binary_search_by(|b| {
+                        match books.binary_search_by(|b| {
                             ((*b.upgrade().unwrap()).borrow().readers.last().unwrap().1)
                                 .1
                                 .cmp(date)
                         }) {
-                            books.insert(ind, Rc::downgrade(&book));
+                            Ok(ind) => books.insert(ind, Rc::downgrade(&book)),
+                            Err(ind) => books.insert(ind, Rc::downgrade(&book)),
                         }
                     }
 
@@ -231,23 +233,19 @@ impl Reader {
     /// Sets reading param as None if there are no books to read
 
     #[inline]
-    pub(crate) fn finish_reading(&mut self, book: Weak<RefCell<Book>>) {
+    pub(crate) fn finish_reading(&mut self, book: &Weak<RefCell<Book>>) {
         let bs = self
             .reading
             .as_ref()
             .unwrap()
-            .binary_search_by(|b| {
-                ((*b.upgrade().unwrap()).borrow().readers.last().unwrap().1)
-                    .1
-                    .cmp(
-                        &((*book.upgrade().unwrap())
-                            .borrow()
-                            .readers
-                            .last()
-                            .unwrap()
-                            .1)
-                            .1,
-                    )
+            .iter()
+            .position(|b| {
+                (*b.upgrade().unwrap()).borrow().title()
+                    == (*book.upgrade().unwrap()).borrow().title()
+                    && (*b.upgrade().unwrap()).borrow().author()
+                        == (*book.upgrade().unwrap()).borrow().author()
+                    && (*b.upgrade().unwrap()).borrow().pages()
+                        == (*book.upgrade().unwrap()).borrow().pages()
             })
             .unwrap();
 

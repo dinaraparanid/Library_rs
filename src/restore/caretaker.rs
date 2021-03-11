@@ -9,6 +9,10 @@ use crate::{
 
 use fltk::dialog::{alert, message};
 
+/// Struct that holds al mementos
+/// and makes all
+/// manipulations with them
+
 #[derive(Debug, Default)]
 pub struct Caretaker {
     mementos: Vec<Memento>,

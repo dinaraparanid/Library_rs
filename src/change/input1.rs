@@ -1,5 +1,5 @@
 extern crate fltk;
-use crate::change::Inputable;
+use crate::{change::Inputable, Lang};
 use fltk::{button::Button, dialog::alert, frame::Frame, prelude::*, window::SingleWindow};
 use std::{cell::RefCell, rc::Rc};
 
@@ -23,12 +23,19 @@ impl<I: InputExt + WidgetBase> Inputable for Input1<I> {
     }
 
     #[inline]
-    fn set_input(&mut self) -> Result<Vec<String>, ()> {
+    fn set_input(&mut self, lang: Lang) -> Result<Vec<String>, ()> {
         if !InputExt::value(&*((*self.input).borrow())).is_empty() {
             return Ok(vec![InputExt::value(&*(self.input).borrow())]);
         } else {
             self.hide();
-            alert(500, 500, "Nothing inputted");
+            alert(
+                500,
+                500,
+                match lang {
+                    Lang::English => "Nothing inputted",
+                    Lang::Russian => "Ничего не введено",
+                },
+            );
         }
 
         InputExt::set_value(&*(*self.input).borrow(), "");

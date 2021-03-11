@@ -59,7 +59,7 @@ pub fn change_title(
             if message {
                 inp.hide();
 
-                if let Ok(book) = inp.set_input() {
+                if let Ok(book) = inp.set_input(lang) {
                     if let Ok(index) = check_book(book_system, &book, lang) {
                         change_title_simple(
                             index,
@@ -122,7 +122,7 @@ pub fn change_author(
             if message {
                 inp.hide();
 
-                if let Ok(book) = inp.set_input() {
+                if let Ok(book) = inp.set_input(lang) {
                     if let Ok(index) = check_book(book_system, &book, lang) {
                         change_author_simple(
                             index,
@@ -185,7 +185,7 @@ pub fn change_pages(
             if message {
                 inp.hide();
 
-                if let Ok(book) = inp.set_input() {
+                if let Ok(book) = inp.set_input(lang) {
                     if let Ok(index) = check_book(book_system, &book, lang) {
                         change_pages_simple(
                             index,
@@ -248,7 +248,7 @@ pub fn change_location(
             if message {
                 inp.hide();
 
-                if let Ok(book) = inp.set_input() {
+                if let Ok(book) = inp.set_input(lang) {
                     if let Ok(t_ind) = check_book(book_system, &book, lang) {
                         let (s, r) = app::channel();
                         let mut inp2 = Input1::<IntInput>::new(
@@ -270,7 +270,7 @@ pub fn change_location(
                                 if mes {
                                     inp2.hide();
 
-                                    if let Ok(ind) = inp2.set_input() {
+                                    if let Ok(ind) = inp2.set_input(lang) {
                                         match ind.first().unwrap().trim().parse::<usize>() {
                                             Err(_) => alert(
                                                 500,

@@ -69,7 +69,7 @@ pub fn add_reader(
             if message {
                 inp.hide();
 
-                if let Ok(reader) = inp.set_input() {
+                if let Ok(reader) = inp.set_input(lang) {
                     if empty_inp_reader(&reader, lang) {
                         caretaker.pop().unwrap();
                         return;
@@ -234,7 +234,7 @@ pub fn remove_reader(
             if message {
                 inp.hide();
 
-                if let Ok(reader) = inp.set_input() {
+                if let Ok(reader) = inp.set_input(lang) {
                     if let Some(rind) = check_reader(reader_base, &reader, app, lang) {
                         remove_reader_simple(
                             rind,

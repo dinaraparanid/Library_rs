@@ -559,7 +559,7 @@ pub(crate) fn book_info_simple2(
             if msg {
                 inp2.hide();
 
-                if let Ok(bind_v) = inp2.set_input() {
+                if let Ok(bind_v) = inp2.set_input(lang) {
                     let bind = bind_v.first().unwrap().trim().parse::<usize>().unwrap();
 
                     if bind

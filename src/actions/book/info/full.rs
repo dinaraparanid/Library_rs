@@ -68,7 +68,7 @@ pub fn the_book_info(
             if message {
                 inp.hide();
 
-                if let Ok(the_book) = inp.set_input() {
+                if let Ok(the_book) = inp.set_input(lang) {
                     if let Ok(index) = {
                         let check = check_book(&(*book_system).borrow(), &the_book, lang);
                         check
@@ -135,7 +135,7 @@ pub fn book_info(
             if message {
                 inp.hide();
 
-                if let Ok(the_book) = inp.set_input() {
+                if let Ok(the_book) = inp.set_input(lang) {
                     if let Ok(index) = check_book(&*(*book_system).borrow(), &the_book, lang) {
                         book_info_simple2(
                             index,

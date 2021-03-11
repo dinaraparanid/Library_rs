@@ -64,7 +64,7 @@ pub fn add_books(
                 true => {
                     inp.hide();
 
-                    if let Ok(books) = inp.set_input() {
+                    if let Ok(books) = inp.set_input(lang) {
                         if !empty_inp_book(&books, lang) {
                             match unsafe { books.get_unchecked(2).trim().parse::<u16>() } {
                                 Ok(x) => match book_system.find_book(
@@ -161,7 +161,7 @@ pub fn remove_book(
                 true => {
                     inp.hide();
 
-                    if let Ok(book) = inp.set_input() {
+                    if let Ok(book) = inp.set_input(lang) {
                         if let Ok(index) = check_book(book_system, &book, lang) {
                             remove_book_simple(
                                 index,
@@ -236,7 +236,7 @@ fn add_book(
             if message {
                 inp.hide();
 
-                if let Ok(the_book) = inp.set_input() {
+                if let Ok(the_book) = inp.set_input(lang) {
                     if !empty_inp_book(&the_book, lang) {
                         let (s, r) = app::channel();
                         let mut am = Input1::<IntInput>::new(
@@ -258,7 +258,7 @@ fn add_book(
                                 if mes {
                                     am.hide();
 
-                                    if let Ok(amount) = am.set_input() {
+                                    if let Ok(amount) = am.set_input(lang) {
                                         match amount.first().unwrap().trim().parse::<usize>() {
                                             Ok(amount) => {
                                                 match the_book.last().unwrap().trim().parse::<u16>()
@@ -396,7 +396,7 @@ pub fn remove_the_book(
             if message {
                 inp.hide();
 
-                if let Ok(the_book) = inp.set_input() {
+                if let Ok(the_book) = inp.set_input(lang) {
                     if let Ok(index) = check_book(book_system, &the_book, lang) {
                         remove_the_book_simple(
                             index,

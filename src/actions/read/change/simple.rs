@@ -47,7 +47,7 @@ pub(crate) fn change_name_simple(
             if mes {
                 get_name.hide();
 
-                if let Ok(new_name) = get_name.set_input() {
+                if let Ok(new_name) = get_name.set_input(lang) {
                     return match reader_base
                         .change_name(ind, unsafe { new_name.get_unchecked(0).clone() })
                     {
@@ -154,7 +154,7 @@ pub(crate) fn change_family_simple(
             if mes {
                 get_family.hide();
 
-                if let Ok(new_family) = get_family.set_input() {
+                if let Ok(new_family) = get_family.set_input(lang) {
                     return match reader_base
                         .change_family(ind, unsafe { new_family.get_unchecked(0).clone() })
                     {
@@ -261,7 +261,7 @@ pub(crate) fn change_father_simple(
             if mes {
                 get_father.hide();
 
-                if let Ok(new_father) = get_father.set_input() {
+                if let Ok(new_father) = get_father.set_input(lang) {
                     return match reader_base
                         .change_father(ind, unsafe { new_father.get_unchecked(0).clone() })
                     {

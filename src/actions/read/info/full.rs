@@ -57,7 +57,7 @@ pub fn reader_info_reading(
             if message {
                 inp.hide();
 
-                if let Ok(reader) = inp.set_input() {
+                if let Ok(reader) = inp.set_input(lang) {
                     if let Some(ind) = {
                         let check = check_reader(&*(*reader_base).borrow(), &reader, app, lang);
                         check
@@ -125,7 +125,7 @@ pub fn reader_info_all_books(
             if message {
                 inp.hide();
 
-                if let Ok(reader) = inp.set_input() {
+                if let Ok(reader) = inp.set_input(lang) {
                     if let Some(ind) = {
                         let check = check_reader(&*(*reader_base).borrow(), &reader, app, lang);
                         check

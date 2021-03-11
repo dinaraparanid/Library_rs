@@ -21,6 +21,7 @@ use fltk::{
 
 use chrono::{Datelike, Local};
 use fltk_calendar::calendar::Calendar;
+
 use std::{
     cell::RefCell,
     rc::{Rc, Weak},
@@ -157,63 +158,62 @@ pub(crate) fn give_book_known_reader(
                                             }
 
                                             Some(sim) => {
-                                                unsafe {
-                                                    if (*reader_base.readers.get_unchecked(rind))
-                                                        .borrow_mut()
-                                                        .start_reading(
-                                                            (*book_system
-                                                                .books
-                                                                .get_unchecked(bind))
-                                                            .borrow()
-                                                            .books
-                                                            .get_unchecked(sim),
-                                                            &date,
-                                                        )
-                                                        .is_err()
-                                                    {
-                                                        alert(
-                                                            500,
-                                                            500,
-                                                            match lang {
-                                                                Lang::English => "Reader is already reading book with same params",
-                                                                Lang::Russian => "Читатель уже читает книгу с такими параметрами",
-                                                            },
-                                                        );
-                                                        caretaker.pop().unwrap();
-                                                        return None;
-                                                    }
-
-                                                    (*(*book_system.books.get_unchecked(bind))
-                                                        .borrow_mut()
+                                                return if let Err(_) = unsafe {
+                                                    (*(*reader_base.readers.get_unchecked(rind))
+                                                        .as_ptr())
+                                                    .start_reading(
+                                                        (*(*book_system.books.get_unchecked(bind))
+                                                            .as_ptr())
                                                         .books
-                                                        .get_unchecked(sim))
+                                                        .get_unchecked(sim),
+                                                        &date,
+                                                    )
+                                                } {
+                                                    alert(
+                                                        500,
+                                                        500,
+                                                        match lang {
+                                                            Lang::English => "Reader is already reading book with same params",
+                                                            Lang::Russian => "Читатель уже читает книгу с такими параметрами",
+                                                        },
+                                                    );
+                                                    caretaker.pop().unwrap();
+                                                    None
+                                                } else {
+                                                    unsafe {
+                                                        (*book_system.books.get_unchecked(bind))
+                                                            .borrow_mut()
+                                                            .books
+                                                            .get_unchecked(sim)
+                                                    }
                                                     .borrow_mut()
                                                     .start_reading(
-                                                        reader_base.readers.get_unchecked(rind),
+                                                        unsafe {
+                                                            reader_base.readers.get_unchecked(rind)
+                                                        },
                                                         date,
                                                     );
-                                                }
 
-                                                fltk::dialog::message(
-                                                    500,
-                                                    500,
-                                                    match lang {
-                                                        Lang::English => {
-                                                            "Book successfully given to reader"
+                                                    fltk::dialog::message(
+                                                        500,
+                                                        500,
+                                                        match lang {
+                                                            Lang::English => {
+                                                                "Book successfully given to reader"
+                                                            }
+                                                            Lang::Russian => {
+                                                                "Книга успешно выдана читателю"
+                                                            }
+                                                        },
+                                                    );
+
+                                                    book_system.save();
+                                                    reader_base.save();
+
+                                                    Some(
+                                                        (*unsafe {
+                                                            reader_base.readers.get_unchecked(rind)
                                                         }
-                                                        Lang::Russian => {
-                                                            "Книга успешно выдана читателю"
-                                                        }
-                                                    },
-                                                );
-
-                                                book_system.save();
-                                                reader_base.save();
-
-                                                Some(unsafe {
-                                                    (*reader_base
-                                                        .readers
-                                                        .get_unchecked(rind)
                                                         .borrow()
                                                         .reading
                                                         .as_ref()
@@ -222,9 +222,10 @@ pub(crate) fn give_book_known_reader(
                                                         .unwrap()
                                                         .upgrade()
                                                         .unwrap())
-                                                    .borrow()
-                                                    .to_string(book_system)
-                                                })
+                                                        .borrow()
+                                                        .to_string(book_system),
+                                                    )
+                                                };
                                             }
                                         }
                                     }
@@ -328,7 +329,7 @@ fn give_book_known_reader_input(
             if msg {
                 inp2.hide();
 
-                if let Ok(book) = inp2.set_input() {
+                if let Ok(book) = inp2.set_input(lang) {
                     let bind;
 
                     match check_book(book_system, &book, lang) {
@@ -362,7 +363,7 @@ fn give_book_known_reader_input(
                     while app.wait() {
                         if let Some(mes) = r4.recv() {
                             if mes {
-                                if let Ok(dat) = inp3.set_input() {
+                                if let Ok(dat) = inp3.set_input(lang) {
                                     return match unsafe {
                                         dat.get_unchecked(0).trim().parse::<u8>()
                                     } {
@@ -685,7 +686,7 @@ pub(crate) fn get_book_known_reader_no_input(
 
                 (*reader_base.readers.get_unchecked_mut(rind))
                     .borrow_mut()
-                    .finish_reading(Rc::downgrade(
+                    .finish_reading(&Rc::downgrade(
                         &(*(*book_system.books.get_unchecked(bind))
                             .borrow_mut()
                             .books
@@ -809,7 +810,7 @@ pub(crate) fn get_book_known_reader(
             if msg {
                 inp2.hide();
 
-                if let Ok(book) = inp2.set_input() {
+                if let Ok(book) = inp2.set_input(lang) {
                     return match check_book(book_system, &book, lang) {
                         Ok(bind) => {
                             match unsafe {
@@ -840,7 +841,7 @@ pub(crate) fn get_book_known_reader(
                                     unsafe {
                                         (*reader_base.readers.get_unchecked_mut(rind))
                                             .borrow_mut()
-                                            .finish_reading(Rc::downgrade(
+                                            .finish_reading(&Rc::downgrade(
                                                 &(*(*book_system.books.get_unchecked(bind))
                                                     .borrow()
                                                     .books
@@ -975,7 +976,7 @@ pub fn change_return_date_simple(
             if mes {
                 inp2.hide();
 
-                if let Ok(book) = inp2.set_input() {
+                if let Ok(book) = inp2.set_input(lang) {
                     return match unsafe { book.get_unchecked(2).trim().parse::<u16>() } {
                         Err(_) => {
                             alert(
@@ -1282,7 +1283,7 @@ fn change_return_date_simple_input(
                     if message {
                         inp.hide();
 
-                        if let Ok(date) = inp.set_input() {
+                        if let Ok(date) = inp.set_input(lang) {
                             return match unsafe { date.get_unchecked(0).trim().parse::<u8>() } {
                                 Ok(day) => match unsafe {
                                     date.get_unchecked(1).trim().parse::<u8>()

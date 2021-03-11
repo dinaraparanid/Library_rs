@@ -63,7 +63,7 @@ pub fn add_genre(
             if message {
                 inp.hide();
 
-                if let Ok(genre) = inp.set_input() {
+                if let Ok(genre) = inp.set_input(lang) {
                     if genre.first().unwrap().is_empty() {
                         alert(
                             500,
@@ -131,7 +131,7 @@ pub fn remove_genre(
             if message {
                 inp.hide();
 
-                if let Ok(genre) = inp.set_input() {
+                if let Ok(genre) = inp.set_input(lang) {
                     if genre.first().unwrap().is_empty() {
                         alert(
                             500,
@@ -230,7 +230,7 @@ pub fn customize_book_genre(
             if message {
                 inp.hide();
 
-                if let Ok(book) = inp.set_input() {
+                if let Ok(book) = inp.set_input(lang) {
                     if let Ok(index) = check_book(book_system, &book, lang) {
                         customize_book_genre_simple(
                             index,
@@ -283,7 +283,7 @@ fn find_by_genre(book_system: &BookSystem, app: &App, lang: Lang) {
             if message {
                 inp.hide();
 
-                if let Ok(genre) = inp.set_input() {
+                if let Ok(genre) = inp.set_input(lang) {
                     let mut wind = SingleWindow::new(
                         500,
                         500,

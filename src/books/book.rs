@@ -136,7 +136,7 @@ impl Book {
                 if message {
                     inp.hide();
 
-                    if let Ok(location) = inp.set_input() {
+                    if let Ok(location) = inp.set_input(lang) {
                         return Some(Book {
                             the_book: Some(Rc::downgrade(&the_book)),
                             is_using: false,
