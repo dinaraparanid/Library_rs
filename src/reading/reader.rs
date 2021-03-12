@@ -347,6 +347,18 @@ impl Reader {
         };
     }
 
+    /// Changes reader's info
+
+    #[inline]
+    pub(crate) fn change_info(&mut self, new_info: String) -> ResultSelf<Self> {
+        return if new_info.is_empty() {
+            Err(0)
+        } else {
+            self.info = new_info;
+            Ok(self)
+        };
+    }
+
     /// Changes reader's birthday
 
     #[inline]

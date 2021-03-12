@@ -341,6 +341,35 @@ impl ReaderBase {
         };
     }
 
+    /// Changes reader's info.
+    /// No checks provided
+
+    #[inline]
+    pub(crate) unsafe fn change_info_unchecked(
+        &mut self,
+        ind: usize,
+        new_info: String,
+    ) -> &mut Self {
+        (**self.readers.get_unchecked_mut(ind))
+            .borrow_mut()
+            .change_info(new_info)
+            .unwrap();
+        self
+    }
+
+    /// Changes reader's info.
+    /// If reader with same params isn't found,
+    /// it will report error
+
+    #[inline]
+    pub(crate) fn change_info(&mut self, ind: usize, new_info: String) -> ResultSelf<Self> {
+        return if ind >= self.len() {
+            Err(0) // out of range
+        } else {
+            Ok(unsafe { self.change_info_unchecked(ind, new_info) })
+        };
+    }
+
     /// Changes reader's age.
     /// No checks provided
 

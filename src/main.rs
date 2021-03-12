@@ -413,6 +413,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     menu.add_emit(
         match lang {
+            Lang::English => "&Readers/Change additional information",
+            Lang::Russian => "&Читатели/Изменить дополнительную информацию",
+        },
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        Message::ChangeInfo,
+    );
+
+    menu.add_emit(
+        match lang {
             Lang::English => "&Readers/Reader's information with reading now books\t",
             Lang::Russian => "&Читатели/Информация о читателе с читаемыми книгами\t",
         },
@@ -770,6 +781,15 @@ fn main() -> Result<(), Box<dyn Error>> {
 
                     table.redraw();
                 }
+
+                Message::ChangeInfo => change_info(
+                    &mut (*reader_base).borrow_mut(),
+                    &mut (*book_system).borrow_mut(),
+                    &(*genres).borrow(),
+                    &mut (*caretaker).borrow_mut(),
+                    &app,
+                    lang,
+                ),
 
                 Message::InfoReaderReading => {
                     reader_info_reading(

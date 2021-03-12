@@ -36,6 +36,7 @@ enum MessageReader {
     ChangeFamily,
     ChangeFather,
     ChangeAge,
+    ChangeInfo,
     GiveBook,
     GetBook,
     RemoveThis,
@@ -165,21 +166,16 @@ pub fn reader_info_simple_reading(
         .as_str(),
     );
 
-    table1.add(&name_frame);
-    table1.add(&family_frame);
-    table1.add(&father_frame);
-    table1.add(&age_frame);
-
-    table1.add(&Frame::new(
-        120,
+    let mut info_frame = Frame::new(
+        200,
         50,
         100,
-        50,
+        30,
         format!(
             "{}: {}",
             match lang {
-                Lang::English => "Additional information",
-                Lang::Russian => "Дополнительная информация",
+                Lang::English => "Additional Info",
+                Lang::Russian => "Дополнительная Информация",
             },
             *unsafe {
                 &(*(*reader_base).borrow().readers.get_unchecked(ind))
@@ -188,7 +184,13 @@ pub fn reader_info_simple_reading(
             }
         )
         .as_str(),
-    ));
+    );
+
+    table1.add(&name_frame);
+    table1.add(&family_frame);
+    table1.add(&father_frame);
+    table1.add(&age_frame);
+    table1.add(&info_frame);
 
     table1.add(&Frame::new(
         200,
@@ -282,6 +284,17 @@ pub fn reader_info_simple_reading(
 
     menu.add_emit(
         match lang {
+            Lang::English => "&Change/Change additional information",
+            Lang::Russian => "&Изменить/Изменить дополнительную информацию",
+        },
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        MessageReader::ChangeInfo,
+    );
+
+    menu.add_emit(
+        match lang {
             Lang::English => "&Giveaway/Give book\t",
             Lang::Russian => "&Выдача/Выдать книгу\t",
         },
@@ -304,7 +317,7 @@ pub fn reader_info_simple_reading(
 
     menu.add_emit(
         match lang {
-            Lang::English => "&Remove reader\t",
+            Lang::English => "&Remove reader",
             Lang::Russian => "&Удалить читателя",
         },
         Shortcut::empty(),
@@ -474,6 +487,31 @@ pub fn reader_info_simple_reading(
                         );
                         age_frame.redraw();
                         main_table.redraw();
+                    }
+                }
+
+                MessageReader::ChangeInfo => {
+                    if let Some(new_info) = change_info_simple(
+                        ind,
+                        &mut *(*reader_base).borrow_mut(),
+                        &mut *(*book_system).borrow_mut(),
+                        genres,
+                        caretaker,
+                        app,
+                        lang,
+                    ) {
+                        info_frame.set_label(
+                            format!(
+                                "{}: {}",
+                                match lang {
+                                    Lang::English => "Additional Info",
+                                    Lang::Russian => "Дополнительная Информация",
+                                },
+                                new_info
+                            )
+                            .as_str(),
+                        );
+                        info_frame.redraw();
                     }
                 }
 
@@ -724,13 +762,7 @@ pub(crate) fn reader_info_simple_all_books(
         .as_str(),
     );
 
-    table1.add(&name_frame);
-    table1.add(&family_frame);
-    table1.add(&father_frame);
-    table1.add(&age_frame);
-    table1.add(&reading_frame);
-
-    table1.add(&Frame::new(
+    let mut info_frame = Frame::new(
         100,
         50,
         100,
@@ -748,7 +780,14 @@ pub(crate) fn reader_info_simple_all_books(
             }
         )
         .as_str(),
-    ));
+    );
+
+    table1.add(&name_frame);
+    table1.add(&family_frame);
+    table1.add(&father_frame);
+    table1.add(&age_frame);
+    table1.add(&reading_frame);
+    table1.add(&info_frame);
 
     table1.add(&Frame::new(
         160,
@@ -842,6 +881,17 @@ pub(crate) fn reader_info_simple_all_books(
 
     menu.add_emit(
         match lang {
+            Lang::English => "&Change/Change additional information",
+            Lang::Russian => "&Изменить/Изменить дополнительную информацию",
+        },
+        Shortcut::empty(),
+        MenuFlag::Normal,
+        s,
+        MessageReader::ChangeInfo,
+    );
+
+    menu.add_emit(
+        match lang {
             Lang::English => "&Giveaway/Give book\t",
             Lang::Russian => "&Выдача/Выдать книгу\t",
         },
@@ -864,7 +914,7 @@ pub(crate) fn reader_info_simple_all_books(
 
     menu.add_emit(
         match lang {
-            Lang::English => "&Remove reader\t",
+            Lang::English => "&Remove reader",
             Lang::Russian => "&Удалить читателя",
         },
         Shortcut::empty(),
@@ -1034,6 +1084,31 @@ pub(crate) fn reader_info_simple_all_books(
                         );
                         age_frame.redraw();
                         main_table.redraw();
+                    }
+                }
+
+                MessageReader::ChangeInfo => {
+                    if let Some(new_info) = change_info_simple(
+                        ind,
+                        &mut *(*reader_base).borrow_mut(),
+                        &mut *(*book_system).borrow_mut(),
+                        genres,
+                        caretaker,
+                        app,
+                        lang,
+                    ) {
+                        info_frame.set_label(
+                            format!(
+                                "{}: {}",
+                                match lang {
+                                    Lang::English => "Additional Info",
+                                    Lang::Russian => "Дополнительная Информация",
+                                },
+                                new_info
+                            )
+                            .as_str(),
+                        );
+                        info_frame.redraw();
                     }
                 }
 

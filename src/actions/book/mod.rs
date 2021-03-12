@@ -175,6 +175,8 @@ pub fn action_books(
                         );
                     }
 
+                    Message::GetBook => {}
+
                     _ => unreachable!(),
                 }
             }

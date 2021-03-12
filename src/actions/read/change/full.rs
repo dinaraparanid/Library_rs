@@ -200,6 +200,69 @@ pub fn change_father(
     }
 }
 
+/// Function that changes reader's info.
+/// If you have mistakes in input,
+/// program will let you know
+
+#[inline]
+pub fn change_info(
+    reader_base: &mut ReaderBase,
+    book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+    lang: Lang,
+) {
+    let (s2, r2) = app::channel();
+
+    let mut inp = Input3::<Input, Input, Input>::new(
+        match lang {
+            Lang::English => "Change info",
+            Lang::Russian => "Изменить информацию",
+        },
+        match lang {
+            Lang::English => "First Name",
+            Lang::Russian => "Имя",
+        },
+        match lang {
+            Lang::English => "Second Names",
+            Lang::Russian => "Фамилия",
+        },
+        match lang {
+            Lang::English => "Middle Name",
+            Lang::Russian => "Отчество",
+        },
+    );
+
+    inp.show();
+    (*inp.ok).borrow_mut().emit(s2, true);
+
+    while app.wait() {
+        if let Some(message) = r2.recv() {
+            if message {
+                inp.hide();
+
+                if let Ok(reader) = inp.set_input(lang) {
+                    if let Some(rind) = check_reader(reader_base, &reader, app, lang) {
+                        change_info_simple(
+                            rind,
+                            reader_base,
+                            book_system,
+                            genres,
+                            caretaker,
+                            app,
+                            lang,
+                        );
+                    }
+                }
+            }
+            break;
+        } else if !inp.shown() {
+            break;
+        }
+    }
+}
+
 /// Function that changes reader's age.
 /// If you have mistakes in input,
 /// program will let you know

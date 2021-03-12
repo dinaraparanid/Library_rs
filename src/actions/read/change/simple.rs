@@ -333,6 +333,97 @@ pub(crate) fn change_father_simple(
     None
 }
 
+/// Change middle name of already known reader
+
+#[inline]
+pub(crate) fn change_info_simple(
+    ind: usize,
+    reader_base: &mut ReaderBase,
+    book_system: &mut BookSystem,
+    genres: &Genres,
+    caretaker: &mut Caretaker,
+    app: &App,
+    lang: Lang,
+) -> Option<String> {
+    let (s3, r3) = app::channel();
+    let mut get_info = Input1::<Input>::new(
+        match lang {
+            Lang::English => "New Info (< 50 symb)",
+            Lang::Russian => "Инфо (< 50 симв.)",
+        },
+        match lang {
+            Lang::English => "New Info (< 50 symb)",
+            Lang::Russian => "Инфо (< 50 симв.)",
+        },
+    );
+
+    caretaker.add_memento(reader_base, book_system, genres);
+
+    get_info.show();
+    (*get_info.ok).borrow_mut().emit(s3, true);
+
+    while app.wait() {
+        if let Some(mes) = r3.recv() {
+            if mes {
+                get_info.hide();
+
+                if let Ok(new_info) = get_info.set_input(lang) {
+                    return match reader_base
+                        .change_info(ind, unsafe { new_info.get_unchecked(0).clone() })
+                    {
+                        Ok(_) => {
+                            fltk::dialog::message(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "Successfully changed",
+                                    Lang::Russian => "Успешно изменено",
+                                },
+                            );
+
+                            reader_base.save();
+                            book_system.save();
+                            Some(unsafe { new_info.get_unchecked(0).clone() })
+                        }
+
+                        Err(0) => {
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "Reader is not found",
+                                    Lang::Russian => "Читатель не найден",
+                                },
+                            );
+                            caretaker.pop().unwrap();
+                            None
+                        }
+
+                        Err(_) => {
+                            alert(
+                                500,
+                                500,
+                                match lang {
+                                    Lang::English => "'New Info' is empty",
+                                    Lang::Russian => "'Инфо' пусто",
+                                },
+                            );
+                            caretaker.pop().unwrap();
+                            None
+                        }
+                    };
+                }
+            }
+            break;
+        } else if !get_info.shown() {
+            caretaker.pop().unwrap();
+            return None;
+        }
+    }
+
+    None
+}
+
 /// Function that changes
 /// age of already known reader
 

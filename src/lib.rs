@@ -27,6 +27,7 @@ pub enum Message {
     ChangeFamily,
     ChangeFather,
     ChangeAge,
+    ChangeInfo,
     InfoReaderReading,
     InfoReaderAllBooks,
     AddBooks,
