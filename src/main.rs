@@ -40,6 +40,8 @@ use fltk::{
     window::*,
 };
 
+use booklibrs::actions::tables::cell_date_time;
+use std::time::Duration;
 use std::{
     cell::RefCell,
     cmp::max,
@@ -47,6 +49,7 @@ use std::{
     fs::File,
     io::{Read, Write},
     rc::Rc,
+    thread,
 };
 
 /// Hashing login and password
@@ -251,6 +254,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut time = fltk::misc::Clock::new(1680, 10, 100, 100, "");
     time.set_type(fltk::misc::ClockType::Square);
 
+    let mut date_frame = Table::new(1500, 55, 155, 55, "");
+    date_frame.set_rows(1);
+    date_frame.set_cols(3);
+    date_frame.set_col_header(true);
+    date_frame.set_col_width_all(50);
+    date_frame.end();
+
     let mut table = Table::new(10, 120, 1780, 890, "");
     table.set_rows(max(50, (*reader_base).borrow().len() as u32));
     table.set_row_header(true);
@@ -279,6 +289,52 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let rb = reader_base.clone();
     let bs = book_system.clone();
+
+    date_frame.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+        table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
+
+        table::TableContext::ColHeader => draw_header(
+            &format!(
+                "{}",
+                match col {
+                    0 => match lang {
+                        Lang::English => "Day",
+                        Lang::Russian => "День",
+                    },
+
+                    1 => match lang {
+                        Lang::English => "Month",
+                        Lang::Russian => "Месяц",
+                    },
+
+                    _ => match lang {
+                        Lang::English => "Year",
+                        Lang::Russian => "Год",
+                    },
+                }
+            ),
+            x,
+            y,
+            w,
+            h,
+        ),
+
+        table::TableContext::RowHeader => draw_header(&format!("{}", row + 1), x, y, w, h),
+
+        table::TableContext::Cell => {
+            draw_data(
+                &format!("{}", cell_date_time(col)),
+                x,
+                y,
+                w,
+                h,
+                t.is_selected(row, col),
+                None,
+            );
+        }
+
+        _ => (),
+    });
 
     table.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
         table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
@@ -698,6 +754,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     );
 
     main_window.show();
+
+    thread::spawn(move || loop {
+        date_frame.redraw();
+        thread::sleep(Duration::new(1, 0))
+    });
 
     while app.wait() {
         if let Some(msg) = r.recv() {
