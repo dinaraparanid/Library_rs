@@ -37,7 +37,7 @@ pub fn help(lang: Lang) {
     tbe.set_text("    Author: dinaraparanid (Follow me on github: https://github.com/dinaraparanid)\n
     Licence: MIT or Apache-2.0\n
     Documentation:\n
-        public: https://docs.rs/binartree/1.1.5/booklibrs/\n
+        public: https://docs.rs/binartree/1.1.9/booklibrs/\n
         private (whole project): go to librs/target/doc/booklibrs/all.html (click on it)\n\n
     About project:\n
     This is a project that aims to create a system for issuing books in libraries.\n
@@ -95,7 +95,7 @@ pub fn help(lang: Lang) {
     tbr.set_text("    Автор: dinaraparanid (github: https://github.com/dinaraparanid)\n
     Лицензия: MIT или Apache-2.0\n
     Документация:\n
-        публичные модули: https://docs.rs/binartree/1.1.5/booklibrs/\n
+        публичные модули: https://docs.rs/binartree/1.1.9/booklibrs/\n
         внутренние модули: перейдите в librs/target/doc/booklibrs/all.html (нажать)\n\n
     О проекте:\n
     Это проект, цель которого создать систему учёта книг в библиотеке.\n

@@ -406,7 +406,7 @@ pub fn all_genres(
         .filter(|b| (***b).borrow().genres.is_none())
         .map(|b| {
             format!(
-                "{} {} {} {}",
+                "{} _ {} _ {} _ {}",
                 (**b).borrow().title,
                 (**b).borrow().author,
                 (**b).borrow().pages,

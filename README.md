@@ -1,19 +1,19 @@
 **Author**: 
------------------------
+--------------------------
 **dinaraparanid (Follow me on github: https://github.com/dinaraparanid)**
 
 **Licence**: 
------------------------
+--------------------------
 MIT or Apache-2.0
 
 **Documentation**: 
-----------------------
+--------------------------
 
-    public: https://docs.rs/binartree/1.1.2/booklibrs/
+    public: https://docs.rs/binartree/1.1.9/booklibrs/
 		
     private (whole project): go to librs/target/doc/booklibrs/all.html (click on it)
 **About project**:
----------------------------
+--------------------------
 This is a project that aims to create a system for issuing books in libraries.
 The entire project is written in the *Rust programming language* using the *fltk, chrono,* and *yaml_rust* crates.
 
@@ -21,7 +21,7 @@ The entire project is written in the *Rust programming language* using the *fltk
 --------------------------
 
 **1. Start**
-----------------------------
+--------------------------
 
 If you a *windows user*, you need to just press on run.bat, and programme'll start working.
 
@@ -77,7 +77,13 @@ so I hope your english is not worse than mine :D
 
 In **Help** menu you can read same things if you forgot something.
 
+Screenshot
+--------------------------
+
+![1](screen.png)
+
 **Enjoy!**   
+--------------------------
 
 *Full version with all decompiled files (recommend to download from here):
  https://drive.google.com/drive/u/0/folders/1mOTWStFbS_NS7iYs0uxS6MlT9jv8qZRf*

@@ -44,9 +44,9 @@ pub(crate) fn give_book_known_reader(
             let label = book.label().unwrap();
             let book = label
                 .trim()
-                .split(' ')
+                .split('_')
                 .take(3)
-                .map(|s| s.to_string())
+                .map(|s| s.trim().to_string())
                 .collect::<Vec<_>>();
 
             if book.len() != 3 {
