@@ -10,7 +10,7 @@ use crate::{
 
 use chrono::Datelike;
 
-use fltk::{draw, enums::Color, prelude::*};
+use fltk::{draw, enums::Color, enums::{Align, FrameType}};
 
 use std::{
     cell::RefCell,
@@ -39,24 +39,24 @@ pub fn draw_data(
     w: i32,
     h: i32,
     selected: bool,
-    color: Option<fltk::enums::Color>,
+    color: Option<Color>,
 ) {
     draw::push_clip(x, y, w, h);
 
     draw::set_draw_color(if color.is_some() {
         if selected {
-            fltk::enums::Color::DarkRed
+            Color::DarkRed
         } else {
-            fltk::enums::Color::Red
+            Color::Red
         }
     } else if selected {
-        fltk::enums::Color::from_u32(0xD3D3D3)
+        Color::from_u32(0xD3D3D3)
     } else {
-        fltk::enums::Color::White
+        Color::White
     });
 
     draw::draw_rectf(x, y, w, h);
-    draw::set_draw_color(fltk::enums::Color::Gray0);
+    draw::set_draw_color(Color::Gray0);
     draw::draw_text2(txt, x, y, w, h, Align::Center);
     draw::draw_rect(x, y, w, h);
     draw::pop_clip();
@@ -64,7 +64,7 @@ pub fn draw_data(
 
 /// Function that returns String with reader's data and color.
 /// If column is 0, it' ll return reader's params,
-/// if column is 1, it' ll return books's params (or none)
+/// if column is 1, it' ll return books' params (or none)
 /// if column is 2, it' ll return start date's params (or none)
 /// if column is 2, it' ll return finish date's params (or none).
 /// if reader is late, it' ll return some color,
@@ -77,7 +77,7 @@ pub fn cell_reader(
     reader_base: &ReaderBase,
     book_system: &BookSystem,
     lang: Lang,
-) -> (String, Option<fltk::enums::Color>) {
+) -> (String, Option<Color>) {
     return if y < reader_base.len() as i32 {
         let reader_date =
             match RefCell::borrow(unsafe { &(**reader_base.readers.get_unchecked(y as usize)) })

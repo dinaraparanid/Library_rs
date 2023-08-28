@@ -1,0 +1,29 @@
+---
+- №: 1
+  Title: History of Bebra
+  Author: Asdasdad
+  Pages: 200
+  Simple Books:
+    - Cabinet: 12
+      Shelf: 22
+      Using: true
+      Readers:
+        - Name: Vasya
+          Family: Bebra
+          Father: Bebrovich
+          Day: 4
+          Month: 8
+          Year: 2023
+          Start date:
+            - 28
+            - 8
+            - 2023
+          Finish date:
+            - 30
+            - 8
+            - 2023
+    - Cabinet: 12
+      Shelf: 23
+      Using: false
+      Readers: []
+  Genres: ~

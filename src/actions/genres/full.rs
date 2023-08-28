@@ -24,6 +24,7 @@ use fltk::{
     table::Table,
     tree::{Tree, TreeItem},
     window::SingleWindow,
+    enums::Font
 };
 
 use std::cmp::max;
@@ -315,13 +316,13 @@ fn find_by_genre(book_system: &BookSystem, app: &App, lang: Lang) {
                         }
                     });
 
-                    book_table.set_rows(max(20, find.len() as u32));
+                    book_table.set_rows(max(20, find.len() as i32));
 
                     book_table.set_cols(1);
                     book_table.set_col_width_all(300);
                     book_table.end();
 
-                    book_table.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+                    book_table.draw_cell(move |t, ctx, row, col, x, y, w, h| match ctx {
                         table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
 
                         table::TableContext::Cell => {
@@ -445,7 +446,7 @@ pub fn all_genres(
     wind.show();
 
     while app.wait() {
-        if let Some(item) = tree.set_item_clicked() {
+        if let Some(item) = tree.callback_item() {
             if !item.has_children() {
                 wind.hide();
                 return Some(item);

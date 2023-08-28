@@ -21,6 +21,7 @@ use fltk::{
     table::Table,
     tree::Tree,
     window::SingleWindow,
+    enums::Font
 };
 
 use std::{cell::RefCell, cmp::max, collections::BTreeMap, rc::Rc};
@@ -192,7 +193,7 @@ pub fn show_all_books(
         .center_screen();
 
     let mut table = Table::new(10, 10, 800, 540, "");
-    table.set_rows(max(20, (*book_system).borrow().books.len() as u32));
+    table.set_rows(max(20, (*book_system).borrow().books.len() as i32));
     table.set_row_header(true);
     table.set_cols(4);
     table.set_col_header(true);
@@ -201,7 +202,7 @@ pub fn show_all_books(
 
     let bs = book_system.clone();
 
-    table.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+    table.draw_cell(move |t, ctx, row, col, x, y, w, h| match ctx {
         fltk::table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
 
         fltk::table::TableContext::ColHeader => draw_header(

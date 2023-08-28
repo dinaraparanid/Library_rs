@@ -1,15 +1,15 @@
 [package]
 name = "booklibrs"
-version = "1.1.9"
+version = "1.2.0"
 authors = ["Paranid5 <dinaraparanid@gmail.com>"]
-edition = "2018"
+edition = "2021"
 license = "MIT/Apache-2.0"
 description = "Book libarary project including giveaway operations and gui interface."
 homepage = "https://github.com/dinaraparanid/Library_rs"
-documentation = "https://docs.rs/booklibrs/1.1.9/booklibrs/"
+documentation = "https://docs.rs/booklibrs/1.2.0/booklibrs/"
 
 [dependencies]
-chrono = "0.4.19"
-fltk = { version = "^0.16", git = "https://github.com/MoAlyousef/fltk-rs" }
-fltk-calendar = "0.2.0"
+chrono = "0.4.26"
+fltk = "1.4.9"
+fltk-calendar = "0.4.0"
 yaml-rust = "0.4.5"

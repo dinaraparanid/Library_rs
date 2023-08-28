@@ -8,7 +8,6 @@ use crate::{
 };
 
 use std::{
-    borrow::*,
     cell::RefCell,
     collections::HashSet,
     fmt::{Debug, Formatter},
@@ -519,7 +518,6 @@ impl BookSystem {
                                 if {
                                     let check = (**s).borrow().is_using
                                         && *(*(*(**s).borrow().readers.last().unwrap())
-                                            .borrow()
                                             .0
                                             .upgrade()
                                             .unwrap())

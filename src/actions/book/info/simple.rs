@@ -19,6 +19,7 @@ use fltk::{
     app::App,
     dialog::alert,
     draw,
+    enums::{Font, Shortcut},
     frame::Frame,
     group::VGrid,
     input::IntInput,
@@ -86,139 +87,125 @@ pub fn book_info_simple(
         })
     };
 
-    let mut wind = SingleWindow::new(
-        800,
-        100,
-        848,
-        600,
-        format!(
-            "{} {} {}",
-            *unsafe {
-                &(**(*book_system).borrow().books.get_unchecked(t_ind))
-                    .borrow()
-                    .title
-            },
-            *unsafe {
-                &(**(*book_system).borrow().books.get_unchecked(t_ind))
-                    .borrow()
-                    .author
-            },
-            *unsafe {
-                &(**(*book_system).borrow().books.get_unchecked(t_ind))
-                    .borrow()
-                    .pages
-            },
-        )
-        .as_str(),
-    )
-    .center_screen();
+    let label = format!(
+        "{} {} {}",
+        *unsafe {
+            &(**(*book_system).borrow().books.get_unchecked(t_ind))
+                .borrow()
+                .title
+        },
+        *unsafe {
+            &(**(*book_system).borrow().books.get_unchecked(t_ind))
+                .borrow()
+                .author
+        },
+        *unsafe {
+            &(**(*book_system).borrow().books.get_unchecked(t_ind))
+                .borrow()
+                .pages
+        },
+    );
+
+    let mut wind = SingleWindow::new(800, 100, 848, 600, None)
+        .with_label(label.as_str())
+        .center_screen();
 
     let mut table1 = VGrid::new(0, 0, 908, 170, "");
     table1.set_params(6, 1, 1);
 
-    table1.add(&Frame::new(
-        10,
-        50,
-        100,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Title",
-                Lang::Russian => "Название",
-            },
-            *unsafe {
-                &(**(*book_system).borrow().books.get_unchecked(t_ind))
-                    .borrow()
-                    .title
-            }
-        )
-        .as_str(),
-    ));
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Title",
+            Lang::Russian => "Название",
+        },
+        *unsafe {
+            &(**(*book_system).borrow().books.get_unchecked(t_ind))
+                .borrow()
+                .title
+        }
+    );
 
-    table1.add(&Frame::new(
-        30,
-        50,
-        100,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Author",
-                Lang::Russian => "Автор",
-            },
-            *unsafe {
-                &(**(*book_system).borrow().books.get_unchecked(t_ind))
-                    .borrow()
-                    .author
-            }
-        )
-        .as_str(),
-    ));
+    table1.add(&Frame::new(10, 50, 100, 30, None).with_label(label.as_str()));
 
-    table1.add(&Frame::new(
-        50,
-        50,
-        100,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Amount of Pages",
-                Lang::Russian => "Кол-во страниц",
-            },
-            *unsafe {
-                &(**(*book_system).borrow().books.get_unchecked(t_ind))
-                    .borrow()
-                    .pages
-            },
-        )
-        .as_str(),
-    ));
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Author",
+            Lang::Russian => "Автор",
+        },
+        *unsafe {
+            &(**(*book_system).borrow().books.get_unchecked(t_ind))
+                .borrow()
+                .author
+        }
+    );
 
-    table1.add(&Frame::new(
-        70,
-        50,
-        100,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Order Number",
-                Lang::Russian => "Порядковый номер",
-            },
-            get_book_ind(&*(*book_system).borrow(), unsafe {
-                (**(*book_system).borrow().books.get_unchecked(t_ind))
-                    .borrow()
-                    .books
-                    .get_unchecked(s_ind)
-                    .as_ptr()
-            }),
-        )
-        .as_str(),
-    ));
+    table1.add(&Frame::new(30, 50, 100, 30, None).with_label(label.as_str()));
 
-    table1.add(&Frame::new(
-        90,
-        50,
-        100,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Now is Read By",
-                Lang::Russian => "В данный момент читается",
-            },
-            if unsafe {
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Amount of Pages",
+            Lang::Russian => "Кол-во страниц",
+        },
+        *unsafe {
+            &(**(*book_system).borrow().books.get_unchecked(t_ind))
+                .borrow()
+                .pages
+        },
+    );
+
+    table1.add(&Frame::new(50, 50, 100, 30, None).with_label(label.as_str()));
+
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Order Number",
+            Lang::Russian => "Порядковый номер",
+        },
+        get_book_ind(&*(*book_system).borrow(), unsafe {
+            (**(*book_system).borrow().books.get_unchecked(t_ind))
+                .borrow()
+                .books
+                .get_unchecked(s_ind)
+                .as_ptr()
+        }),
+    );
+
+    table1.add(&Frame::new(70, 50, 100, 30, None).with_label(label.as_str()));
+
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Now is Read By",
+            Lang::Russian => "В данный момент читается",
+        },
+        if unsafe {
+            (**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                .borrow()
+                .books
+                .get_unchecked(s_ind))
+            .borrow()
+            .is_using
+        } {
+            unsafe {
                 (**(**(*book_system).borrow().books.get_unchecked(t_ind))
                     .borrow()
                     .books
                     .get_unchecked(s_ind))
                 .borrow()
-                .is_using
-            } {
-                unsafe {
-                    (**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                .readers
+                .last()
+                .unwrap()
+                .0
+                .upgrade()
+                .unwrap()
+                .borrow()
+                .name
+                .clone()
+                    + " "
+                    + (*(**(**(*book_system).borrow().books.get_unchecked(t_ind))
                         .borrow()
                         .books
                         .get_unchecked(s_ind))
@@ -228,135 +215,105 @@ pub fn book_info_simple(
                     .unwrap()
                     .0
                     .upgrade()
+                    .unwrap())
+                    .borrow()
+                    .family
+                    .as_str()
+                    + " "
+                    + (*(**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                        .borrow()
+                        .books
+                        .get_unchecked(s_ind))
+                    .borrow()
+                    .readers
+                    .last()
                     .unwrap()
+                    .0
+                    .upgrade()
+                    .unwrap())
                     .borrow()
-                    .name
-                    .clone()
-                        + " "
-                        + (*(**(**(*book_system).borrow().books.get_unchecked(t_ind))
-                            .borrow()
-                            .books
-                            .get_unchecked(s_ind))
+                    .father
+                    .as_str()
+                    + " "
+                    + (*(**(**(*book_system).borrow().books.get_unchecked(t_ind))
                         .borrow()
-                        .readers
-                        .last()
-                        .unwrap()
-                        .0
-                        .upgrade()
-                        .unwrap())
-                        .borrow()
-                        .family
-                        .as_str()
-                        + " "
-                        + (*(**(**(*book_system).borrow().books.get_unchecked(t_ind))
-                            .borrow()
-                            .books
-                            .get_unchecked(s_ind))
-                        .borrow()
-                        .readers
-                        .last()
-                        .unwrap()
-                        .0
-                        .upgrade()
-                        .unwrap())
-                        .borrow()
-                        .father
-                        .as_str()
-                        + " "
-                        + (*(**(**(*book_system).borrow().books.get_unchecked(t_ind))
-                            .borrow()
-                            .books
-                            .get_unchecked(s_ind))
-                        .borrow()
-                        .readers
-                        .last()
-                        .unwrap()
-                        .0
-                        .upgrade()
-                        .unwrap())
-                        .borrow()
-                        .age()
-                        .to_string()
-                        .as_str()
-                }
-            } else {
-                match lang {
-                    Lang::English => "None",
-                    Lang::Russian => "Никем",
-                }
-                .to_string()
+                        .books
+                        .get_unchecked(s_ind))
+                    .borrow()
+                    .readers
+                    .last()
+                    .unwrap()
+                    .0
+                    .upgrade()
+                    .unwrap())
+                    .borrow()
+                    .age()
+                    .to_string()
+                    .as_str()
             }
-        )
-        .as_str(),
-    ));
-
-    let mut cab_frame = Frame::new(
-        110,
-        50,
-        100,
-        30,
-        format!(
-            "{}: {}",
+        } else {
             match lang {
-                Lang::English => "Cabinet",
-                Lang::Russian => "Шкаф",
-            },
-            unsafe {
-                (**(**(*book_system).borrow().books.get_unchecked(t_ind))
-                    .borrow()
-                    .books
-                    .get_unchecked(s_ind))
-                .borrow()
-                .cabinet
-            },
-        )
-        .as_str(),
+                Lang::English => "None",
+                Lang::Russian => "Никем",
+            }
+            .to_string()
+        }
     );
 
-    let mut shelf_frame = Frame::new(
-        130,
-        50,
-        100,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Shelf",
-                Lang::Russian => "Полка",
-            },
-            unsafe {
-                (**(**(*book_system).borrow().books.get_unchecked(t_ind))
-                    .borrow()
-                    .books
-                    .get_unchecked(s_ind))
+    table1.add(&Frame::new(90, 50, 100, 30, None).with_label(label.as_str()));
+
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Cabinet",
+            Lang::Russian => "Шкаф",
+        },
+        unsafe {
+            (**(**(*book_system).borrow().books.get_unchecked(t_ind))
                 .borrow()
-                .shelf
-            }
-        )
-        .as_str(),
+                .books
+                .get_unchecked(s_ind))
+            .borrow()
+            .cabinet
+        },
     );
+
+    let mut cab_frame = Frame::new(110, 50, 100, 30, None).with_label(label.as_str());
+
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Shelf",
+            Lang::Russian => "Полка",
+        },
+        unsafe {
+            (**(**(*book_system).borrow().books.get_unchecked(t_ind))
+                .borrow()
+                .books
+                .get_unchecked(s_ind))
+            .borrow()
+            .shelf
+        }
+    );
+
+    let mut shelf_frame = Frame::new(130, 50, 100, 30, None).with_label(label.as_str());
 
     table1.add(&cab_frame);
     table1.add(&shelf_frame);
 
-    table1.add(&Frame::new(
-        150,
-        50,
-        100,
-        30,
-        format!(
-            "{}:",
-            match lang {
-                Lang::English => "All Readers",
-                Lang::Russian => "Все читатели",
-            }
-        )
-        .as_str(),
-    ));
+    let label = format!(
+        "{}:",
+        match lang {
+            Lang::English => "All Readers",
+            Lang::Russian => "Все читатели",
+        }
+    );
+
+    table1.add(&Frame::new(150, 50, 100, 30, None).with_label(label.as_str()));
 
     table1.auto_layout();
 
-    let mut table2 = Table::new(0, 127, 848, 600, "");
+    let mut table2 = Table::new(0, 127, 848, 600, None);
 
     table2.set_rows(max(30, unsafe {
         (**(**(*book_system).borrow().books.get_unchecked(t_ind))
@@ -365,7 +322,7 @@ pub fn book_info_simple(
             .get_unchecked(s_ind))
         .borrow()
         .readers
-        .len() as u32
+        .len() as i32
     }));
 
     table2.set_row_header(true);
@@ -379,10 +336,10 @@ pub fn book_info_simple(
 
     let bs = book_system.clone();
 
-    table2.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
-        fltk::table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
+    table2.draw_cell(move |t, ctx, row, col, x, y, w, h| match ctx {
+        table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
 
-        fltk::table::TableContext::ColHeader => draw_header(
+        table::TableContext::ColHeader => draw_header(
             &format!(
                 "{}",
                 match col {
@@ -423,9 +380,9 @@ pub fn book_info_simple(
             h,
         ),
 
-        fltk::table::TableContext::RowHeader => draw_header(&format!("{}", row + 1), x, y, w, h),
+        table::TableContext::RowHeader => draw_header(&format!("{}", row + 1), x, y, w, h),
 
-        fltk::table::TableContext::Cell => draw_data(
+        table::TableContext::Cell => draw_data(
             &format!(
                 "{}",
                 cell_reader2(
@@ -618,131 +575,100 @@ pub fn the_book_info_simple(
     lang: Lang,
     main_table: &mut Table,
 ) {
-    let mut wind = SingleWindow::new(
-        800,
-        100,
-        520,
-        600,
-        format!(
-            "{} {}",
-            *unsafe {
-                &(**(*book_system).borrow().books.get_unchecked(ind))
-                    .borrow()
-                    .title
-            },
-            *unsafe {
-                &(**(*book_system).borrow().books.get_unchecked(ind))
-                    .borrow()
-                    .author
-            }
-        )
-        .as_str(),
+    let label = format!(
+        "{} {}",
+        *unsafe {
+            &(**(*book_system).borrow().books.get_unchecked(ind))
+                .borrow()
+                .title
+        },
+        *unsafe {
+            &(**(*book_system).borrow().books.get_unchecked(ind))
+                .borrow()
+                .author
+        }
     );
+
+    let mut wind = SingleWindow::new(800, 100, 520, 600, None).with_label(label.as_str());
 
     let mut table = VGrid::new(0, 30, 520, 180, "");
     table.set_params(5, 1, 1);
 
-    let mut title_frame = Frame::new(
-        30,
-        50,
-        420,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Title",
-                Lang::Russian => "Название",
-            },
-            *unsafe {
-                &(**(*book_system).borrow().books.get_unchecked(ind))
-                    .borrow()
-                    .title
-            },
-        )
-        .as_str(),
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Title",
+            Lang::Russian => "Название",
+        },
+        *unsafe {
+            &(**(*book_system).borrow().books.get_unchecked(ind))
+                .borrow()
+                .title
+        },
     );
 
-    let mut author_frame = Frame::new(
-        50,
-        50,
-        420,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Author",
-                Lang::Russian => "Автор",
-            },
-            *unsafe {
-                &(**(*book_system).borrow().books.get_unchecked(ind))
-                    .borrow()
-                    .author
-            }
-        )
-        .as_str(),
+    let mut title_frame = Frame::new(30, 50, 420, 30, None).with_label(label.as_str());
+
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Author",
+            Lang::Russian => "Автор",
+        },
+        *unsafe {
+            &(**(*book_system).borrow().books.get_unchecked(ind))
+                .borrow()
+                .author
+        }
     );
 
-    let mut pages_frame = Frame::new(
-        70,
-        50,
-        420,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Amount of Pages",
-                Lang::Russian => "Кол-во страниц",
-            },
-            *unsafe {
-                &(**(*book_system).borrow().books.get_unchecked(ind))
-                    .borrow()
-                    .pages
-            }
-        )
-        .as_str(),
+    let mut author_frame = Frame::new(50, 50, 420, 30, None).with_label(label.as_str());
+
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Amount of Pages",
+            Lang::Russian => "Кол-во страниц",
+        },
+        *unsafe {
+            &(**(*book_system).borrow().books.get_unchecked(ind))
+                .borrow()
+                .pages
+        }
     );
 
-    let mut amount_frame = Frame::new(
-        90,
-        50,
-        320,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Amount of books",
-                Lang::Russian => "Кол-во книг",
-            },
-            unsafe {
-                (**(*book_system).borrow().books.get_unchecked(ind))
-                    .borrow()
-                    .books
-                    .len()
-            }
-        )
-        .as_str(),
+    let mut pages_frame = Frame::new(70, 50, 420, 30, None).with_label(label.as_str());
+
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Amount of books",
+            Lang::Russian => "Кол-во книг",
+        },
+        unsafe {
+            (**(*book_system).borrow().books.get_unchecked(ind))
+                .borrow()
+                .books
+                .len()
+        }
     );
+
+    let mut amount_frame = Frame::new(90, 50, 320, 30, None).with_label(label.as_str());
 
     table.add(&title_frame);
     table.add(&author_frame);
     table.add(&pages_frame);
     table.add(&amount_frame);
 
-    table.add(&Frame::new(
-        90,
-        50,
-        320,
-        30,
-        format!(
-            "{}:",
-            match lang {
-                Lang::English => "Genres",
-                Lang::Russian => "Жанры",
-            },
-        )
-        .as_str(),
-    ));
+    let label = format!(
+        "{}:",
+        match lang {
+            Lang::English => "Genres",
+            Lang::Russian => "Жанры",
+        },
+    );
 
+    table.add(&Frame::new(90, 50, 320, 30, None).with_label(label.as_str()));
     table.auto_layout();
 
     let mut genre_table = Table::new(0, 200, 520, 380, "");
@@ -753,7 +679,7 @@ pub fn the_book_info_simple(
                 .borrow()
                 .genres
         } {
-            max(20, g.len() as u32)
+            max(20, g.len() as i32)
         } else {
             20
         },
@@ -765,7 +691,7 @@ pub fn the_book_info_simple(
 
     let b = unsafe { (*book_system).borrow().books.get_unchecked(ind).clone() };
 
-    genre_table.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+    genre_table.draw_cell(move |t, ctx, row, col, x, y, w, h| match ctx {
         table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
 
         table::TableContext::Cell => {

@@ -17,6 +17,7 @@ use fltk::{
     app,
     app::App,
     draw,
+    enums::{Font, Shortcut},
     frame::Frame,
     group::VGrid,
     menu::{MenuBar, MenuFlag},
@@ -56,135 +57,106 @@ pub fn reader_info_simple_reading(
     lang: Lang,
     main_table: &mut Table,
 ) {
-    let mut wind = SingleWindow::new(
-        800,
-        100,
-        670,
-        600,
-        format!(
-            "{} {} {}",
-            *unsafe {
-                &(*(*reader_base).borrow().readers.get_unchecked(ind))
-                    .borrow()
-                    .name
-            },
-            *unsafe {
-                &(*(*reader_base).borrow().readers.get_unchecked(ind))
-                    .borrow()
-                    .family
-            },
-            *unsafe {
-                &(*(*reader_base).borrow().readers.get_unchecked(ind))
-                    .borrow()
-                    .father
-            },
-        )
-        .as_str(),
-    )
-    .center_screen();
+    let label = format!(
+        "{} {} {}",
+        *unsafe {
+            &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                .borrow()
+                .name
+        },
+        *unsafe {
+            &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                .borrow()
+                .family
+        },
+        *unsafe {
+            &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                .borrow()
+                .father
+        },
+    );
+
+    let mut wind = SingleWindow::new(800, 100, 670, 600, None)
+        .with_label(label.as_str())
+        .center_screen();
 
     let mut table1 = VGrid::new(0, 0, 670, 200, "");
     table1.set_params(6, 1, 1);
 
-    let mut name_frame = Frame::new(
-        10,
-        50,
-        100,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "First Name",
-                Lang::Russian => "\t\tИмя",
-            },
-            *unsafe {
-                &(*(*reader_base).borrow().readers.get_unchecked(ind))
-                    .borrow()
-                    .name
-            }
-        )
-        .as_str(),
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "First Name",
+            Lang::Russian => "\t\tИмя",
+        },
+        *unsafe {
+            &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                .borrow()
+                .name
+        }
     );
 
-    let mut family_frame = Frame::new(
-        30,
-        50,
-        100,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Second Name",
-                Lang::Russian => "\t\tФамилия",
-            },
-            *unsafe {
-                &(*(*reader_base).borrow().readers.get_unchecked(ind))
-                    .borrow()
-                    .family
-            }
-        )
-        .as_str(),
+    let mut name_frame = Frame::new(10, 50, 100, 30, None).with_label(label.as_str());
+
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Second Name",
+            Lang::Russian => "\t\tФамилия",
+        },
+        *unsafe {
+            &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                .borrow()
+                .family
+        }
     );
 
-    let mut father_frame = Frame::new(
-        50,
-        50,
-        100,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Middle Name",
-                Lang::Russian => "\t\tОтчество",
-            },
-            *unsafe {
-                &(*(*reader_base).borrow().readers.get_unchecked(ind))
-                    .borrow()
-                    .father
-            }
-        )
-        .as_str(),
+    let mut family_frame = Frame::new(30, 50, 100, 30, None).with_label(label.as_str());
+
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Middle Name",
+            Lang::Russian => "\t\tОтчество",
+        },
+        *unsafe {
+            &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                .borrow()
+                .father
+        }
     );
 
-    let mut age_frame = Frame::new(
-        70,
-        50,
-        100,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Age",
-                Lang::Russian => "\t\tВозраст",
-            },
-            *unsafe {
-                &(*(*reader_base).borrow().readers.get_unchecked(ind))
-                    .borrow()
-                    .age()
-            }
-        )
-        .as_str(),
+    let mut father_frame = Frame::new(50, 50, 100, 30, None).with_label(label.as_str());
+
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Age",
+            Lang::Russian => "\t\tВозраст",
+        },
+        *unsafe {
+            &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                .borrow()
+                .age()
+        }
     );
 
-    let mut info_frame = Frame::new(
-        200,
-        50,
-        100,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Additional Info",
-                Lang::Russian => "Дополнительная Информация",
-            },
-            *unsafe {
-                &(*(*reader_base).borrow().readers.get_unchecked(ind))
-                    .borrow()
-                    .info
-            }
-        )
-        .as_str(),
+    let mut age_frame = Frame::new(70, 50, 100, 30, None).with_label(label.as_str());
+
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Additional Info",
+            Lang::Russian => "Дополнительная Информация",
+        },
+        *unsafe {
+            &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                .borrow()
+                .info
+        }
     );
+
+    let mut info_frame = Frame::new(200, 50, 100, 30, None).with_label(label.as_str());
 
     table1.add(&name_frame);
     table1.add(&family_frame);
@@ -192,29 +164,23 @@ pub fn reader_info_simple_reading(
     table1.add(&age_frame);
     table1.add(&info_frame);
 
-    table1.add(&Frame::new(
-        200,
-        50,
-        100,
-        30,
-        format!(
-            "{}:",
-            match lang {
-                Lang::English => "Books read by reader now",
-                Lang::Russian => "Книги, читаемые сейчас",
-            }
-        )
-        .as_str(),
-    ));
+    let label = format!(
+        "{}:",
+        match lang {
+            Lang::English => "Books read by reader now",
+            Lang::Russian => "Книги, читаемые сейчас",
+        }
+    );
 
+    table1.add(&Frame::new(200, 50, 100, 30, None).with_label(label.as_str()));
     table1.auto_layout();
 
-    let mut table2 = Table::new(0, 230, 670, 600, "");
+    let mut table2 = Table::new(0, 230, 670, 600, None);
     table2.set_rows(max(30, unsafe {
         (**(*reader_base).borrow().readers.get_unchecked(ind))
             .borrow()
             .books
-            .len() as u32
+            .len() as i32
     }));
     table2.set_row_header(true);
     table2.set_cols(4);
@@ -331,7 +297,7 @@ pub fn reader_info_simple_reading(
     let rb = reader_base.clone();
     let bs = book_system.clone();
 
-    table2.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+    table2.draw_cell(move |t, ctx, row, col, x, y, w, h| match ctx {
         fltk::table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
 
         fltk::table::TableContext::ColHeader => draw_header(
@@ -611,176 +577,142 @@ pub(crate) fn reader_info_simple_all_books(
     lang: Lang,
     main_table: &mut Table,
 ) {
-    let mut wind = SingleWindow::new(
-        800,
-        100,
-        670,
-        600,
-        format!(
-            "{} {} {}",
-            *unsafe {
-                &(*(*reader_base).borrow().readers.get_unchecked(ind))
-                    .borrow()
-                    .name
-            },
-            *unsafe {
-                &(*(*reader_base).borrow().readers.get_unchecked(ind))
-                    .borrow()
-                    .family
-            },
-            *unsafe {
-                &(*(*reader_base).borrow().readers.get_unchecked(ind))
-                    .borrow()
-                    .father
-            },
-        )
-        .as_str(),
-    )
-    .center_screen();
+    let label = format!(
+        "{} {} {}",
+        *unsafe {
+            &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                .borrow()
+                .name
+        },
+        *unsafe {
+            &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                .borrow()
+                .family
+        },
+        *unsafe {
+            &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                .borrow()
+                .father
+        },
+    );
 
-    let mut table1 = VGrid::new(0, 0, 670, 200, "");
+    let mut wind = SingleWindow::new(800, 100, 670, 600, None)
+        .with_label(label.as_str())
+        .center_screen();
+
+    let mut table1 = VGrid::new(0, 0, 670, 200, None);
     table1.set_params(6, 1, 1);
 
-    let mut name_frame = Frame::new(
-        10,
-        50,
-        100,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "First Name",
-                Lang::Russian => "\t\tИмя",
-            },
-            *unsafe {
-                &(*(*reader_base).borrow().readers.get_unchecked(ind))
-                    .borrow()
-                    .name
-            }
-        )
-        .as_str(),
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "First Name",
+            Lang::Russian => "\t\tИмя",
+        },
+        *unsafe {
+            &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                .borrow()
+                .name
+        }
     );
 
-    let mut family_frame = Frame::new(
-        30,
-        50,
-        100,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Second Name",
-                Lang::Russian => "\t\tФамилия",
-            },
-            *unsafe {
-                &(*(*reader_base).borrow().readers.get_unchecked(ind))
-                    .borrow()
-                    .family
-            }
-        )
-        .as_str(),
+    let mut name_frame = Frame::new(10, 50, 100, 30, None).with_label(label.as_str());
+
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Second Name",
+            Lang::Russian => "\t\tФамилия",
+        },
+        *unsafe {
+            &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                .borrow()
+                .family
+        }
     );
 
-    let mut father_frame = Frame::new(
-        50,
-        50,
-        100,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Middle Name",
-                Lang::Russian => "\t\tОтчество",
-            },
-            *unsafe {
-                &(*(*reader_base).borrow().readers.get_unchecked(ind))
-                    .borrow()
-                    .father
-            }
-        )
-        .as_str(),
+    let mut family_frame = Frame::new(30, 50, 100, 30, None).with_label(label.as_str());
+
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Middle Name",
+            Lang::Russian => "\t\tОтчество",
+        },
+        *unsafe {
+            &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                .borrow()
+                .father
+        }
     );
 
-    let mut age_frame = Frame::new(
-        70,
-        50,
-        100,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Age",
-                Lang::Russian => "\t\tВозраст",
-            },
-            *unsafe {
-                &(*(*reader_base).borrow().readers.get_unchecked(ind))
-                    .borrow()
-                    .age()
-            }
-        )
-        .as_str(),
+    let mut father_frame = Frame::new(50, 50, 100, 30, None).with_label(label.as_str());
+
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Age",
+            Lang::Russian => "\t\tВозраст",
+        },
+        *unsafe {
+            &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                .borrow()
+                .age()
+        }
     );
 
-    let mut reading_frame = Frame::new(
-        90,
-        50,
-        100,
-        30,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Nearest to return deadline",
-                Lang::Russian => "Ближайщее к сдаче",
-            },
-            if unsafe {
-                (**(*reader_base).borrow().readers.get_unchecked(ind))
+    let mut age_frame = Frame::new(70, 50, 100, 30, None).with_label(label.as_str());
+
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Nearest to return deadline",
+            Lang::Russian => "Ближайщее к сдаче",
+        },
+        if unsafe {
+            (**(*reader_base).borrow().readers.get_unchecked(ind))
+                .borrow()
+                .reading
+                .is_some()
+        } {
+            unsafe {
+                (*(**(*reader_base).borrow().readers.get_unchecked(ind))
                     .borrow()
                     .reading
-                    .is_some()
-            } {
-                unsafe {
-                    (*(**(*reader_base).borrow().readers.get_unchecked(ind))
-                        .borrow()
-                        .reading
-                        .as_ref()
-                        .unwrap()
-                        .first()
-                        .unwrap()
-                        .upgrade()
-                        .unwrap())
-                    .borrow()
-                    .to_string(&*(*book_system).borrow())
-                }
-            } else {
-                match lang {
-                    Lang::English => "None",
-                    Lang::Russian => "Ничего",
-                }
-                .to_string()
+                    .as_ref()
+                    .unwrap()
+                    .first()
+                    .unwrap()
+                    .upgrade()
+                    .unwrap())
+                .borrow()
+                .to_string(&*(*book_system).borrow())
             }
-        )
-        .as_str(),
+        } else {
+            match lang {
+                Lang::English => "None",
+                Lang::Russian => "Ничего",
+            }
+            .to_string()
+        }
     );
 
-    let mut info_frame = Frame::new(
-        100,
-        50,
-        100,
-        50,
-        format!(
-            "{}: {}",
-            match lang {
-                Lang::English => "Additional information",
-                Lang::Russian => "Дополнительная информация",
-            },
-            *unsafe {
-                &(*(*reader_base).borrow().readers.get_unchecked(ind))
-                    .borrow()
-                    .info
-            }
-        )
-        .as_str(),
+    let mut reading_frame = Frame::new(90, 50, 100, 30, None).with_label(label.as_str());
+
+    let label = format!(
+        "{}: {}",
+        match lang {
+            Lang::English => "Additional information",
+            Lang::Russian => "Дополнительная информация",
+        },
+        *unsafe {
+            &(*(*reader_base).borrow().readers.get_unchecked(ind))
+                .borrow()
+                .info
+        }
     );
+
+    let mut info_frame = Frame::new(100, 50, 100, 50, None).with_label(label.as_str());
 
     table1.add(&name_frame);
     table1.add(&family_frame);
@@ -789,21 +721,15 @@ pub(crate) fn reader_info_simple_all_books(
     table1.add(&reading_frame);
     table1.add(&info_frame);
 
-    table1.add(&Frame::new(
-        160,
-        50,
-        100,
-        30,
-        format!(
-            "{}:",
-            match lang {
-                Lang::English => "Books read by reader",
-                Lang::Russian => "Прочитанные книги",
-            }
-        )
-        .as_str(),
-    ));
+    let label = format!(
+        "{}:",
+        match lang {
+            Lang::English => "Books read by reader",
+            Lang::Russian => "Прочитанные книги",
+        }
+    );
 
+    table1.add(&Frame::new(160, 50, 100, 30, None).with_label(label.as_str()));
     table1.auto_layout();
 
     let mut table2 = Table::new(0, 230, 570, 600, "");
@@ -811,7 +737,7 @@ pub(crate) fn reader_info_simple_all_books(
         (**(*reader_base).borrow().readers.get_unchecked(ind))
             .borrow()
             .books
-            .len() as u32
+            .len() as i32
     }));
     table2.set_row_header(true);
     table2.set_cols(4);
@@ -928,7 +854,7 @@ pub(crate) fn reader_info_simple_all_books(
     let rb = reader_base.clone();
     let bs = book_system.clone();
 
-    table2.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+    table2.draw_cell(move |t, ctx, row, col, x, y, w, h| match ctx {
         fltk::table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
 
         fltk::table::TableContext::ColHeader => draw_header(

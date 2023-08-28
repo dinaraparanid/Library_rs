@@ -27,21 +27,22 @@ use booklibrs::{
 use fltk::{
     app,
     app::Sender,
-    button::*,
     dialog::alert,
     draw,
     enums::Shortcut,
+    enums::{Color, Font},
     frame::Frame,
     image::*,
     input::{Input, SecretInput},
     menu::*,
+    prelude::*,
     table,
     table::Table,
     window::*,
 };
 
 use booklibrs::actions::tables::cell_date_time;
-use std::time::Duration;
+
 use std::{
     cell::RefCell,
     cmp::max,
@@ -50,6 +51,7 @@ use std::{
     io::{Read, Write},
     rc::Rc,
     thread,
+    time::Duration,
 };
 
 /// Hashing login and password
@@ -80,7 +82,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let genres = Rc::new(RefCell::new(Genres::new()));
     let lang = Lang::new();
 
-    let app = app::App::default().with_scheme(fltk::app::AppScheme::Plastic);
+    let app = app::App::default().with_scheme(app::AppScheme::Plastic);
     let (s, r) = app::channel();
 
     (*reader_base).borrow_mut().load();
@@ -247,7 +249,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut frame = Frame::new(0, 0, 1800, 900, "");
     let mut background = SharedImage::load("src/utils/background.jpg")?;
-    frame.draw2(move |f| background.draw(f.x(), f.y(), f.width(), f.height()));
+    frame.draw(move |f| background.draw(f.x(), f.y(), f.width(), f.height()));
 
     main_window.set_icon(Some(JpegImage::load("src/utils/icon.jpg")?));
 
@@ -262,7 +264,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     date_frame.end();
 
     let mut table = Table::new(10, 120, 1780, 890, "");
-    table.set_rows(max(50, (*reader_base).borrow().len() as u32));
+    table.set_rows(max(50, (*reader_base).borrow().len() as i32));
     table.set_row_header(true);
     table.set_cols(4);
     table.set_col_header(true);
@@ -290,7 +292,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let rb = reader_base.clone();
     let bs = book_system.clone();
 
-    date_frame.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+    date_frame.draw_cell(move |t, ctx, row, col, x, y, w, h| match ctx {
         table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
 
         table::TableContext::ColHeader => draw_header(
@@ -336,7 +338,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         _ => (),
     });
 
-    table.draw_cell2(move |t, ctx, row, col, x, y, w, h| match ctx {
+    table.draw_cell(move |t, ctx, row, col, x, y, w, h| match ctx {
         table::TableContext::StartPage => draw::set_font(Font::Helvetica, 14),
 
         table::TableContext::ColHeader => draw_header(
@@ -703,7 +705,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             Lang::English => "&Restore/Restore previous data\t",
             Lang::Russian => "&Откат/Откатить изменения назад\t",
         },
-        fltk::enums::Shortcut::Ctrl | 'z',
+        Shortcut::Ctrl | 'z',
         MenuFlag::Normal,
         s,
         Message::PrevData,
@@ -714,7 +716,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             Lang::English => "&Restore/Restore next data\t",
             Lang::Russian => "&Откат/Откатить изменения вперед\t",
         },
-        fltk::enums::Shortcut::Ctrl | fltk::enums::Shortcut::Shift | 'z',
+        Shortcut::Ctrl | Shortcut::Shift | 'z',
         MenuFlag::Normal,
         s,
         Message::NextData,
@@ -773,7 +775,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         lang,
                     );
 
-                    table.set_rows(max(50, (*reader_base).borrow().len() as u32));
+                    table.set_rows(max(50, (*reader_base).borrow().len() as i32));
                     table.redraw();
                 }
 
@@ -787,7 +789,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                         lang,
                     );
 
-                    table.set_rows(max(50, (*reader_base).borrow().len() as u32));
+                    table.set_rows(max(50, (*reader_base).borrow().len() as i32));
                     table.redraw();
                 }
 
@@ -1116,7 +1118,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }
 
                 Message::English => {
-                    if fltk::dialog::choice(
+                    if fltk::dialog::choice2(
                         500,
                         500,
                         match lang {
@@ -1132,14 +1134,14 @@ fn main() -> Result<(), Box<dyn Error>> {
                             Lang::Russian => "Отмена"
                         },
                         ""
-                    ) == 0 {
+                    ) == Some(0) {
                         Lang::change(Lang::English);
                         app.quit()
                     }
                 }
 
                 Message::Russian => {
-                    if fltk::dialog::choice(
+                    if fltk::dialog::choice2(
                         500,
                         500,
                         match lang {
@@ -1155,7 +1157,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                             Lang::Russian => "Отмена"
                         },
                         ""
-                    ) == 0 {
+                    ) == Some(0) {
                         Lang::change(Lang::Russian);
                         app.quit()
                     }

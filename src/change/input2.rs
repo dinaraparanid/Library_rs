@@ -1,4 +1,5 @@
 extern crate fltk;
+
 use crate::{change::Inputable, Lang};
 use fltk::{button::Button, dialog::alert, frame::Frame, prelude::*, window::SingleWindow};
 use std::{cell::RefCell, rc::Rc};
@@ -51,8 +52,8 @@ where
             );
         }
 
-        InputExt::set_value(&*(*self.input1).borrow(), "");
-        InputExt::set_value(&*(*self.input2).borrow(), "");
+        InputExt::set_value(&mut *(*self.input1).borrow_mut(), "");
+        InputExt::set_value(&mut *(*self.input2).borrow_mut(), "");
         Err(())
     }
 }
@@ -67,17 +68,23 @@ where
     #[inline]
     pub fn new(title: &str, what_mes1: &str, what_mes2: &str) -> Self {
         let win: Rc<RefCell<SingleWindow>> =
-            Rc::new(RefCell::new(WidgetBase::new(500, 500, 500, 200, title)));
+            Rc::new(RefCell::new(WidgetBase::new(500, 500, 500, 200, None)));
+        win.borrow_mut().set_label(title);
+
         let but: Rc<RefCell<Button>> =
-            Rc::new(RefCell::new(WidgetBase::new(410, 170, 75, 25, "OK")));
+            Rc::new(RefCell::new(WidgetBase::new(410, 170, 75, 25, Some("OK"))));
 
         let wat1: Rc<RefCell<Frame>> =
-            Rc::new(RefCell::new(WidgetBase::new(-20, 20, 200, 30, what_mes1)));
-        let inp1: Rc<RefCell<I>> = Rc::new(RefCell::new(WidgetBase::new(150, 20, 300, 30, "")));
+            Rc::new(RefCell::new(WidgetBase::new(-20, 20, 200, 30, None)));
+        wat1.borrow_mut().set_label(what_mes1);
+
+        let inp1: Rc<RefCell<I>> = Rc::new(RefCell::new(WidgetBase::new(150, 20, 300, 30, None)));
 
         let wat2: Rc<RefCell<Frame>> =
-            Rc::new(RefCell::new(WidgetBase::new(-20, 100, 200, 30, what_mes2)));
-        let inp2: Rc<RefCell<J>> = Rc::new(RefCell::new(WidgetBase::new(150, 100, 300, 30, "")));
+            Rc::new(RefCell::new(WidgetBase::new(-20, 100, 200, 30, None)));
+        wat2.borrow_mut().set_label(what_mes2);
+
+        let inp2: Rc<RefCell<J>> = Rc::new(RefCell::new(WidgetBase::new(150, 100, 300, 30, None)));
 
         WidgetExt::set_label_size(&mut *(*wat1).borrow_mut(), 12);
         WidgetExt::set_label_size(&mut *(*wat2).borrow_mut(), 12);
@@ -85,7 +92,7 @@ where
         InputExt::set_text_size(&mut *(inp2).borrow_mut(), 15);
         GroupExt::end(&*(*win).borrow());
 
-        Input2 {
+        Self {
             wind: win,
             ok: but,
             what1: wat1,

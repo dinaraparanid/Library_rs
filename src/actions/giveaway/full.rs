@@ -9,7 +9,7 @@ use crate::{
     Lang,
 };
 
-use fltk::{app::App, input::*};
+use fltk::{app::App, input::*, prelude::WidgetExt};
 
 /// Function that changes
 /// return date for the book
